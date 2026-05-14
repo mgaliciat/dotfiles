@@ -10,6 +10,7 @@ Personal config for macOS — Ghostty terminal, zsh, Starship prompt.
 | `zsh/.zshenv` | Env vars and PATH, loaded for all shells |
 | `starship/starship.toml` | Starship prompt config — Vesper palette |
 | `ghostty/config.ghostty` | Ghostty terminal config — Vesper theme + Monaspace |
+| `nvim/` | Neovim config (legacy from 2022 — not currently in use) |
 | `install.sh` | Symlinks everything into place |
 
 ## Setup on a new machine
