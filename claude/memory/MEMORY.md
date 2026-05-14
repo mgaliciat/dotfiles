@@ -1,1 +1,2 @@
 - [Ghostty config gotchas](feedback_ghostty_config.md) — no inline comments; `audible-bell` doesn't exist (use `bell-features`)
+- [Docker-only dev workflow](project_docker_workflow.md) — host-side version managers (mise/pyenv/nvm) have low ROI; runtimes live in Dockerfiles. Don't suggest uninstalling host node/npm — Claude Code is installed via npm globally.
