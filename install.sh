@@ -20,10 +20,19 @@ link() {
   echo "✓ $dst → $src"
 }
 
-link "$DOTFILES/zsh/.zshrc"            "$HOME/.zshrc"
-link "$DOTFILES/zsh/.zshenv"           "$HOME/.zshenv"
+link "$DOTFILES/zsh/.zshrc"             "$HOME/.zshrc"
+link "$DOTFILES/zsh/.zshenv"            "$HOME/.zshenv"
 link "$DOTFILES/starship/starship.toml" "$HOME/.config/starship.toml"
 link "$DOTFILES/ghostty/config.ghostty" "$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
+link "$DOTFILES/git/.gitconfig"         "$HOME/.gitconfig"
+link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
+link "$DOTFILES/claude/settings.json"   "$HOME/.claude/settings.json"
+link "$DOTFILES/claude/skills"          "$HOME/.claude/skills"
+link "$DOTFILES/claude/memory"          "$HOME/.claude/projects/-Users-$(whoami | tr '.' '-')/memory"
 
 echo ""
-echo "✅ Done. Don't forget to create ~/.zshenv.local with your secrets."
+echo "✅ Done. Next steps:"
+echo "   1. Create ~/.zshenv.local with your secrets."
+echo "   2. brew install starship zsh-syntax-highlighting zsh-autosuggestions"
+echo "      brew install eza bat fd ripgrep zoxide fzf git-delta"
+echo "      brew install --cask ghostty"

@@ -1,0 +1,31 @@
+# macOS noise
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+
+# Editor / IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Compiled / build
+*.pyc
+__pycache__/
+.pytest_cache/
+node_modules/
+.venv/
+venv/
+dist/
+build/
+
+# Env files (deben ir en .gitignore del repo individual también)
+.env
+.env.local
+.env.*.local
+
+# Logs / OS
+*.log
+.Trashes

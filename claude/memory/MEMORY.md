@@ -1,0 +1,1 @@
+- [Ghostty config gotchas](feedback_ghostty_config.md) — no inline comments; `audible-bell` doesn't exist (use `bell-features`)

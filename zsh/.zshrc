@@ -52,14 +52,36 @@ source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh 2>/dev/nu
 # Debe cargarse al final, después de todo lo demás.
 source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 2>/dev/null
 
+# ─── CLI tools modernos (reemplazos) ──────────────────────────
+# eza → ls (colores + git status + icons via --icons si tienes nerd font)
+alias ls='eza --group-directories-first'
+alias ll='eza -lah --git --group-directories-first'
+alias lt='eza --tree --level=2 --git-ignore'
+
+# bat → cat (syntax highlighting). 'cat' real disponible como \cat o $(which cat)
+alias cat='bat --paging=never --style=plain'
+alias catp='bat'                          # bat con paging y header completo
+export BAT_THEME="ansi"                   # respeta colores del terminal (Vesper)
+
+# fd → find (más rápido, sintaxis simple)
+alias find='fd'
+
+# ripgrep ya se invoca como 'rg' — no hace falta alias
+
+# zoxide → cd inteligente. Aprende qué dirs visitas y salta con 'z proyecto'.
+eval "$(zoxide init zsh --cmd cd)"        # reemplaza cd con z (mantiene comportamiento)
+
+# fzf → fuzzy finder. Habilita Ctrl+R (history), Ctrl+T (file picker), Alt+C (cd).
+source <(fzf --zsh) 2>/dev/null
+
 # ─── aliases personales ───────────────────────────────────────
-alias ll='ls -lah'
 alias g='git'
-alias gs='git status -sb'
-alias gd='git diff'
-alias gl='git log --oneline --graph --decorate -20'
+alias gs='git st'                         # usa alias 'st' del .gitconfig
+alias gd='git d'
+alias gl='git lg'
 alias ..='cd ..'
 alias ...='cd ../..'
+alias ....='cd ../../..'
 
 # ─── prompt: Starship ─────────────────────────────────────────
 # Debe ser lo último — initializa el prompt.

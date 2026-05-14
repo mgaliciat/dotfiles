@@ -10,6 +10,11 @@ Personal config for macOS — Ghostty terminal, zsh, Starship prompt.
 | `zsh/.zshenv` | Env vars and PATH, loaded for all shells |
 | `starship/starship.toml` | Starship prompt config — Vesper palette |
 | `ghostty/config.ghostty` | Ghostty terminal config — Vesper theme + Monaspace |
+| `git/.gitconfig` | Git config with delta pager + aliases |
+| `git/.gitignore_global` | Global gitignore (macOS noise, editor files, build dirs) |
+| `claude/settings.json` | Claude Code global settings |
+| `claude/skills/` | Custom Claude Code skills |
+| `claude/memory/` | Claude Code persistent memory (MEMORY.md + entries) |
 | `nvim/` | Neovim config (legacy from 2022 — not currently in use) |
 | `install.sh` | Symlinks everything into place |
 
@@ -25,6 +30,7 @@ Required packages:
 
 ```bash
 brew install starship zsh-syntax-highlighting zsh-autosuggestions
+brew install eza bat fd ripgrep zoxide fzf git-delta
 brew install --cask ghostty
 ```
 
