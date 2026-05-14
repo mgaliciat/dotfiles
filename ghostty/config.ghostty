@@ -1,0 +1,193 @@
+# ═══════════════════════════════════════════════════════════════
+#  Ghostty — Spec Driven Development
+#  Tema: Rosé Pine Moon · Tipografía: Monaspace
+#  Filosofía: pocos colores, mucho aire, italics legibles para markdown.
+#
+#  NOTA: Ghostty NO permite comentarios inline en la misma línea
+#  que un valor. Siempre van en una línea propia.
+# ═══════════════════════════════════════════════════════════════
+
+# ─── tema ─────────────────────────────────────────────────────
+theme = Vesper
+
+# Fondo sólido — sin alpha blending ni blur en cada frame.
+# Esto desbloquea 120fps en pantallas ProMotion (M-chips).
+# Si quieres recuperar transparencia: subir opacity a 0.92, dejar blur en 0.
+background-opacity = 1.0
+background-blur = 0
+
+# ─── tipografía ───────────────────────────────────────────────
+# Monaspace tiene 5 estilos diseñados para mezclarse entre sí.
+#   Neon  (neo-grotesque) → base, súper limpio para código
+#   Radon (handwritten)   → italics → markdown emphasis se ve precioso
+font-family             = Monaspace Neon
+font-family-italic      = Monaspace Radon
+font-family-bold-italic = Monaspace Radon
+font-size = 15
+
+# Texture healing + ligaduras estándar (la magia de Monaspace)
+font-feature = +calt
+font-feature = +liga
+
+font-thicken = true
+
+# Más aire vertical → leer specs largos cansa menos
+adjust-cell-height = 15%
+
+# ─── ventana ──────────────────────────────────────────────────
+# titlebar se funde con el fondo
+macos-titlebar-style = transparent
+
+# respira lateralmente
+window-padding-x = 18
+window-padding-y = 14
+
+# centra contenido al hacer reflow
+window-padding-balance = true
+
+# extend = el padding hereda el color de la celda adyacente al borde
+# (se ve más cohesivo al seleccionar texto cerca del margen).
+window-padding-color = extend
+
+# restaura sesión al reabrir Ghostty
+window-save-state = always
+
+# ─── cursor ───────────────────────────────────────────────────
+# Bar es más elegante que block y nunca tapa el char debajo.
+# Otras opciones: block, block_hollow, underline.
+cursor-style = bar
+
+# sin parpadeo = menos distracción
+cursor-style-blink = false
+
+# Color del cursor en ámbar Vesper — único acento del tema.
+cursor-color = #ffc799
+
+# ─── selección y copiado ──────────────────────────────────────
+# seleccionar ya copia (workflow rápido)
+copy-on-select = clipboard
+
+# ─── scrollback ───────────────────────────────────────────────
+# buffer grande para releer outputs largos
+scrollback-limit = 100000
+
+# ─── notificaciones ───────────────────────────────────────────
+# Silenciar campanas — en SDD las interrupciones rompen el flow.
+# bell-features controla todos los modos de la campana.
+bell-features = no-system,no-audio,no-attention,no-title,no-border
+
+# ─── mouse ────────────────────────────────────────────────────
+mouse-hide-while-typing = true
+
+# ─── quick terminal (drop-down estilo Quake) ──────────────────
+# ⌥` te abre un terminal flotante encima de cualquier app para
+# checar algo sin perder el contexto de tu ventana principal.
+quick-terminal-position = top
+quick-terminal-animation-duration = 0.15
+keybind = global:alt+grave_accent=toggle_quick_terminal
+
+# ─── splits ───────────────────────────────────────────────────
+# ⌘D abre split derecho y ⌘⇧D abre split abajo (defaults de Ghostty).
+# Navegación vim-style entre splits — clave cuando tienes
+# [spec | implementación | tests] lado a lado.
+keybind = cmd+alt+h=goto_split:left
+keybind = cmd+alt+j=goto_split:bottom
+keybind = cmd+alt+k=goto_split:top
+keybind = cmd+alt+l=goto_split:right
+keybind = cmd+shift+enter=toggle_split_zoom
+keybind = cmd+alt+equal=equalize_splits
+
+# Reset font-size — útil al hacer demos o screen-share de specs
+keybind = cmd+zero=reset_font_size
+
+# ═══════════════════════════════════════════════════════════════
+#  PAQUETE 1 — macOS essentials
+# ═══════════════════════════════════════════════════════════════
+
+# Option (⌥) funciona como Alt → keybinds de vim/zsh/emacs funcionan.
+# Sin esto, ⌥+letra inserta caracteres especiales (¶®øæ).
+macos-option-as-alt = true
+
+# Shell integration: activa cursor de stand-by con sudo,
+# inyecta path para apertura de archivos por click, etc.
+shell-integration-features = cursor,sudo,title,no-ssh-env,no-ssh-terminfo,path
+
+# ═══════════════════════════════════════════════════════════════
+#  PAQUETE 2 — Notificaciones de comandos largos
+# ═══════════════════════════════════════════════════════════════
+
+# Notifica vía macOS cuando un comando termina Y la ventana
+# está en otra app (no te molesta si ya estás viendo el terminal).
+notify-on-command-finish = unfocused
+
+# Solo notifica si tardó más de 10 segundos.
+notify-on-command-finish-after = 10s
+
+# Notificación nativa de macOS, sin sonido de bell.
+notify-on-command-finish-action = no-bell,notify
+
+# ═══════════════════════════════════════════════════════════════
+#  PAQUETE 3 — Polish visual
+# ═══════════════════════════════════════════════════════════════
+
+# Cursor invierte FG/BG en vez de tapar el caracter de abajo.
+cursor-invert-fg-bg = true
+
+# Splits sin foco se atenúan al 85% — ves al instante dónde tecleas.
+unfocused-split-opacity = 0.85
+
+# Muestra dimensiones (cols×rows) al redimensionar la ventana.
+resize-overlay = always
+resize-overlay-position = center
+
+# ═══════════════════════════════════════════════════════════════
+#  PAQUETE 4 — Keybinds productivos
+# ═══════════════════════════════════════════════════════════════
+
+# Limpia la pantalla (preserva scrollback).
+keybind = cmd+k=clear_screen
+
+# Abre el archivo de config con tu editor por default.
+keybind = cmd+comma=open_config
+
+# Recarga config sin reiniciar Ghostty.
+keybind = cmd+shift+r=reload_config
+
+# Copia la URL seleccionada en el buffer al clipboard.
+keybind = cmd+shift+u=copy_url_to_clipboard
+
+# Cambia el título de la pestaña actual (útil para organizar SDD).
+keybind = cmd+shift+i=prompt_surface_title
+
+# ═══════════════════════════════════════════════════════════════
+#  PAQUETE 5 — Dock icon coordinado con Vesper
+# ═══════════════════════════════════════════════════════════════
+
+# Activa personalización del ícono oficial.
+# Alternativas no custom: blueprint, chalkboard, microchip, glass,
+# holographic, paper, retro, xray (variantes oficiales hechas a mano).
+macos-icon = custom-style
+
+# Marco oscuro plastic combina con el tema Vesper.
+# Otras opciones: aluminum, beige, chrome.
+macos-icon-frame = plastic
+
+# Fantasma del ícono en ámbar Vesper.
+macos-icon-ghost-color = #ffc799
+
+# Pantalla del ícono — gradiente sutil del negro Vesper.
+macos-icon-screen-color = #101010,#1a1a1a
+
+# ═══════════════════════════════════════════════════════════════
+#  PAQUETE 6 — Fullscreen pro (macOS)
+# ═══════════════════════════════════════════════════════════════
+
+# Fullscreen non-native: sin la transición animada de macOS
+# (no manda Ghostty a otro "space"), mantiene la menubar visible.
+# Mucho mejor para focus mode rápido con ⌘↩.
+# Otras opciones: false (native), true (non-native sin menubar).
+macos-non-native-fullscreen = visible-menu
+
+# Si prefieres ocultar los semáforos (rojo/amarillo/verde) cuando
+# entres a fullscreen para una vista más limpia, descomenta:
+# macos-window-buttons = hidden

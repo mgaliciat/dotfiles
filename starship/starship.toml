@@ -1,0 +1,81 @@
+# ═══════════════════════════════════════════════════════════════
+#  Starship — Vesper palette
+#  Acentos: #ffc799 (amber), #99ffe4 (mint), #ff8080 (coral)
+#  Filosofía: dos líneas, info útil al vuelo, cero distracción.
+# ═══════════════════════════════════════════════════════════════
+
+add_newline = true
+command_timeout = 1000
+
+format = """
+$directory\
+$git_branch\
+$git_status\
+$python\
+$nodejs\
+$cmd_duration\
+$line_break\
+$character"""
+
+right_format = "$time"
+
+# ─── prompt char ──────────────────────────────────────────────
+[character]
+success_symbol = "[❯](#ffc799)"
+error_symbol = "[❯](#ff8080)"
+vimcmd_symbol = "[❮](#99ffe4)"
+
+# ─── directorio ───────────────────────────────────────────────
+[directory]
+style = "bold #ffc799"
+truncation_length = 3
+truncate_to_repo = true
+truncation_symbol = "…/"
+read_only = " ro"
+
+# ─── git ──────────────────────────────────────────────────────
+[git_branch]
+symbol = ""
+style = "#a0a0a0"
+format = "[on ](dimmed white)[$branch]($style) "
+
+[git_status]
+style = "#ff8080"
+format = "[$all_status$ahead_behind]($style)"
+conflicted = "✘ "
+ahead = "↑${count} "
+behind = "↓${count} "
+diverged = "⇕${ahead_count}/${behind_count} "
+modified = "● "
+staged = "+ "
+untracked = "? "
+stashed = "≡ "
+renamed = "» "
+deleted = "✘ "
+
+# ─── lenguajes ────────────────────────────────────────────────
+[python]
+symbol = "py "
+style = "#99ffe4"
+format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
+detect_extensions = ["py"]
+detect_files = ["pyproject.toml", "requirements.txt", ".python-version", "Pipfile"]
+
+[nodejs]
+symbol = "node "
+style = "#99ffe4"
+format = "[${symbol}(${version} )]($style)"
+detect_files = ["package.json", ".nvmrc"]
+
+# ─── cmd duration (solo si tardó >2s) ─────────────────────────
+[cmd_duration]
+min_time = 2000
+style = "bold #c0a36e"
+format = "took [$duration]($style) "
+
+# ─── reloj (esquina derecha) ──────────────────────────────────
+[time]
+disabled = false
+time_format = "%H:%M"
+style = "#666666"
+format = "[$time]($style)"
