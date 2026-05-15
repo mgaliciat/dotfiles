@@ -30,6 +30,21 @@ link "$DOTFILES/claude/settings.json"   "$HOME/.claude/settings.json"
 link "$DOTFILES/claude/skills"          "$HOME/.claude/skills"
 link "$DOTFILES/claude/memory"          "$HOME/.claude/projects/-Users-$(whoami | tr '.' '-')/memory"
 
+# macOS file associations — abrir config.ghostty en VS Code (no TextEdit).
+# .ghostty no tiene UTI registrada, así que macOS cae a TextEdit por default.
+# Idempotente: chequea si la entrada ya existe antes de agregarla.
+if [[ -d "/Applications/Visual Studio Code.app" ]]; then
+  if ! defaults read com.apple.LaunchServices/com.apple.launchservices.secure LSHandlers 2>/dev/null \
+       | grep -q 'LSHandlerContentTag = ghostty'; then
+    defaults write com.apple.LaunchServices/com.apple.launchservices.secure LSHandlers -array-add \
+      '{LSHandlerContentTag = "ghostty"; LSHandlerContentTagClass = "public.filename-extension"; LSHandlerRoleAll = "com.microsoft.vscode";}'
+    /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \
+      -r -domain local -domain system -domain user >/dev/null
+    killall lsd 2>/dev/null || true
+    echo "✓ VS Code registered as default app for .ghostty files"
+  fi
+fi
+
 echo ""
 echo "✅ Done. Next steps:"
 echo "   1. Create ~/.zshenv.local with your secrets."

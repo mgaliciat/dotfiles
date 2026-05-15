@@ -34,6 +34,10 @@ brew install eza bat fd ripgrep zoxide fzf git-delta
 brew install --cask ghostty
 ```
 
+## macOS tweaks
+
+`install.sh` también registra **VS Code** como app por defecto para archivos `.ghostty` (sin esto, `⌘,` dentro de Ghostty abre `config.ghostty` en TextEdit porque la extensión no tiene UTI registrada en macOS). Se hace vía `defaults write` sobre `com.apple.LaunchServices` y un rebuild de la DB. Idempotente.
+
 ## Secrets
 
 Secrets (DB passwords, API keys) live in `~/.zshenv.local` which is **not versioned**. Create it manually on each machine:
