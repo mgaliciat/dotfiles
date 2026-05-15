@@ -14,7 +14,6 @@ Personal config for macOS — Ghostty terminal, zsh, Starship prompt.
 | `git/.gitignore_global` | Global gitignore (macOS noise, editor files, build dirs) |
 | `claude/settings.json` | Claude Code global settings |
 | `claude/skills/` | Custom Claude Code skills |
-| `claude/memory/` | Claude Code persistent memory (MEMORY.md + entries) |
 | `nvim/` | Neovim config (legacy from 2022 — not currently in use) |
 | `install.sh` | Symlinks everything into place |
 

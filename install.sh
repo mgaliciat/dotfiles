@@ -28,7 +28,12 @@ link "$DOTFILES/git/.gitconfig"         "$HOME/.gitconfig"
 link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
 link "$DOTFILES/claude/settings.json"   "$HOME/.claude/settings.json"
 link "$DOTFILES/claude/skills"          "$HOME/.claude/skills"
-link "$DOTFILES/claude/memory"          "$HOME/.claude/projects/-Users-$(whoami | tr '.' '-')/memory"
+
+# Las memorias de Claude no se versionan (contenido personal). Si existen
+# localmente, se symlinkean igual para mantener el workflow.
+if [[ -d "$DOTFILES/claude/memory" ]]; then
+  link "$DOTFILES/claude/memory"        "$HOME/.claude/projects/-Users-$(whoami | tr '.' '-')/memory"
+fi
 
 # macOS file associations — abrir config.ghostty en VS Code (no TextEdit).
 # .ghostty no tiene UTI registrada, así que macOS cae a TextEdit por default.

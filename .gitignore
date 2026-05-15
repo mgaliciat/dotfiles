@@ -4,3 +4,6 @@
 .zsh_history
 .zcompdump*
 *.backup.*
+
+# Claude memorias — contenido personal/contextual, no se versiona
+claude/memory/
