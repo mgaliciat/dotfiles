@@ -44,6 +44,14 @@ background-blur = 0
 # M-chip / Retina. Sin downside fuera de equipos no-P3.
 window-colorspace = display-p3
 
+# ─── shader CRT sutil ─────────────────────────────────────────
+# Path con ~ porque Ghostty resuelve rutas relativas desde la
+# ubicación del symlink del config (Library/...), no desde el target.
+# Para apagarlo: comentar la línea.
+# Tweakear constants dentro del .glsl para ajustar intensidad.
+# Costo en M-chip: despreciable.
+custom-shader = ~/dotfiles/ghostty/shaders/anthropic-crt.glsl
+
 # ─── tipografía ───────────────────────────────────────────────
 # Ioskeley Mono Term — Iosevka build que imita Berkeley Mono (OFL, gratis).
 # https://github.com/ahatem/IoskeleyMono
