@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════
-#  Starship — Vesper palette
-#  Acentos: #ffc799 (amber), #99ffe4 (mint), #ff8080 (coral)
+#  Starship — Anthropic Warm palette
+#  Acentos: #d97757 (Claude orange), #87a96b (oliva), #c8553d (terracota)
 #  Filosofía: dos líneas, info útil al vuelo, cero distracción.
 # ═══════════════════════════════════════════════════════════════
 
@@ -21,13 +21,13 @@ right_format = "$time"
 
 # ─── prompt char ──────────────────────────────────────────────
 [character]
-success_symbol = "[❯](#ffc799)"
-error_symbol = "[❯](#ff8080)"
-vimcmd_symbol = "[❮](#99ffe4)"
+success_symbol = "[❯](#d97757)"
+error_symbol = "[❯](#c8553d)"
+vimcmd_symbol = "[❮](#87a96b)"
 
 # ─── directorio ───────────────────────────────────────────────
 [directory]
-style = "bold #ffc799"
+style = "bold #d97757"
 truncation_length = 3
 truncate_to_repo = true
 truncation_symbol = "…/"
@@ -36,11 +36,11 @@ read_only = " ro"
 # ─── git ──────────────────────────────────────────────────────
 [git_branch]
 symbol = ""
-style = "#a0a0a0"
-format = "[on ](dimmed white)[$branch]($style) "
+style = "#b08968"
+format = "[on ](dimmed #b08968)[$branch]($style) "
 
 [git_status]
-style = "#ff8080"
+style = "#c8553d"
 format = "[$all_status$ahead_behind]($style)"
 conflicted = "✘ "
 ahead = "↑${count} "
@@ -56,26 +56,26 @@ deleted = "✘ "
 # ─── lenguajes ────────────────────────────────────────────────
 [python]
 symbol = "py "
-style = "#99ffe4"
+style = "#87a96b"
 format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
 detect_extensions = ["py"]
 detect_files = ["pyproject.toml", "requirements.txt", ".python-version", "Pipfile"]
 
 [nodejs]
 symbol = "node "
-style = "#99ffe4"
+style = "#8aa9a1"
 format = "[${symbol}(${version} )]($style)"
 detect_files = ["package.json", ".nvmrc"]
 
 # ─── cmd duration (solo si tardó >2s) ─────────────────────────
 [cmd_duration]
 min_time = 2000
-style = "bold #c0a36e"
+style = "bold #d9a441"
 format = "took [$duration]($style) "
 
 # ─── reloj (esquina derecha) ──────────────────────────────────
 [time]
 disabled = false
 time_format = "%H:%M"
-style = "#666666"
+style = "#4a3f33"
 format = "[$time]($style)"

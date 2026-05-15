@@ -1,29 +1,63 @@
 # ═══════════════════════════════════════════════════════════════
-#  Ghostty — Spec Driven Development
-#  Tema: Rosé Pine Moon · Tipografía: Monaspace
-#  Filosofía: pocos colores, mucho aire, italics legibles para markdown.
+#  Ghostty — Claude Code edition
+#  Tema: Anthropic Warm Dark · Tipografía: Berkeley Mono (fallback Monaspace)
+#  Filosofía: cálido, aireado, acentos sepia/naranja que matchean Claude.
 #
 #  NOTA: Ghostty NO permite comentarios inline en la misma línea
 #  que un valor. Siempre van en una línea propia.
 # ═══════════════════════════════════════════════════════════════
 
-# ─── tema ─────────────────────────────────────────────────────
-theme = Vesper
+# ─── tema: Anthropic Warm Dark (inline para portabilidad) ─────
+# Inlineado en vez de `theme = path/anthropic-warm` para que el config
+# sea self-contained y funcione en cualquier Mac sin extras.
+# Para volver a Vesper: comentar todo este bloque y poner `theme = Vesper`.
+background           = 1a1814
+foreground           = e8dcc4
+cursor-color         = d97757
+cursor-text          = 1a1814
+selection-background = 3a2e1f
+selection-foreground = f5ead0
 
-# Fondo sólido — sin alpha blending ni blur en cada frame.
-# Esto desbloquea 120fps en pantallas ProMotion (M-chips).
-# Si quieres recuperar transparencia: subir opacity a 0.92, dejar blur en 0.
-background-opacity = 1.0
+palette = 0=#1a1814
+palette = 1=#c8553d
+palette = 2=#87a96b
+palette = 3=#d9a441
+palette = 4=#6b8e9e
+palette = 5=#b08968
+palette = 6=#8aa9a1
+palette = 7=#c4b8a0
+palette = 8=#4a3f33
+palette = 9=#e07856
+palette = 10=#a3c485
+palette = 11=#e8c068
+palette = 12=#8aabbc
+palette = 13=#d97757
+palette = 14=#a5c4bc
+palette = 15=#f5ead0
+
+# Opacity (0.88) — transparencia notoria pero el texto sigue legible.
+# Subir a 1.0 para recuperar 120fps en ProMotion, 0.95 para sutil.
+background-opacity = 0.88
 background-blur = 0
 
+# Display P3 wide-gamut — naranja y crema saturan más en pantallas
+# M-chip / Retina. Sin downside fuera de equipos no-P3.
+window-colorspace = display-p3
+
 # ─── tipografía ───────────────────────────────────────────────
-# Monaspace tiene 5 estilos diseñados para mezclarse entre sí.
-#   Neon  (neo-grotesque) → base, súper limpio para código
-#   Radon (handwritten)   → italics → markdown emphasis se ve precioso
+# Ioskeley Mono Term — Iosevka build que imita Berkeley Mono (OFL, gratis).
+# https://github.com/ahatem/IoskeleyMono
+# Variante "Term" para evitar glitches de box-drawing en Ghostty, con Nerd
+# Font incluido para íconos de starship/devicons.
+# Fallback a Monaspace Neon por si se desinstala la familia primaria.
+font-family             = IoskeleyMonoTerm Nerd Font
 font-family             = Monaspace Neon
+font-size = 15
+
+# Italics de Monaspace Radon (handwritten) para markdown emphasis bonito.
+# Comenta estas dos líneas si prefieres consistencia total con Ioskeley.
 font-family-italic      = Monaspace Radon
 font-family-bold-italic = Monaspace Radon
-font-size = 15
 
 # Texture healing + ligaduras estándar (la magia de Monaspace)
 font-feature = +calt
@@ -31,16 +65,19 @@ font-feature = +liga
 
 font-thicken = true
 
-# Más aire vertical → leer specs largos cansa menos
-adjust-cell-height = 15%
+# Interlineado compacto — un toque sobre el default para que las
+# tildes/descenders no se peguen, sin desperdiciar verticales.
+# Subir a 10-15% si querés más aire, bajar a 0% para nativo de Iosevka.
+adjust-cell-height = 3%
 
 # ─── ventana ──────────────────────────────────────────────────
 # titlebar se funde con el fondo
 macos-titlebar-style = transparent
 
-# respira lateralmente
-window-padding-x = 18
-window-padding-y = 14
+# respira lateralmente — padding generoso para que el output denso
+# de Claude Code (tool calls, diffs, árboles) no se sienta apretado.
+window-padding-x = 22
+window-padding-y = 18
 
 # centra contenido al hacer reflow
 window-padding-balance = true
@@ -53,15 +90,15 @@ window-padding-color = extend
 window-save-state = always
 
 # ─── cursor ───────────────────────────────────────────────────
-# Bar es más elegante que block y nunca tapa el char debajo.
-# Otras opciones: block, block_hollow, underline.
-cursor-style = bar
+# Block en Claude orange — look "terminal classic" con carácter.
+# Combinado con cursor-invert-fg-bg el char debajo nunca se pierde.
+# Otras opciones: bar, block_hollow, underline.
+cursor-style = block
 
 # sin parpadeo = menos distracción
 cursor-style-blink = false
 
-# Color del cursor en ámbar Vesper — único acento del tema.
-cursor-color = #ffc799
+# cursor-color ya se define arriba en el bloque de tema.
 
 # ─── selección y copiado ──────────────────────────────────────
 # seleccionar ya copia (workflow rápido)
@@ -168,15 +205,15 @@ keybind = cmd+shift+i=prompt_surface_title
 # holographic, paper, retro, xray (variantes oficiales hechas a mano).
 macos-icon = custom-style
 
-# Marco oscuro plastic combina con el tema Vesper.
+# Marco oscuro plastic combina con el tema Anthropic Warm.
 # Otras opciones: aluminum, beige, chrome.
 macos-icon-frame = plastic
 
-# Fantasma del ícono en ámbar Vesper.
-macos-icon-ghost-color = #ffc799
+# Fantasma del ícono en Claude orange.
+macos-icon-ghost-color = #d97757
 
-# Pantalla del ícono — gradiente sutil del negro Vesper.
-macos-icon-screen-color = #101010,#1a1a1a
+# Pantalla del ícono — gradiente sutil del negro cálido.
+macos-icon-screen-color = #14110d,#1a1814
 
 # ═══════════════════════════════════════════════════════════════
 #  PAQUETE 6 — Fullscreen pro (macOS)
