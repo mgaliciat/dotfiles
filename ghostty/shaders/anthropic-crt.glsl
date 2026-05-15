@@ -34,8 +34,8 @@ const float BLOOM_AMOUNT       = 0.40;
 const float BLOOM_RADIUS       = 2.5;
 const vec3  BLOOM_TINT         = vec3(1.08, 0.92, 0.72);
 
-// vignette pesado (esquinas oscuras)
-const float VIGNETTE_AMOUNT    = 0.55;
+// vignette pesado (esquinas oscuras) — 0.0 = desactivado
+const float VIGNETTE_AMOUNT    = 0.0;
 
 // grano de fósforo
 const float NOISE_AMOUNT       = 0.020;
