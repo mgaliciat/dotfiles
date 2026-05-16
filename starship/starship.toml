@@ -1,6 +1,16 @@
 # ═══════════════════════════════════════════════════════════════
-#  Starship — Anthropic Warm palette
-#  Acentos: #d97757 (Claude orange), #87a96b (oliva), #c8553d (terracota)
+#  Starship — theme-portable via colores ANSI
+#  Los styles usan nombres (red, cyan, bright-black…) en vez de hex,
+#  así el prompt se adapta automáticamente al theme activo de Ghostty.
+#  Mapeo del slot → palette[N] del theme:
+#    bright-black (8) = tono "muted" para brackets/separadores
+#    blue (4)         = identidad (user/host)
+#    bright-blue (12) = directorio (acento principal)
+#    yellow (3)       = git branch
+#    red (1)          = git status / errores
+#    green (2)        = python / OK prompt
+#    cyan (6)         = nodejs
+#    bright-yellow    = cmd duration (warning)
 #  Filosofía: dos líneas, info útil al vuelo, cero distracción.
 # ═══════════════════════════════════════════════════════════════
 
@@ -8,7 +18,7 @@ add_newline = true
 command_timeout = 1000
 
 format = """
-[\\[](#5c4a3a)$username[@](#5c4a3a)$hostname[ ](#5c4a3a)$directory[\\] ](#5c4a3a)\
+[\\[](bright-black)$username[@](bright-black)$hostname[ ](bright-black)$directory[\\] ](bright-black)\
 $git_branch\
 $git_status\
 $python\
@@ -22,31 +32,31 @@ right_format = "$time"
 
 # ─── prompt char ──────────────────────────────────────────────
 [character]
-success_symbol = "[\\$](#d97757)"
-error_symbol = "[\\$](#c8553d)"
-vimcmd_symbol = "[:](#87a96b)"
+success_symbol = "[\\$](green)"
+error_symbol = "[\\$](red)"
+vimcmd_symbol = "[:](cyan)"
 
 # ─── exit status (en su propia línea si != 0) ─────────────────
 [status]
 disabled = false
-format = "[\\[exit $status\\]](#c8553d)\n"
+format = "[\\[exit $status\\]](red)\n"
 
 # ─── user / host ──────────────────────────────────────────────
 [username]
 show_always = true
-style_user = "#b08968"
-style_root = "bold #c8553d"
+style_user = "blue"
+style_root = "bold red"
 format = "[$user]($style)"
 
 [hostname]
 ssh_only = false
 trim_at = "."
-style = "#b08968"
+style = "blue"
 format = "[$hostname]($style)"
 
 # ─── directorio ───────────────────────────────────────────────
 [directory]
-style = "bold #d97757"
+style = "bold bright-blue"
 truncation_length = 3
 truncate_to_repo = true
 truncation_symbol = "…/"
@@ -55,11 +65,11 @@ read_only = " ro"
 # ─── git ──────────────────────────────────────────────────────
 [git_branch]
 symbol = ""
-style = "#b08968"
-format = '[\(](#5c4a3a)[$branch]($style)[\) ](#5c4a3a)'
+style = "yellow"
+format = '[\(](bright-black)[$branch]($style)[\) ](bright-black)'
 
 [git_status]
-style = "#c8553d"
+style = "red"
 format = "[$all_status$ahead_behind]($style)"
 conflicted = "✘ "
 ahead = "↑${count} "
@@ -75,26 +85,26 @@ deleted = "✘ "
 # ─── lenguajes ────────────────────────────────────────────────
 [python]
 symbol = "py "
-style = "#87a96b"
+style = "green"
 format = '[\[${symbol}${pyenv_prefix}(${version})(\($virtualenv\))\] ]($style)'
 detect_extensions = ["py"]
 detect_files = ["pyproject.toml", "requirements.txt", ".python-version", "Pipfile"]
 
 [nodejs]
 symbol = "node "
-style = "#8aa9a1"
+style = "cyan"
 format = '[\[${symbol}(${version})\] ]($style)'
 detect_files = ["package.json", ".nvmrc"]
 
 # ─── cmd duration (solo si tardó >2s) ─────────────────────────
 [cmd_duration]
 min_time = 2000
-style = "bold #d9a441"
+style = "bold bright-yellow"
 format = '[\[$duration\] ]($style)'
 
 # ─── reloj (esquina derecha) ──────────────────────────────────
 [time]
 disabled = false
 time_format = "%H:%M"
-style = "#8a7968"
+style = "bright-black"
 format = "[$time]($style)"
