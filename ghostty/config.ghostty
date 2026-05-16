@@ -19,11 +19,6 @@
 # Built-ins de Ghostty también funcionan: `theme = Vesper`, etc.
 theme = blueprint-engineering
 
-# Opacity (0.88) — transparencia notoria pero el texto sigue legible.
-# Subir a 1.0 para recuperar 120fps en ProMotion, 0.95 para sutil.
-background-opacity = 0.88
-background-blur = 0
-
 # Display P3 wide-gamut — naranja y crema saturan más en pantallas
 # M-chip / Retina. Sin downside fuera de equipos no-P3.
 window-colorspace = display-p3
