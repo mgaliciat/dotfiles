@@ -27,6 +27,22 @@
 // 0.08+ = pecera dramática (cansa leyendo)
 const vec2  CURVATURE          = vec2(0.0, 0.0);
 
+// scanlines horizontales — la firma del CRT. Valores recomendados:
+//   0.00 = sin scanlines
+//   0.08 = apenas perceptible, no afecta lectura (sweet spot)
+//   0.15 = visible pero suave (look retro presente)
+//   0.28 = pesado tipo TV vintage (el del anthropic-crt clásico)
+const float SCANLINE_OPACITY   = 0.18;
+const float SCANLINE_THICKNESS = 1.0;
+
+// aperture grille — bandas verticales R/G/B estilo Trinitron.
+// Combinada con scanlines da la textura "fósforo CRT" visible que
+// las scanlines solas pierden en Retina. Valores:
+//   0.00 = desactivada
+//   0.08 = sutil pero presente (sweet spot minimal)
+//   0.15 = pesada tipo monitor de juegos
+const float MASK_OPACITY       = 0.10;
+
 // phosphor bloom — halo cálido sutil alrededor de pixels brillantes.
 // El threshold alto (smoothstep 0.5→0.95) asegura que solo el texto
 // brillante glow-ee, no el fondo. 0.18 es perceptible pero no fuzzy.
@@ -86,6 +102,23 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     bloom /= 8.0;
     bloom *= smoothstep(0.50, 0.95, max(max(bloom.r, bloom.g), bloom.b));
     color += bloom * BLOOM_AMOUNT * BLOOM_TINT;
+
+    // ─── scanlines horizontales ─────────────────────────────
+    // Patrón sinusoidal estático (sin roll) por fila de pixel.
+    // Multiplicativo — preserva el color, solo modula el brillo.
+    float scan = sin(fragCoord.y * 3.14159 / SCANLINE_THICKNESS) * 0.5 + 0.5;
+    color *= 1.0 - scan * SCANLINE_OPACITY;
+
+    // ─── aperture grille (RGB stripes verticales) ───────────
+    // Cada columna de pixels favorece un canal (R, G o B) — los
+    // otros dos se atenúan por MASK_OPACITY. Crea el patrón
+    // "fósforo Trinitron" visible que las scanlines solas pierden.
+    float sub = mod(fragCoord.x, 3.0);
+    vec3  mask;
+    if      (sub < 1.0) mask = vec3(1.0, 1.0 - MASK_OPACITY, 1.0 - MASK_OPACITY);
+    else if (sub < 2.0) mask = vec3(1.0 - MASK_OPACITY, 1.0, 1.0 - MASK_OPACITY);
+    else                mask = vec3(1.0 - MASK_OPACITY, 1.0 - MASK_OPACITY, 1.0);
+    color *= mask;
 
     // ─── grain de fondo ─────────────────────────────────────
     // Sin iTime → estático en lugar de animado (cero distracción).
