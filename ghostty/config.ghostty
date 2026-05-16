@@ -15,8 +15,9 @@
 # Disponibles actualmente:
 #   - anthropic-warm        (sepia/naranja, look cálido Claude Code)
 #   - blueprint-engineering (navy + tinta cyan, matchea el dock icon)
+#   - tokyo-night           (azul-negro + acentos neon, cyberpunk-lite)
 # Built-ins de Ghostty también funcionan: `theme = Vesper`, etc.
-theme = blueprint-engineering
+theme = tokyo-night
 
 # Opacity (0.88) — transparencia notoria pero el texto sigue legible.
 # Subir a 1.0 para recuperar 120fps en ProMotion, 0.95 para sutil.
@@ -33,7 +34,7 @@ window-colorspace = display-p3
 # Para apagarlo: comentar la línea.
 # Tweakear constants dentro del .glsl para ajustar intensidad.
 # Costo en M-chip: despreciable.
-custom-shader = ~/dotfiles/ghostty/shaders/anthropic-crt.glsl
+custom-shader = ~/dotfiles/ghostty/shaders/anthropic-minimal.glsl
 
 # ─── tipografía ───────────────────────────────────────────────
 # Ioskeley Mono Term — Iosevka build que imita Berkeley Mono (OFL, gratis).
