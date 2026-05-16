@@ -7,6 +7,13 @@ set -euo pipefail
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TS="$(date +%Y%m%d_%H%M%S)"
 
+# Captura identidad git existente ANTES de symlinkear ~/.gitconfig.
+# Así si la máquina ya tenía nombre/email configurado (ej. Mac de trabajo)
+# lo preservamos en ~/.gitconfig.local sin preguntar al usuario.
+EXISTING_GIT_NAME="$(git config --global user.name 2>/dev/null || true)"
+EXISTING_GIT_EMAIL="$(git config --global user.email 2>/dev/null || true)"
+EXISTING_GIT_SIGNING="$(git config --global user.signingkey 2>/dev/null || true)"
+
 link() {
   local src="$1" dst="$2"
   if [[ -L "$dst" ]]; then
@@ -40,13 +47,23 @@ fi
 # ─── identidad git por-máquina ────────────────────────────────
 # git/.gitconfig hace [include] de ~/.gitconfig.local — la identidad
 # (name/email/signingkey) vive ahí, no en el repo público.
-# Si no existe, prompt interactivo. Idempotente.
+#
+# Si .local no existe pero la máquina ya tenía identidad git configurada
+# (capturada arriba antes del symlink), la heredamos sin preguntar.
+# Si tampoco había identidad previa, prompt interactivo.
 if [[ ! -f "$HOME/.gitconfig.local" ]]; then
-  echo ""
-  echo "Configurando ~/.gitconfig.local (identidad git por-máquina, no versionada)..."
-  read -rp "  Git user.name: " git_name
-  read -rp "  Git user.email: " git_email
-  read -rp "  SSH signing key public (vacío para skip signing): " git_signing
+  if [[ -n "$EXISTING_GIT_NAME" && -n "$EXISTING_GIT_EMAIL" ]]; then
+    git_name="$EXISTING_GIT_NAME"
+    git_email="$EXISTING_GIT_EMAIL"
+    git_signing="$EXISTING_GIT_SIGNING"
+    echo "✓ Identidad git existente preservada en ~/.gitconfig.local ($git_email)"
+  else
+    echo ""
+    echo "Configurando ~/.gitconfig.local (identidad git por-máquina, no versionada)..."
+    read -rp "  Git user.name: " git_name
+    read -rp "  Git user.email: " git_email
+    read -rp "  SSH signing key public (vacío para skip signing): " git_signing
+  fi
   {
     echo "; ~/.gitconfig.local — identidad por-máquina (no versionado)"
     echo ""
@@ -64,7 +81,6 @@ if [[ ! -f "$HOME/.gitconfig.local" ]]; then
       echo "	gpgsign = true"
     fi
   } > "$HOME/.gitconfig.local"
-  echo "✓ ~/.gitconfig.local creado"
 fi
 
 # macOS file associations — abrir config.ghostty en VS Code (no TextEdit).
