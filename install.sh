@@ -23,7 +23,15 @@ link() {
 link "$DOTFILES/zsh/.zshrc"             "$HOME/.zshrc"
 link "$DOTFILES/zsh/.zshenv"            "$HOME/.zshenv"
 link "$DOTFILES/starship/starship.toml" "$HOME/.config/starship.toml"
-link "$DOTFILES/ghostty/config.ghostty" "$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
+# Stale `config` (sin extensión) huérfano gana sobre nuestro symlink y
+# carga su contenido inline ignorando el theme del dotfiles. Backup
+# defensivo antes de linkear config.ghostty.
+GHOSTTY_DIR="$HOME/Library/Application Support/com.mitchellh.ghostty"
+if [[ -f "$GHOSTTY_DIR/config" && ! -L "$GHOSTTY_DIR/config" ]]; then
+  mv "$GHOSTTY_DIR/config" "$GHOSTTY_DIR/config.backup.$TS"
+  echo "→ stale ghostty config movido a config.backup.$TS"
+fi
+link "$DOTFILES/ghostty/config.ghostty" "$GHOSTTY_DIR/config.ghostty"
 # Themes viven en ~/.config/ghostty/themes/ (NO en Application Support/themes).
 # Ghostty solo busca themes en ~/.config/ghostty/themes/ y en el bundle de la app.
 link "$DOTFILES/ghostty/themes"         "$HOME/.config/ghostty/themes"
