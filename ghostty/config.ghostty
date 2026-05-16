@@ -208,20 +208,17 @@ keybind = cmd+shift+i=prompt_surface_title
 #  PAQUETE 5 — Dock icon coordinado con Vesper
 # ═══════════════════════════════════════════════════════════════
 
-# Activa personalización del ícono oficial.
-# Alternativas no custom: blueprint, chalkboard, microchip, glass,
-# holographic, paper, retro, xray (variantes oficiales hechas a mano).
-macos-icon = custom-style
+# Variantes oficiales (mutuamente excluyentes con custom-style):
+# official, blueprint, chalkboard, microchip, glass, holographic,
+# paper, retro, xray. `retro` pega con la estética 80s del CRT shader.
+# Para volver al fantasma personalizado: cambiar a `custom-style` y
+# descomentar el bloque de abajo.
+macos-icon = blueprint
 
-# Marco oscuro plastic combina con el tema Anthropic Warm.
-# Otras opciones: aluminum, beige, chrome.
-macos-icon-frame = plastic
-
-# Fantasma del ícono en Claude orange.
-macos-icon-ghost-color = #d97757
-
-# Pantalla del ícono — gradiente sutil del negro cálido.
-macos-icon-screen-color = #14110d,#1a1814
+# Bloque custom (sólo aplica si macos-icon = custom-style):
+# macos-icon-frame = plastic              # aluminum, beige, chrome, plastic
+# macos-icon-ghost-color = #d97757        # Claude orange
+# macos-icon-screen-color = #14110d,#1a1814  # gradiente warm dark
 
 # ═══════════════════════════════════════════════════════════════
 #  PAQUETE 6 — Fullscreen pro (macOS)
