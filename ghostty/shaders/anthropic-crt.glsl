@@ -18,16 +18,17 @@
 const vec2  CURVATURE          = vec2(0.06, 0.08);
 
 // scanlines horizontales
-const float SCANLINE_OPACITY   = 0.28;
+const float SCANLINE_OPACITY   = 0.15;
 const float SCANLINE_THICKNESS = 1.0;
 const float ROLL_SPEED         = 0.04;
 
 // aperture grille (phosphor stripes RGB verticales, estilo Trinitron)
-const float MASK_OPACITY       = 0.18;
+const float MASK_OPACITY       = 0.10;
 
 // aberración cromática — medida en PIXELES (no en UV) para que
-// no escale absurdamente en pantallas Retina. ~0.6 = sutil pero visible.
-const float CHROMATIC_PIXELS   = 0.6;
+// no escale absurdamente en pantallas Retina. ~0.3 = bordes nítidos
+// con halo RGB apenas perceptible.
+const float CHROMATIC_PIXELS   = 0.3;
 
 // phosphor bloom (halo cálido alrededor del texto)
 const float BLOOM_AMOUNT       = 0.40;
