@@ -1,39 +1,22 @@
 # ═══════════════════════════════════════════════════════════════
 #  Ghostty — Claude Code edition
-#  Tema: Anthropic Warm Dark · Tipografía: Berkeley Mono (fallback Monaspace)
-#  Filosofía: cálido, aireado, acentos sepia/naranja que matchean Claude.
+#  Tema activo: ver línea `theme =` abajo · Tipografía: Berkeley Mono
+#  (fallback Monaspace). Paletas viven en ghostty/themes/.
 #
 #  NOTA: Ghostty NO permite comentarios inline en la misma línea
 #  que un valor. Siempre van en una línea propia.
 # ═══════════════════════════════════════════════════════════════
 
-# ─── tema: Anthropic Warm Dark (inline para portabilidad) ─────
-# Inlineado en vez de `theme = path/anthropic-warm` para que el config
-# sea self-contained y funcione en cualquier Mac sin extras.
-# Para volver a Vesper: comentar todo este bloque y poner `theme = Vesper`.
-background           = 1a1814
-foreground           = e8dcc4
-cursor-color         = d97757
-cursor-text          = 1a1814
-selection-background = 3a2e1f
-selection-foreground = f5ead0
-
-palette = 0=#1a1814
-palette = 1=#c8553d
-palette = 2=#87a96b
-palette = 3=#d9a441
-palette = 4=#6b8e9e
-palette = 5=#b08968
-palette = 6=#8aa9a1
-palette = 7=#c4b8a0
-palette = 8=#4a3f33
-palette = 9=#e07856
-palette = 10=#a3c485
-palette = 11=#e8c068
-palette = 12=#8aabbc
-palette = 13=#d97757
-palette = 14=#a5c4bc
-palette = 15=#f5ead0
+# ─── tema ─────────────────────────────────────────────────────
+# Los temas viven en ghostty/themes/. install.sh symlinkea ese dir
+# en ~/.config/ghostty/themes/ — Ghostty SOLO busca ahí (no en
+# Application Support/themes, aunque el config viva allá).
+# Por eso `theme = nombre` sin path funciona.
+# Disponibles actualmente:
+#   - anthropic-warm        (sepia/naranja, look cálido Claude Code)
+#   - blueprint-engineering (navy + tinta cyan, matchea el dock icon)
+# Built-ins de Ghostty también funcionan: `theme = Vesper`, etc.
+theme = blueprint-engineering
 
 # Opacity (0.88) — transparencia notoria pero el texto sigue legible.
 # Subir a 1.0 para recuperar 120fps en ProMotion, 0.95 para sutil.
@@ -98,15 +81,14 @@ window-padding-color = extend
 window-save-state = always
 
 # ─── cursor ───────────────────────────────────────────────────
-# Block en Claude orange — look "terminal classic" con carácter.
-# Combinado con cursor-invert-fg-bg el char debajo nunca se pierde.
+# Block — look "terminal classic" con carácter. El color sale del
+# theme activo (ver ghostty/themes/<nombre>). Combinado con
+# cursor-invert-fg-bg el char debajo nunca se pierde.
 # Otras opciones: bar, block_hollow, underline.
 cursor-style = block
 
 # sin parpadeo = menos distracción
 cursor-style-blink = false
-
-# cursor-color ya se define arriba en el bloque de tema.
 
 # ─── selección y copiado ──────────────────────────────────────
 # seleccionar ya copia (workflow rápido)
