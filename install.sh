@@ -101,9 +101,63 @@ if [[ -d "/Applications/Visual Studio Code.app" ]]; then
   fi
 fi
 
+# ─── dependencias (Homebrew) ──────────────────────────────────
+# Auto-instala lo que falte. Idempotente: re-runs detectan instalados y skipean.
+# Si no hay brew, muestra cómo instalarlo y termina sin fallar el script.
+if command -v brew >/dev/null 2>&1; then
+  REQUIRED_FORMULAE=(
+    starship
+    zsh-syntax-highlighting
+    zsh-autosuggestions
+    zsh-history-substring-search
+    eza
+    bat
+    fd
+    ripgrep
+    zoxide
+    fzf
+    git-delta
+    pyenv
+  )
+  REQUIRED_CASKS=(
+    ghostty
+  )
+
+  MISSING_FORMULAE=()
+  for pkg in "${REQUIRED_FORMULAE[@]}"; do
+    brew list --formula "$pkg" >/dev/null 2>&1 || MISSING_FORMULAE+=("$pkg")
+  done
+
+  MISSING_CASKS=()
+  for pkg in "${REQUIRED_CASKS[@]}"; do
+    brew list --cask "$pkg" >/dev/null 2>&1 || MISSING_CASKS+=("$pkg")
+  done
+
+  if [[ ${#MISSING_FORMULAE[@]} -gt 0 ]]; then
+    echo ""
+    echo "→ Instalando formulae faltantes: ${MISSING_FORMULAE[*]}"
+    brew install "${MISSING_FORMULAE[@]}"
+  fi
+
+  if [[ ${#MISSING_CASKS[@]} -gt 0 ]]; then
+    echo ""
+    echo "→ Instalando casks faltantes: ${MISSING_CASKS[*]}"
+    brew install --cask "${MISSING_CASKS[@]}"
+  fi
+
+  if [[ ${#MISSING_FORMULAE[@]} -eq 0 && ${#MISSING_CASKS[@]} -eq 0 ]]; then
+    echo "✓ Todas las dependencias de Homebrew ya están instaladas"
+  fi
+else
+  echo ""
+  echo "⚠️  Homebrew no detectado — saltando auto-install de dependencias."
+  echo "   Para instalarlo:"
+  echo "     /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+  echo "   Después re-corré: ./install.sh"
+fi
+
 echo ""
 echo "✅ Done. Next steps:"
-echo "   1. Create ~/.zshenv.local with your secrets."
-echo "   2. brew install starship zsh-syntax-highlighting zsh-autosuggestions"
-echo "      brew install eza bat fd ripgrep zoxide fzf git-delta"
-echo "      brew install --cask ghostty"
+echo "   1. Si tu máquina tiene credenciales/env vars propias: crear ~/.zshenv.local"
+echo "   2. Si tu máquina tiene aliases/funciones propias: crear ~/.zshrc.local"
+echo "   3. Abrir un shell nuevo: exec zsh"

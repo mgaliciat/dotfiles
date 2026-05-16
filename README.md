@@ -17,19 +17,28 @@ Personal config for macOS — Ghostty terminal, zsh, Starship prompt.
 
 ## Setup on a new machine
 
+Pre-requisito: **Homebrew** instalado. Si no lo tenés:
+
 ```bash
-git clone git@github.com:mgaliciat/dotfiles.git ~/dotfiles
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Después:
+
+```bash
+git clone https://github.com/mgaliciat/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./install.sh
 ```
 
-Required packages:
+`install.sh` se encarga de:
 
-```bash
-brew install starship zsh-syntax-highlighting zsh-autosuggestions
-brew install eza bat fd ripgrep zoxide fzf git-delta
-brew install --cask ghostty
-```
+1. Symlinkear configs (`.zshrc`, `.zshenv`, `.gitconfig`, ghostty, starship, claude/skills, claude/memory si existen local)
+2. Heredar/crear `~/.gitconfig.local` con tu identidad git (interactivo solo si la máquina está virgen)
+3. Auto-instalar dependencias faltantes vía Homebrew:
+   - **Formulae**: `starship`, `zsh-syntax-highlighting`, `zsh-autosuggestions`, `zsh-history-substring-search`, `eza`, `bat`, `fd`, `ripgrep`, `zoxide`, `fzf`, `git-delta`, `pyenv`
+   - **Casks**: `ghostty`
+4. Registrar VS Code como app por defecto para `.ghostty` (si VS Code está instalado)
 
 ## macOS tweaks
 

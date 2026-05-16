@@ -81,14 +81,16 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 
 # ─── plugins (Homebrew, no Oh My Zsh) ─────────────────────────
-# Autosuggestions: sugerencias en gris según historial (acepta con →).
+# Orden estricto requerido por los plugins:
+#   1. autosuggestions       (gris en historial, → acepta)
+#   2. syntax-highlighting   (verde/rojo según comando válido)
+#   3. history-substring-search   (↑/↓ por substring — habilita los bindkeys de arriba)
+#
+# Si invertís el orden 2↔3, los matches de history-substring quedan
+# sin highlightear. Documentado en docs del plugin.
 source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh 2>/dev/null
-
-# Syntax highlighting: comandos válidos en verde, inválidos en rojo.
-# IMPORTANTE: debe ser el último source (excepto starship). Engancha widgets
-# a TODO lo que ya esté registrado — si se carga antes que zoxide/fzf, esos
-# widgets quedan sin highlightear.
 source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 2>/dev/null
+source /opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-search.zsh 2>/dev/null
 
 # ─── prompt: Starship ─────────────────────────────────────────
 eval "$(starship init zsh)"
