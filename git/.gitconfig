@@ -1,13 +1,14 @@
 ; ═══════════════════════════════════════════════════════════════
 ;  git config global — parte versionada (aliases, delta, defaults).
 ;
-;  Identidad (user.name/email/signingkey) y firma viven en
-;  ~/.gitconfig.local — generado por install.sh la primera vez,
-;  no versionado para no exponer info personal.
+;  La identidad y customizaciones por-máquina viven en
+;  ~/.gitconfig.local (no versionado). El [include] está al FINAL
+;  para que .local pueda sobrescribir cualquier setting del repo.
+;
+;  Override behavior:
+;    - keys single-value (user.email, init.defaultBranch): .local gana
+;    - keys multi-value (aliases): se suman (aditivo)
 ; ═══════════════════════════════════════════════════════════════
-
-[include]
-	path = ~/.gitconfig.local
 
 ; ─── defaults sensatos ───────────────────────────────────────
 [init]
@@ -95,3 +96,10 @@
 ; ─── trailers ────────────────────────────────────────────────
 [trailer "coauthored-by"]
 	key = Co-Authored-By
+
+; ─── overrides locales (no versionado) ────────────────────────
+; Lo último: ~/.gitconfig.local gana sobre todos los defaults de arriba.
+; Acá va identidad (user.*), signing (gpg.*, commit.gpgsign), credential
+; helpers, y cualquier customización per-máquina.
+[include]
+	path = ~/.gitconfig.local
