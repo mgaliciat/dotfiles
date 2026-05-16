@@ -24,6 +24,9 @@ link "$DOTFILES/zsh/.zshrc"             "$HOME/.zshrc"
 link "$DOTFILES/zsh/.zshenv"            "$HOME/.zshenv"
 link "$DOTFILES/starship/starship.toml" "$HOME/.config/starship.toml"
 link "$DOTFILES/ghostty/config.ghostty" "$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
+# Themes viven en ~/.config/ghostty/themes/ (NO en Application Support/themes).
+# Ghostty solo busca themes en ~/.config/ghostty/themes/ y en el bundle de la app.
+link "$DOTFILES/ghostty/themes"         "$HOME/.config/ghostty/themes"
 link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
 
 # ~/.gitconfig NO se symlinkea — cada máquina lo mantiene 100% propio
