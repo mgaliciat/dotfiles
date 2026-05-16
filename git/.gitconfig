@@ -1,19 +1,13 @@
 ; ═══════════════════════════════════════════════════════════════
-;  git config global — M. Galicia
+;  git config global — parte versionada (aliases, delta, defaults).
+;
+;  Identidad (user.name/email/signingkey) y firma viven en
+;  ~/.gitconfig.local — generado por install.sh la primera vez,
+;  no versionado para no exponer info personal.
 ; ═══════════════════════════════════════════════════════════════
 
-[user]
-	name = M. Galicia
-	email = 76408468+mgaliciat@users.noreply.github.com
-	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEce3In0vIrtj9MdoEq52eDQRrkVUuI1Imf8k5yIFSgb
-
-; ─── firma de commits con 1Password SSH agent ────────────────
-[gpg]
-	format = ssh
-[gpg "ssh"]
-	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign
-[commit]
-	gpgsign = true
+[include]
+	path = ~/.gitconfig.local
 
 ; ─── defaults sensatos ───────────────────────────────────────
 [init]

@@ -27,12 +27,44 @@ link "$DOTFILES/ghostty/config.ghostty" "$HOME/Library/Application Support/com.m
 link "$DOTFILES/git/.gitconfig"         "$HOME/.gitconfig"
 link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
 link "$DOTFILES/claude/settings.json"   "$HOME/.claude/settings.json"
-link "$DOTFILES/claude/skills"          "$HOME/.claude/skills"
 
-# Las memorias de Claude no se versionan (contenido personal). Si existen
-# localmente, se symlinkean igual para mantener el workflow.
+# Skills y memorias de Claude no se versionan (contenido personal/per-máquina).
+# Si existen localmente, se symlinkean igual para mantener el workflow.
+if [[ -d "$DOTFILES/claude/skills" ]]; then
+  link "$DOTFILES/claude/skills"        "$HOME/.claude/skills"
+fi
 if [[ -d "$DOTFILES/claude/memory" ]]; then
   link "$DOTFILES/claude/memory"        "$HOME/.claude/projects/-Users-$(whoami | tr '.' '-')/memory"
+fi
+
+# ─── identidad git por-máquina ────────────────────────────────
+# git/.gitconfig hace [include] de ~/.gitconfig.local — la identidad
+# (name/email/signingkey) vive ahí, no en el repo público.
+# Si no existe, prompt interactivo. Idempotente.
+if [[ ! -f "$HOME/.gitconfig.local" ]]; then
+  echo ""
+  echo "Configurando ~/.gitconfig.local (identidad git por-máquina, no versionada)..."
+  read -rp "  Git user.name: " git_name
+  read -rp "  Git user.email: " git_email
+  read -rp "  SSH signing key public (vacío para skip signing): " git_signing
+  {
+    echo "; ~/.gitconfig.local — identidad por-máquina (no versionado)"
+    echo ""
+    echo "[user]"
+    echo "	name = $git_name"
+    echo "	email = $git_email"
+    [[ -n "$git_signing" ]] && echo "	signingkey = $git_signing"
+    if [[ -n "$git_signing" && -x "/Applications/1Password.app/Contents/MacOS/op-ssh-sign" ]]; then
+      echo ""
+      echo "[gpg]"
+      echo "	format = ssh"
+      echo "[gpg \"ssh\"]"
+      echo "	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign"
+      echo "[commit]"
+      echo "	gpgsign = true"
+    fi
+  } > "$HOME/.gitconfig.local"
+  echo "✓ ~/.gitconfig.local creado"
 fi
 
 # macOS file associations — abrir config.ghostty en VS Code (no TextEdit).

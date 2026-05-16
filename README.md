@@ -13,7 +13,6 @@ Personal config for macOS — Ghostty terminal, zsh, Starship prompt.
 | `git/.gitconfig` | Git config with delta pager + aliases |
 | `git/.gitignore_global` | Global gitignore (macOS noise, editor files, build dirs) |
 | `claude/settings.json` | Claude Code global settings |
-| `claude/skills/` | Custom Claude Code skills |
 | `nvim/` | Neovim config (legacy from 2022 — not currently in use) |
 | `install.sh` | Symlinks everything into place |
 
@@ -37,9 +36,10 @@ brew install --cask ghostty
 
 `install.sh` también registra **VS Code** como app por defecto para archivos `.ghostty` (sin esto, `⌘,` dentro de Ghostty abre `config.ghostty` en TextEdit porque la extensión no tiene UTI registrada en macOS). Se hace vía `defaults write` sobre `com.apple.LaunchServices` y un rebuild de la DB. Idempotente.
 
-## Secrets
+## Per-machine config (not versioned)
 
-Secrets (DB passwords, API keys) live in `~/.zshenv.local` which is **not versioned**. Create it manually on each machine:
+- **`~/.gitconfig.local`** — git identity (`user.name`, `user.email`, signing key). `install.sh` te lo pregunta interactivamente la primera vez y lo crea. `git/.gitconfig` lo incluye automáticamente vía `[include]`.
+- **`~/.zshenv.local`** — secrets (DB passwords, API keys). Creado manualmente:
 
 ```sh
 # ~/.zshenv.local — never commit

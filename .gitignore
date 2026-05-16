@@ -5,5 +5,6 @@
 .zcompdump*
 *.backup.*
 
-# Claude memorias — contenido personal/contextual, no se versiona
+# Claude memorias y skills — contenido personal, no se versiona
 claude/memory/
+claude/skills/
