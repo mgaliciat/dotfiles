@@ -41,7 +41,7 @@ const float SCANLINE_THICKNESS = 1.0;
 //   0.00 = desactivada
 //   0.08 = sutil pero presente (sweet spot minimal)
 //   0.15 = pesada tipo monitor de juegos
-const float MASK_OPACITY       = 0.10;
+const float MASK_OPACITY       = 0.18;
 
 // phosphor bloom — halo cálido sutil alrededor de pixels brillantes.
 // El threshold alto (smoothstep 0.5→0.95) asegura que solo el texto
