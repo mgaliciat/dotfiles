@@ -10,7 +10,6 @@ Personal config for macOS — Ghostty terminal, zsh, Starship prompt.
 | `zsh/.zshenv` | Env vars and PATH, loaded for all shells |
 | `starship/starship.toml` | Starship prompt config — Vesper palette |
 | `ghostty/config.ghostty` | Ghostty terminal config — Vesper theme + Monaspace |
-| `git/.gitconfig` | Git config with delta pager + aliases |
 | `git/.gitignore_global` | Global gitignore (macOS noise, editor files, build dirs) |
 | `nvim/` | Neovim config (legacy from 2022 — not currently in use) |
 | `install.sh` | Symlinks everything into place |
@@ -33,12 +32,13 @@ cd ~/dotfiles
 
 `install.sh` se encarga de:
 
-1. Symlinkear configs (`.zshrc`, `.zshenv`, `.gitconfig`, ghostty, starship, claude/skills, claude/memory si existen local)
-2. Heredar/crear `~/.gitconfig.local` con tu identidad git (interactivo solo si la máquina está virgen)
-3. Auto-instalar dependencias faltantes vía Homebrew:
+1. Symlinkear configs (`.zshrc`, `.zshenv`, `.gitignore_global`, ghostty, starship, claude/skills, claude/memory si existen local)
+2. Auto-instalar dependencias faltantes vía Homebrew:
    - **Formulae**: `starship`, `zsh-syntax-highlighting`, `zsh-autosuggestions`, `zsh-history-substring-search`, `eza`, `bat`, `fd`, `ripgrep`, `zoxide`, `fzf`, `git-delta`, `pyenv`
    - **Casks**: `ghostty`
-4. Registrar VS Code como app por defecto para `.ghostty` (si VS Code está instalado)
+3. Registrar VS Code como app por defecto para `.ghostty` (si VS Code está instalado)
+
+**`~/.gitconfig` NO se versiona ni symlinkea** — cada máquina mantiene el suyo 100% propio (credenciales, 1Password vaults, signing keys son per-máquina). Cuando configures una Mac nueva, copiá tu `.gitconfig` desde donde lo tengas backupeado.
 
 ## macOS tweaks
 

@@ -7,13 +7,6 @@ set -euo pipefail
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TS="$(date +%Y%m%d_%H%M%S)"
 
-# Captura identidad git existente ANTES de symlinkear ~/.gitconfig.
-# Así si la máquina ya tenía nombre/email configurado (ej. Mac de trabajo)
-# lo preservamos en ~/.gitconfig.local sin preguntar al usuario.
-EXISTING_GIT_NAME="$(git config --global user.name 2>/dev/null || true)"
-EXISTING_GIT_EMAIL="$(git config --global user.email 2>/dev/null || true)"
-EXISTING_GIT_SIGNING="$(git config --global user.signingkey 2>/dev/null || true)"
-
 link() {
   local src="$1" dst="$2"
   if [[ -L "$dst" ]]; then
@@ -31,8 +24,10 @@ link "$DOTFILES/zsh/.zshrc"             "$HOME/.zshrc"
 link "$DOTFILES/zsh/.zshenv"            "$HOME/.zshenv"
 link "$DOTFILES/starship/starship.toml" "$HOME/.config/starship.toml"
 link "$DOTFILES/ghostty/config.ghostty" "$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
-link "$DOTFILES/git/.gitconfig"         "$HOME/.gitconfig"
 link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
+
+# ~/.gitconfig NO se symlinkea — cada máquina lo mantiene 100% propio
+# (credenciales, 1Password vaults, signing keys son per-máquina).
 
 # Claude Code (settings, skills, memorias) — todo per-máquina, no versionado.
 # Si existen localmente en dotfiles/claude/, los symlinkeamos. Si no, skip
@@ -45,45 +40,6 @@ if [[ -d "$DOTFILES/claude/skills" ]]; then
 fi
 if [[ -d "$DOTFILES/claude/memory" ]]; then
   link "$DOTFILES/claude/memory"        "$HOME/.claude/projects/-Users-$(whoami | tr '.' '-')/memory"
-fi
-
-# ─── identidad git por-máquina ────────────────────────────────
-# git/.gitconfig hace [include] de ~/.gitconfig.local — la identidad
-# (name/email/signingkey) vive ahí, no en el repo público.
-#
-# Si .local no existe pero la máquina ya tenía identidad git configurada
-# (capturada arriba antes del symlink), la heredamos sin preguntar.
-# Si tampoco había identidad previa, prompt interactivo.
-if [[ ! -f "$HOME/.gitconfig.local" ]]; then
-  if [[ -n "$EXISTING_GIT_NAME" && -n "$EXISTING_GIT_EMAIL" ]]; then
-    git_name="$EXISTING_GIT_NAME"
-    git_email="$EXISTING_GIT_EMAIL"
-    git_signing="$EXISTING_GIT_SIGNING"
-    echo "✓ Identidad git existente preservada en ~/.gitconfig.local ($git_email)"
-  else
-    echo ""
-    echo "Configurando ~/.gitconfig.local (identidad git por-máquina, no versionada)..."
-    read -rp "  Git user.name: " git_name
-    read -rp "  Git user.email: " git_email
-    read -rp "  SSH signing key public (vacío para skip signing): " git_signing
-  fi
-  {
-    echo "; ~/.gitconfig.local — identidad por-máquina (no versionado)"
-    echo ""
-    echo "[user]"
-    echo "	name = $git_name"
-    echo "	email = $git_email"
-    [[ -n "$git_signing" ]] && echo "	signingkey = $git_signing"
-    if [[ -n "$git_signing" && -x "/Applications/1Password.app/Contents/MacOS/op-ssh-sign" ]]; then
-      echo ""
-      echo "[gpg]"
-      echo "	format = ssh"
-      echo "[gpg \"ssh\"]"
-      echo "	program = /Applications/1Password.app/Contents/MacOS/op-ssh-sign"
-      echo "[commit]"
-      echo "	gpgsign = true"
-    fi
-  } > "$HOME/.gitconfig.local"
 fi
 
 # macOS file associations — abrir config.ghostty en VS Code (no TextEdit).
