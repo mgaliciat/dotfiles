@@ -5,6 +5,7 @@
 .zcompdump*
 *.backup.*
 
-# Claude memorias y skills — contenido personal, no se versiona
+# Claude — todo per-máquina (settings, skills, memorias)
+claude/settings.json
 claude/memory/
 claude/skills/

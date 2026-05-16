@@ -33,10 +33,13 @@ link "$DOTFILES/starship/starship.toml" "$HOME/.config/starship.toml"
 link "$DOTFILES/ghostty/config.ghostty" "$HOME/Library/Application Support/com.mitchellh.ghostty/config.ghostty"
 link "$DOTFILES/git/.gitconfig"         "$HOME/.gitconfig"
 link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
-link "$DOTFILES/claude/settings.json"   "$HOME/.claude/settings.json"
 
-# Skills y memorias de Claude no se versionan (contenido personal/per-máquina).
-# Si existen localmente, se symlinkean igual para mantener el workflow.
+# Claude Code (settings, skills, memorias) — todo per-máquina, no versionado.
+# Si existen localmente en dotfiles/claude/, los symlinkeamos. Si no, skip
+# y cada máquina mantiene su propio ~/.claude/* sin interferencia.
+if [[ -f "$DOTFILES/claude/settings.json" ]]; then
+  link "$DOTFILES/claude/settings.json" "$HOME/.claude/settings.json"
+fi
 if [[ -d "$DOTFILES/claude/skills" ]]; then
   link "$DOTFILES/claude/skills"        "$HOME/.claude/skills"
 fi

@@ -12,7 +12,6 @@ Personal config for macOS — Ghostty terminal, zsh, Starship prompt.
 | `ghostty/config.ghostty` | Ghostty terminal config — Vesper theme + Monaspace |
 | `git/.gitconfig` | Git config with delta pager + aliases |
 | `git/.gitignore_global` | Global gitignore (macOS noise, editor files, build dirs) |
-| `claude/settings.json` | Claude Code global settings |
 | `nvim/` | Neovim config (legacy from 2022 — not currently in use) |
 | `install.sh` | Symlinks everything into place |
 
