@@ -3,6 +3,12 @@
 .AppleDouble
 .LSOverride
 Icon?
+._*
+.Spotlight-V100
+.fseventsd
+.TemporaryItems
+.DocumentRevisions-V100
+.com.apple.timemachine.donotpresent
 
 # Editor / IDE
 .vscode/
@@ -10,6 +16,9 @@ Icon?
 *.swp
 *.swo
 *~
+*.iml
+.history/
+*.sublime-workspace
 
 # Compiled / build
 *.pyc
@@ -21,6 +30,21 @@ venv/
 dist/
 build/
 
+# Python caches
+.mypy_cache/
+.ruff_cache/
+.tox/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Node/JS caches
+.next/
+.turbo/
+.parcel-cache/
+*.tsbuildinfo
+coverage/
+
 # Env files (deben ir en .gitignore del repo individual también)
 .env
 .env.local
@@ -29,3 +53,17 @@ build/
 # Logs / OS
 *.log
 .Trashes
+
+# Claude Code
+.claude/
+.covenant/
+openspec/
+.github/prompts/
+.github/skills/
+CLAUDE.local.md
+
+# AI / agentic tools
+.cursor/
+.aider*
+.windsurf/
+.continue/
