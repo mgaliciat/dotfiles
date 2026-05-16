@@ -67,3 +67,7 @@ CLAUDE.local.md
 .aider*
 .windsurf/
 .continue/
+
+# Specs / research locales (no se suben al repo)
+docs/specs/
+docs/research/
