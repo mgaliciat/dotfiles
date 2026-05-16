@@ -59,6 +59,12 @@ eval "$(zoxide init zsh --cmd cd)"
 # fzf → fuzzy finder. Habilita Ctrl+R (history), Ctrl+T (files), Alt+C (cd).
 source <(fzf --zsh) 2>/dev/null
 
+# ─── funciones helper ─────────────────────────────────────────
+# mkcd, port, server, gco, dex, dlogs, etc. (ver zsh/functions.zsh).
+# %x (prompt expansion) da el path real del archivo siendo sourced,
+# siguiendo el symlink ~/.zshrc → dotfiles/zsh/.zshrc.
+source "${${(%):-%x}:A:h}/functions.zsh" 2>/dev/null
+
 # ─── aliases ──────────────────────────────────────────────────
 # CLI tools modernos (reemplazos del default de macOS)
 alias ls='eza --group-directories-first'
