@@ -84,5 +84,11 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 
 # ─── prompt: Starship ─────────────────────────────────────────
-# Debe ser lo último — initializa el prompt.
+# Debe ser lo último de la parte versionada — initializa el prompt.
 eval "$(starship init zsh)"
+
+# ─── overrides locales (no versionado) ────────────────────────
+# Aliases / funciones / overrides per-máquina van en ~/.zshrc.local.
+# Para env vars y secrets usar ~/.zshenv.local (cargado en TODA invocación
+# de zsh, incluso subprocesos como Docker o Claude Code).
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
