@@ -35,6 +35,13 @@ const vec2  CURVATURE          = vec2(0.0, 0.0);
 const float SCANLINE_OPACITY   = 0.18;
 const float SCANLINE_THICKNESS = 1.0;
 
+// roll vertical lento — las scanlines se desplazan hacia abajo
+// suavemente. Da sensación de "el monitor está vivo" sin distraer.
+//   0.00 = scanlines estáticas
+//   0.04 = roll apenas perceptible (un ciclo ~25s) — sweet spot
+//   0.20 = roll visible tipo TV mal sintonizada
+const float ROLL_SPEED         = 0.04;
+
 // aperture grille — bandas verticales R/G/B estilo Trinitron.
 // Combinada con scanlines da la textura "fósforo CRT" visible que
 // las scanlines solas pierden en Retina. Valores:
@@ -103,10 +110,12 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     bloom *= smoothstep(0.50, 0.95, max(max(bloom.r, bloom.g), bloom.b));
     color += bloom * BLOOM_AMOUNT * BLOOM_TINT;
 
-    // ─── scanlines horizontales ─────────────────────────────
-    // Patrón sinusoidal estático (sin roll) por fila de pixel.
+    // ─── scanlines horizontales con roll lento ──────────────
+    // Patrón sinusoidal por fila de pixel; el roll desplaza el
+    // patrón verticalmente con iTime para que el CRT se sienta vivo.
     // Multiplicativo — preserva el color, solo modula el brillo.
-    float scan = sin(fragCoord.y * 3.14159 / SCANLINE_THICKNESS) * 0.5 + 0.5;
+    float scanY = fragCoord.y - iTime * ROLL_SPEED * iResolution.y;
+    float scan  = sin(scanY * 3.14159 / SCANLINE_THICKNESS) * 0.5 + 0.5;
     color *= 1.0 - scan * SCANLINE_OPACITY;
 
     // ─── aperture grille (RGB stripes verticales) ───────────

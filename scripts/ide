@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# ─── scripts/ide — layout tmux estilo IDE ─────────────────────
+# Adaptado de craftzdog/dotfiles-public/.scripts/ide.
+#
+# Layout que arma (vista desde arriba):
+#
+#   ┌──────────────────────────────────┬──────────┐
+#   │                                  │          │
+#   │           editor (top)           │          │
+#   │                                  │          │
+#   ├──────────────┬───────────────────┤ sidebar  │
+#   │              │                   │   20%    │
+#   │  pane left   │   pane right      │          │
+#   │              │                   │          │
+#   ├──────────────┴───────────────────┤          │
+#   │           terminal (30%)         │          │
+#   └──────────────────────────────────┴──────────┘
+#
+# Uso: dentro de una sesión tmux, correr:
+#   ~/dotfiles/scripts/ide
+# O agregalo a tu PATH con:
+#   ln -s ~/dotfiles/scripts/ide ~/.local/bin/ide
+# Y después solo: `ide`
+#
+# Si no estás en tmux, te avisa y sale.
+
+if [[ -z "${TMUX:-}" ]]; then
+  echo "Error: este script debe correrse dentro de una sesión tmux."
+  echo "Arrancá tmux primero con: tmux new -s proyecto"
+  exit 1
+fi
+
+# Sidebar derecho (20%)
+tmux split-window -h -l 20%
+
+# Volver al pane izquierdo
+tmux select-pane -L
+
+# Terminal abajo (30% del pane izquierdo)
+tmux split-window -v -l 30%
+
+# En el pane "main" (arriba-izquierda), partirlo en dos columnas
+tmux select-pane -U
+tmux split-window -h -l 50%
+
+# Volver al pane principal (top-left) para que sea el activo al terminar
+tmux select-pane -L
+tmux select-pane -U

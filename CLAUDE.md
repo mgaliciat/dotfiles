@@ -48,12 +48,34 @@ The override-at-end pattern is load-bearing: in `.zshrc`, `.zshenv`, and `.gitco
 - **Commit messages** are lowercase, prefixed with one of: `add:`, `feat:`, `fix:`, `chore:`, `refactor:`, `tweak:`. Short (<70 char), often Spanish. Examples from `git log`: `add: zsh helper functions (mkcd, port, server, gco, docker shortcuts)`, `chore: untrack git/.gitconfig — 100% per-máquina`, `tweak: disable CRT vignette`.
 - **Color palette** ("Anthropic Warm"): `#d97757` Claude orange, `#c8553d` terracota, `#87a96b` oliva, `#b08968` tierra, `#d9a441` ámbar. Used consistently in Starship and Ghostty. Reuse these instead of inventing new hex codes.
 
+## tmux design constraints
+
+- **Prefix: `C-t`** (no el default `C-b`, que colisiona con vim "page back"). Se cambia en `tmux/tmux.conf` (2 líneas: `unbind C-b` + `set-option -g prefix C-t`).
+- **`escape-time 10` es CRÍTICO para nvim.** Default es 500ms — sin override, presionar `<Esc>` en nvim dentro de tmux tiene delay perceptible. No subirlo.
+- **`focus-events on` es obligatorio.** Sin esto, gitsigns no detecta cambios externos al buffer y nvim no auto-reloadea archivos modificados afuera.
+- **Estructura modular: 5 archivos**, idéntica al patrón de craftzdog. `tmux.conf` carga `macos.conf` (condicional Darwin), `theme.conf`, `statusline.conf`, `utility.conf`. Si vas a tweakear un color, andá a `theme.conf`/`statusline.conf` — `tmux.conf` solo tiene comportamiento.
+- **tpm bootstrap vive en `install.sh`**, no en `tmux.conf`. Plugins listados en `tmux.conf` se instalan con `prefix + I` (mayúscula) la primera vez. tpm clonado en `~/.config/tmux/plugins/tpm/` por el installer (idempotente).
+- **Paleta `theme.conf` es duplicación deliberada.** tmux no tiene variables — los mismos hex de blueprint viven en 3 archivos: `ghostty/themes/blueprint-engineering`, `nvim/lua/plugins/colorscheme.lua`, `tmux/theme.conf`. Si cambias el theme, sincronizá los tres.
+- **`utility.conf` tiene los popups por proyecto.** `prefix + y` abre Claude Code en una sesión tmux dedicada por directorio (md5 del path = session ID) — cerrás el popup, Claude sigue vivo en background; reabrir desde otro pane del mismo proyecto te devuelve la misma sesión con su contexto. Igual con `prefix + g` para lazygit.
+
+## nvim design constraints
+
+- **Modular custom, no distro.** Sin LazyVim / NvChad / AstroNvim. Plugin manager: `lazy.nvim` (NO Packer, deprecado). Estructura: `init.lua` carga `lua/config/*` (options, keymaps, autocmds, lazy bootstrap), y `lua/config/lazy.lua` auto-importa todo `lua/plugins/*.lua` — agregar un plugin = agregar un archivo, sin tocar índices.
+- **Mason no contamina brew.** LSPs/formatters/linters se instalan en `~/.local/share/nvim/mason/`. NO los duplicas en `REQUIRED_FORMULAE` de `install.sh`. La excepción son toolchains base (go, php, node) que el sistema necesita para que mason pueda usar sus servers.
+- **Rust va aparte vía `rustaceanvim`.** No lo metas al loop de `mason-lspconfig` ni a `lspconfig`. Tiene su propio `plugins/rust.lua` que se autoregistra al abrir un buffer `.rs`. Inlay hints, runnables y debug son mejores que con la config genérica de `rust_analyzer`.
+- **Completion: `blink.cmp`, no `nvim-cmp`.** Más rápido (escrito en Rust, binarios precompilados vía `version = "*"`), API más simple. Si ves docs viejas de `cmp-nvim-lsp` / `cmp-buffer` / `cmp-path` — no las apliques, blink las reemplaza todas.
+- **Conventions por filetype viven en `autocmds.lua`**, no en options globales: Go usa tabs reales (gofmt los inserta), PHP/Rust 4 espacios, markdown activa wrap+spell. Si agregas un lenguaje nuevo con convención propia, agrégalo ahí.
+- **Format on save selectivo.** `plugins/conform.lua` solo formatea on-save lenguajes con formatter canónico (go, rust, lua). Para los discutibles (markdown, sql, php) usa `<leader>cf` manual — evita pelearse con estilos de proyecto.
+- **`signcolumn = "yes"` siempre.** Evita el layout shift cuando aparece un sign de LSP/git mid-edit. No lo cambies a `"auto"`.
+
 ## Tool-specific gotchas
 
 - **Ghostty config does NOT allow inline comments** on the same line as a value (`key = val  # comment` breaks). Comments go on their own line.
 - **Starship `$` is a variable sigil.** A literal `$` in a format string needs `\$` (in TOML double-quoted, write `\\$`). Same for `[` and `]` → `\\[`, `\\]`.
 - **`.ghostty` files have no macOS UTI**, so without intervention `⌘,` opens them in TextEdit. `install.sh` registers VS Code via `defaults write` on `LaunchServices`; the block is idempotent (checks before writing).
 - **`bat` is aliased to `cat`** — `\cat` invokes the real one when bypassing aliases is needed (e.g., for piping into tools that choke on bat output).
+- **nvim `init.lua` order is load-bearing**: `options` → `keymaps` (setea `<leader>`) → `lazy` (lee `mapleader` al registrar `keys`) → `autocmds`. No los reordenes.
+- **`mapleader` debe estar seteado ANTES de `require("lazy")`** o los `keys = {}` de cada plugin se registran con leader vacío. Por eso vive al inicio de `lua/config/keymaps.lua`, que se carga antes de `lua/config/lazy.lua`.
 
 ## Cross-references to other Claude state
 

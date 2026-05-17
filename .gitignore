@@ -13,3 +13,6 @@ claude/skills/
 # Git config — per-máquina (cada Mac tiene credenciales, 1Password
 # vaults, signing keys distintos). Solo .gitignore_global se versiona.
 git/.gitconfig
+
+# tmux plugins (tpm + plugins se clonan en runtime via install.sh)
+tmux/plugins/

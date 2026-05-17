@@ -36,6 +36,9 @@ link "$DOTFILES/ghostty/config.ghostty" "$GHOSTTY_DIR/config.ghostty"
 # Ghostty solo busca themes en ~/.config/ghostty/themes/ y en el bundle de la app.
 link "$DOTFILES/ghostty/themes"         "$HOME/.config/ghostty/themes"
 link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
+link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
+link "$DOTFILES/tmux"                   "$HOME/.config/tmux"
+link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
 
 # ~/.gitconfig NO se symlinkea — cada máquina lo mantiene 100% propio
 # (credenciales, 1Password vaults, signing keys son per-máquina).
@@ -51,6 +54,18 @@ if [[ -d "$DOTFILES/claude/skills" ]]; then
 fi
 if [[ -d "$DOTFILES/claude/memory" ]]; then
   link "$DOTFILES/claude/memory"        "$HOME/.claude/projects/-Users-$(whoami | tr '.' '-')/memory"
+fi
+
+# ─── tpm (Tmux Plugin Manager) ────────────────────────────────
+# Clona tpm en la ubicación que espera nuestro tmux.conf.
+# Idempotente: si ya está, skip. Después de instalar, en tmux:
+#   prefix + I  → instala los plugins listados en tmux.conf
+#   prefix + U  → actualiza
+TPM_DIR="$HOME/.config/tmux/plugins/tpm"
+if [[ ! -d "$TPM_DIR" ]]; then
+  echo "→ Clonando tpm en $TPM_DIR"
+  git clone --depth 1 https://github.com/tmux-plugins/tpm "$TPM_DIR"
+  echo "✓ tpm instalado. Dentro de tmux: prefix + I para instalar plugins"
 fi
 
 # macOS file associations — abrir config.ghostty en VS Code (no TextEdit).
@@ -85,6 +100,9 @@ if command -v brew >/dev/null 2>&1; then
     fzf
     git-delta
     pyenv
+    neovim
+    tmux
+    lazygit
   )
   REQUIRED_CASKS=(
     ghostty
