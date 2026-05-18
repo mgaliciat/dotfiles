@@ -39,7 +39,7 @@ link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
 link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
 link "$DOTFILES/tmux"                   "$HOME/.config/tmux"
 link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
-# Karabiner-Elements: Caps Lock → Esc (tap) / Ctrl (hold).
+# Karabiner-Elements: Caps Lock → Esc (tap) / Option (hold).
 # OJO: la app puede reescribir karabiner.json desde su UI (settings, devices,
 # profiles). Como es un symlink al repo, los cambios desde la UI van a aparecer
 # como diffs en git status — review antes de commitear si no querés versionar

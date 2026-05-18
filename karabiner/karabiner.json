@@ -11,7 +11,7 @@
             "complex_modifications": {
                 "rules": [
                     {
-                        "description": "Caps Lock → Escape (tap) / Control (hold)",
+                        "description": "Caps Lock → Escape (tap) / Option (hold)",
                         "manipulators": [
                             {
                                 "type": "basic",
@@ -21,7 +21,7 @@
                                 },
                                 "to": [
                                     {
-                                        "key_code": "left_control",
+                                        "key_code": "left_option",
                                         "lazy": true
                                     }
                                 ],

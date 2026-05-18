@@ -12,7 +12,7 @@ Personal config for macOS — Ghostty terminal, zsh, Starship prompt.
 | `ghostty/config.ghostty` | Ghostty terminal config — Vesper theme + Monaspace |
 | `git/.gitignore_global` | Global gitignore (macOS noise, editor files, build dirs) |
 | `nvim/` | Neovim config (legacy from 2022 — not currently in use) |
-| `karabiner/karabiner.json` | Karabiner-Elements — Caps Lock dual-function (tap = `Esc`, hold = `Ctrl`) |
+| `karabiner/karabiner.json` | Karabiner-Elements — Caps Lock dual-function (tap = `Esc`, hold = `Option`) |
 | `install.sh` | Symlinks everything into place |
 
 ## Setup on a new machine
@@ -39,7 +39,7 @@ cd ~/dotfiles
    - **Casks**: `ghostty`, `karabiner-elements`
 3. Registrar VS Code como app por defecto para `.ghostty` (si VS Code está instalado)
 
-> **Karabiner** la primera vez pide permisos de Input Monitoring + Accessibility en System Settings → Privacy & Security. Sin aprobarlos, el remap de Caps Lock (tap = `Esc`, hold = `Ctrl`) no se activa.
+> **Karabiner** la primera vez pide permisos de Input Monitoring + Accessibility en System Settings → Privacy & Security. Sin aprobarlos, el remap de Caps Lock (tap = `Esc`, hold = `Option`) no se activa.
 
 **`~/.gitconfig` NO se versiona ni symlinkea** — cada máquina mantiene el suyo 100% propio (credenciales, 1Password vaults, signing keys son per-máquina). Cuando configures una Mac nueva, copiá tu `.gitconfig` desde donde lo tengas backupeado.
 
