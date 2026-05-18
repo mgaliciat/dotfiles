@@ -24,6 +24,14 @@ theme = anthropic-paper
 # M-chip / Retina. Sin downside fuera de equipos no-P3.
 window-colorspace = display-p3
 
+# Contraste mínimo automático. Default es 1.0 (sin enforcement). En
+# temas claros, muchos TUIs (Claude Code incluido) usan palette[15]
+# para texto "subdued" — diseñado para fondo oscuro, sobre cream se
+# evapora. 1.1 fuerza a Ghostty a corregir cualquier fg con contraste
+# < ratio vs bg sin alterar la paleta declarada. Red de seguridad
+# para casos que la paleta del theme no anticipa.
+minimum-contrast = 1.1
+
 # ─── shader CRT sutil ─────────────────────────────────────────
 # Path con ~ porque Ghostty resuelve rutas relativas desde la
 # ubicación del symlink del config (Library/...), no desde el target.
