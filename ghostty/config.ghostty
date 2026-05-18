@@ -13,11 +13,12 @@
 # Application Support/themes, aunque el config viva allá).
 # Por eso `theme = nombre` sin path funciona.
 # Disponibles actualmente:
+#   - anthropic-paper       (modo claro, papel kraft + tinta sepia)
 #   - anthropic-warm        (sepia/naranja, look cálido Claude Code)
 #   - blueprint-engineering (navy + tinta cyan, matchea el dock icon)
 #   - tokyo-night           (azul-negro + acentos neon, cyberpunk-lite)
 # Built-ins de Ghostty también funcionan: `theme = Vesper`, etc.
-theme = blueprint-engineering
+theme = anthropic-paper
 
 # Display P3 wide-gamut — naranja y crema saturan más en pantallas
 # M-chip / Retina. Sin downside fuera de equipos no-P3.
@@ -29,7 +30,12 @@ window-colorspace = display-p3
 # Para apagarlo: comentar la línea.
 # Tweakear constants dentro del .glsl para ajustar intensidad.
 # Costo en M-chip: despreciable.
-custom-shader = ~/dotfiles/ghostty/shaders/anthropic-minimal.glsl
+# NOTA: los shaders de la carpeta están calibrados para fondo OSCURO
+# (bloom phosphor, scanlines, dot/aperture mask con MASK_OPACITY que
+# resta del canal). Sobre fondo claro como anthropic-paper crean
+# bandas RGB visibles muy feas — desactivado mientras paper esté
+# activo. Cuando vuelvas a un theme dark, descomentá.
+# custom-shader = ~/dotfiles/ghostty/shaders/anthropic-minimal.glsl
 
 # ─── tipografía ───────────────────────────────────────────────
 # Ioskeley Mono Term — Iosevka build que imita Berkeley Mono (OFL, gratis).
