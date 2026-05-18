@@ -11,9 +11,15 @@ Convención: `prefix x` = presionás `Ctrl+t`, soltás, después `x`.
 | Atajo | Acción |
 |---|---|
 | `prefix y` | **Claude Code en popup 90%** — sesión persistente por proyecto (cwd) |
+| `prefix Y` | **Claude YOLO** — igual que `y` pero con `--dangerously-skip-permissions` (sesión separada) ⚠️ |
 | `prefix g` | **lazygit en popup 85%** — git UI flotante en el cwd |
 | `prefix Enter` | Shell rápida en popup 70% — para comandos one-off sin ocupar pane |
 | `prefix b` | **Toggle statusline** on/off (default: OFF, sin distracción) |
+
+**Cuándo usar `Y` (YOLO) vs `y` (normal):**
+- `y` → workflow diario. Claude pide confirmación antes de cada bash/edit. Más seguro.
+- `Y` → refactors masivos, exploración rápida, repos sandbox. Claude ejecuta todo sin preguntar. **Solo en repos versionados o que podés tirar.**
+- Las sesiones son distintas (`claude-<hash>` vs `claude-yolo-<hash>`) → no se mezcla el contexto.
 
 **Cómo funciona el popup de Claude:**
 1. `cd ~/proyectos/foo` → `prefix y` → se crea sesión `claude-<md5>` con Claude corriendo.

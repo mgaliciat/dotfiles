@@ -83,8 +83,8 @@ window-save-state = always
 # Otras opciones: bar, block_hollow, underline.
 cursor-style = block
 
-# sin parpadeo = menos distracción
-cursor-style-blink = false
+# cursor parpadea — feedback sutil de que el terminal está vivo.
+cursor-style-blink = true
 
 # ─── selección y copiado ──────────────────────────────────────
 # seleccionar ya copia (workflow rápido)
@@ -128,8 +128,10 @@ keybind = cmd+zero=reset_font_size
 # ═══════════════════════════════════════════════════════════════
 
 # Option (⌥) funciona como Alt → keybinds de vim/zsh/emacs funcionan.
-# Sin esto, ⌥+letra inserta caracteres especiales (¶®øæ).
-macos-option-as-alt = true
+# `left`: solo el Option IZQUIERDO se mapea como Alt. El Option DERECHO
+# queda libre para caracteres especiales con teclado ES (⌥+ñ, ⌥+5 = €,
+# ⌥+8 = •, ⌥+e = ´, etc.). Mejor que `true` (ambos) si tipeás especiales.
+macos-option-as-alt = left
 
 # Shell integration: activa cursor de stand-by con sudo,
 # inyecta path para apertura de archivos por click, etc.
