@@ -1,3 +1,12 @@
+-- ─── theme switcher ───────────────────────────────────────────
+-- Selecciona qué paleta carga lua/plugins/colorscheme.lua. Los
+-- módulos viven en lua/themes/<name>.lua. Variantes disponibles:
+--   "obsidian"  high-contrast dark + cyan       (pareja: obsidian-dots)
+--   "warm"      dark sepia/naranja              (pareja: anthropic-dots, anthropic-crt)
+--   "paper"     light cream + sepia             (pareja: anthropic-paper)
+-- Cambiar requiere reiniciar nvim (o :source $MYVIMRC + :colorscheme ...).
+vim.g.theme = "obsidian"
+
 -- ─── vim.opt ──────────────────────────────────────────────────
 -- Buenos defaults. Sigue el espíritu del dotfiles: comentar el WHY,
 -- no el WHAT — vim.opt.number = true no necesita comentario.
