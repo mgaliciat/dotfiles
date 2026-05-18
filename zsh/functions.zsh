@@ -83,3 +83,29 @@ dstop-all() {
 dprune-all() {
   docker system prune -af --volumes
 }
+
+# ─── proyectos ────────────────────────────────────────────────
+
+# Abre el "workspace finanzas": cd a ~/finance + sesión tmux dedicada
+# con `claude --dangerously-skip-permissions` (equivalente shell del
+# popup Alt+Shift+C). Sesión persistente — si ya existe attachea y
+# mantenés contexto de Claude entre invocaciones.
+#
+# Si ya estás dentro de tmux usa switch-client; afuera, attach normal.
+# Uso: finance
+finance() {
+  local dir="$HOME/finance"
+  local session="finance"
+
+  [[ -d "$dir" ]] || { echo "finance: $dir no existe" >&2; return 1; }
+  cd "$dir" || return
+
+  tmux has-session -t "$session" 2>/dev/null || \
+    tmux new-session -d -s "$session" -c "$dir" "claude --dangerously-skip-permissions"
+
+  if [[ -n "$TMUX" ]]; then
+    tmux switch-client -t "$session"
+  else
+    tmux attach-session -t "$session"
+  fi
+}
