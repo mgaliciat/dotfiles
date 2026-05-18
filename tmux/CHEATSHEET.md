@@ -6,26 +6,39 @@ Convención: `prefix x` = presionás `Ctrl+t`, soltás, después `x`.
 
 ---
 
-## ⭐ Lo más importante (los popups)
+## ⭐ Lo más importante (los popups — chord único sin prefix)
 
 | Atajo | Acción |
 |---|---|
-| `prefix y` | **Claude Code en popup 90%** — sesión persistente por proyecto (cwd) |
-| `prefix Y` | **Claude YOLO** — igual que `y` pero con `--dangerously-skip-permissions` (sesión separada) ⚠️ |
-| `prefix g` | **lazygit en popup 85%** — git UI flotante en el cwd |
-| `prefix Enter` | Shell rápida en popup 70% — para comandos one-off sin ocupar pane |
+| `Alt+c` | **Claude Code en popup 90%** — sesión "default" persistente por proyecto |
+| `Alt+C` | **Claude YOLO** — igual que `Alt+c` pero con `--dangerously-skip-permissions` (sesión separada) ⚠️ |
+| `Alt+s` | **Selector de sesiones** — fzf con TODAS las Claude del proyecto + opción de crear nueva con nombre |
+| `Alt+d` | **Cerrar popup Claude** (detach seguro — solo si estás dentro de sesión `claude*`) |
+| `Alt+g` | **lazygit en popup 85%** — git UI flotante en el cwd |
+| `Alt+Enter` | Shell rápida en popup 70% — para comandos one-off sin ocupar pane |
 | `prefix b` | **Toggle statusline** on/off (default: OFF, sin distracción) |
 
-**Cuándo usar `Y` (YOLO) vs `y` (normal):**
-- `y` → workflow diario. Claude pide confirmación antes de cada bash/edit. Más seguro.
-- `Y` → refactors masivos, exploración rápida, repos sandbox. Claude ejecuta todo sin preguntar. **Solo en repos versionados o que podés tirar.**
+**Cuándo usar `Alt+C` (YOLO) vs `Alt+c` (normal):**
+- `Alt+c` → workflow diario. Claude pide confirmación antes de cada bash/edit. Más seguro.
+- `Alt+C` → refactors masivos, exploración rápida, repos sandbox. Claude ejecuta todo sin preguntar. **Solo en repos versionados o que podés tirar.**
 - Las sesiones son distintas (`claude-<hash>` vs `claude-yolo-<hash>`) → no se mezcla el contexto.
 
+**Cuándo usar `Alt+s` (selector) vs `Alt+c`/`Alt+C`:**
+- `Alt+c`/`Alt+C` → te dan la sesión "default" del proyecto. Una sola.
+- `Alt+s` → cuando querés **varias sesiones en paralelo** dentro del mismo proyecto (ej: una para refactor, otra para debug). El picker te lista todas las que hay y te deja crear nueva con nombre custom (`claude-<hash>-refactor`, `claude-<hash>-debug`, etc.).
+
 **Cómo funciona el popup de Claude:**
-1. `cd ~/proyectos/foo` → `prefix y` → se crea sesión `claude-<md5>` con Claude corriendo.
-2. Cerrás el popup (`exit` o `prefix d` para detach) → Claude sigue vivo.
-3. Volvés más tarde a `~/proyectos/foo` → `prefix y` → reattacheás la **misma** sesión con todo el contexto.
-4. Cambias a `~/proyectos/bar` → `prefix y` → sesión DISTINTA (diferente md5).
+1. `cd ~/proyectos/foo` → `Alt+c` → se crea sesión `claude-<md5>` con Claude corriendo.
+2. Cerrás el popup con `Alt+d` (detach) → Claude sigue vivo en background.
+3. Volvés más tarde a `~/proyectos/foo` → `Alt+c` → reattacheás la **misma** sesión con todo el contexto.
+4. Cambias a `~/proyectos/bar` → `Alt+c` → sesión DISTINTA (diferente md5).
+5. Querés otra Claude paralela en el mismo proyecto → `Alt+s` → "+ Nueva sesión" → nombre.
+
+**Convención de nombres de sesión:**
+- `claude-<hash>` → la default que abre `Alt+c`
+- `claude-yolo-<hash>` → la default YOLO que abre `Alt+C`
+- `claude-<hash>-<name>` → nombradas (creadas vía `Alt+s`)
+- `claude-<hash>-<name>-yolo` → nombradas YOLO
 
 Para listar sesiones de Claude activas: `tmux ls | grep claude`.
 Para matar una sesión específica: `tmux kill-session -t claude-<hash>`.

@@ -1,0 +1,119 @@
+#!/usr/bin/env bash
+# ─── scripts/tmux-claude — selector de sesiones Claude ────────
+# Lista sesiones Claude existentes del proyecto (cwd) y deja
+# elegir cuál abrir, o crear una nueva con nombre custom.
+#
+# Uso: se invoca desde tmux popup vía utility.conf:
+#   bind -n M-s display-popup -E '~/dotfiles/scripts/tmux-claude "#{pane_current_path}"'
+#
+# Convención de nombres de sesión tmux (internos):
+#   claude-<hash>             → sesión "default" del proyecto (Alt+c)
+#   claude-yolo-<hash>        → sesión "default YOLO" (Alt+C)
+#   claude-<hash>-<name>      → nombrada normal
+#   claude-<hash>-<name>-yolo → nombrada YOLO
+#
+# El picker muestra nombres LEGIBLES (default, refactor, debug, …)
+# y traduce internamente al nombre completo de tmux.
+
+set -euo pipefail
+
+CWD="${1:-$PWD}"
+PROJECT=$(basename "$CWD")
+HASH=$(echo "$CWD" | md5sum | cut -c1-8)
+
+# ─── armar la lista display|tmux_session ──────────────────────
+# Formato: "<texto visible>|<nombre real de la sesión tmux>".
+# fzf muestra solo lo que está antes del `|` (--with-nth=1).
+# Después del choice, parseamos lo que está después del `|`.
+
+lines=()
+
+# Opciones para crear nueva (no tienen sesión asociada todavía).
+lines+=("+ Nueva sesión (normal)|__NEW_NORMAL__")
+lines+=("+ Nueva sesión (YOLO ⚠️)|__NEW_YOLO__")
+
+# Listar sesiones existentes del proyecto y traducirlas a display.
+while IFS= read -r session; do
+  [[ -z "$session" ]] && continue
+  case "$session" in
+    "claude-${HASH}")
+      lines+=("default (normal)|$session")
+      ;;
+    "claude-yolo-${HASH}")
+      lines+=("default (YOLO ⚠️)|$session")
+      ;;
+    "claude-${HASH}-"*"-yolo")
+      # claude-<hash>-<name>-yolo → display: "<name> (YOLO ⚠️)"
+      name="${session#claude-${HASH}-}"
+      name="${name%-yolo}"
+      lines+=("$name (YOLO ⚠️)|$session")
+      ;;
+    "claude-${HASH}-"*)
+      # claude-<hash>-<name> → display: "<name> (normal)"
+      name="${session#claude-${HASH}-}"
+      lines+=("$name (normal)|$session")
+      ;;
+  esac
+done < <(tmux ls -F '#{session_name}' 2>/dev/null | grep -E "^claude(-yolo)?-${HASH}(\$|-)" || true)
+
+# ─── fzf picker ───────────────────────────────────────────────
+choice=$(printf '%s\n' "${lines[@]}" | fzf \
+  --prompt='Claude > ' \
+  --header="$PROJECT   (Esc cancela, Enter selecciona)" \
+  --delimiter='|' \
+  --with-nth=1 \
+  --height=100% \
+  --reverse \
+  --border \
+  --no-mouse \
+  || true)
+
+# Cancelado con Esc
+[[ -z "$choice" ]] && exit 0
+
+# Extraer el "value" (después del pipe)
+TARGET="${choice#*|}"
+
+# ─── helper para sanear nombres ───────────────────────────────
+# Reemplaza chars no permitidos por `-`, colapsa múltiples `-`,
+# y trim de `-` al inicio/fin. POSIX-safe (funciona en macOS BSD sed).
+sanitize() {
+  echo "$1" \
+    | tr -c 'a-zA-Z0-9-' '-' \
+    | tr -s '-' \
+    | sed -e 's/^-//' -e 's/-$//'
+}
+
+# ─── resolver acción ──────────────────────────────────────────
+case "$TARGET" in
+  __NEW_NORMAL__)
+    read -r -p "Nombre (ej: refactor, debug): " name
+    name=$(sanitize "$name")
+    [[ -z "$name" ]] && { echo "Nombre vacío, cancelado."; sleep 1; exit 0; }
+    SESSION="claude-${HASH}-${name}"
+    if ! tmux has-session -t "$SESSION" 2>/dev/null; then
+      tmux new-session -d -s "$SESSION" -c "$CWD" "claude"
+    fi
+    ;;
+
+  __NEW_YOLO__)
+    read -r -p "Nombre (ej: spike, exp): " name
+    name=$(sanitize "$name")
+    [[ -z "$name" ]] && { echo "Nombre vacío, cancelado."; sleep 1; exit 0; }
+    SESSION="claude-${HASH}-${name}-yolo"
+    if ! tmux has-session -t "$SESSION" 2>/dev/null; then
+      tmux new-session -d -s "$SESSION" -c "$CWD" "claude --dangerously-skip-permissions"
+    fi
+    ;;
+
+  *)
+    # Sesión existente
+    SESSION="$TARGET"
+    ;;
+esac
+
+# ─── attachear ────────────────────────────────────────────────
+# El script corre dentro de un display-popup; attach-session requiere
+# unset TMUX para evitar el warning de nesting (no es nesting real,
+# solo cambiamos el contenido del popup).
+exec env -u TMUX tmux attach-session -t "$SESSION"
