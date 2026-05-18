@@ -101,6 +101,7 @@ if command -v brew >/dev/null 2>&1; then
     git-delta
     pyenv
     neovim
+    tree-sitter-cli       # parser generator que usa el branch `main` de nvim-treesitter
     tmux
     lazygit
   )
