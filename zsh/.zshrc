@@ -3,6 +3,7 @@
 #  Filosofía: startup <50ms. Sin Oh My Zsh. Sólo lo esencial.
 #
 #  Orden:
+#    0. auto-tmux                                    (exec → corta el resto en padre)
 #    1. history + opciones + completions + keybinds  (input/output)
 #    2. tool inits                                   (pyenv, zoxide, fzf)
 #    3. aliases
@@ -10,6 +11,33 @@
 #    5. prompt                                       (starship)
 #    6. overrides locales                            (~/.zshrc.local)
 # ═══════════════════════════════════════════════════════════════
+
+# ─── auto-tmux ────────────────────────────────────────────────
+# Cada ventana/pestaña de Ghostty arranca dentro de tmux. Usamos
+# `exec` para que tmux REEMPLACE este zsh — cuando salgas con
+# `exit` (o cierres la última window), el proceso muere y Ghostty
+# cierra la ventana. Sin `exec` quedarías de vuelta en un zsh pelón.
+#
+# Guardas:
+#   $TMUX vacío        → previene recursión. Las panes hijas que
+#                        spawnea tmux tienen $TMUX seteado y siguen
+#                        el flujo normal del .zshrc.
+#   $- contiene 'i'    → solo shells interactivas. Scripts no.
+#   $TERM_PROGRAM     → terminal integrada de VS Code mantiene shell
+#                        pelón (su jump-to-error / cwd tracking se
+#                        rompe con tmux en el medio).
+#   $NO_AUTO_TMUX     → escape hatch manual: NO_AUTO_TMUX=1 ghostty
+#                        abre una shell sin tmux para casos one-off.
+#
+# `tmux new-session` (sin -s) crea una sesión efímera nueva por
+# ventana — Cmd+T NO clona contenido entre tabs. Las sesiones
+# nombradas (claude-*, claude-yolo-*) viven independientes en el
+# mismo server y persisten entre ventanas/reinicios de Ghostty.
+if [[ -z "$TMUX" && $- == *i* && -z "$NO_AUTO_TMUX" \
+      && "$TERM_PROGRAM" != "vscode" ]] \
+   && command -v tmux >/dev/null 2>&1; then
+  exec tmux new-session
+fi
 
 # ─── history ──────────────────────────────────────────────────
 HISTFILE=~/.zsh_history
