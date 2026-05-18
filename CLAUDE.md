@@ -26,7 +26,7 @@ The defining decision in this repo. Some things are versioned (shared across mac
 | `starship/starship.toml`    |                                              |
 | `ghostty/config.ghostty`    |                                              |
 | `install.sh`                | `claude/settings.json` (untracked)           |
-|                             | `claude/memory/` (untracked)                 |
+| `karabiner/karabiner.json`  | `claude/memory/` (untracked)                 |
 |                             | `claude/skills/` (untracked)                 |
 
 `install.sh` symlinks `claude/{settings.json,skills,memory}` only if they exist locally. They are intentionally absent from the repo so each machine has fully independent Claude state. Do not commit them. Same for `git/.gitconfig` — only the global ignore file is versioned from `git/`.
@@ -76,6 +76,8 @@ The override-at-end pattern is load-bearing: in `.zshrc`, `.zshenv`, and `.gitco
 - **`bat` is aliased to `cat`** — `\cat` invokes the real one when bypassing aliases is needed (e.g., for piping into tools that choke on bat output).
 - **nvim `init.lua` order is load-bearing**: `options` → `keymaps` (setea `<leader>`) → `lazy` (lee `mapleader` al registrar `keys`) → `autocmds`. No los reordenes.
 - **`mapleader` debe estar seteado ANTES de `require("lazy")`** o los `keys = {}` de cada plugin se registran con leader vacío. Por eso vive al inicio de `lua/config/keymaps.lua`, que se carga antes de `lua/config/lazy.lua`.
+- **Karabiner `lazy: true` es lo que hace funcionar el dual-function de Caps Lock.** Sin `lazy: true` en el modifier `left_control`, cualquier tap de Caps Lock mandaría `Ctrl` ANTES de saber si era tap o hold — rompiendo apps que reaccionan a Ctrl solo (algunas terminales, atajos del sistema). Con `lazy: true`, el Ctrl se "arma" pero solo se envía si lo combinás con otra tecla; un tap suelto cae al `to_if_alone` → `escape`. No lo saques.
+- **Karabiner pide permisos de Input Monitoring + Accessibility la primera vez.** `brew install --cask karabiner-elements` no los puede otorgar — el usuario tiene que aprobar en System Settings → Privacy & Security manualmente. Hasta entonces el daemon no intercepta nada y el caps lock se comporta normal.
 
 ## Cross-references to other Claude state
 
