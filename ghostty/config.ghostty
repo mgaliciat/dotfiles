@@ -13,12 +13,13 @@
 # Application Support/themes, aunque el config viva allá).
 # Por eso `theme = nombre` sin path funciona.
 # Disponibles actualmente:
+#   - obsidian              (high-contrast dark, acento cyan eléctrico)
 #   - anthropic-paper       (modo claro, papel kraft + tinta sepia)
 #   - anthropic-warm        (sepia/naranja, look cálido Claude Code)
 #   - blueprint-engineering (navy + tinta cyan, matchea el dock icon)
 #   - tokyo-night           (azul-negro + acentos neon, cyberpunk-lite)
 # Built-ins de Ghostty también funcionan: `theme = Vesper`, etc.
-theme = anthropic-paper
+theme = obsidian
 
 # Display P3 wide-gamut — naranja y crema saturan más en pantallas
 # M-chip / Retina. Sin downside fuera de equipos no-P3.
@@ -47,12 +48,16 @@ minimum-contrast = 1.1
 #     regular, modula solo luminancia (no canales RGB). Look
 #     "imprenta offset / periódico zoom in". + viñeta cream.
 #
-#   ─ Tema OSCURO (anthropic-warm, blueprint, tokyo-night, …):
-#     anthropic-minimal.glsl   → aperture grille + bloom phosphor
-#     anthropic-dotmask.glsl   → dot mask 2×2, grilla más visible
+#   ─ Tema OSCURO high-contrast (obsidian):
+#     obsidian-dots.glsl       → halftone phosphor matrix cyan,
+#                                ambient dots + text dotting,
+#                                vignette neutral. Sin warmth.
+#
+#   ─ Otros temas OSCUROS (anthropic-warm, blueprint, tokyo-night):
+#     anthropic-dots.glsl      → halftone phosphor matrix warm
 #     anthropic-crt.glsl       → curvatura + scanlines fuertes
-#     Estos crean bandas RGB feas sobre fondo claro — NO usar con paper.
-custom-shader = ~/dotfiles/ghostty/shaders/anthropic-paper.glsl
+#     anthropic-crt usa RGB mask — crea bandas feas sobre fondo claro.
+custom-shader = ~/dotfiles/ghostty/shaders/obsidian-dots.glsl
 
 # ─── tipografía ───────────────────────────────────────────────
 # Ioskeley Mono Term — Iosevka build que imita Berkeley Mono (OFL, gratis).
