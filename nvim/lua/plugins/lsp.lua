@@ -93,6 +93,18 @@ return {
           map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "Code action")
           map("n", "<leader>cs", vim.lsp.buf.signature_help, "Signature help")
 
+          -- Code lens: ejecuta lens en línea actual (go test, go generate, go mod tidy, etc.)
+          local client = vim.lsp.get_client_by_id(ev.data.client_id)
+          if client and client:supports_method("textDocument/codeLens") then
+            map("n", "<leader>cl", vim.lsp.codelens.run, "Run code lens")
+            -- Codelens no se autorefresca — lo hacemos al entrar/guardar el buffer.
+            vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "CursorHold" }, {
+              buffer = ev.buf,
+              callback = function() vim.lsp.codelens.refresh({ bufnr = ev.buf }) end,
+            })
+            vim.lsp.codelens.refresh({ bufnr = ev.buf })
+          end
+
           -- Inlay hints (Go, Rust, TS, Python via basedpyright los soportan).
           if vim.lsp.inlay_hint then
             vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
@@ -171,6 +183,13 @@ return {
               usePlaceholders = true,
               completeUnimported = true,
               staticcheck = true,
+              semanticTokens = true,                  -- highlighting más preciso (variable vs tipo vs función)
+              experimentalPostfixCompletions = true,  -- `err.iferr<Tab>` → `if err != nil { return err }`
+              directoryFilters = {                    -- perf en repos grandes
+                "-node_modules",
+                "-vendor",
+                "-.git",
+              },
               hints = {
                 assignVariableTypes = true,
                 compositeLiteralFields = true,
@@ -178,6 +197,25 @@ return {
                 functionTypeParameters = true,
                 parameterNames = true,
                 rangeVariableTypes = true,
+              },
+              -- Diagnostics adicionales. fieldalignment queda afuera porque es
+              -- famosamente ruidoso (prioriza memoria sobre orden lógico).
+              analyses = {
+                unusedparams = true,    -- parámetros nunca usados
+                unusedwrite  = true,    -- escribís a un campo y nadie lo lee
+                nilness      = true,    -- detecta nil derefs
+                useany       = true,    -- prefiere `any` sobre `interface{}` (Go 1.18+)
+                shadow       = true,    -- variable shadowing (gopls maneja bien el patrón `if err :=`)
+              },
+              -- Code lenses: prefix-acciones inline. Ejecutar con
+              -- `:lua vim.lsp.codelens.run()` (mapeado a <leader>cl abajo).
+              codelenses = {
+                generate           = true,  -- correr `go generate` desde el buffer
+                test               = true,  -- correr tests del package actual
+                tidy               = true,  -- `go mod tidy`
+                upgrade_dependency = true,  -- listar upgrades disponibles
+                gc_details         = true,  -- escape analysis inline
+                regenerate_cgo     = true,
               },
             },
           },
