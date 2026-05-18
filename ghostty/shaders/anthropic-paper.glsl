@@ -1,14 +1,10 @@
 // ═══════════════════════════════════════════════════════════════
 //  Anthropic Paper — halftone print dot mask para tema CLARO
 //
-//  Equivalente al dot mask CRT (anthropic-dotmask.glsl) pero
-//  adaptado a fondo claro. La diferencia clave:
-//
-//    CRT dotmask:    cada subpíxel domina un canal R/G/B distinto
-//                    → sobre cream genera bandas RGB feas.
-//    Paper halftone: cada celda tiene un punto circular sepia
-//                    → modula SOLO luminancia, no canales.
-//                    → look "imprenta offset / periódico zoom in".
+//  Cada celda tiene un punto circular sepia que modula SOLO
+//  luminancia (no canales R/G/B), por lo que evita las bandas
+//  RGB típicas de un dot mask CRT subpixel sobre fondo cream.
+//  Look "imprenta offset / periódico zoom in".
 //
 //  Es el mismo lenguaje histórico (grilla 2D regular que aporta
 //  textura) pero usando el equivalente del medio: los printers
