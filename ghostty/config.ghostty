@@ -32,18 +32,27 @@ window-colorspace = display-p3
 # para casos que la paleta del theme no anticipa.
 minimum-contrast = 1.1
 
-# ─── shader CRT sutil ─────────────────────────────────────────
+# ─── shader (textura sutil) ───────────────────────────────────
 # Path con ~ porque Ghostty resuelve rutas relativas desde la
 # ubicación del symlink del config (Library/...), no desde el target.
-# Para apagarlo: comentar la línea.
+# Para apagarlo: comentar la línea activa.
 # Tweakear constants dentro del .glsl para ajustar intensidad.
 # Costo en M-chip: despreciable.
-# NOTA: los shaders de la carpeta están calibrados para fondo OSCURO
-# (bloom phosphor, scanlines, dot/aperture mask con MASK_OPACITY que
-# resta del canal). Sobre fondo claro como anthropic-paper crean
-# bandas RGB visibles muy feas — desactivado mientras paper esté
-# activo. Cuando vuelvas a un theme dark, descomentá.
-# custom-shader = ~/dotfiles/ghostty/shaders/anthropic-minimal.glsl
+#
+# Hay dos familias de shaders en la carpeta, calibradas para
+# fondos distintos. Activá UNA según el theme actual:
+#
+#   ─ Tema CLARO (anthropic-paper):
+#     anthropic-paper.glsl → halftone print: dots sepia en grilla
+#     regular, modula solo luminancia (no canales RGB). Look
+#     "imprenta offset / periódico zoom in". + viñeta cream.
+#
+#   ─ Tema OSCURO (anthropic-warm, blueprint, tokyo-night, …):
+#     anthropic-minimal.glsl   → aperture grille + bloom phosphor
+#     anthropic-dotmask.glsl   → dot mask 2×2, grilla más visible
+#     anthropic-crt.glsl       → curvatura + scanlines fuertes
+#     Estos crean bandas RGB feas sobre fondo claro — NO usar con paper.
+custom-shader = ~/dotfiles/ghostty/shaders/anthropic-paper.glsl
 
 # ─── tipografía ───────────────────────────────────────────────
 # Ioskeley Mono Term — Iosevka build que imita Berkeley Mono (OFL, gratis).
