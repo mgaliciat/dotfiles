@@ -7,7 +7,7 @@
 --   "warm"             dark sepia/naranja (legacy)
 --   "paper"            light cream + sepia (legacy)
 -- Cambiar requiere reiniciar nvim (o :source $MYVIMRC + :colorscheme ...).
-vim.g.theme = "anthropic-light"
+vim.g.theme = "anthropic-dark"
 
 -- ─── vim.opt ──────────────────────────────────────────────────
 -- Buenos defaults. Sigue el espíritu del dotfiles: comentar el WHY,
