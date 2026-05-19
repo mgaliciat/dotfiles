@@ -33,31 +33,18 @@ window-colorspace = display-p3
 # para casos que la paleta del theme no anticipa.
 minimum-contrast = 1.1
 
-# ─── shader (textura sutil) ───────────────────────────────────
+# ─── shader (CRT heavy) ───────────────────────────────────────
 # Path con ~ porque Ghostty resuelve rutas relativas desde la
 # ubicación del symlink del config (Library/...), no desde el target.
 # Para apagarlo: comentar la línea activa.
-# Tweakear constants dentro del .glsl para ajustar intensidad.
-# Costo en M-chip: despreciable.
+# Tweakear las constants dentro de `crt.glsl` para ajustar
+# intensidad (curvatura, scanlines, aperture grille, bloom,
+# vignette, flicker, noise). Costo en M-chip: despreciable.
 #
-# Hay dos familias de shaders en la carpeta, calibradas para
-# fondos distintos. Activá UNA según el theme actual:
-#
-#   ─ Tema CLARO (anthropic-paper):
-#     anthropic-paper.glsl → halftone print: dots sepia en grilla
-#     regular, modula solo luminancia (no canales RGB). Look
-#     "imprenta offset / periódico zoom in". + viñeta cream.
-#
-#   ─ Tema OSCURO high-contrast (obsidian):
-#     obsidian-dots.glsl       → halftone phosphor matrix cyan,
-#                                ambient dots + text dotting,
-#                                vignette neutral. Sin warmth.
-#
-#   ─ Otros temas OSCUROS (anthropic-warm, blueprint, tokyo-night):
-#     anthropic-dots.glsl      → halftone phosphor matrix warm
-#     anthropic-crt.glsl       → curvatura + scanlines fuertes
-#     anthropic-crt usa RGB mask — crea bandas feas sobre fondo claro.
-custom-shader = ~/dotfiles/ghostty/shaders/obsidian-dots.glsl
+# Respeta la paleta del theme — sólo aplica efectos ópticos
+# encima. Mejor con themes oscuros: el RGB mask + scanlines
+# crean bandas feas sobre fondo claro.
+custom-shader = ~/dotfiles/ghostty/shaders/crt.glsl
 
 # ─── tipografía ───────────────────────────────────────────────
 # Ioskeley Mono Term — Iosevka build que imita Berkeley Mono (OFL, gratis).

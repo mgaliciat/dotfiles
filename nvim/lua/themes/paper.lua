@@ -1,6 +1,5 @@
 -- ─── theme: paper ────────────────────────────────────────────
 -- Espejo del theme Ghostty `anthropic-paper` (light cream + sepia).
--- Pareja del shader `anthropic-paper.glsl`.
 -- Base tokyonight: variant `day` (la light del plugin).
 --
 -- Convención light theme: los "bright" son MÁS OSCUROS que los

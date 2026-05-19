@@ -1,6 +1,5 @@
 -- ─── theme: obsidian ─────────────────────────────────────────
 -- Espejo del theme Ghostty `obsidian` (high-contrast dark, cyan).
--- Pareja del shader `obsidian-dots.glsl`.
 -- Base tokyonight: variant `night` (la dark más pura del plugin).
 
 local palette = {

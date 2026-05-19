@@ -1,8 +1,5 @@
 -- ─── theme: warm ─────────────────────────────────────────────
 -- Espejo del theme Ghostty `anthropic-warm` (dark sepia/naranja).
--- Pareja del shader `anthropic-dots.glsl` (halftone warm) y también
--- del shader `anthropic-crt.glsl` (curvatura + scanlines), que
--- usan la misma paleta cálida pero distinto tratamiento óptico.
 -- Base tokyonight: variant `night`.
 --
 -- Convención dark theme: los "bright" son MÁS CLAROS que los normales.

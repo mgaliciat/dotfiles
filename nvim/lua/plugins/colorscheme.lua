@@ -10,17 +10,13 @@
 --
 -- Themes disponibles actualmente:
 --
---   obsidian   high-contrast dark, acento cyan      pareja: obsidian-dots.glsl
---   warm       dark sepia/naranja                   pareja: anthropic-dots.glsl
---                                                          anthropic-crt.glsl
---   paper      light cream + tinta sepia            pareja: anthropic-paper.glsl
+--   obsidian   high-contrast dark, acento cyan
+--   warm       dark sepia/naranja
+--   paper      light cream + tinta sepia
 --
 -- Switching:
 --   1. Editá `vim.g.theme = "<name>"` en lua/config/options.lua
 --   2. Reiniciá nvim (o `:source $MYVIMRC | colorscheme tokyonight-<style>`).
---
--- Los efectos glitch.glsl y lcd-dithered.glsl son agnósticos —
--- pegan con cualquiera de los tres themes.
 
 local theme_name = vim.g.theme or "obsidian"
 local ok, theme  = pcall(require, "themes." .. theme_name)

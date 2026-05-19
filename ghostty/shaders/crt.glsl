@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════════
-//  Anthropic Heavy CRT — phosphor-tube terminal for Ghostty
+//  Heavy CRT — phosphor-tube terminal para Ghostty
 //
 //  Look objetivo: monitor de tubo de los 80s (Apple II / IBM 5151 /
 //  arcade vintage). Curvatura barrel, scanlines marcadas, aperture
