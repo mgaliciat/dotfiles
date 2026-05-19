@@ -86,8 +86,12 @@ font-thicken = true
 adjust-cell-height = 3%
 
 # ─── ventana ──────────────────────────────────────────────────
-# titlebar se funde con el fondo
-macos-titlebar-style = transparent
+# tabs integradas en el titlebar (estilo Chrome/Arc): libera ~1
+# línea vertical de terminal y queda más limpio que tener tab bar
+# y titlebar separadas. El color matchea el background del shader.
+# Alternativas: transparent (titlebar funde con fondo, tab bar
+# aparte) · native (look macOS estándar) · hidden (sin titlebar).
+macos-titlebar-style = tabs
 
 # respira lateralmente — padding generoso para que el output denso
 # de Claude Code (tool calls, diffs, árboles) no se sienta apretado.
