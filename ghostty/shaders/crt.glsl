@@ -2,8 +2,9 @@
 //  Heavy CRT — phosphor-tube terminal para Ghostty
 //
 //  Look objetivo: monitor de tubo de los 80s (Apple II / IBM 5151 /
-//  arcade vintage). Curvatura barrel, scanlines marcadas, aperture
-//  grille RGB, phosphor bloom cálido, flicker y vignette pesado.
+//  arcade vintage). Curvatura barrel, scanlines marcadas, shadow
+//  mask triangular RGB, phosphor bloom cálido, flicker y vignette
+//  pesado.
 //
 //  Todas las constantes abajo son tweakeables. Bajar valores hacia
 //  cero para un CRT más suave; subirlos para parecer un VT220.
@@ -22,8 +23,12 @@ const float SCANLINE_OPACITY   = 0.15;
 const float SCANLINE_THICKNESS = 1.0;
 const float ROLL_SPEED         = 0.04;
 
-// aperture grille (phosphor stripes RGB verticales, estilo Trinitron)
-const float MASK_OPACITY       = 0.10;
+// shadow mask — patrón triangular RGB (no aperture grille vertical).
+// Filas alternas se desplazan medio cell para crear el tiling
+// característico de CRTs no-Trinitron (Apple Multiple Scan, Sony
+// shadow-mask, etc.). 0.10 = sutil, 0.25 = medio pronunciado,
+// 0.40+ = los dots RGB se ven claramente al acercarse.
+const float MASK_OPACITY       = 0.25;
 
 // aberración cromática — medida en PIXELES (no en UV) para que
 // no escale absurdamente en pantallas Retina. ~0.3 = bordes nítidos
@@ -95,8 +100,14 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     float scan  = sin(scanY * 3.14159 / SCANLINE_THICKNESS) * 0.5 + 0.5;
     color *= 1.0 - scan * SCANLINE_OPACITY;
 
-    // aperture grille — phosphor stripes RGB
-    float sub = mod(fragCoord.x, 3.0);
+    // shadow mask — 3x2 cells, filas alternas con offset half-cell
+    // para tiling triangular. Cada cell deja un canal RGB intacto
+    // y baja los otros dos por MASK_OPACITY → el pixel se "tinta"
+    // sutilmente hacia R, G o B según su posición en el mask.
+    vec2 mc = fragCoord;
+    float row = floor(mc.y / 2.0);
+    mc.x += mod(row, 2.0) * 1.5;
+    float sub = mod(mc.x, 3.0);
     vec3 mask;
     if      (sub < 1.0) mask = vec3(1.0, 1.0 - MASK_OPACITY, 1.0 - MASK_OPACITY);
     else if (sub < 2.0) mask = vec3(1.0 - MASK_OPACITY, 1.0, 1.0 - MASK_OPACITY);
