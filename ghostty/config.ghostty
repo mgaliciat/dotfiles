@@ -1,68 +1,41 @@
 # ═══════════════════════════════════════════════════════════════
 #  Ghostty — Claude Code edition
-#  Tema activo: ver línea `theme =` abajo · Tipografía: Berkeley Mono
-#  (fallback Monaspace). Paletas viven en ghostty/themes/.
+#  Tema activo: ver línea `theme =` abajo. Sólo built-ins de
+#  Ghostty (lista: `ghostty +list-themes`). Tipografía: Monaspace
+#  Argon (fallback IoskeleyMonoTerm, Monaspace Neon).
 #
 #  NOTA: Ghostty NO permite comentarios inline en la misma línea
 #  que un valor. Siempre van en una línea propia.
 # ═══════════════════════════════════════════════════════════════
 
 # ─── tema ─────────────────────────────────────────────────────
-# Los temas viven en ghostty/themes/. install.sh symlinkea ese dir
-# en ~/.config/ghostty/themes/ — Ghostty SOLO busca ahí (no en
-# Application Support/themes, aunque el config viva allá).
-# Por eso `theme = nombre` sin path funciona.
-# Disponibles actualmente:
-#   - obsidian              (high-contrast dark, acento cyan eléctrico)
-#   - anthropic-paper       (modo claro, papel kraft + tinta sepia)
-#   - anthropic-warm        (sepia/naranja, look cálido Claude Code)
-#   - blueprint-engineering (navy + tinta cyan, matchea el dock icon)
-#   - tokyo-night           (azul-negro + acentos neon, cyberpunk-lite)
-# Built-ins de Ghostty también funcionan: `theme = Vesper`, etc.
-theme = obsidian
+# Usamos sólo built-ins de Ghostty (469 disponibles, lista completa
+# con `ghostty +list-themes` o preview en https://ghosttythemes.com).
+# Warm picks: Kanagawa Lotus, Rose Pine Dawn, Solarized Light,
+# Catppuccin Latte, Gruvbox Light Hard (light) — Gruvbox Dark Hard,
+# Rose Pine, Kanagawa Wave, Everforest Dark Hard (dark).
+theme = Kanso Zen
 
 # Display P3 wide-gamut — naranja y crema saturan más en pantallas
 # M-chip / Retina. Sin downside fuera de equipos no-P3.
 window-colorspace = display-p3
 
-# Contraste mínimo automático. Default es 1.0 (sin enforcement). En
-# temas claros, muchos TUIs (Claude Code incluido) usan palette[15]
-# para texto "subdued" — diseñado para fondo oscuro, sobre cream se
-# evapora. 1.1 fuerza a Ghostty a corregir cualquier fg con contraste
-# < ratio vs bg sin alterar la paleta declarada. Red de seguridad
-# para casos que la paleta del theme no anticipa.
-minimum-contrast = 1.1
-
-# ─── shader (CRT heavy) ───────────────────────────────────────
-# Path con ~ porque Ghostty resuelve rutas relativas desde la
-# ubicación del symlink del config (Library/...), no desde el target.
-# Para apagarlo: comentar la línea activa.
-# Tweakear las constants dentro de `crt.glsl` para ajustar
-# intensidad (curvatura, scanlines, aperture grille, bloom,
-# vignette, flicker, noise). Costo en M-chip: despreciable.
-#
-# Respeta la paleta del theme — sólo aplica efectos ópticos
-# encima. Mejor con themes oscuros: el RGB mask + scanlines
-# crean bandas feas sobre fondo claro.
-custom-shader = ~/dotfiles/ghostty/shaders/eink.glsl
-
 # ─── tipografía ───────────────────────────────────────────────
-# Ioskeley Mono Term — Iosevka build que imita Berkeley Mono (OFL, gratis).
-# https://github.com/ahatem/IoskeleyMono
-# Variante "Term" para evitar glitches de box-drawing en Ghostty, con Nerd
-# Font incluido para íconos de starship/devicons.
-# Fallback a Monaspace Neon por si se desinstala la familia primaria.
+# iA Writer Mono S — la versión pura monospace de iA Writer.
+# Diseñada para reading-first (Claude Code output, markdown, SDD)
+# con counters abiertos, x-height alta, italics nativas verdaderas
+# (no slanted). NO usar la variante Duo (half-mono) — Ghostty la
+# renderiza con huecos brutales entre caracters porque fuerza
+# half-mono dentro de celdas monospace fijas.
+# Fallback a IoskeleyMonoTerm para íconos Nerd (starship/devicons)
+# que iA no incluye, y a Monaspace Neon como red de seguridad.
+font-family             = iA Writer Mono S
 font-family             = IoskeleyMonoTerm Nerd Font
 font-family             = Monaspace Neon
 font-size = 15
 
-# Italics de Monaspace Radon (handwritten) para markdown emphasis bonito.
-# Comenta estas dos líneas si prefieres consistencia total con Ioskeley.
-font-family-italic      = Monaspace Radon
-font-family-bold-italic = Monaspace Radon
-
-# Texture healing + ligaduras estándar (la magia de Monaspace)
-font-feature = +calt
+# Ligaduras estándar — iA Writer no es texture-healing pero soporta
+# +liga para los operadores comunes (=>, !=, >=, etc.).
 font-feature = +liga
 
 font-thicken = true
@@ -75,7 +48,7 @@ adjust-cell-height = 3%
 # ─── ventana ──────────────────────────────────────────────────
 # tabs integradas en el titlebar (estilo Chrome/Arc): libera ~1
 # línea vertical de terminal y queda más limpio que tener tab bar
-# y titlebar separadas. El color matchea el background del shader.
+# y titlebar separadas. El color hereda del background del theme.
 # Alternativas: transparent (titlebar funde con fondo, tab bar
 # aparte) · native (look macOS estándar) · hidden (sin titlebar).
 macos-titlebar-style = tabs
@@ -97,9 +70,8 @@ window-save-state = always
 
 # ─── cursor ───────────────────────────────────────────────────
 # Block — look "terminal classic" con carácter. El color sale del
-# theme activo (ver ghostty/themes/<nombre>). Combinado con
-# cursor-invert-fg-bg el char debajo nunca se pierde.
-# Otras opciones: bar, block_hollow, underline.
+# theme activo (cursor-color + cursor-text). Otras opciones: bar,
+# block_hollow, underline.
 cursor-style = block
 
 # cursor parpadea — feedback sutil de que el terminal está vivo.
@@ -174,9 +146,6 @@ notify-on-command-finish-action = no-bell,notify
 #  PAQUETE 3 — Polish visual
 # ═══════════════════════════════════════════════════════════════
 
-# Cursor invierte FG/BG en vez de tapar el caracter de abajo.
-cursor-invert-fg-bg = true
-
 # Splits sin foco se atenúan al 85% — ves al instante dónde tecleas.
 unfocused-split-opacity = 0.85
 
@@ -209,10 +178,11 @@ keybind = cmd+shift+i=prompt_surface_title
 
 # Variantes oficiales (mutuamente excluyentes con custom-style):
 # official, blueprint, chalkboard, microchip, glass, holographic,
-# paper, retro, xray. `retro` pega con la estética 80s del CRT shader.
-# Para volver al fantasma personalizado: cambiar a `custom-style` y
-# descomentar el bloque de abajo.
-macos-icon = blueprint
+# paper, retro, xray. `paper` matchea themes warm light (Kanagawa
+# Lotus, Rose Pine Dawn, etc.); `retro`/`blueprint` quedan mejor
+# con dark. Para volver al fantasma personalizado: cambiar a
+# `custom-style` y descomentar el bloque de abajo.
+macos-icon = paper
 
 # Bloque custom (sólo aplica si macos-icon = custom-style):
 # macos-icon-frame = plastic              # aluminum, beige, chrome, plastic

@@ -32,9 +32,6 @@ if [[ -f "$GHOSTTY_DIR/config" && ! -L "$GHOSTTY_DIR/config" ]]; then
   echo "→ stale ghostty config movido a config.backup.$TS"
 fi
 link "$DOTFILES/ghostty/config.ghostty" "$GHOSTTY_DIR/config.ghostty"
-# Themes viven en ~/.config/ghostty/themes/ (NO en Application Support/themes).
-# Ghostty solo busca themes en ~/.config/ghostty/themes/ y en el bundle de la app.
-link "$DOTFILES/ghostty/themes"         "$HOME/.config/ghostty/themes"
 link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
 link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
 link "$DOTFILES/tmux"                   "$HOME/.config/tmux"
@@ -114,6 +111,13 @@ if command -v brew >/dev/null 2>&1; then
   REQUIRED_CASKS=(
     ghostty
     karabiner-elements
+    # Fonts referenciadas por ghostty/config.ghostty.
+    # iA Writer Mono = primary (reading-first). Las otras dos son
+    # fallback chain: Ioskeley provee íconos Nerd que iA no tiene,
+    # Monaspace queda como red de seguridad final.
+    font-ia-writer-mono
+    font-ioskeley-mono
+    font-monaspace
   )
 
   MISSING_FORMULAE=()

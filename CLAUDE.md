@@ -55,7 +55,7 @@ The override-at-end pattern is load-bearing: in `.zshrc`, `.zshenv`, and `.gitco
 - **`focus-events on` es obligatorio.** Sin esto, gitsigns no detecta cambios externos al buffer y nvim no auto-reloadea archivos modificados afuera.
 - **Estructura modular: 5 archivos**, idéntica al patrón de craftzdog. `tmux.conf` carga `macos.conf` (condicional Darwin), `theme.conf`, `statusline.conf`, `utility.conf`. Si vas a tweakear un color, andá a `theme.conf`/`statusline.conf` — `tmux.conf` solo tiene comportamiento.
 - **tpm bootstrap vive en `install.sh`**, no en `tmux.conf`. Plugins listados en `tmux.conf` se instalan con `prefix + I` (mayúscula) la primera vez. tpm clonado en `~/.config/tmux/plugins/tpm/` por el installer (idempotente).
-- **Paleta `theme.conf` es duplicación deliberada.** tmux no tiene variables — los mismos hex de blueprint viven en 3 archivos: `ghostty/themes/blueprint-engineering`, `nvim/lua/plugins/colorscheme.lua`, `tmux/theme.conf`. Si cambias el theme, sincronizá los tres.
+- **Paleta `theme.conf` es duplicación deliberada.** tmux no tiene variables — los mismos hex (lineage del viejo `blueprint-engineering`) viven en `nvim/lua/plugins/colorscheme.lua` y `tmux/theme.conf`. Si cambias el theme de nvim, sincronizá tmux a mano. Ghostty ya no participa: usa built-ins (`theme = Kanagawa Lotus`, etc.) — su paleta es independiente.
 - **`utility.conf` tiene los popups por proyecto.** `prefix + y` abre Claude Code en una sesión tmux dedicada por directorio (md5 del path = session ID) — cerrás el popup, Claude sigue vivo en background; reabrir desde otro pane del mismo proyecto te devuelve la misma sesión con su contexto. Igual con `prefix + g` para lazygit.
 
 ## nvim design constraints
