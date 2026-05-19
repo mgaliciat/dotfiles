@@ -83,11 +83,13 @@ return {
             vim.keymap.set(mode, lhs, rhs, { buffer = ev.buf, desc = desc })
           end
 
-          map("n", "gd", vim.lsp.buf.definition,           "Goto definition")
-          map("n", "gD", vim.lsp.buf.declaration,          "Goto declaration")
-          map("n", "gr", vim.lsp.buf.references,           "References")
-          map("n", "gi", vim.lsp.buf.implementation,       "Goto implementation")
-          map("n", "gt", vim.lsp.buf.type_definition,      "Goto type definition")
+          -- Glance flotante en vez de jump directo: con hook before_open,
+          -- si hay 1 solo resultado salta igual; si hay varios, peek window.
+          map("n", "gd", "<cmd>Glance definitions<cr>",      "Goto definition")
+          map("n", "gD", vim.lsp.buf.declaration,            "Goto declaration")
+          map("n", "gr", "<cmd>Glance references<cr>",       "References")
+          map("n", "gi", "<cmd>Glance implementations<cr>",  "Goto implementation")
+          map("n", "gt", "<cmd>Glance type_definitions<cr>", "Goto type definition")
           map("n", "K",  vim.lsp.buf.hover,                "Hover docs")
           map("n", "<leader>rn", vim.lsp.buf.rename,       "Rename symbol")
           map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "Code action")
@@ -97,12 +99,9 @@ return {
           local client = vim.lsp.get_client_by_id(ev.data.client_id)
           if client and client:supports_method("textDocument/codeLens") then
             map("n", "<leader>cl", vim.lsp.codelens.run, "Run code lens")
-            -- Codelens no se autorefresca — lo hacemos al entrar/guardar el buffer.
-            vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "CursorHold" }, {
-              buffer = ev.buf,
-              callback = function() vim.lsp.codelens.refresh({ bufnr = ev.buf }) end,
-            })
-            vim.lsp.codelens.refresh({ bufnr = ev.buf })
+            -- nvim 0.12+: enable() auto-refresca vía decoration provider (on_win).
+            -- Reemplaza al patrón viejo de refresh() + autocmd BufEnter/BufWritePost.
+            vim.lsp.codelens.enable(true, { bufnr = ev.buf })
           end
 
           -- Inlay hints (Go, Rust, TS, Python via basedpyright los soportan).
