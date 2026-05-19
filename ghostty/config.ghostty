@@ -44,7 +44,7 @@ minimum-contrast = 1.1
 # Respeta la paleta del theme — sólo aplica efectos ópticos
 # encima. Mejor con themes oscuros: el RGB mask + scanlines
 # crean bandas feas sobre fondo claro.
-custom-shader = ~/dotfiles/ghostty/shaders/crt.glsl
+custom-shader = ~/dotfiles/ghostty/shaders/eink.glsl
 
 # ─── tipografía ───────────────────────────────────────────────
 # Ioskeley Mono Term — Iosevka build que imita Berkeley Mono (OFL, gratis).
