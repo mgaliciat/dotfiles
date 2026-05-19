@@ -8,17 +8,79 @@
 #  que un valor. Siempre van en una línea propia.
 # ═══════════════════════════════════════════════════════════════
 
-# ─── tema ─────────────────────────────────────────────────────
-# Usamos sólo built-ins de Ghostty (469 disponibles, lista completa
-# con `ghostty +list-themes` o preview en https://ghosttythemes.com).
-# Warm picks: Kanagawa Lotus, Rose Pine Dawn, Solarized Light,
-# Catppuccin Latte, Gruvbox Light Hard (light) — Gruvbox Dark Hard,
-# Rose Pine, Kanagawa Wave, Everforest Dark Hard (dark).
-theme = Flexoki Light
+# ─── tema (Anthropic custom inline) ───────────────────────────
+# Paleta portada de ashwingopalsamy/claude-code-theme (VS Code,
+# WCAG-validated, 12 variantes). Normalizada de las fuentes oficiales
+# de Anthropic: brand-guidelines skill + docs.anthropic.com CSS vars.
+#
+# Brand anchors:
+#   #C96442 primary terracota · #D97757 secondary (Claude orange)
+#   #CC785C accent · #1A1917 ink · #FAF9F5 paper
+#   #141413 bg dark · #EAE7DF fg dark · #2B2A27 bg inset
+#
+# Toggle entre Dark/Light: comentar el bloque activo y descomentar
+# el otro. NO mezclar — cada uno define su paleta completa.
+#
+# ──── Anthropic DARK (ashwingopalsamy port) — comentado
+# background           = 141413
+# foreground           = EAE7DF
+# cursor-color         = D4967E
+# cursor-text          = 141413
+# selection-background = 2B2A27
+# selection-foreground = EAE7DF
+# palette = 0=#1A1917
+# palette = 1=#D47563
+# palette = 2=#9ACA86
+# palette = 3=#E8C96B
+# palette = 4=#61AAF2
+# palette = 5=#9B87F5
+# palette = 6=#8CC4FF
+# palette = 7=#D9D5CC
+# palette = 8=#6B665F
+# palette = 9=#F09884
+# palette = 10=#B6E0A5
+# palette = 11=#F2D98F
+# palette = 12=#A2D2FF
+# palette = 13=#C9BCFF
+# palette = 14=#BDE0FF
+# palette = 15=#F5F2E9
+#
+# ──── Anthropic LIGHT (ashwingopalsamy port) — ACTIVO
+background           = FAF9F5
+foreground           = 1A1917
+cursor-color         = CC785C
+cursor-text          = FAF9F5
+selection-background = EAE7DF
+selection-foreground = 1A1917
+palette = 0=#1A1917
+palette = 1=#A84B3A
+palette = 2=#2E7C4C
+palette = 3=#8A6220
+palette = 4=#207FDE
+palette = 5=#6A5BCC
+palette = 6=#2E5F99
+palette = 7=#746E64
+palette = 8=#8D877D
+palette = 9=#C45F4A
+palette = 10=#5E8F6D
+palette = 11=#9C7A39
+palette = 12=#4F79A8
+palette = 13=#6D5DBD
+palette = 14=#45809E
+palette = 15=#4A473F
 
 # Display P3 wide-gamut — naranja y crema saturan más en pantallas
 # M-chip / Retina. Sin downside fuera de equipos no-P3.
 window-colorspace = display-p3
+
+# Contraste mínimo automático. CRÍTICO en light themes: muchas TUIs
+# (Claude Code, git --color, diff context lines, line numbers) usan
+# grays 256-color fijos (xterm 232-255) que IGNORAN la paleta y se
+# evaporan sobre fondo cream. 4.5 = WCAG AA — los rescata sin
+# tocar la paleta declarada. Si después volvés a un dark theme con
+# grays muted intencionales (ej. Poimandres Storm), bajalo a 1.1
+# para ver los colores fieles al diseño original.
+minimum-contrast = 4.5
 
 # ─── tipografía ───────────────────────────────────────────────
 # iA Writer Mono S — la versión pura monospace de iA Writer.

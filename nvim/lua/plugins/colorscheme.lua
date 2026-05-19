@@ -10,9 +10,11 @@
 --
 -- Themes disponibles actualmente:
 --
---   obsidian   high-contrast dark, acento cyan
---   warm       dark sepia/naranja
---   paper      light cream + tinta sepia
+--   anthropic-dark   dark Claude.ai (brown-black + Claude orange) ← espejo Ghostty
+--   anthropic-light  light Anthropic (cream paper + sepia)         ← espejo Ghostty
+--   obsidian         high-contrast dark, acento cyan
+--   warm             dark sepia/naranja (legacy)
+--   paper            light cream + tinta sepia (legacy)
 --
 -- Switching:
 --   1. Editá `vim.g.theme = "<name>"` en lua/config/options.lua
