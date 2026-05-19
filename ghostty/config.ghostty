@@ -59,14 +59,6 @@ minimum-contrast = 1.1
 #     anthropic-crt usa RGB mask — crea bandas feas sobre fondo claro.
 custom-shader = ~/dotfiles/ghostty/shaders/obsidian-dots.glsl
 
-# Cursor effects (compuestos sobre el shader de fondo). Ghostty encadena
-# múltiples custom-shader en el orden declarado. Fuente upstream:
-# https://github.com/sahaj-b/ghostty-cursor-shaders — valores tweakeados
-# para look sobrio: trail dispara solo al saltar (no al typear), ripple
-# tenue color #595c70 que pega con paleta obsidian.
-custom-shader = ~/dotfiles/ghostty/shaders/cursor_warp.glsl
-custom-shader = ~/dotfiles/ghostty/shaders/ripple_cursor.glsl
-
 # ─── tipografía ───────────────────────────────────────────────
 # Ioskeley Mono Term — Iosevka build que imita Berkeley Mono (OFL, gratis).
 # https://github.com/ahatem/IoskeleyMono
