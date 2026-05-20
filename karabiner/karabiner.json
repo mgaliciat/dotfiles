@@ -11,7 +11,7 @@
             "complex_modifications": {
                 "rules": [
                     {
-                        "description": "Caps Lock → Escape (tap) / Option (hold)",
+                        "description": "Caps Lock → Option (siempre, sin tap/hold dual)",
                         "manipulators": [
                             {
                                 "type": "basic",
@@ -21,13 +21,7 @@
                                 },
                                 "to": [
                                     {
-                                        "key_code": "left_option",
-                                        "lazy": true
-                                    }
-                                ],
-                                "to_if_alone": [
-                                    {
-                                        "key_code": "escape"
+                                        "key_code": "left_option"
                                     }
                                 ]
                             }
