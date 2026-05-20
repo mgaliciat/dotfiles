@@ -4,12 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Purpose
 
-Personal macOS dotfiles for Ghostty, zsh (no Oh My Zsh), Starship, git, and Claude Code. The repo only holds the **portable / shared layer**; anything per-máquina (identity, secrets, settings that diverge across machines) is intentionally not versioned. Understand this split before suggesting changes — the wrong "improvement" can leak personal state into the public repo.
+Personal dotfiles primarily para macOS (Ghostty + Karabiner + Homebrew) con un subset portable que funciona en Linux/WSL2 (zsh, Starship, nvim, tmux, lazygit, git). El repo holds el **portable / shared layer**; cualquier cosa per-máquina (identity, secrets, settings que divergen across machines) es intentionally not versioned. Understand este split antes de suggesting changes — el wrong "improvement" puede leak personal state al public repo.
 
 ## Commands
 
-- `./install.sh` — single entry point. Idempotent: backs up existing files (`.backup.<timestamp>`) before symlinking. Re-run after `git pull` to pick up changes. Also auto-installs missing Homebrew deps and registers VS Code as default for `.ghostty` files.
-- `exec zsh` — reload shell after editing `zsh/` files. Ghostty reloads its own config automatically on save; Starship reads `~/.config/starship.toml` on every prompt render (no reload needed).
+- `./install.sh` — entry point macOS. Idempotente: backs up existing files (`.backup.<timestamp>`) antes de symlinkear. Re-run después de `git pull`. Auto-instala Homebrew deps + casks (incluye fonts), registra VS Code como default para `.ghostty` files.
+- `./install-linux.sh` — entry point para Ubuntu/Debian/WSL2. Hace los mismos symlinks (subset portable — skip ghostty, karabiner, themes) + apt install para lo nativo + cargo install para lo missing (starship, zoxide, delta, tree-sitter, eza). Detecta WSL2 y muestra hints específicos.
+- `exec zsh` — reload shell después de editar `zsh/` files. Ghostty reloads su own config automatically on save; Starship reads `~/.config/starship.toml` on every prompt render.
 
 There is no test suite, lint, or build. Changes are validated by running them.
 
@@ -39,6 +40,8 @@ The override-at-end pattern is load-bearing: in `.zshrc`, `.zshenv`, and `.gitco
 - **Plugin source order is mandatory** in `zsh/.zshrc`: autosuggestions → syntax-highlighting → history-substring-search. Inverting 2↔3 silently breaks highlighting on history matches.
 - **`pyenv` is lazy-loaded** via a shim function that self-replaces on first call. Eager `pyenv init` adds ~40ms. Other tools (`zoxide`, `fzf`) are eager because they're cheap.
 - **`.zshenv` vs `.zshrc`**: env vars and `PATH` that subprocesses (Docker, Claude Code, scripts) need go in `.zshenv`. Aliases, prompt, plugins, UI go in `.zshrc`. Don't move PATH setup into `.zshrc` — non-interactive shells won't see it.
+- **Plugin loading es cross-platform vía discovery dinámico.** El `_load_zsh_plugin` en `.zshrc` probe varios paths en orden (macOS brew → linuxbrew → apt `/usr/share` → manual `~/.zsh/plugins`). Esto permite el mismo `.zshrc` symlinkeado en mac y Linux/WSL2 sin tocar. NO volver a hardcodear `/opt/homebrew/share/...` por más limpio que se vea — rompés Linux.
+- **PATH en `.zshenv` es condicional.** Cada bloque (brew mac, linuxbrew, cargo) se prepende sólo si el dir existe. Cargo paths sólo aparecen en Linux/WSL2 donde los Rust tools (starship, eza, zoxide, delta) suelen instalarse así.
 
 ## Style and conventions
 

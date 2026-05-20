@@ -6,8 +6,24 @@
 # ═══════════════════════════════════════════════════════════════
 
 # ─── PATH ─────────────────────────────────────────────────────
-# Base primero. ~/.zshenv.local puede prepender después y ganar prioridad.
-export PATH="$HOME/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+# Cross-platform: cada bloque se prepende sólo si el dir existe.
+# Orden final (primero = mayor prioridad):
+#   $HOME/.local/bin → Homebrew (mac o linux) → $HOME/.cargo/bin → resto del PATH
+# ~/.zshenv.local puede prepender después y ganar prioridad.
+
+# Cargo (Rust tools en Linux/WSL: starship, zoxide, delta, etc.)
+[[ -d "$HOME/.cargo/bin" ]] && export PATH="$HOME/.cargo/bin:$PATH"
+
+# Linuxbrew (raro, pero soportado por completitud)
+[[ -d "/home/linuxbrew/.linuxbrew/bin" ]] && \
+  export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
+
+# Homebrew macOS Apple Silicon
+[[ -d "/opt/homebrew/bin" ]] && \
+  export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+
+# ~/.local/bin siempre wins — preserva el comportamiento original.
+export PATH="$HOME/.local/bin:$PATH"
 
 # Pyenv root (solo PATH; init lazy vive en .zshrc para no penalizar startup).
 export PYENV_ROOT="$HOME/.pyenv"

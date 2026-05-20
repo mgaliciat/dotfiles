@@ -114,17 +114,31 @@ alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 
-# ─── plugins (Homebrew, no Oh My Zsh) ─────────────────────────
+# ─── plugins (cross-platform discovery, no Oh My Zsh) ─────────
 # Orden estricto requerido por los plugins:
 #   1. autosuggestions       (gris en historial, → acepta)
 #   2. syntax-highlighting   (verde/rojo según comando válido)
 #   3. history-substring-search   (↑/↓ por substring — habilita los bindkeys de arriba)
-#
 # Si invertís el orden 2↔3, los matches de history-substring quedan
 # sin highlightear. Documentado en docs del plugin.
-source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh 2>/dev/null
-source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 2>/dev/null
-source /opt/homebrew/share/zsh-history-substring-search/zsh-history-substring-search.zsh 2>/dev/null
+#
+# Discovery: probamos paths en orden — macOS brew → linuxbrew →
+# apt (/usr/share, Ubuntu/Debian) → manual clone en ~/.zsh/plugins.
+# Esto permite el mismo .zshrc en mac y Linux/WSL2 sin tocar nada.
+_load_zsh_plugin() {
+  local name="$1" dir
+  for dir in \
+    "/opt/homebrew/share" \
+    "/home/linuxbrew/.linuxbrew/share" \
+    "/usr/share" \
+    "$HOME/.zsh/plugins"
+  do
+    [[ -f "$dir/$name/$name.zsh" ]] && { source "$dir/$name/$name.zsh"; return 0; }
+  done
+}
+_load_zsh_plugin zsh-autosuggestions
+_load_zsh_plugin zsh-syntax-highlighting
+_load_zsh_plugin zsh-history-substring-search
 
 # ─── prompt: Starship ─────────────────────────────────────────
 eval "$(starship init zsh)"
