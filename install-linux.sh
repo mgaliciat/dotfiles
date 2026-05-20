@@ -79,12 +79,15 @@ if command -v apt-get >/dev/null 2>&1; then
     fd-find                       # binary es 'fdfind' — apt lo nombra así por colisión con otro 'fd'
     bat                           # en Ubuntu 20.04 era 'batcat'; 22.04+ es 'bat'
     fzf
-    eza                           # apt 23.10+; en versiones viejas fallará → cargo lo cubre
+    eza                           # apt 23.10+; en versiones viejas falla → fallback GH release abajo
     zsh-syntax-highlighting
     zsh-autosuggestions
     python3
     python3-pip
   )
+  # NOTA: 'neovim' NO está en esta lista a propósito — apt tiene v0.6.x,
+  # tus plugins (lazy.nvim, blink.cmp, rustaceanvim) necesitan 0.10+.
+  # Lo instalamos via GH release tarball abajo.
 
   MISSING_APT=()
   for pkg in "${APT_PACKAGES[@]}"; do
@@ -142,10 +145,96 @@ if command -v cargo >/dev/null 2>&1; then
   done
 else
   echo ""
-  echo "ℹ️  cargo (Rust toolchain) no detectado — delta + tree-sitter-cli skipeados."
-  echo "   Son opcionales (delta = pretty git diffs, tree-sitter = nvim parsers)."
-  echo "   Si los querés: instalá rustup y re-corré este script."
+  echo "ℹ️  cargo (Rust toolchain) no detectado — tree-sitter-cli skipeado."
+  echo "   (delta se instala via GH release abajo, no requiere cargo)."
+  echo "   Para tree-sitter: instalá rustup y re-corré este script."
   echo "     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
+fi
+
+# ─── GitHub release binaries (lo que apt no tiene o tiene viejo) ────
+# Helpers chicos: detección de arch + fetch del tag latest desde GH API.
+_arch_x86_arm() {
+  case "$(uname -m)" in
+    x86_64)        echo "$1" ;;
+    aarch64|arm64) echo "$2" ;;
+    *)             echo "" ;;
+  esac
+}
+_gh_latest_tag() {
+  curl -fsSL "https://api.github.com/repos/$1/releases/latest" \
+    | grep -Po '"tag_name":\s*"v?\K[^"]+' | head -1
+}
+
+mkdir -p "$HOME/.local/bin"
+
+# lazygit — no está en apt default. GH release tarball.
+if ! command -v lazygit >/dev/null 2>&1; then
+  echo ""
+  echo "→ Instalando lazygit (GH release)"
+  LG_VER=$(_gh_latest_tag jesseduffield/lazygit)
+  LG_ARCH=$(_arch_x86_arm x86_64 arm64)
+  if [[ -n "$LG_VER" && -n "$LG_ARCH" ]]; then
+    curl -fsSL "https://github.com/jesseduffield/lazygit/releases/download/v${LG_VER}/lazygit_${LG_VER}_Linux_${LG_ARCH}.tar.gz" \
+      | tar -xz -C /tmp lazygit && install /tmp/lazygit "$HOME/.local/bin/" && rm /tmp/lazygit \
+      || echo "⚠️  lazygit install falló"
+  else
+    echo "⚠️  No pude resolver versión/arch de lazygit (LG_VER=$LG_VER LG_ARCH=$LG_ARCH)"
+  fi
+fi
+
+# nvim — apt tiene 0.6.x, tus plugins necesitan 0.10+. Tarball release
+# (no AppImage: el tarball no requiere FUSE, más robusto en WSL2).
+NVIM_NEEDS_INSTALL=true
+if command -v nvim >/dev/null 2>&1; then
+  NVIM_VER=$(nvim --version | head -1 | grep -oP 'v\K[0-9]+\.[0-9]+' | head -1)
+  NVIM_MAJOR=${NVIM_VER%.*}
+  NVIM_MINOR=${NVIM_VER#*.}
+  if (( NVIM_MAJOR > 0 )) || (( NVIM_MINOR >= 10 )); then
+    NVIM_NEEDS_INSTALL=false
+  fi
+fi
+if $NVIM_NEEDS_INSTALL; then
+  echo ""
+  echo "→ Instalando nvim 0.10+ (GH release tarball)"
+  NVIM_ARCH=$(_arch_x86_arm x86_64 arm64)
+  if [[ -n "$NVIM_ARCH" ]]; then
+    NVIM_TARBALL="nvim-linux-${NVIM_ARCH}.tar.gz"
+    curl -fsSL "https://github.com/neovim/neovim/releases/latest/download/${NVIM_TARBALL}" -o /tmp/nvim.tar.gz \
+      && rm -rf "$HOME/.local/share/nvim-linux" \
+      && mkdir -p "$HOME/.local/share/nvim-linux" \
+      && tar -xzf /tmp/nvim.tar.gz -C "$HOME/.local/share/nvim-linux" --strip-components=1 \
+      && ln -sf "$HOME/.local/share/nvim-linux/bin/nvim" "$HOME/.local/bin/nvim" \
+      && rm /tmp/nvim.tar.gz \
+      || echo "⚠️  nvim install falló"
+  fi
+fi
+
+# delta (git-delta) — GH release .deb. Más fácil que tarball y maneja
+# dependencies/uninstall via apt. dpkg con sudo.
+if ! command -v delta >/dev/null 2>&1; then
+  echo ""
+  echo "→ Instalando delta (GH release .deb)"
+  DELTA_VER=$(_gh_latest_tag dandavison/delta)
+  DELTA_ARCH=$(_arch_x86_arm amd64 arm64)
+  if [[ -n "$DELTA_VER" && -n "$DELTA_ARCH" ]]; then
+    curl -fsSL "https://github.com/dandavison/delta/releases/download/${DELTA_VER}/git-delta_${DELTA_VER}_${DELTA_ARCH}.deb" -o /tmp/delta.deb \
+      && sudo dpkg -i /tmp/delta.deb \
+      && rm /tmp/delta.deb \
+      || echo "⚠️  delta install falló (probá: sudo apt --fix-broken install)"
+  fi
+fi
+
+# eza — fallback si apt no lo tuvo (Ubuntu < 23.10).
+if ! command -v eza >/dev/null 2>&1; then
+  echo ""
+  echo "→ Instalando eza (GH release fallback, apt no lo tenía)"
+  EZA_VER=$(_gh_latest_tag eza-community/eza)
+  EZA_ARCH=$(_arch_x86_arm x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu)
+  if [[ -n "$EZA_VER" && -n "$EZA_ARCH" ]]; then
+    curl -fsSL "https://github.com/eza-community/eza/releases/download/v${EZA_VER}/eza_${EZA_ARCH}.tar.gz" \
+      | tar -xz -C /tmp ./eza && install /tmp/eza "$HOME/.local/bin/" && rm /tmp/eza \
+      || echo "⚠️  eza install falló"
+  fi
 fi
 
 # ─── pyenv (curl installer oficial) ────────────────────────────
@@ -185,7 +274,6 @@ echo "   1. Credenciales/env vars per-máquina: crear ~/.zshenv.local"
 echo "   2. Aliases/funciones per-máquina: crear ~/.zshrc.local"
 echo "   3. Abrir shell nuevo: exec zsh"
 echo "   4. Adentro de tmux la primera vez: prefix + I para plugins"
-echo "   5. neovim apt es viejo — para 0.12+ instalá AppImage:"
-echo "        curl -sLo ~/.local/bin/nvim https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.appimage"
-echo "        chmod +x ~/.local/bin/nvim"
-echo "   6. lazygit (no en apt): descargá binary de https://github.com/jesseduffield/lazygit/releases"
+echo "   5. Si algún tool sigue faltando: revisá output arriba — los ⚠️"
+echo "      marcan installs fallidos. Suelen ser problemas de red o arch"
+echo "      no soportada (sólo x86_64 + arm64 implementados)."
