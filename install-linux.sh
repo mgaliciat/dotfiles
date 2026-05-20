@@ -105,16 +105,32 @@ else
   echo "⚠️  apt-get no detectado — saltando instalación de packages."
 fi
 
-# ─── cargo packages (lo que apt no tiene, o tiene viejo) ───────
-# starship es el más crítico — el prompt depende de él.
+# ─── starship + zoxide (curl installers oficiales) ─────────────
+# Estos NO requieren cargo — bajan el binary precompilado a ~/.local/bin.
+# Críticos porque el .zshrc los invoca (eval starship/zoxide init).
+
+if ! command -v starship >/dev/null 2>&1; then
+  echo ""
+  echo "→ Instalando starship (curl installer oficial)"
+  # -y: install sin prompt; -b ~/.local/bin: no requiere sudo
+  curl -sS https://starship.rs/install.sh | sh -s -- --yes --bin-dir "$HOME/.local/bin" \
+    || echo "⚠️  starship install falló — el .zshrc va a skipear prompt"
+fi
+
+if ! command -v zoxide >/dev/null 2>&1; then
+  echo ""
+  echo "→ Instalando zoxide (curl installer oficial)"
+  curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash \
+    || echo "⚠️  zoxide install falló — el .zshrc va a skipear cd inteligente"
+fi
+
+# ─── cargo packages (sólo lo que realmente necesita Rust toolchain) ───
+# delta y tree-sitter no tienen curl installer oficial cómodo.
+# Si falta cargo, los skipeamos con mensaje claro (no son críticos).
 if command -v cargo >/dev/null 2>&1; then
-  # crate name → binary name (cuando difieren)
   declare -A CARGO_PACKAGES=(
-    [starship]=starship
-    [zoxide]=zoxide
     [git-delta]=delta             # crate "git-delta" instala binario "delta"
     [tree-sitter-cli]=tree-sitter
-    [eza]=eza                     # backup por si apt no lo tuvo
   )
 
   for crate in "${!CARGO_PACKAGES[@]}"; do
@@ -126,10 +142,10 @@ if command -v cargo >/dev/null 2>&1; then
   done
 else
   echo ""
-  echo "⚠️  cargo (Rust toolchain) no detectado — varios tools no se instalarán."
-  echo "   Para bootstraping de rustup:"
+  echo "ℹ️  cargo (Rust toolchain) no detectado — delta + tree-sitter-cli skipeados."
+  echo "   Son opcionales (delta = pretty git diffs, tree-sitter = nvim parsers)."
+  echo "   Si los querés: instalá rustup y re-corré este script."
   echo "     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
-  echo "   Después re-corré: ./install-linux.sh"
 fi
 
 # ─── pyenv (curl installer oficial) ────────────────────────────

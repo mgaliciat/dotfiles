@@ -82,7 +82,9 @@ pyenv() {
 }
 
 # zoxide → cd inteligente. Aprende dirs visitados, salta con 'cd proyecto'.
-eval "$(zoxide init zsh --cmd cd)"
+# command -v guard: si zoxide no está instalado (ej. WSL2 sin install completo)
+# evitamos "command not found" en cada shell start.
+command -v zoxide >/dev/null && eval "$(zoxide init zsh --cmd cd)"
 
 # fzf → fuzzy finder. Habilita Ctrl+R (history), Ctrl+T (files), Alt+C (cd).
 source <(fzf --zsh) 2>/dev/null
@@ -141,7 +143,9 @@ _load_zsh_plugin zsh-syntax-highlighting
 _load_zsh_plugin zsh-history-substring-search
 
 # ─── prompt: Starship ─────────────────────────────────────────
-eval "$(starship init zsh)"
+# command -v guard: si starship no está instalado evitamos error en startup.
+# Sin starship el prompt cae al default de zsh (`%~ $`) — funcional pero feo.
+command -v starship >/dev/null && eval "$(starship init zsh)"
 
 # ─── overrides locales (no versionado) ────────────────────────
 # ~/.zshrc.local para aliases / funciones / overrides per-máquina.
