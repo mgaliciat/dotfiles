@@ -243,18 +243,24 @@ keybind = cmd+nine=goto_tab:9
 #  PAQUETE 5 — Dock icon coordinado con Vesper
 # ═══════════════════════════════════════════════════════════════
 
-# Variantes oficiales: official, blueprint, chalkboard, microchip,
-# glass, holographic, paper, retro, xray. `paper` = sketch warm
-# claro; `blueprint`/`retro` matchean dark themes; `custom-style`
-# permite frame + ghost-color + screen-color propios (ver bloque
-# comentado abajo).
-macos-icon = paper
+# custom-style: frame aluminum (mac-nativo) + pantalla deep-ocean
+# osaka (#031219 → #073642) + fantasma naranja Claude. Variantes
+# built-in (mutuamente excluyentes con custom-style — NO aceptan
+# overrides de color): official, blueprint, chalkboard, microchip,
+# glass, holographic, paper, retro, xray.
+macos-icon = custom-style
 
-# Bloque custom (sólo aplica si macos-icon = custom-style).
-# Última variante usada: deep-ocean solarized + fantasma Claude.
-# macos-icon-frame = chrome
-# macos-icon-ghost-color = #d97757
-# macos-icon-screen-color = #031219,#073642
+# Frame: aluminum (gris hardware mac). Alternativas:
+# beige (paper-ish cálido), plastic (off-white), chrome (sleek).
+macos-icon-frame = aluminum
+
+# Fantasma naranja Claude — guiño al brand sobre fondo solarized.
+# Alternativa "purista solarized": #268bd2 (solarized blue accent).
+macos-icon-ghost-color = #d97757
+
+# Pantalla: gradiente del bg actual (#031219) hacia solarized base02
+# (#073642). Si cambiás el `background` de arriba, sincronizá aquí.
+macos-icon-screen-color = #031219,#073642
 
 # ═══════════════════════════════════════════════════════════════
 #  PAQUETE 6 — Fullscreen pro (macOS)
