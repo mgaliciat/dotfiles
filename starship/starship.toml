@@ -1,30 +1,31 @@
 # ═══════════════════════════════════════════════════════════════
-#  Starship — theme-portable via colores ANSI
+#  Starship — minimal one-liner, theme-portable via colores ANSI.
 #  Los styles usan nombres (red, cyan, bright-black…) en vez de hex,
 #  así el prompt se adapta automáticamente al theme activo de Ghostty.
+#  Filosofía: 1 línea, info útil al vuelo, cero decoración.
+#
 #  Mapeo del slot → palette[N] del theme:
-#    bright-black (8) = tono "muted" para brackets/separadores
-#    blue (4)         = identidad (user/host)
+#    bright-black (8) = subtle (hostname SSH, time, exit code)
 #    bright-blue (12) = directorio (acento principal)
 #    yellow (3)       = git branch
-#    red (1)          = git status / errores
-#    green (2)        = python / OK prompt
+#    red (1)          = git dirty / error
+#    green (2)        = prompt OK / python
 #    cyan (6)         = nodejs
-#    bright-yellow    = cmd duration (warning)
-#  Filosofía: dos líneas, info útil al vuelo, cero distracción.
+#    bright-yellow    = cmd duration (warning, sólo si > 2s)
 # ═══════════════════════════════════════════════════════════════
 
-add_newline = true
+add_newline = false
 command_timeout = 1000
 
-format = """
-[\\[](bright-black)$username[@](bright-black)$hostname[ ](bright-black)$directory[\\] ](bright-black)\
+format = """\
+$username\
+$hostname\
+$directory\
 $git_branch\
-$git_status\
+$git_metrics\
 $python\
 $nodejs\
 $cmd_duration\
-$line_break\
 $status\
 $character"""
 
@@ -32,79 +33,86 @@ right_format = "$time"
 
 # ─── prompt char ──────────────────────────────────────────────
 [character]
-success_symbol = "[\\$](green)"
-error_symbol = "[\\$](red)"
-vimcmd_symbol = "[:](cyan)"
+success_symbol = "[❯](green)"
+error_symbol   = "[❯](red)"
+vimcmd_symbol  = "[❮](cyan)"
 
-# ─── exit status (en su propia línea si != 0) ─────────────────
+# ─── exit status (no se muestra, el color del ❯ ya señala error) ─
 [status]
-disabled = false
-format = "[\\[exit $status\\]](red)\n"
+disabled = true
 
-# ─── user / host ──────────────────────────────────────────────
+# ─── user / hostname (sólo en SSH) ─────────────────────────────
+# Si no estás en SSH, ambos quedan ocultos — local terminal limpio.
 [username]
-show_always = true
-style_user = "blue"
-style_root = "bold red"
-format = "[$user]($style)"
+show_always = false
+style_user  = "bright-black"
+style_root  = "bold red"
+format      = "[$user]($style)@"
 
 [hostname]
-ssh_only = false
-trim_at = "."
-style = "blue"
-format = "[$hostname]($style)"
+ssh_only  = true
+trim_at   = "."
+style     = "bright-black"
+format    = "[$hostname]($style) "
 
-# ─── directorio ───────────────────────────────────────────────
+# ─── directorio (acento principal) ─────────────────────────────
 [directory]
-style = "bold bright-blue"
-truncation_length = 3
-truncate_to_repo = true
-truncation_symbol = "…/"
-read_only = " ro"
+style              = "bold bright-blue"
+truncation_length  = 3
+truncate_to_repo   = true
+truncation_symbol  = "…/"
+read_only          = " "
+read_only_style    = "red"
+format             = "[$path]($style)[$read_only]($read_only_style) "
 
-# ─── git ──────────────────────────────────────────────────────
+# ─── git branch ───────────────────────────────────────────────
 [git_branch]
-symbol = ""
-style = "yellow"
-format = '[\(](bright-black)[$branch]($style)[\) ](bright-black)'
+symbol = " "
+style  = "yellow"
+format = "[$symbol$branch]($style) "
 
+# ─── git status (disabled — usamos git_metrics en su lugar) ────
+# Filosofía: si querés ver qué cambió (staged vs untracked vs
+# branch ahead/behind), corré `git status`. El prompt sólo cuenta
+# líneas via $git_metrics — info útil al vuelo sin clutter.
 [git_status]
-style = "red"
-format = "[$all_status$ahead_behind]($style)"
-conflicted = "✘ "
-ahead = "↑${count} "
-behind = "↓${count} "
-diverged = "⇕${ahead_count}/${behind_count} "
-modified = "● "
-staged = "+ "
-untracked = "? "
-stashed = "≡ "
-renamed = "» "
-deleted = "✘ "
+disabled = true
 
-# ─── lenguajes ────────────────────────────────────────────────
+# ─── git metrics (+N -M, sólo si hay diffs no-cero) ────────────
+# Muestra líneas added/deleted del working tree vs HEAD. NO incluye
+# archivos untracked (limitación del módulo — usa `git diff` por
+# debajo). Si necesitás trackear untracked, hacé `git add -N` para
+# que aparezcan, o usá `git status`.
+[git_metrics]
+disabled           = false
+only_nonzero_diffs = true
+added_style        = "green"
+deleted_style      = "red"
+format             = "[+$added]($added_style) [-$deleted]($deleted_style) "
+
+# ─── lenguajes (compactos, sólo en proyectos del lenguaje) ────
 [python]
-symbol = "py "
-style = "green"
-format = '[\[${symbol}${pyenv_prefix}(${version})(\($virtualenv\))\] ]($style)'
+symbol            = ""
+style             = "green"
+format            = "[$symbol${pyenv_prefix}(${version}) ]($style)"
 detect_extensions = ["py"]
-detect_files = ["pyproject.toml", "requirements.txt", ".python-version", "Pipfile"]
+detect_files      = ["pyproject.toml", "requirements.txt", ".python-version", "Pipfile"]
 
 [nodejs]
-symbol = "node "
-style = "cyan"
-format = '[\[${symbol}(${version})\] ]($style)'
+symbol       = ""
+style        = "cyan"
+format       = "[$symbol(${version}) ]($style)"
 detect_files = ["package.json", ".nvmrc"]
 
-# ─── cmd duration (solo si tardó >2s) ─────────────────────────
+# ─── cmd duration (sólo si tardó >2s) ─────────────────────────
 [cmd_duration]
 min_time = 2000
-style = "bold bright-yellow"
-format = '[\[$duration\] ]($style)'
+style    = "bright-yellow"
+format   = "[$duration ]($style)"
 
-# ─── reloj (esquina derecha) ──────────────────────────────────
+# ─── reloj (esquina derecha, subtle) ──────────────────────────
 [time]
-disabled = false
+disabled    = false
 time_format = "%H:%M"
-style = "bright-black"
-format = "[$time]($style)"
+style       = "bright-black"
+format      = "[$time]($style)"
