@@ -28,15 +28,18 @@ return {
   lazy = false,
   priority = 1000,
   opts = {
-    transparent = false,
+    -- Hereda la transparencia de Ghostty (estilo craftzdog). Sidebars y
+    -- floats también van transparentes — sino se ven como "islas" opacas
+    -- sobre el fondo see-through del terminal.
+    transparent = true,
     terminal_colors = true,
     styles = {
       comments  = { italic = true },
       keywords  = { italic = false },
       functions = {},
       variables = {},
-      sidebars  = "dark",
-      floats    = "dark",
+      sidebars  = "transparent",
+      floats    = "transparent",
     },
   },
   config = function(_, opts)
