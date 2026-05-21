@@ -243,18 +243,18 @@ keybind = cmd+nine=goto_tab:9
 #  PAQUETE 5 — Dock icon coordinado con Vesper
 # ═══════════════════════════════════════════════════════════════
 
-# Variantes oficiales (mutuamente excluyentes con custom-style):
-# official, blueprint, chalkboard, microchip, glass, holographic,
-# paper, retro, xray. `paper` matchea themes warm light (Kanagawa
-# Lotus, Rose Pine Dawn, etc.); `retro`/`blueprint` quedan mejor
-# con dark. Para volver al fantasma personalizado: cambiar a
-# `custom-style` y descomentar el bloque de abajo.
+# Variantes oficiales: official, blueprint, chalkboard, microchip,
+# glass, holographic, paper, retro, xray. `paper` = sketch warm
+# claro; `blueprint`/`retro` matchean dark themes; `custom-style`
+# permite frame + ghost-color + screen-color propios (ver bloque
+# comentado abajo).
 macos-icon = paper
 
-# Bloque custom (sólo aplica si macos-icon = custom-style):
-# macos-icon-frame = plastic              # aluminum, beige, chrome, plastic
-# macos-icon-ghost-color = #d97757        # Claude orange
-# macos-icon-screen-color = #14110d,#1a1814  # gradiente warm dark
+# Bloque custom (sólo aplica si macos-icon = custom-style).
+# Última variante usada: deep-ocean solarized + fantasma Claude.
+# macos-icon-frame = chrome
+# macos-icon-ghost-color = #d97757
+# macos-icon-screen-color = #031219,#073642
 
 # ═══════════════════════════════════════════════════════════════
 #  PAQUETE 6 — Fullscreen pro (macOS)
