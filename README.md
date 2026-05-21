@@ -1,6 +1,6 @@
 # dotfiles
 
-Personal config for macOS — Ghostty terminal, zsh, Starship prompt.
+Personal config for macOS — Ghostty terminal, zsh, Starship prompt, Neovim, tmux, lazygit.
 
 ## What's here
 
@@ -8,12 +8,15 @@ Personal config for macOS — Ghostty terminal, zsh, Starship prompt.
 |---|---|
 | `zsh/.zshrc` | Interactive shell config (no Oh My Zsh — startup ~30ms) |
 | `zsh/.zshenv` | Env vars and PATH, loaded for all shells |
-| `starship/starship.toml` | Starship prompt config — Vesper palette |
-| `ghostty/config.ghostty` | Ghostty terminal config — Vesper theme + Monaspace |
+| `starship/starship.toml` | Starship prompt config |
+| `ghostty/config.ghostty` | Ghostty terminal config — theme, fonts, keybinds |
 | `git/.gitignore_global` | Global gitignore (macOS noise, editor files, build dirs) |
-| `nvim/` | Neovim config (legacy from 2022 — not currently in use) |
-| `karabiner/karabiner.json` | Karabiner-Elements — Caps Lock dual-function (tap = `Esc`, hold = `Option`) |
-| `install.sh` | Symlinks everything into place |
+| `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*`, solarized-osaka theme |
+| `tmux/` | tmux config — prefix `C-t`, popups Alt+c/C/s/g/Enter, modular (theme/statusline/utility) |
+| `lazygit/config.yml` | lazygit theme + custom commands |
+| `scripts/` | Helpers — `ide` (nvim+lazygit IDE layout), `tmux-claude` (session picker) |
+| `install.sh` | Symlinks everything into place + auto-install deps |
+| `install-linux.sh` | Portable subset para Ubuntu/Debian/WSL2 |
 
 ## Setup on a new machine
 
@@ -33,15 +36,32 @@ cd ~/dotfiles
 
 `install.sh` se encarga de:
 
-1. Symlinkear configs (`.zshrc`, `.zshenv`, `.gitignore_global`, ghostty, starship, claude/skills, claude/memory si existen local)
+1. Symlinkear configs (`.zshrc`, `.zshenv`, `.gitignore_global`, ghostty, starship, nvim, tmux, lazygit, claude/skills, claude/memory si existen local)
 2. Auto-instalar dependencias faltantes vía Homebrew:
-   - **Formulae**: `starship`, `zsh-syntax-highlighting`, `zsh-autosuggestions`, `zsh-history-substring-search`, `eza`, `bat`, `fd`, `ripgrep`, `zoxide`, `fzf`, `git-delta`, `pyenv`
-   - **Casks**: `ghostty`, `karabiner-elements`
-3. Registrar VS Code como app por defecto para `.ghostty` (si VS Code está instalado)
-
-> **Karabiner** la primera vez pide permisos de Input Monitoring + Accessibility en System Settings → Privacy & Security. Sin aprobarlos, el remap de Caps Lock (tap = `Esc`, hold = `Option`) no se activa.
+   - **Formulae**: `starship`, `zsh-syntax-highlighting`, `zsh-autosuggestions`, `zsh-history-substring-search`, `fzf-tab`, `eza`, `bat`, `fd`, `ripgrep`, `zoxide`, `fzf`, `git-delta`, `pyenv`, `neovim`, `tree-sitter-cli`, `tmux`, `lazygit`
+   - **Casks**: `ghostty`, `font-plemol-jp-nf`, `font-ia-writer-mono`, `font-monaspace`
+3. Clonar tpm (Tmux Plugin Manager) si falta
+4. Recargar tmux config si hay un server corriendo
+5. Registrar VS Code como app por defecto para `.ghostty` (si VS Code está instalado)
 
 **`~/.gitconfig` NO se versiona ni symlinkea** — cada máquina mantiene el suyo 100% propio (credenciales, 1Password vaults, signing keys son per-máquina). Cuando configures una Mac nueva, copiá tu `.gitconfig` desde donde lo tengas backupeado.
+
+**Caps Lock → Option** se configura en System Settings → Keyboard → Keyboard Shortcuts → Modifier Keys (no se versiona, es per-device).
+
+## Sync existing machine
+
+Después de `git pull` en una Mac que ya está configurada, los archivos quedan actualizados vía symlinks, **pero las herramientas que ya están corriendo siguen con la config vieja en memoria**. Para aplicar:
+
+| Herramienta cambió | Cómo aplicar |
+|---|---|
+| `zsh/*` | `exec zsh` en cada terminal abierta |
+| `starship/*` | Automático — se relee en cada prompt |
+| `ghostty/*` | `Cmd+Shift+R` recarga la mayoría de settings. **Para `keybind` nuevos: quit completo (`Cmd+Q`) + relanzar** — el reload no siempre los aplica |
+| `tmux/*` | `./install.sh` ya lo hace; o manual: `tmux source ~/.config/tmux/tmux.conf` |
+| `nvim/*` | Reiniciar nvim (o `:Lazy reload <plugin>` para plugins puntuales) |
+| `lazygit/*` | Cerrar y reabrir lazygit |
+
+Atajo: correr `./install.sh` después del pull es idempotente y aplica lo que puede aplicarse sin reiniciar procesos GUI.
 
 ## macOS tweaks
 

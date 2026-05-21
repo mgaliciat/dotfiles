@@ -70,6 +70,17 @@ if [[ ! -d "$TPM_DIR" ]]; then
   echo "✓ tpm instalado. Dentro de tmux: prefix + I para instalar plugins"
 fi
 
+# Si hay tmux server corriendo, recargá el config para aplicar los
+# cambios en sesiones activas sin tener que entrar al server a
+# mano. Si no hay server, skip — la próxima sesión nueva ya leerá
+# el config fresco. Guarda `tmux info` para no romper si tmux no
+# está instalado todavía (primera corrida en máquina nueva).
+if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
+  if tmux source-file "$HOME/.config/tmux/tmux.conf" 2>/dev/null; then
+    echo "✓ tmux config recargado en sesiones activas"
+  fi
+fi
+
 # macOS file associations — abrir config.ghostty en VS Code (no TextEdit).
 # .ghostty no tiene UTI registrada, así que macOS cae a TextEdit por default.
 # Idempotente: chequea si la entrada ya existe antes de agregarla.

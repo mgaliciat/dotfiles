@@ -55,6 +55,17 @@ if [[ ! -d "$TPM_DIR" ]]; then
   echo "✓ tpm instalado. Dentro de tmux: prefix + I para instalar plugins"
 fi
 
+# Si hay tmux server corriendo, recargá el config para aplicar los
+# cambios en sesiones activas sin tener que entrar al server a
+# mano. Si no hay server (típico en WSL2 fresh login), skip — la
+# próxima sesión nueva ya leerá el config fresco. Guarda `tmux info`
+# para no romper si tmux no está instalado todavía.
+if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
+  if tmux source-file "$HOME/.config/tmux/tmux.conf" 2>/dev/null; then
+    echo "✓ tmux config recargado en sesiones activas"
+  fi
+fi
+
 # ─── zsh-history-substring-search (no está en apt) ────────────
 # El plugin manual va a ~/.zsh/plugins/, que el discovery del .zshrc
 # probe como último fallback después de brew/linuxbrew/apt.
@@ -62,6 +73,16 @@ HSS_DIR="$HOME/.zsh/plugins/zsh-history-substring-search"
 if [[ ! -d "$HSS_DIR" ]]; then
   echo "→ Clonando zsh-history-substring-search"
   git clone --depth 1 https://github.com/zsh-users/zsh-history-substring-search "$HSS_DIR"
+fi
+
+# ─── fzf-tab (tampoco está en apt) ────────────────────────────
+# Mismo patrón que arriba: clone a ~/.zsh/plugins/. El discovery
+# del .zshrc lo recoge como fallback. En mac viene como formula
+# brew `fzf-tab`, en Linux toca a mano.
+FZFTAB_DIR="$HOME/.zsh/plugins/fzf-tab"
+if [[ ! -d "$FZFTAB_DIR" ]]; then
+  echo "→ Clonando fzf-tab"
+  git clone --depth 1 https://github.com/Aloxaf/fzf-tab "$FZFTAB_DIR"
 fi
 
 # ─── apt packages ──────────────────────────────────────────────
