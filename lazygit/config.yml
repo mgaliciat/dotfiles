@@ -6,18 +6,17 @@ gui:
   # Mouse off: en tmux popups el mouse a veces hace cosas raras
   # (selección de Ghostty interfiere con clicks de lazygit).
   mouseEvents: false
-
   # Tema con paleta blueprint (mismo espíritu que ghostty/nvim/tmux).
   theme:
     activeBorderColor:
-      - "#7dd3fc"          # cyan — pane activo
+      - "#7dd3fc" # cyan — pane activo
       - bold
     inactiveBorderColor:
-      - "#3b5675"          # gris — bordes inactivos
+      - "#3b5675" # gris — bordes inactivos
     optionsTextColor:
       - "#5a9fff"
     selectedLineBgColor:
-      - "#1e4571"          # bg highlight blueprint
+      - "#1e4571" # bg highlight blueprint
     cherryPickedCommitBgColor:
       - "#e8c468"
     cherryPickedCommitFgColor:
@@ -26,13 +25,11 @@ gui:
       - "#e87a7a"
     defaultFgColor:
       - "#cde3f5"
-
   # showFileTree: muestra el cambio organizado tipo árbol (default true).
   showFileTree: true
-  showCommandLog: false       # más espacio para los paneles principales
-  scrollHeight: 4              # smooth scroll
-  sidePanelWidth: 0.3333       # 1/3 para el panel izquierdo (files/branches/etc)
-
+  showCommandLog: false # más espacio para los paneles principales
+  scrollHeight: 4 # smooth scroll
+  sidePanelWidth: 0.3333 # 1/3 para el panel izquierdo (files/branches/etc)
 git:
   # Pull con rebase por default (evita merge commits ruidosos).
   pull:
@@ -40,10 +37,9 @@ git:
   # Auto-fetch deshabilitado (no se cuelga si la red es lenta).
   autoFetch: false
   # Paginate diffs con delta si está instalado (vos lo tenés via brew).
-  paging:
-    colorArg: always
-    pager: delta --paging=never --syntax-theme=base16-256
-
+  pagers:
+    - colorArg: always
+      pager: delta --paging=never --syntax-theme=base16-256
 # ─── custom commands ──────────────────────────────────────────
 # `?` dentro de lazygit muestra TODOS los atajos disponibles.
 customCommands:
@@ -54,7 +50,6 @@ customCommands:
     context: "global"
     description: "Amend último commit sin editar mensaje"
     loadingText: "Amending..."
-
   # `T` en files → ver el tree del commit actual con stat.
   - key: "T"
     command: "git log -1 --stat"
