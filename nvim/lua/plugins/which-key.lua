@@ -13,7 +13,6 @@ return {
     spec = {
       -- Grupos: nombres visibles para los prefijos. Los mappings
       -- individuales (con sus desc) se descubren solos.
-      { "<leader>a",  group = "ai (claude code)" },
       { "<leader>b",  group = "buffer" },
       { "<leader>c",  group = "code (LSP / debug)" },
       { "<leader>cg", group = "go debug" },

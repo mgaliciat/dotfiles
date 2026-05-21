@@ -14,7 +14,14 @@
 # Warm picks: Gruvbox Material Dark, Gruvbox Dark Hard, Everforest
 # Dark Hard, Kanagawa Wave (dark) — Gruvbox Material Light, Rose Pine
 # Dawn, Catppuccin Latte, Kanagawa Lotus (light).
-theme = Gruvbox Material Dark
+# Solarized picks: Solarized Dark Patched (estilo craftzdog),
+# Solarized Osaka Night (matchea con solarized-osaka.nvim).
+theme = Solarized Dark Patched
+
+# Background override (paleta craftzdog): empuja la base solarized de
+# #002b36 hacia un azul casi negro para ese look "deep ocean". Si querés
+# el solarized base03 puro, comentá esta línea.
+background = #031219
 
 # Display P3 wide-gamut — naranja y crema saturan más en pantallas
 # M-chip / Retina. Sin downside fuera de equipos no-P3.
@@ -33,16 +40,15 @@ window-colorspace = display-p3
 minimum-contrast = 1.1
 
 # ─── tipografía ───────────────────────────────────────────────
-# iA Writer Mono S — la versión pura monospace de iA Writer.
-# Diseñada para reading-first (Claude Code output, markdown, SDD)
-# con counters abiertos, x-height alta, italics nativas verdaderas
-# (no slanted). NO usar la variante Duo (half-mono) — Ghostty la
-# renderiza con huecos brutales entre caracters porque fuerza
-# half-mono dentro de celdas monospace fijas.
-# Fallback a IoskeleyMonoTerm para íconos Nerd (starship/devicons)
-# que iA no incluye, y a Monaspace Neon como red de seguridad.
+# PlemolJP Console NF — fuente bilingüe JP/EN del estilo craftzdog.
+# Base IBM Plex Mono + glyphs japoneses + Nerd Font integrado (íconos
+# de starship/devicons sin fallback). "Console" = ratio 5:6 (más compacto
+# que el ratio 1:2 de PlemolJP estándar), ideal para terminales densos.
+# Fallbacks: iA Writer Mono S (reading-first), Monaspace Neon (red de
+# seguridad). IoskeleyMonoTerm sale del fallback porque PlemolJP NF ya
+# trae los íconos.
+font-family             = PlemolJP Console NF
 font-family             = iA Writer Mono S
-font-family             = IoskeleyMonoTerm Nerd Font
 font-family             = Monaspace Neon
 font-size = 15
 
@@ -65,12 +71,11 @@ adjust-cell-height = 3%
 # aparte) · native (look macOS estándar) · hidden (sin titlebar).
 macos-titlebar-style = tabs
 
-# Transparencia sutil + blur fuerte. 0.95 deja apenas insinuar lo
-# que hay detrás sin perder contraste sobre Gruvbox Material Dark;
-# blur 20 difumina el fondo lo suficiente para que no distraiga del
-# output denso de Claude Code. Si querés más glass: bajar opacity a
-# 0.88 (medio) o 0.80 (marcado) y subir blur a 30-40.
-background-opacity = 0.95
+# Transparencia + blur estilo craftzdog. 0.9 muestra un toque más del
+# wallpaper que el 0.95 anterior; blur 20 difumina el fondo lo suficiente
+# para que no distraiga del output denso de Claude Code. Si querés más
+# glass: bajar opacity a 0.88 (medio) o 0.80 (marcado) y subir blur a 30-40.
+background-opacity = 0.9
 background-blur = 20
 
 # respira lateralmente — padding generoso para que el output denso

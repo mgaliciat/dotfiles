@@ -88,7 +88,11 @@ disabled           = false
 only_nonzero_diffs = true
 added_style        = "green"
 deleted_style      = "red"
-format             = "[+$added]($added_style) [-$deleted]($deleted_style) "
+# Cada lado va en su propio grupo condicional `(...)`: si la variable
+# está vacía (lo que pasa cuando el count es 0 con only_nonzero_diffs),
+# el grupo entero —incluido el literal `+` o `-`— desaparece. Sin esto,
+# con `+5 -0` veías `+5 -` con un guión huérfano colgado.
+format             = "([+$added]($added_style) )([-$deleted]($deleted_style) )"
 
 # ─── lenguajes (compactos, sólo en proyectos del lenguaje) ────
 [python]

@@ -17,7 +17,7 @@ Comandos relevantes para **esta config específica**. Para referencia exhaustiva
 | **Visual** | `v` (char), `V` (línea), `<C-v>` (bloque) | Seleccionar. |
 | **Command** | `:` | Comandos `:w`, `:Telescope`, etc. |
 | **Replace** | `R` | Sobrescribe en vez de insertar. |
-| **Terminal** | `:terminal` o `<leader>ac` (Claude) | Terminal embebido. `<C-\><C-n>` para volver a normal. |
+| **Terminal** | `:terminal` | Terminal embebido. `<C-\><C-n>` para volver a normal. |
 
 ### Salir / guardar
 
@@ -291,32 +291,7 @@ Signs en gutter:
 
 ---
 
-## 7. Claude Code — `<leader>a*`
-
-Requiere `claude` CLI en PATH (ya lo tenés).
-
-| Atajo | Acción |
-|---|---|
-| `<leader>ac` | Toggle Claude (abrir/cerrar terminal) |
-| `<leader>af` | Focus Claude (saltar al panel) |
-| `<leader>ar` | Resume — retomar sesión anterior |
-| `<leader>aC` | Continue — seguir última tarea |
-| `<leader>am` | Select model (Opus/Sonnet/Haiku) |
-| `<leader>ab` | Mandar buffer actual al contexto |
-| `<leader>as` (visual) | Mandar selección al contexto |
-| `<leader>aa` | Aceptar diff propuesto |
-| `<leader>ad` | Rechazar diff propuesto |
-
-**Comandos `:ClaudeCode*`** disponibles (usalos si preferís `:` antes que keymaps):
-- `:ClaudeCode` — toggle
-- `:ClaudeCodeFocus`
-- `:ClaudeCodeSend` (visual)
-- `:ClaudeCodeAdd <file> [start] [end]`
-- `:ClaudeCodeDiffAccept` / `:ClaudeCodeDiffDeny` (atajo: `:w` acepta, `:q` rechaza)
-
----
-
-## 8. Formatting — `<leader>cf` (conform.nvim)
+## 7. Formatting — `<leader>cf` (conform.nvim)
 
 | Atajo | Acción |
 |---|---|
@@ -337,7 +312,7 @@ Mason instala los formatters al primer uso. Si falta uno: `:Mason` → buscalo �
 
 ---
 
-## 9. Folding (treesitter-based)
+## 8. Folding (treesitter-based)
 
 | Atajo | Acción |
 |---|---|
@@ -351,7 +326,7 @@ Por default arrancás con **todo expandido** (`foldenable = false` en `options.l
 
 ---
 
-## 10. Búsqueda y reemplazo
+## 9. Búsqueda y reemplazo
 
 ### Buscar
 - `/<patrón>` — buscar adelante
@@ -371,7 +346,7 @@ Flags útiles: `c` confirmar, `i` case-insensitive, `I` case-sensitive.
 
 ---
 
-## 11. Splits y tabs
+## 10. Splits y tabs
 
 ### Splits
 - `:split` / `:sp` o `<C-w>s` — split horizontal
@@ -391,7 +366,7 @@ Flags útiles: `c` confirmar, `i` case-insensitive, `I` case-sensitive.
 
 ---
 
-## 12. Mantenimiento
+## 11. Mantenimiento
 
 ### Plugins (lazy.nvim)
 - `:Lazy` — abrir UI del plugin manager
@@ -421,11 +396,10 @@ Flags útiles: `c` confirmar, `i` case-insensitive, `I` case-sensitive.
 
 ---
 
-## 13. which-key
+## 12. which-key
 
 Si te olvidás un atajo, presioná solo `<leader>` y esperá ~400ms. Te aparece un popup con todos los grupos:
 
-- `<leader>a` → ai (claude code)
 - `<leader>b` → buffer
 - `<leader>c` → code (LSP)
 - `<leader>f` → find (telescope)
@@ -436,7 +410,7 @@ También: `<leader>?` muestra solo los keymaps activos en el buffer actual.
 
 ---
 
-## 14. Tips útiles
+## 13. Tips útiles
 
 - **Macros**: `q<letra>` empezar a grabar, `q` parar, `@<letra>` ejecutar. `@@` repite la última.
 - **Marcas**: `m<letra>` marca posición, `'<letra>` salta a la línea, `` `<letra> `` salta al carácter exacto. Marcas mayúsculas (`mA`) son globales entre archivos.
@@ -450,7 +424,7 @@ También: `<leader>?` muestra solo los keymaps activos en el buffer actual.
 
 ---
 
-## 15. Cuando algo no funciona
+## 14. Cuando algo no funciona
 
 | Síntoma | Diagnóstico |
 |---|---|

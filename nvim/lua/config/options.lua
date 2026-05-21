@@ -1,13 +1,21 @@
 -- ─── theme switcher ───────────────────────────────────────────
--- Selecciona qué paleta carga lua/plugins/colorscheme.lua. Los
--- módulos viven en lua/themes/<name>.lua. Variantes disponibles:
---   "anthropic-dark"   dark Claude.ai (brown-black + Claude orange) ← espejo Ghostty
---   "anthropic-light"  light Anthropic (cream paper + sepia)         ← espejo Ghostty
---   "obsidian"         high-contrast dark + cyan
---   "warm"             dark sepia/naranja (legacy)
---   "paper"            light cream + sepia (legacy)
+-- Selecciona qué paleta usar al arrancar. Variantes disponibles:
+--
+-- Sobre tokyonight (paletas custom en lua/themes/<name>.lua):
+--   "anthropic-dark"     dark Claude.ai (brown-black + Claude orange) ← espejo Ghostty
+--   "anthropic-light"    light Anthropic (cream paper + sepia)        ← espejo Ghostty
+--   "obsidian"           high-contrast dark + cyan
+--   "warm"               dark sepia/naranja (legacy)
+--   "paper"              light cream + sepia (legacy)
+--
+-- Sobre solarized-osaka (plugin separado, lua/plugins/solarized-osaka.lua):
+--   "solarized-osaka"        dark / night (default del plugin)
+--   "solarized-osaka-day"    light
+--   "solarized-osaka-moon"   dark más suave
+--   "solarized-osaka-storm"  dark más gris
+--
 -- Cambiar requiere reiniciar nvim (o :source $MYVIMRC + :colorscheme ...).
-vim.g.theme = "anthropic-dark"
+vim.g.theme = "solarized-osaka"
 
 -- ─── vim.opt ──────────────────────────────────────────────────
 -- Buenos defaults. Sigue el espíritu del dotfiles: comentar el WHY,

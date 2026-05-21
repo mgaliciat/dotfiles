@@ -36,12 +36,11 @@ link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
 link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
 link "$DOTFILES/tmux"                   "$HOME/.config/tmux"
 link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
-# Karabiner-Elements: Caps Lock → Esc (tap) / Option (hold).
-# OJO: la app puede reescribir karabiner.json desde su UI (settings, devices,
-# profiles). Como es un symlink al repo, los cambios desde la UI van a aparecer
-# como diffs en git status — review antes de commitear si no querés versionar
-# tweaks per-máquina.
-link "$DOTFILES/karabiner/karabiner.json" "$HOME/.config/karabiner/karabiner.json"
+# Caps Lock → Option: System Settings → Keyboard → Keyboard Shortcuts →
+# Modifier Keys → Caps Lock = Option ⌥. Es per-device y per-máquina, no
+# versionable; por eso vive en UI y no en el repo. Karabiner-Elements quedó
+# descartado por incompatibilidad con MacBook built-in + layout Latin American
+# (swappeaba <> con |° porque su virtual HID solo soporta ansi/iso genéricos).
 
 # ~/.gitconfig NO se symlinkea — cada máquina lo mantiene 100% propio
 # (credenciales, 1Password vaults, signing keys son per-máquina).
@@ -95,6 +94,7 @@ if command -v brew >/dev/null 2>&1; then
     zsh-syntax-highlighting
     zsh-autosuggestions
     zsh-history-substring-search
+    fzf-tab
     eza
     bat
     fd
@@ -110,13 +110,12 @@ if command -v brew >/dev/null 2>&1; then
   )
   REQUIRED_CASKS=(
     ghostty
-    karabiner-elements
     # Fonts referenciadas por ghostty/config.ghostty.
-    # iA Writer Mono = primary (reading-first). Las otras dos son
-    # fallback chain: Ioskeley provee íconos Nerd que iA no tiene,
-    # Monaspace queda como red de seguridad final.
+    # PlemolJP Console NF = primary (estilo craftzdog, bilingüe JP/EN
+    # con Nerd Font integrado). iA Writer Mono y Monaspace quedan como
+    # fallback chain. Ioskeley salió porque PlemolJP NF ya trae íconos.
+    font-plemol-jp-nf
     font-ia-writer-mono
-    font-ioskeley-mono
     font-monaspace
   )
 

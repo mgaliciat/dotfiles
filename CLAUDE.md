@@ -4,12 +4,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Purpose
 
-Personal dotfiles primarily para macOS (Ghostty + Karabiner + Homebrew) con un subset portable que funciona en Linux/WSL2 (zsh, Starship, nvim, tmux, lazygit, git). El repo holds el **portable / shared layer**; cualquier cosa per-máquina (identity, secrets, settings que divergen across machines) es intentionally not versioned. Understand este split antes de suggesting changes — el wrong "improvement" puede leak personal state al public repo.
+Personal dotfiles primarily para macOS (Ghostty + Homebrew) con un subset portable que funciona en Linux/WSL2 (zsh, Starship, nvim, tmux, lazygit, git). El repo holds el **portable / shared layer**; cualquier cosa per-máquina (identity, secrets, settings que divergen across machines) es intentionally not versioned. Understand este split antes de suggesting changes — el wrong "improvement" puede leak personal state al public repo.
 
 ## Commands
 
 - `./install.sh` — entry point macOS. Idempotente: backs up existing files (`.backup.<timestamp>`) antes de symlinkear. Re-run después de `git pull`. Auto-instala Homebrew deps + casks (incluye fonts), registra VS Code como default para `.ghostty` files.
-- `./install-linux.sh` — entry point para Ubuntu/Debian/WSL2. Hace los mismos symlinks (subset portable — skip ghostty, karabiner, themes) + apt install para lo nativo + cargo install para lo missing (starship, zoxide, delta, tree-sitter, eza). Detecta WSL2 y muestra hints específicos.
+- `./install-linux.sh` — entry point para Ubuntu/Debian/WSL2. Hace los mismos symlinks (subset portable — skip ghostty, themes) + apt install para lo nativo + cargo install para lo missing (starship, zoxide, delta, tree-sitter, eza). Detecta WSL2 y muestra hints específicos.
 - `exec zsh` — reload shell después de editar `zsh/` files. Ghostty reloads su own config automatically on save; Starship reads `~/.config/starship.toml` on every prompt render.
 
 There is no test suite, lint, or build. Changes are validated by running them.
@@ -27,8 +27,9 @@ The defining decision in this repo. Some things are versioned (shared across mac
 | `starship/starship.toml`    |                                              |
 | `ghostty/config.ghostty`    |                                              |
 | `install.sh`                | `claude/settings.json` (untracked)           |
-| `karabiner/karabiner.json`  | `claude/memory/` (untracked)                 |
+|                             | `claude/memory/` (untracked)                 |
 |                             | `claude/skills/` (untracked)                 |
+|                             | Caps Lock → Option (System Settings UI)      |
 
 `install.sh` symlinks `claude/{settings.json,skills,memory}` only if they exist locally. They are intentionally absent from the repo so each machine has fully independent Claude state. Do not commit them. Same for `git/.gitconfig` — only the global ignore file is versioned from `git/`.
 
@@ -80,9 +81,7 @@ The override-at-end pattern is load-bearing: in `.zshrc`, `.zshenv`, and `.gitco
 - **`bat` is aliased to `cat`** — `\cat` invokes the real one when bypassing aliases is needed (e.g., for piping into tools that choke on bat output).
 - **nvim `init.lua` order is load-bearing**: `options` → `keymaps` (setea `<leader>`) → `lazy` (lee `mapleader` al registrar `keys`) → `autocmds`. No los reordenes.
 - **`mapleader` debe estar seteado ANTES de `require("lazy")`** o los `keys = {}` de cada plugin se registran con leader vacío. Por eso vive al inicio de `lua/config/keymaps.lua`, que se carga antes de `lua/config/lazy.lua`.
-- **Karabiner Caps Lock = Option único (sin dual-function).** El mapping actual es `caps_lock → left_option` sin `to_if_alone` ni `lazy: true`. Decisión: el user prefiere Option-single sobre el viejo Esc-tap/Option-hold. Si en el futuro querés volver al dual, hay que: (1) agregar `to_if_alone: [{key_code: "escape"}]`, (2) agregar `lazy: true` al `left_option` (sin esto, cualquier tap manda Option antes de saber si era tap o hold, rompiendo IMEs/dead keys).
-- **Karabiner pide permisos de Input Monitoring + Accessibility la primera vez.** `brew install --cask karabiner-elements` no los puede otorgar — el usuario tiene que aprobar en System Settings → Privacy & Security manualmente. Hasta entonces el daemon no intercepta nada y el caps lock se comporta normal.
-- **Karabiner NO auto-reloadea cuando editás `karabiner.json` vía symlink.** Su file watcher mira el symlink, no el target — ediciones al archivo del repo no disparan reload. Para aplicar cambios hay que reiniciar el Core Service, y ojo: corren DOS (uno por user, uno por root) y solo el de root aplica el remap real. `killall Karabiner-Core-Service` o "Quit & Restart" desde la UI solo reinicia el de user — el de root requiere `sudo killall Karabiner-Core-Service`. Verificación: el PID del proceso `root Karabiner-Core-Service` tiene que cambiar (`ps -axco pid,user,command | grep Karabiner-Core`). Si sigue igual después de "Quit & Restart", la regla vieja sigue cacheada en memoria.
+- **Caps Lock → Option vive en macOS nativo, no en el repo.** System Settings → Keyboard → Keyboard Shortcuts → Modifier Keys → Caps Lock = Option. Karabiner-Elements se intentó pero rompía las teclas `<>` y `|°` en MacBook built-in con layout Latin American (su virtual HID solo soporta `ansi`/`iso`/`jis` genéricos — ninguno mapea ISO-LA, por lo que se swappean esas dos teclas). Si en el futuro necesitás remaps más complejos que macOS nativo no soporte (multi-key chords, layer toggles), evaluar Hammerspoon o Karabiner con per-device override antes de versionarlo.
 
 ## Cross-references to other Claude state
 
