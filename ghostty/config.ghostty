@@ -156,6 +156,14 @@ keybind = cmd+alt+equal=equalize_splits
 # Reset font-size — útil al hacer demos o screen-share de specs
 keybind = cmd+zero=reset_font_size
 
+# Shift+Enter = newline en Claude Code (en vez de submit). Ghostty
+# por default sigue modifyOtherKeys y manda `\x1b[27;2;13~`, que
+# Claude Code no interpreta como newline. Mandar `\n` directo sí
+# funciona — TUIs estilo nvim/lazygit no ven Shift+Enter sin esto
+# pero tampoco lo necesitan. Workaround documentado en ghostty
+# discussion #7780 y claude-code issue #5757.
+keybind = shift+enter=text:\n
+
 # ═══════════════════════════════════════════════════════════════
 #  PAQUETE 1 — macOS essentials
 # ═══════════════════════════════════════════════════════════════
