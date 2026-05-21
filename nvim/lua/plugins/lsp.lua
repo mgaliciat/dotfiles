@@ -91,7 +91,12 @@ return {
           map("n", "gi", "<cmd>Glance implementations<cr>",  "Goto implementation")
           map("n", "gt", "<cmd>Glance type_definitions<cr>", "Goto type definition")
           map("n", "K",  vim.lsp.buf.hover,                "Hover docs")
-          map("n", "<leader>rn", vim.lsp.buf.rename,       "Rename symbol")
+          -- IncRename: preview en vivo de los call sites mientras tipeás.
+          -- expr=true → el string retornado se ejecuta como si lo tipearas.
+          -- Sin <CR> al final → la cmdline queda abierta para editar.
+          vim.keymap.set("n", "<leader>rn", function()
+            return ":IncRename " .. vim.fn.expand("<cword>")
+          end, { buffer = ev.buf, expr = true, desc = "Rename symbol (inc-rename live preview)" })
           map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "Code action")
           map("n", "<leader>cs", vim.lsp.buf.signature_help, "Signature help")
 

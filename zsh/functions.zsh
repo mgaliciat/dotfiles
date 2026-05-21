@@ -84,6 +84,51 @@ dprune-all() {
   docker system prune -af --volumes
 }
 
+# ─── fuzzy cd (estilo craftzdog) ──────────────────────────────
+#
+# Ctrl+F → fzf con lista curada de directorios "interesantes":
+# configs, dotfiles, repos en ubicaciones convencionales y subdirs
+# del cwd. Más opinado que `zoxide` (que va por frecuencia) — útil
+# cuando arrancás desde cero y querés saltar a "ese proyecto que sé
+# que existe en alguna carpeta".
+#
+# Trade-off: Ctrl+F default en emacs-mode es `forward-char` (cursor
+# adelante 1 char). Si lo necesitás, podés usar la flecha → o
+# rebindear a otra tecla (ej. bindkey '^G' _fzf_cd_widget). Craftzdog
+# acepta el trade-off, su mapping fish es idéntico.
+#
+# Cada bloque del `{ ... }` aporta una fuente; `awk '!a[$0]++'`
+# deduplica preservando orden.
+_fzf_cd_widget() {
+  local dir
+  dir=$({
+    echo "$HOME/.config"
+    echo "$HOME/dotfiles"
+    [[ -d "$HOME/finance" ]] && echo "$HOME/finance"
+    for parent in "$HOME/projects" "$HOME/code" "$HOME/work" "$HOME/Developments"; do
+      [[ -d "$parent" ]] && find "$parent" -maxdepth 3 -type d -name ".git" \
+        -exec dirname {} \; 2>/dev/null
+    done
+    # Subdirs del cwd (no recursivo).
+    ls -1d "$PWD"/*/ 2>/dev/null | sed 's:/$::'
+  } | awk '!a[$0]++' | fzf \
+        --height=40% --reverse \
+        --prompt='cd > ' \
+        --preview='eza -1 --color=always --icons {} 2>/dev/null || ls {}' \
+        --preview-window=right:50%:wrap)
+
+  if [[ -n "$dir" ]]; then
+    builtin cd -- "$dir"
+  fi
+  zle reset-prompt
+}
+# Solo registramos el widget en shells interactivos — `zle` no existe en
+# no-interactive (scripts, tools sourcing functions.zsh) y spamearía error.
+if [[ -o interactive ]]; then
+  zle -N _fzf_cd_widget
+  bindkey '^F' _fzf_cd_widget
+fi
+
 # ─── proyectos ────────────────────────────────────────────────
 
 # Abre el "workspace finanzas": cd a ~/finance + sesión tmux dedicada

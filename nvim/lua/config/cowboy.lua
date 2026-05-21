@@ -1,8 +1,12 @@
 -- ─── 🤠 cowboy mode ───────────────────────────────────────────
--- Si presionás h/j/k/l/+/- más de 10 veces en 2 segundos, se bloquea
+-- Si presionás h/j/k/l más de 10 veces en 2 segundos, se bloquea
 -- y muestra "Hold it Cowboy!". Objetivo educativo: te fuerza a usar
 -- motions eficientes (w, b, f<char>, /búsqueda) en vez de martillar
 -- arrow keys / hjkl.
+--
+-- NO cubre +/- (increment/decrement) — para esos no hay alternativa
+-- "motion-style"; mashar `+` 10 veces es uso legítimo. Además interfería
+-- con dial.nvim (que intercepta <C-a>/<C-x> con increment inteligente).
 --
 -- Crédito: idea original de craftzdog/Takuya Matsuyama.
 -- https://github.com/craftzdog/dotfiles-public
@@ -11,7 +15,7 @@ local M = {}
 
 function M.setup()
   local ok = true
-  for _, key in ipairs({ "h", "j", "k", "l", "+", "-" }) do
+  for _, key in ipairs({ "h", "j", "k", "l" }) do
     local count = 0
     local timer = assert(vim.uv.new_timer())
     local map = key

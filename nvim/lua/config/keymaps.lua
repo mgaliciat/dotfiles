@@ -75,9 +75,13 @@ map({ "n", "v" }, "<leader>D", '"_D', { desc = "Delete to EOL (no yank)" })
 -- copiarlo, y contamina el registro de pegado.
 map("n", "x", '"_x', { desc = "Delete char (no yank)" })
 
--- Increment / decrement con + / - (más ergonómico que <C-a> / <C-x>)
-map("n", "+", "<C-a>", { desc = "Increment number" })
-map("n", "-", "<C-x>", { desc = "Decrement number" })
+-- Increment / decrement con + / - (más ergonómico que <C-a> / <C-x>).
+-- `remap = true` para que la cadena +/- → <C-a>/<C-x> llegue hasta
+-- dial.nvim (que intercepta <C-a>/<C-x> con increment inteligente:
+-- bool, fechas, semver, let↔const). Sin remap=true, el + iría al
+-- <C-a> nativo de vim (solo números) y dial quedaría fuera.
+map("n", "+", "<C-a>", { desc = "Increment (dial)", remap = true })
+map("n", "-", "<C-x>", { desc = "Decrement (dial)", remap = true })
 
 -- 🤠 Cowboy mode: te detiene si martilás hjkl/+/- más de 10 veces
 -- en 2 seg. Educativo — te empuja a aprender motions reales.
