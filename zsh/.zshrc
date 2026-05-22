@@ -84,6 +84,30 @@ bindkey -e
 bindkey '^[[A' history-substring-search-up    # ↑ por substring (requiere zsh-history-substring-search)
 bindkey '^[[B' history-substring-search-down  # ↓ por substring
 
+# Alt+e — abre el comando que estás tecleando en $EDITOR (nvim). Para
+# un one-liner largo y enredado: lo editás con el modal completo de
+# vim, guardás+salís y se ejecuta. Requiere macos-option-as-alt en
+# Ghostty (ya activo) para que ⌥ izquierdo emita ^[.
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^[e' edit-command-line
+
+# Ctrl+Z inteligente — con el prompt vacío hace `fg` (volvés al job
+# suspendido); con texto a medio escribir lo empuja al stack para
+# recuperarlo después. Convierte Ctrl+Z en un toggle de un dedo entre
+# shell y nvim/lazygit: suspendés con ^Z, y ^Z de nuevo te devuelve.
+fancy-ctrl-z() {
+  if [[ $#BUFFER -eq 0 ]]; then
+    BUFFER=' fg'
+    zle accept-line
+  else
+    zle push-input
+  fi
+  zle clear-screen
+}
+zle -N fancy-ctrl-z
+bindkey '^Z' fancy-ctrl-z
+
 # ─── tool inits ───────────────────────────────────────────────
 # pyenv lazy-load — se inicializa al primer uso de pyenv/python/pip.
 # Ahorra ~40ms al startup vs `eval "$(pyenv init -)"` eager.

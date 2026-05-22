@@ -33,6 +33,12 @@ export PYENV_ROOT="$HOME/.pyenv"
 # bat — usa colores del terminal (Anthropic Warm) en vez de su propio theme.
 export BAT_THEME="ansi"
 
+# Editor por default — nvim para todo lo que respete $EDITOR/$VISUAL:
+# `edit-command-line` (Alt+e en el prompt), `crontab -e`, `less` (tecla v).
+# git usa su propio core.editor, así que esto NO lo pisa.
+export EDITOR="nvim"
+export VISUAL="nvim"
+
 # ─── overrides locales (no versionado) ────────────────────────
 # ~/.zshenv.local para secrets/tokens/env vars per-máquina.
 # Se carga al final para poder prepender al PATH y sobrescribir defaults.
