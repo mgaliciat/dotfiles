@@ -1,4 +1,8 @@
-# dotfiles
+<p align="center">
+  <img src="assets/dotfiles-icon-paper.svg" alt="dotfiles" width="128">
+</p>
+
+<h1 align="center">dotfiles</h1>
 
 Personal config for macOS — Ghostty terminal, zsh, Starship prompt, Neovim, tmux, lazygit.
 

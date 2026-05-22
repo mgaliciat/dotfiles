@@ -1,0 +1,19 @@
+<svg id="svg-c" width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" data-om-id="313debe1:69"><style>@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&amp;display=swap');</style>
+          <defs data-om-id="313debe1:70">
+            <linearGradient id="bgC" x1="0" y1="0" x2="0" y2="1" data-om-id="313debe1:71">
+              <stop offset="0%" stop-color="#f5ead0" data-om-id="313debe1:72"/>
+              <stop offset="100%" stop-color="#e8d9b8" data-om-id="313debe1:73"/>
+            </linearGradient>
+            <filter id="glowC" x="-80%" y="-80%" width="360%" height="360%" data-om-id="313debe1:74">
+              <feGaussianBlur stdDeviation="9" result="b" data-om-id="313debe1:75"/>
+              <feMerge data-om-id="313debe1:76"><feMergeNode in="b" data-om-id="313debe1:77"/><feMergeNode in="SourceGraphic" data-om-id="313debe1:78"/></feMerge>
+            </filter>
+          </defs>
+          <rect width="512" height="512" rx="88" fill="url(#bgC)" data-om-id="313debe1:79"/>
+          <!-- ~/ dim text (tierra) -->
+          <text x="168" y="292" font-family="'IBM Plex Mono','Courier New',monospace" font-size="98" font-weight="400" fill="#c8b898" data-om-id="313debe1:80">~/</text>
+          <!-- cursor coral -->
+          <rect x="286" y="212" width="60" height="84" rx="4" fill="#d97757" filter="url(#glowC)" data-om-id="313debe1:81">
+            <animate attributeName="opacity" values="1;1;1;0;0;1;1" dur="1.5s" repeatCount="indefinite" data-om-id="313debe1:82"/>
+          </rect>
+        </svg>
