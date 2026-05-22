@@ -117,6 +117,12 @@ alias catp='bat'                                  # bat con paging + header comp
 alias find='fd'
 # ripgrep ya se invoca como 'rg' — sin alias necesario
 
+# borrado seguro: gomi manda a una papelera con restore interactivo
+# (`gomi` sin args lista lo borrado y deja recuperar con fzf). `rm`
+# real se deja intacto a propósito — scripts y `rm -rf` deliberado
+# no deben pasar por la papelera.
+alias gm='gomi'
+
 # git (los sub-aliases viven en .gitconfig)
 alias g='git'
 alias gs='git st'

@@ -110,6 +110,7 @@ if command -v brew >/dev/null 2>&1; then
     bat
     fd
     ripgrep
+    gomi                  # `rm` con papelera + restore interactivo (alias `gm`)
     zoxide
     fzf
     git-delta
