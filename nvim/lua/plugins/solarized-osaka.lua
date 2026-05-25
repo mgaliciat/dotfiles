@@ -41,6 +41,14 @@ return {
       sidebars  = "transparent",
       floats    = "transparent",
     },
+    -- El colorscheme upstream deja WinBar/WinBarNC con bg sólido (asume
+    -- terminal opaco). Como dropbar.nvim inyecta el breadcrumb en la
+    -- winbar, hereda ese bg y se ve como bloque opaco encima del fondo
+    -- transparente de Ghostty. Forzar a NONE para que el bar respire.
+    on_highlights = function(hl, _)
+      hl.WinBar   = { bg = "NONE" }
+      hl.WinBarNC = { bg = "NONE" }
+    end,
   },
   config = function(_, opts)
     require("solarized-osaka").setup(opts)
