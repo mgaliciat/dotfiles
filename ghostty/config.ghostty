@@ -263,15 +263,30 @@ macos-icon = custom-style
 # beige (paper-ish cálido), plastic (off-white), chrome (sleek).
 macos-icon-frame = aluminum
 
-# Fantasma naranja Claude — guiño al brand sobre fondo solarized.
-# Alternativa "purista solarized": #268bd2 (solarized blue accent).
-macos-icon-ghost-color = #d97757
+# Fantasma blanco — neutral, brand-agnostic, máximo contraste sobre la
+# screen prism (donde el verde láser se mimetizaba con la banda ROYGBIV).
+# Variantes: #d97757 Claude orange · #50fa7b verde láser (matchea cursor
+# oled-neon) · #ff79c6 magenta neon (standout sin mimetizarse).
+macos-icon-ghost-color = #ffffff
 
-# Pantalla: gradiente del bg actual (#000 true black) hacia un azul-
-# violeta muy oscuro (#1a1a2e) — apenas perceptible, pero evita el
-# look "screen apagada" de un gradient negro-puro a negro-puro. Si
-# cambiás el `background` de arriba, sincronizá aquí.
-macos-icon-screen-color = #000000,#1a1a2e
+# Pantalla: gradiente "prism" inspirado en el wallpaper macOS Prism —
+# deep midnight blue (#0a0e1a) dominante con una banda ROYGBIV cruzando
+# la parte superior-media. Ghostty sólo soporta gradientes LINEALES
+# VERTICALES (primer color = abajo, último = arriba, hasta 64 stops),
+# así que el diagonal real del wallpaper no se replica — la banda queda
+# horizontal en el icono.
+#
+# Decoupled del `background` del terminal: este icono se queda prism
+# aunque cambies de theme. Si querés que vuelva a seguir al bg, reemplazar
+# con `macos-icon-screen-color = <bg>,<bg-lift>`.
+#
+# Estructura (bottom → top):
+#   1-5  hold deep midnight (zona "foreground" del wallpaper, abajo)
+#   6    lift sutil hacia la banda
+#   7-12 ROYGBIV (cool blue → cyan → green → yellow → orange → red)
+#   13   post-rainbow violet glow
+#   14   deep midnight de vuelta (zona "sky", arriba)
+macos-icon-screen-color = #0a0e1a,#0a0e1a,#0a0e1a,#0a0e1a,#0d1428,#1a2238,#4a7ec8,#8be9fd,#50fa7b,#f1fa8c,#ff8c42,#c8553d,#2a1828,#0a0e1a
 
 # ═══════════════════════════════════════════════════════════════
 #  PAQUETE 6 — Fullscreen pro (macOS)
