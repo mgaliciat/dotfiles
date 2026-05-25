@@ -16,10 +16,12 @@
 # Dawn, Catppuccin Latte, Kanagawa Lotus (light).
 # Solarized picks: Solarized Dark Patched (estilo craftzdog),
 # Solarized Osaka Night (matchea con solarized-osaka.nvim).
-theme = anthropic-warm
+theme = oled-neon
 
 # Custom themes — viven en `ghostty/themes/` (symlinkeado a
 # <config-dir>/themes/ por install.sh).
+#   · oled-neon — true black (#000) + paleta neon Dracula-style.
+#     Pensado para OLED y sesiones nocturnas; máximo contraste.
 #   · anthropic-warm — carbón cálido + paleta Claude (terracota, oliva,
 #     ámbar, naranja). Pensado para display-p3 + transparencia, sesiones
 #     largas sin fatiga.
@@ -265,10 +267,11 @@ macos-icon-frame = aluminum
 # Alternativa "purista solarized": #268bd2 (solarized blue accent).
 macos-icon-ghost-color = #d97757
 
-# Pantalla: gradiente del bg actual (#1a1614 carbón cálido) hacia un
-# terracota muy oscuro (#3a2820). Si cambiás el `background` de arriba,
-# sincronizá aquí.
-macos-icon-screen-color = #1a1614,#3a2820
+# Pantalla: gradiente del bg actual (#000 true black) hacia un azul-
+# violeta muy oscuro (#1a1a2e) — apenas perceptible, pero evita el
+# look "screen apagada" de un gradient negro-puro a negro-puro. Si
+# cambiás el `background` de arriba, sincronizá aquí.
+macos-icon-screen-color = #000000,#1a1a2e
 
 # ═══════════════════════════════════════════════════════════════
 #  PAQUETE 6 — Fullscreen pro (macOS)
