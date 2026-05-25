@@ -32,6 +32,15 @@ if [[ -f "$GHOSTTY_DIR/config" && ! -L "$GHOSTTY_DIR/config" ]]; then
   echo "→ stale ghostty config movido a config.backup.$TS"
 fi
 link "$DOTFILES/ghostty/config.ghostty" "$GHOSTTY_DIR/config.ghostty"
+# Themes custom (sampling de wallpapers, paletas propias). OJO: Ghostty
+# busca themes en ~/.config/ghostty/themes/ (path XDG), NO en el mismo
+# Application Support donde vive el config — son dirs distintos. Si los
+# pones en Application Support, Ghostty los ignora y tira "theme not found".
+# Symlink del dir entero para que nuevos themes se expongan automáticamente.
+if [[ -d "$DOTFILES/ghostty/themes" ]]; then
+  mkdir -p "$HOME/.config/ghostty"
+  link "$DOTFILES/ghostty/themes"       "$HOME/.config/ghostty/themes"
+fi
 link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
 link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
 link "$DOTFILES/tmux"                   "$HOME/.config/tmux"

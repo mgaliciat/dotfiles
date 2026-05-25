@@ -16,12 +16,17 @@
 # Dawn, Catppuccin Latte, Kanagawa Lotus (light).
 # Solarized picks: Solarized Dark Patched (estilo craftzdog),
 # Solarized Osaka Night (matchea con solarized-osaka.nvim).
-theme = Solarized Dark Patched
+theme = prism-night
 
-# Background override (paleta craftzdog): empuja la base solarized de
-# #002b36 hacia un azul casi negro para ese look "deep ocean". Si querés
-# el solarized base03 puro, comentá esta línea.
-background = #031219
+# Custom theme — vive en `ghostty/themes/prism-night` (symlinkeado a
+# <config-dir>/themes/prism-night por install.sh). Paleta sampleada
+# del wallpaper "prism" de macOS: azul-noche profundo (#0a0e1a) con
+# acentos del espectro (naranja → amarillo → verde → cyan → azul →
+# violeta). Diseñada para combinar con transparencia + blur sobre ese
+# wallpaper específico.
+# Si volvés a Solarized Dark Patched, descomentá para recuperar el
+# "deep ocean" azul casi negro estilo craftzdog.
+# background = #031219
 
 # Display P3 wide-gamut — naranja y crema saturan más en pantallas
 # M-chip / Retina. Sin downside fuera de equipos no-P3.

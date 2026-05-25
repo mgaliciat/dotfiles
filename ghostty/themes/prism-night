@@ -1,0 +1,38 @@
+# prism-night — paleta sampleada del wallpaper "prism" de macOS
+# (azul-noche profundo + arco del espectro: naranja → amarillo →
+# verde → cyan → azul → violeta). Diseñada para combinar con
+# transparencia + blur sobre ese wallpaper específico.
+
+# fondo y texto
+background = #0a0e1a
+foreground = #c8d3e8
+
+# cursor (naranja del prisma — alta visibilidad sobre bg azul-negro)
+cursor-color = #ff9248
+cursor-text  = #0a0e1a
+
+# selección (azul medio del wallpaper, suficientemente oscuro
+# para que texto blanco siga legible encima)
+selection-background = #2e4a7a
+selection-foreground = #ffffff
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# normales (0-7): tonos del prisma, saturación alta pero sin chillar
+palette = 0=#1a2238
+palette = 1=#ff6b5c
+palette = 2=#a8d65c
+palette = 3=#f5c842
+palette = 4=#4a7ec8
+palette = 5=#b06bd9
+palette = 6=#5ec9d4
+palette = 7=#c8d3e8
+
+# brillantes (8-15): versiones lifted +luminance de las normales
+palette = 8=#3a4a6b
+palette = 9=#ff8a7c
+palette = 10=#c8e87a
+palette = 11=#ffd866
+palette = 12=#6b9ee0
+palette = 13=#c98ae8
+palette = 14=#7fd9e0
+palette = 15=#ffffff
