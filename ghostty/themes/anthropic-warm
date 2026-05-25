@@ -1,0 +1,45 @@
+# anthropic-warm — dark theme construido sobre la paleta "Anthropic Warm"
+# documentada en CLAUDE.md (#d97757 Claude orange, #c8553d terracota,
+# #87a96b oliva, #b08968 tierra, #d9a441 ámbar). Fondo carbón cálido con
+# un toque de marrón en vez de negro neutro — pensado para sesiones
+# largas con display-p3 + transparencia, complemento cálido a prism-night.
+
+# fondo y texto
+# bg tira a marrón muy oscuro (no neutro) para que la paleta cálida no
+# se vea "flotando" sobre un fondo frío. fg crema, no blanco puro, para
+# bajar fatiga visual en sesiones largas.
+background = #1a1614
+foreground = #e8dccc
+
+# cursor — Claude orange directo, máxima visibilidad sobre bg carbón
+cursor-color = #d97757
+cursor-text  = #1a1614
+
+# selección — terracota muy oscurecido + fg brillante. Contraste suficiente
+# para texto seleccionado sin saturar la vista.
+selection-background = #5a3a30
+selection-foreground = #f5ede0
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# normales (0-7): paleta Anthropic warm + traducciones cálidas de
+# blue/magenta/cyan (acero, rose dust, sage) para evitar fríos chillones.
+palette = 0=#2a2420
+palette = 1=#c8553d
+palette = 2=#87a96b
+palette = 3=#d9a441
+palette = 4=#6b8e9e
+palette = 5=#c97b8a
+palette = 6=#8eb0a8
+palette = 7=#c8b8a3
+
+# brillantes (8-15): versiones lifted +luminance. Bright red usa el naranja
+# Claude (#d97757) — vibra como "rojo brillante" pero queda dentro de la
+# paleta de marca.
+palette = 8=#4a3f38
+palette = 9=#d97757
+palette = 10=#a3c585
+palette = 11=#e8c068
+palette = 12=#8aaab8
+palette = 13=#d99eac
+palette = 14=#a8c8c0
+palette = 15=#f5ede0

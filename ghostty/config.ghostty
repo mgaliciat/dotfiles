@@ -16,14 +16,16 @@
 # Dawn, Catppuccin Latte, Kanagawa Lotus (light).
 # Solarized picks: Solarized Dark Patched (estilo craftzdog),
 # Solarized Osaka Night (matchea con solarized-osaka.nvim).
-theme = prism-night
+theme = anthropic-warm
 
-# Custom theme — vive en `ghostty/themes/prism-night` (symlinkeado a
-# <config-dir>/themes/prism-night por install.sh). Paleta sampleada
-# del wallpaper "prism" de macOS: azul-noche profundo (#0a0e1a) con
-# acentos del espectro (naranja → amarillo → verde → cyan → azul →
-# violeta). Diseñada para combinar con transparencia + blur sobre ese
-# wallpaper específico.
+# Custom themes — viven en `ghostty/themes/` (symlinkeado a
+# <config-dir>/themes/ por install.sh).
+#   · anthropic-warm — carbón cálido + paleta Claude (terracota, oliva,
+#     ámbar, naranja). Pensado para display-p3 + transparencia, sesiones
+#     largas sin fatiga.
+#   · prism-night — azul-noche profundo (#0a0e1a) con acentos del
+#     espectro (naranja → amarillo → verde → cyan → azul → violeta).
+#     Sampleado del wallpaper "prism" de macOS.
 # Si volvés a Solarized Dark Patched, descomentá para recuperar el
 # "deep ocean" azul casi negro estilo craftzdog.
 # background = #031219
@@ -76,11 +78,11 @@ adjust-cell-height = 3%
 # aparte) · native (look macOS estándar) · hidden (sin titlebar).
 macos-titlebar-style = tabs
 
-# Transparencia + blur estilo craftzdog. 0.9 muestra un toque más del
-# wallpaper que el 0.95 anterior; blur 20 difumina el fondo lo suficiente
+# Transparencia + blur estilo craftzdog. 0.95 = transparencia sutil
+# (apenas un velo del wallpaper); blur 20 difumina el fondo lo suficiente
 # para que no distraiga del output denso de Claude Code. Si querés más
 # glass: bajar opacity a 0.88 (medio) o 0.80 (marcado) y subir blur a 30-40.
-background-opacity = 0.9
+background-opacity = 0.95
 background-blur = 20
 
 # respira lateralmente — padding generoso para que el output denso
@@ -263,9 +265,10 @@ macos-icon-frame = aluminum
 # Alternativa "purista solarized": #268bd2 (solarized blue accent).
 macos-icon-ghost-color = #d97757
 
-# Pantalla: gradiente del bg actual (#031219) hacia solarized base02
-# (#073642). Si cambiás el `background` de arriba, sincronizá aquí.
-macos-icon-screen-color = #031219,#073642
+# Pantalla: gradiente del bg actual (#1a1614 carbón cálido) hacia un
+# terracota muy oscuro (#3a2820). Si cambiás el `background` de arriba,
+# sincronizá aquí.
+macos-icon-screen-color = #1a1614,#3a2820
 
 # ═══════════════════════════════════════════════════════════════
 #  PAQUETE 6 — Fullscreen pro (macOS)
