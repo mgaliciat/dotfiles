@@ -1,8 +1,8 @@
 # ═══════════════════════════════════════════════════════════════
 #  Ghostty — Claude Code edition
 #  Tema activo: ver línea `theme =` abajo. Sólo built-ins de
-#  Ghostty (lista: `ghostty +list-themes`). Tipografía: Monaspace
-#  Argon (fallback IoskeleyMonoTerm, Monaspace Neon).
+#  Ghostty (lista: `ghostty +list-themes`). Tipografía: PlemolJP
+#  Console NF.
 #
 #  NOTA: Ghostty NO permite comentarios inline en la misma línea
 #  que un valor. Siempre van en una línea propia.
@@ -53,12 +53,7 @@ minimum-contrast = 1.1
 # Base IBM Plex Mono + glyphs japoneses + Nerd Font integrado (íconos
 # de starship/devicons sin fallback). "Console" = ratio 5:6 (más compacto
 # que el ratio 1:2 de PlemolJP estándar), ideal para terminales densos.
-# Fallbacks: iA Writer Mono S (reading-first), Monaspace Neon (red de
-# seguridad). IoskeleyMonoTerm sale del fallback porque PlemolJP NF ya
-# trae los íconos.
 font-family             = PlemolJP Console NF
-font-family             = iA Writer Mono S
-font-family             = Monaspace Neon
 font-size = 15
 
 # Ligaduras estándar — iA Writer no es texture-healing pero soporta
