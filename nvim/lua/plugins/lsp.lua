@@ -90,7 +90,18 @@ return {
           map("n", "gr", "<cmd>Glance references<cr>",       "References")
           map("n", "gi", "<cmd>Glance implementations<cr>",  "Goto implementation")
           map("n", "gt", "<cmd>Glance type_definitions<cr>", "Goto type definition")
-          map("n", "K",  vim.lsp.buf.hover,                "Hover docs")
+          -- K: si el cursor está sobre un fold cerrado, ufo abre el peek
+          -- window con el contenido plegado; si no, cae al hover LSP normal.
+          -- Sin este wrapper, el buffer-local de LspAttach gana sobre el
+          -- mapeo global de ufo y perdés el peek en cualquier buffer con LSP.
+          map("n", "K", function()
+            local ok, ufo = pcall(require, "ufo")
+            if ok then
+              local winid = ufo.peekFoldedLinesUnderCursor()
+              if winid then return end
+            end
+            vim.lsp.buf.hover()
+          end, "Peek fold / Hover docs")
           -- IncRename: preview en vivo de los call sites mientras tipeás.
           -- expr=true → el string retornado se ejecuta como si lo tipearas.
           -- Sin <CR> al final → la cmdline queda abierta para editar.

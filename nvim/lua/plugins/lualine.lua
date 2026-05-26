@@ -16,7 +16,7 @@ return {
       -- Sin separators overrides → lualine usa sus defaults
       -- (powerline chevrons ``), el look de craftzdog/LazyVim.
       globalstatus = true,
-      disabled_filetypes = { statusline = { "dashboard", "alpha" } },
+      disabled_filetypes = { statusline = { "dashboard", "alpha", "snacks_dashboard" } },
     },
     sections = {
       lualine_a = { "mode" },

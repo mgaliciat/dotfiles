@@ -4,6 +4,7 @@
 -- Sobre tokyonight (paletas custom en lua/themes/<name>.lua):
 --   "anthropic-dark"     dark Claude.ai (brown-black + Claude orange) ← espejo Ghostty
 --   "anthropic-light"    light Anthropic (cream paper + sepia)        ← espejo Ghostty
+--   "oled-neon"          true black OLED + Dracula neón               ← espejo Ghostty
 --   "obsidian"           high-contrast dark + cyan
 --   "warm"               dark sepia/naranja (legacy)
 --   "paper"              light cream + sepia (legacy)
@@ -15,7 +16,7 @@
 --   "solarized-osaka-storm"  dark más gris
 --
 -- Cambiar requiere reiniciar nvim (o :source $MYVIMRC + :colorscheme ...).
-vim.g.theme = "solarized-osaka"
+vim.g.theme = "oled-neon"
 
 -- ─── vim.opt ──────────────────────────────────────────────────
 -- Buenos defaults. Sigue el espíritu del dotfiles: comentar el WHY,
@@ -71,10 +72,14 @@ opt.clipboard = "unnamedplus"        -- comparte yank con clipboard del sistema
 opt.completeopt = { "menu", "menuone", "noselect" }
 opt.wildmode = "longest:full,full"
 
--- Folding (treesitter lo provee; arranca con todo expandido)
-opt.foldmethod = "expr"
-opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
-opt.foldenable = false               -- no fold al abrir buffer; usa `za` para toggle
+-- Folding (nvim-ufo lo provee; arranca con todo expandido)
+-- ufo necesita foldlevel alto + foldenable=true; el provider
+-- (treesitter→indent) se setea en plugins/ufo.lua, NO acá con
+-- foldexpr — ufo registra su propio handler vía API.
+opt.foldcolumn = "1"                 -- columna de fold markers (clickable con ufo)
+opt.foldlevel = 99                   -- abrí todo por default
+opt.foldlevelstart = 99
+opt.foldenable = true                -- ufo requiere true para renderear su virtual text
 
 -- Caracteres invisibles
 opt.list = true
