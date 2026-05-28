@@ -22,9 +22,9 @@
 // (⌘⇧R), pero un cambio de .glsl suele necesitar reabrir la ventana.
 
 // ─── parámetros ───────────────────────────────────────────────
-const float SHARPEN      = 1.20;  // intensidad del unsharp mask (0 = off)
-const float SATURATION   = 0.50;  // <1 desatura lo coloreado (neón)
-const float GAMMA        = 0.85;  // <1 levanta sombras; 1.0 = neutro
+const float SHARPEN      = 0.60;  // intensidad del unsharp mask (0 = off)
+const float SATURATION   = 0.80;  // <1 desatura lo coloreado (neón)
+const float GAMMA        = 0.93;  // <1 levanta sombras; 1.0 = neutro
 // Domar el blanco: el texto #f8f8f2 a máximo contraste + sharpen deslumbra.
 // Bajamos su techo de brillo SÓLO en los pixeles casi-blancos.
 const float WHITE_LEVEL  = 0.88;  // techo del blanco (1.0 = sin tocar)
