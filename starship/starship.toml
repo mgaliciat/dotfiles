@@ -11,7 +11,7 @@
 #
 #  Mapeo del slot → palette[N] del theme:
 #    bright-black (8) = subtle (hostname/user SSH)
-#    bright-blue (12) = directorio (acento principal)
+#    #b08968 (hex)    = directorio (acento principal, tierra)
 #    yellow (3)       = git branch
 #    #d97757 (hex)    = prompt OK (Claude orange, matchea cursor)
 #    red (1)          = prompt error
@@ -61,7 +61,9 @@ format    = "[$hostname]($style) "
 
 # ─── directorio (acento principal, siempre visible) ────────────
 [directory]
-style              = "bold bright-blue"
+# Hex fijo (tierra de la paleta) — excepción a la regla "solo ANSI" del
+# header, igual que el λ orange: acento cálido constante entre themes.
+style              = "bold #b08968"
 truncation_length  = 3
 truncate_to_repo   = true
 truncation_symbol  = "…/"
