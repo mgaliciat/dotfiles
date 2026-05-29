@@ -39,6 +39,11 @@ export BAT_THEME="ansi"
 export EDITOR="nvim"
 export VISUAL="nvim"
 
+# Claude Code — modo anti-parpadeo experimental. Evita el "flash" del banner
+# completo que se colapsa de golpe al header compacto al iniciar una sesión.
+# (No fuerza la caja completa — no hay setting para eso; solo suaviza el render.)
+export CLAUDE_CODE_NO_FLICKER=1
+
 # ─── overrides locales (no versionado) ────────────────────────
 # ~/.zshenv.local para secrets/tokens/env vars per-máquina.
 # Se carga al final para poder prepender al PATH y sobrescribir defaults.
