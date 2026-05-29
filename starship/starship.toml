@@ -1,17 +1,22 @@
 # ═══════════════════════════════════════════════════════════════
-#  Starship — minimal one-liner, theme-portable via colores ANSI.
+#  Starship — ultra-minimal one-liner, theme-portable via ANSI.
 #  Los styles usan nombres (red, cyan, bright-black…) en vez de hex,
 #  así el prompt se adapta automáticamente al theme activo de Ghostty.
-#  Filosofía: 1 línea, info útil al vuelo, cero decoración.
+#
+#  Filosofía: el ancho de la terminal es del comando, no del prompt.
+#  Solo se muestra lo que aporta AHORA: dir siempre, git branch en
+#  repos, duración si tardó, y el char λ que ya señala éxito/error
+#  por color. Lo demás (counts de git, reloj, versiones de runtime)
+#  está intencionalmente apagado — si lo querés un día, flip el flag.
 #
 #  Mapeo del slot → palette[N] del theme:
-#    bright-black (8) = subtle (hostname SSH, time, exit code)
+#    bright-black (8) = subtle (hostname/user SSH)
 #    bright-blue (12) = directorio (acento principal)
 #    yellow (3)       = git branch
-#    red (1)          = git dirty / error
-#    green (2)        = prompt OK / python
-#    cyan (6)         = nodejs
-#    bright-yellow    = cmd duration (warning, sólo si > 2s)
+#    #d97757 (hex)    = prompt OK (Claude orange, matchea cursor)
+#    red (1)          = prompt error
+#    cyan (6)         = prompt en vi normal mode
+#    bright-yellow    = cmd duration (solo si > 2s)
 # ═══════════════════════════════════════════════════════════════
 
 add_newline = false
@@ -22,27 +27,26 @@ $username\
 $hostname\
 $directory\
 $git_branch\
-$git_metrics\
-$python\
-$nodejs\
 $cmd_duration\
-$status\
 $character"""
 
-right_format = "$time"
-
-# ─── prompt char ──────────────────────────────────────────────
+# ─── prompt char (λ, color = estado) ──────────────────────────
+# El color del λ es toda la señal de exit code que necesitás:
+# Claude orange = último comando OK (matchea el cursor), rojo = falló.
+# Por eso $status va off. Excepción a la regla "solo ANSI" del header:
+# el orange es hex fijo a propósito, para igualar el cursor del theme.
 [character]
-success_symbol = "[❯](green)"
-error_symbol   = "[❯](red)"
-vimcmd_symbol  = "[❮](cyan)"
+success_symbol = "[λ](#d97757)"
+error_symbol   = "[λ](red)"
+vimcmd_symbol  = "[λ](cyan)"
 
-# ─── exit status (no se muestra, el color del ❯ ya señala error) ─
+# ─── exit status (off — el color del λ ya lo dice) ─────────────
 [status]
 disabled = true
 
 # ─── user / hostname (sólo en SSH) ─────────────────────────────
-# Si no estás en SSH, ambos quedan ocultos — local terminal limpio.
+# Local terminal: ambos ocultos. En SSH aparecen para que sepas
+# de un vistazo que no estás en tu máquina — eso SÍ aporta.
 [username]
 show_always = false
 style_user  = "bright-black"
@@ -55,7 +59,7 @@ trim_at   = "."
 style     = "bright-black"
 format    = "[$hostname]($style) "
 
-# ─── directorio (acento principal) ─────────────────────────────
+# ─── directorio (acento principal, siempre visible) ────────────
 [directory]
 style              = "bold bright-blue"
 truncation_length  = 3
@@ -65,58 +69,34 @@ read_only          = " "
 read_only_style    = "red"
 format             = "[$path]($style)[$read_only]($read_only_style) "
 
-# ─── git branch ───────────────────────────────────────────────
+# ─── git branch (sólo dentro de un repo) ───────────────────────
 [git_branch]
 symbol = " "
 style  = "yellow"
 format = "[$symbol$branch]($style) "
 
-# ─── git status (disabled — usamos git_metrics en su lugar) ────
-# Filosofía: si querés ver qué cambió (staged vs untracked vs
-# branch ahead/behind), corré `git status`. El prompt sólo cuenta
-# líneas via $git_metrics — info útil al vuelo sin clutter.
+# ─── git status / metrics (off — corré `git status` si querés ──
+# el detalle; el prompt no acarrea counts en cada render).
 [git_status]
 disabled = true
 
-# ─── git metrics (+N -M, sólo si hay diffs no-cero) ────────────
-# Muestra líneas added/deleted del working tree vs HEAD. NO incluye
-# archivos untracked (limitación del módulo — usa `git diff` por
-# debajo). Si necesitás trackear untracked, hacé `git add -N` para
-# que aparezcan, o usá `git status`.
 [git_metrics]
-disabled           = false
-only_nonzero_diffs = true
-added_style        = "green"
-deleted_style      = "red"
-# Cada lado va en su propio grupo condicional `(...)`: si la variable
-# está vacía (lo que pasa cuando el count es 0 con only_nonzero_diffs),
-# el grupo entero —incluido el literal `+` o `-`— desaparece. Sin esto,
-# con `+5 -0` veías `+5 -` con un guión huérfano colgado.
-format             = "([+$added]($added_style) )([-$deleted]($deleted_style) )"
+disabled = true
 
-# ─── lenguajes (compactos, sólo en proyectos del lenguaje) ────
+# ─── runtimes (off por minimalismo — `node -v` / `python -V` ───
+# cuando lo necesites. Poné disabled = false para re-activarlos).
 [python]
-symbol            = ""
-style             = "green"
-format            = "[$symbol${pyenv_prefix}(${version}) ]($style)"
-detect_extensions = ["py"]
-detect_files      = ["pyproject.toml", "requirements.txt", ".python-version", "Pipfile"]
+disabled = true
 
 [nodejs]
-symbol       = ""
-style        = "cyan"
-format       = "[$symbol(${version}) ]($style)"
-detect_files = ["package.json", ".nvmrc"]
+disabled = true
 
-# ─── cmd duration (sólo si tardó >2s) ─────────────────────────
+# ─── cmd duration (sólo si tardó >2s — puro feedback útil) ─────
 [cmd_duration]
 min_time = 2000
 style    = "bright-yellow"
 format   = "[$duration ]($style)"
 
-# ─── reloj (esquina derecha, subtle) ──────────────────────────
+# ─── reloj derecho (off — minimal; tenés la barra del SO) ──────
 [time]
-disabled    = false
-time_format = "%H:%M"
-style       = "bright-black"
-format      = "[$time]($style)"
+disabled = true
