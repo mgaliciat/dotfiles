@@ -208,15 +208,32 @@ ZSH_HIGHLIGHT_STYLES[function]='fg=#87a96b'
 # Sin starship el prompt cae al default de zsh (`%~ $`) — funcional pero feo.
 command -v starship >/dev/null && eval "$(starship init zsh)"
 
-# ─── título de la ventana = dir actual ────────────────────────
-# Sin esto el título de Ghostty se queda pegado en el cwd de login
-# (tmux usa set-titles-string "#T" = pane title, y nadie lo actualiza).
-# El precmd emite OSC 2 en cada prompt: en Ghostty pelón setea el
-# título de la ventana; dentro de tmux setea el pane title → tmux lo
-# refleja en #T → la window de Ghostty. %~ = path con ~ abreviado.
+# ─── título de la ventana + reporte de cwd ────────────────────
+# Dos cosas en cada prompt, ambas vía precmd:
+#
+# 1. Título (OSC 2): sin esto el título de Ghostty se queda pegado
+#    en el cwd de login (tmux usa set-titles-string "#T" = pane
+#    title, y nadie lo actualiza). %~ = path con ~ abreviado.
+#
+# 2. cwd (OSC 7): le dice a Ghostty en qué dir estás para que Cmd+T
+#    herede el directorio. DENTRO de tmux el OSC 7 normal lo captura
+#    tmux y nunca llega a Ghostty → hay que envolverlo en el
+#    passthrough DCS de tmux (\ePtmux;…\e\\ con cada ESC duplicado;
+#    requiere `allow-passthrough on` en tmux.conf). Fuera de tmux se
+#    emite tal cual.
 autoload -Uz add-zsh-hook
+
 _set_title() { print -Pn "\e]2;%~\a" }
 add-zsh-hook precmd _set_title
+
+_report_cwd() {
+  if [[ -n "$TMUX" ]]; then
+    printf '\ePtmux;\e\e]7;file://%s%s\e\e\\\e\\' "$HOST" "$PWD"
+  else
+    printf '\e]7;file://%s%s\e\\' "$HOST" "$PWD"
+  fi
+}
+add-zsh-hook precmd _report_cwd
 
 # ─── overrides locales (no versionado) ────────────────────────
 # ~/.zshrc.local para aliases / funciones / overrides per-máquina.
