@@ -193,6 +193,16 @@ _load_zsh_plugin zsh-autosuggestions
 _load_zsh_plugin zsh-syntax-highlighting
 _load_zsh_plugin zsh-history-substring-search
 
+# ─── highlight: comandos válidos en verde oliva ───────────────
+# El default del plugin es `fg=green`, que cae en el ANSI green del
+# theme (#50fa7b láser). Lo bajamos al oliva de la paleta Anthropic
+# Warm — sigue leyéndose como "válido" sin el neón. DEBE ir después
+# de cargar el plugin, sino el array ZSH_HIGHLIGHT_STYLES no existe.
+ZSH_HIGHLIGHT_STYLES[command]='fg=#87a96b'
+ZSH_HIGHLIGHT_STYLES[builtin]='fg=#87a96b'
+ZSH_HIGHLIGHT_STYLES[alias]='fg=#87a96b'
+ZSH_HIGHLIGHT_STYLES[function]='fg=#87a96b'
+
 # ─── prompt: Starship ─────────────────────────────────────────
 # command -v guard: si starship no está instalado evitamos error en startup.
 # Sin starship el prompt cae al default de zsh (`%~ $`) — funcional pero feo.
