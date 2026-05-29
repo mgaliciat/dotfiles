@@ -56,6 +56,8 @@ coverage/
 
 # Claude Code
 .claude/
+# contexto personal por proyecto (md de arranque) — solo mío
+_brief/
 .covenant/
 openspec/
 .github/prompts/
