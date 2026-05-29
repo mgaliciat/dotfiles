@@ -12,9 +12,9 @@
 background = #000000
 foreground = #f8f8f2
 
-# cursor — verde láser, máxima visibilidad sobre #000 (mucho más
-# legible que magenta o cyan, que se mimetizan con texto colored).
-cursor-color = #50fa7b
+# cursor — Claude orange, acento de la paleta Anthropic Warm. Cálido
+# y de alto contraste sobre #000, sin mimetizarse con el texto colored.
+cursor-color = #d97757
 cursor-text  = #000000
 
 # selección — azul-violeta oscuro (no gris medio Dracula original,

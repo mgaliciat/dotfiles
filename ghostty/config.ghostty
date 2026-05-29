@@ -103,8 +103,9 @@ window-save-state = always
 # block_hollow, underline.
 cursor-style = block
 
-# cursor parpadea — feedback sutil de que el terminal está vivo.
-cursor-style-blink = true
+# sin parpadeo — cursor fijo, más sobrio y menos distractor. El
+# bloque sólido naranja ya es suficientemente visible sin animar.
+cursor-style-blink = false
 
 # ─── selección y copiado ──────────────────────────────────────
 # seleccionar ya copia (workflow rápido)
