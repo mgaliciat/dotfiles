@@ -84,6 +84,14 @@ bindkey -e
 bindkey '^[[A' history-substring-search-up    # ↑ por substring (requiere zsh-history-substring-search)
 bindkey '^[[B' history-substring-search-down  # ↓ por substring
 
+# ⌥←/⌥→ — mover por "palabra". Saco '/' del WORDCHARS default para que
+# en una ruta (/dev/user/foo/bar) frene en cada slash en vez de tragarse
+# la ruta entera como una sola palabra. ⌘←/⌘→ siguen yendo a inicio/fin
+# de línea (convención macOS, no se tocan).
+WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
+bindkey '^[[1;3D' backward-word    # ⌥← (escape que emite Ghostty con macos-option-as-alt)
+bindkey '^[[1;3C' forward-word     # ⌥→
+
 # Alt+e — abre el comando que estás tecleando en $EDITOR (nvim). Para
 # un one-liner largo y enredado: lo editás con el modal completo de
 # vim, guardás+salís y se ejecuta. Requiere macos-option-as-alt en
