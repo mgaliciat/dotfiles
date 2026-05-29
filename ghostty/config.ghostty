@@ -67,25 +67,6 @@ font-thicken = true
 # Subir a 10-15% si querés más aire, bajar a 0% para nativo de Iosevka.
 adjust-cell-height = 3%
 
-# ─── shader de legibilidad ────────────────────────────────────
-# Custom shader (GLSL formato Shadertoy) que post-procesa el output para
-# LEER mejor — no es un efecto. Tres pasadas suaves: unsharp mask (bordes
-# de glifo más nítidos), domado de saturación del neón (que no vibre sobre
-# #000) y gamma lift de sombras (dim grays no se evaporan, #000 intacto).
-# Pensado específicamente para el theme oled-neon. Detalle y tuning de
-# parámetros en el header del .glsl.
-#
-# Path absoluto con ~ porque el config se carga desde Application Support
-# (no desde ~/.config/ghostty); el dir `shaders/` se expone vía symlink a
-# ~/.config/ghostty/ en install.sh, igual que `themes/`.
-custom-shader = ~/.config/ghostty/shaders/readable.glsl
-
-# false = el shader corre sólo cuando el contenido cambia, no en loop
-# continuo por frame. Como no hay nada animado (ni iTime), esto es cero
-# costo de GPU/batería en idle. Si algún día agregás un shader animado,
-# poné true.
-custom-shader-animation = false
-
 # ─── ventana ──────────────────────────────────────────────────
 # tabs integradas en el titlebar (estilo Chrome/Arc): libera ~1
 # línea vertical de terminal y queda más limpio que tener tab bar
