@@ -208,6 +208,16 @@ ZSH_HIGHLIGHT_STYLES[function]='fg=#87a96b'
 # Sin starship el prompt cae al default de zsh (`%~ $`) — funcional pero feo.
 command -v starship >/dev/null && eval "$(starship init zsh)"
 
+# ─── título de la ventana = dir actual ────────────────────────
+# Sin esto el título de Ghostty se queda pegado en el cwd de login
+# (tmux usa set-titles-string "#T" = pane title, y nadie lo actualiza).
+# El precmd emite OSC 2 en cada prompt: en Ghostty pelón setea el
+# título de la ventana; dentro de tmux setea el pane title → tmux lo
+# refleja en #T → la window de Ghostty. %~ = path con ~ abreviado.
+autoload -Uz add-zsh-hook
+_set_title() { print -Pn "\e]2;%~\a" }
+add-zsh-hook precmd _set_title
+
 # ─── overrides locales (no versionado) ────────────────────────
 # ~/.zshrc.local para aliases / funciones / overrides per-máquina.
 # Para env vars y secrets usar ~/.zshenv.local (cargado también en scripts).
