@@ -11,12 +11,15 @@
 #
 #  Mapeo del slot → palette[N] del theme:
 #    bright-black (8) = subtle (hostname/user SSH)
-#    #b08968 (hex)    = directorio (acento principal, tierra)
-#    yellow (3)       = git branch
-#    #d97757 (hex)    = prompt OK (Claude orange, matchea cursor)
+#    blue (4)         = directorio (acento principal)
+#    yellow (3)       = git branch + git status
+#    purple (5)       = prompt OK (= magenta; matchea el cursor del tema, en osaka #d23681)
 #    red (1)          = prompt error
 #    cyan (6)         = prompt en vi normal mode
 #    bright-yellow    = cmd duration (solo si > 2s)
+#
+#  100% ANSI, sin excepciones hex: el prompt entero sigue el tema del
+#  stack (scripts/theme). En osaka los slots caen en solarized frío.
 # ═══════════════════════════════════════════════════════════════
 
 add_newline = false
@@ -27,16 +30,20 @@ $username\
 $hostname\
 $directory\
 $git_branch\
+$git_status\
 $cmd_duration\
 $character"""
 
 # ─── prompt char (λ, color = estado) ──────────────────────────
 # El color del λ es toda la señal de exit code que necesitás:
-# Claude orange = último comando OK (matchea el cursor), rojo = falló.
-# Por eso $status va off. Excepción a la regla "solo ANSI" del header:
-# el orange es hex fijo a propósito, para igualar el cursor del theme.
+# purple = último comando OK, rojo = falló. Por eso $status va off.
+# OJO: starship llama `purple` al ANSI 5 (lo que el resto del mundo llama
+# magenta) — NO existe el nombre `magenta` en starship, cae a default sin
+# color. `purple` es ANSI (no hex): en osaka el slot 5 es #d23681 — el MISMO
+# color que el cursor de Ghostty, el acento de tmux y el indicador de incline.
+# Todo el stack coordina ahí. En otro tema, la λ toma el slot 5 de ESE tema.
 [character]
-success_symbol = "[λ](#d97757)"
+success_symbol = "[λ](purple)"
 error_symbol   = "[λ](red)"
 vimcmd_symbol  = "[λ](cyan)"
 
@@ -61,9 +68,10 @@ format    = "[$hostname]($style) "
 
 # ─── directorio (acento principal, siempre visible) ────────────
 [directory]
-# Hex fijo (tierra de la paleta) — excepción a la regla "solo ANSI" del
-# header, igual que el λ orange: acento cálido constante entre themes.
-style              = "bold #b08968"
+# blue (ANSI) — sigue el tema del stack: en osaka cae en el azul solarized
+# (#268bd3, casi el mismo que usa craftzdog para su segmento git). Antes era
+# un hex tierra fijo que desentonaba sobre el fondo frío del osaka.
+style              = "bold blue"
 truncation_length  = 3
 truncate_to_repo   = true
 truncation_symbol  = "…/"
@@ -77,11 +85,31 @@ symbol = " "
 style  = "yellow"
 format = "[$symbol$branch]($style) "
 
-# ─── git status / metrics (off — corré `git status` si querés ──
-# el detalle; el prompt no acarrea counts en cada render).
+# ─── git status (símbolos terse, un toque "craftzdog") ────────
+# Flat, una sola línea: el branch ya viene en yellow, el status lo
+# acompaña con símbolos compactos + counts. El grupo `( … )` externo
+# es condicional de starship: con repo limpio NO renderiza nada (ni un
+# espacio sobrante); solo aparece cuando hay algo que reportar.
+# Style en yellow (nombre ANSI, no hex) → sigue el tema del stack como
+# el resto del prompt. Símbolos: ✚ staged · ! modificado · ? untracked
+# · * stash · = conflicto · ⇡ ahead · ⇣ behind.
 [git_status]
-disabled = true
+disabled    = false
+style       = "yellow"
+format      = "([$all_status$ahead_behind]($style) )"
+staged      = "✚${count}"
+modified    = "!${count}"
+untracked   = "?${count}"
+stashed     = "*${count}"
+conflicted  = "=${count}"
+deleted     = "✘${count}"
+renamed     = "»${count}"
+ahead       = "⇡${count}"
+behind      = "⇣${count}"
+diverged    = "⇡${ahead_count}⇣${behind_count}"
+up_to_date  = ""
 
+# git metrics (líneas +/-) off — demasiado ruido para un one-liner.
 [git_metrics]
 disabled = true
 
