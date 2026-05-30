@@ -35,6 +35,17 @@ The defining decision in this repo. Some things are versioned (shared across mac
 
 The override-at-end pattern is load-bearing: in `.zshrc`, `.zshenv`, and `.gitconfig`, the `*.local` source/include is **the last line** so per-máquina values win over repo defaults. Don't move them.
 
+## Tema del stack (theme switcher)
+
+El look de la terminal es **un solo tema que abarca tres capas** (Ghostty + nvim + tmux); starship se adapta solo vía nombres ANSI. Un id canónico vale igual en las tres. Cambiás el look con **`scripts/theme <id>`** (o la función `theme` de `functions.zsh`, con completion) — NO editando cada herramienta a mano.
+
+- **Familia canónica (6):** `osaka` (deep-ocean craftzdog, **default**), `oled-neon`, `anthropic-dark`, `anthropic-warm`, `prism-night`, `paper`. Alias osaka (sub-sabores del plugin, no entradas de la matriz): `solarized-osaka`, `osaka-moon`, `osaka-storm`, `osaka-day`. `obsidian` sigue siendo theme nvim válido pero queda **fuera** del switcher (solo nvim).
+- **Definiciones versionadas, selección per-máquina.** Cada tema tiene su paleta en `ghostty/themes/<id>`, `nvim/lua/themes/<id>.lua` (excepto osaka, que es el plugin `solarized-osaka.nvim`) y `tmux/themes/<id>.conf`. La *selección activa* son tres punteros gitignored (`*.local`) que escribe el switcher: `ghostty/themes/current.local`, `nvim/lua/theme-current.local`, `tmux/current.local`. Toggling NO genera commits.
+- **Cada capa lee el puntero como override-at-end** (mismo ADN que `.zshrc.local`): Ghostty `config-file = ?~/.config/ghostty/themes/current.local` (último `theme=` gana; `?` = opcional); nvim lee `theme-current.local` en `options.lua` con fallback al default; tmux `source -q current.local` después de la paleta default. Sin puntero (máquina recién clonada) → todo cae a osaka.
+- **osaka es la fuente de verdad de su propia paleta.** Los hex salen del plugin (`require("solarized-osaka.colors").setup()`, extraíbles con nvim headless) y se hornean a mano en el theme Ghostty y la paleta tmux. Si el plugin cambia su paleta, re-extraé y re-sincronizá esos dos espejos.
+- **Reload:** tmux se re-sourcea en vivo si hay server; Ghostty y nvim aplican **al reabrir** (decisión deliberada: sin push a instancias vivas). En Linux/WSL2 sin Ghostty, el switcher omite esa capa sin error.
+- **Agregar un tema a la familia** = crear sus 3 definiciones (ghostty/nvim/tmux, todas espejo del mismo palette) + una entrada en el `case` de `scripts/theme` + el `compadd` de `functions.zsh`. Agregar SOLO a nvim (fuera de la matriz, estilo `obsidian`) = solo el `.lua`.
+
 ## zsh design constraints
 
 - **No framework** (no Oh My Zsh, no zinit, no zplug). Startup target: <50ms. Adding a plugin manager is a regression, not an upgrade.
@@ -57,10 +68,10 @@ The override-at-end pattern is load-bearing: in `.zshrc`, `.zshenv`, and `.gitco
 - **Prefix: `C-t`** (no el default `C-b`, que colisiona con vim "page back"). Se cambia en `tmux/tmux.conf` (2 líneas: `unbind C-b` + `set-option -g prefix C-t`).
 - **`escape-time 10` es CRÍTICO para nvim.** Default es 500ms — sin override, presionar `<Esc>` en nvim dentro de tmux tiene delay perceptible. No subirlo.
 - **`focus-events on` es obligatorio.** Sin esto, gitsigns no detecta cambios externos al buffer y nvim no auto-reloadea archivos modificados afuera.
-- **Estructura modular: 5 archivos**, idéntica al patrón de craftzdog. `tmux.conf` carga `macos.conf` (condicional Darwin), `theme.conf`, `statusline.conf`, `utility.conf`. Si vas a tweakear un color, andá a `theme.conf`/`statusline.conf` — `tmux.conf` solo tiene comportamiento.
+- **Estructura modular: 5 archivos**, idéntica al patrón de craftzdog. `tmux.conf` carga `macos.conf` (condicional Darwin), la paleta del tema (`themes/<id>.conf` + `current.local`), `theme.conf`, `statusline.conf`, `utility.conf`. `theme.conf`/`statusline.conf` son ahora **solo estructura** (no hex) — los colores salen de `themes/<id>.conf` vía user-options `@thm_*`. Si vas a tweakear un COLOR, andá a `tmux/themes/<id>.conf`; si es ESTRUCTURA (segmentos, separadores), a `theme.conf`/`statusline.conf`.
 - **tpm bootstrap vive en `install.sh`**, no en `tmux.conf`. Plugins listados en `tmux.conf` se instalan con `prefix + I` (mayúscula) la primera vez. tpm clonado en `~/.config/tmux/plugins/tpm/` por el installer (idempotente).
-- **Paleta `theme.conf` es duplicación deliberada.** tmux no tiene variables — los mismos hex (lineage del viejo `blueprint-engineering`) viven en `nvim/lua/plugins/colorscheme.lua` y `tmux/theme.conf`. Si cambias el theme de nvim, sincronizá tmux a mano.
-- **Ghostty usa built-ins, nvim tiene custom themes.** Ghostty: `theme = X` (built-in del bundle). Nvim: `vim.g.theme = "anthropic-dark"` (o las otras variantes en `lua/themes/`). Cada uno independiente — cambiar el theme de Ghostty NO obliga a tocar nvim. Si querés que matchee visualmente, elegí built-in Ghostty con paleta similar al nvim theme (ej. `Gruvbox Material Dark` ↔ `anthropic-dark`).
+- **Paleta tmux vía user-options `@thm_*`.** tmux SÍ tiene variables: cada `tmux/themes/<id>.conf` setea `@thm_bg/@thm_fg/@thm_accent/…` y la estructura (`theme.conf`/`statusline.conf`) los consume. Style options con `set -gF` (hornea el hex al sourcear, porque NO son formatos y no expanden en draw); format options (`status-left`, `window-status-*-format`) con `set -g` y `#{@thm_*}` inline (expanden en draw, conviven con `#S`/`%H:%M`). Si invertís eso, o ves `fg=#{@thm_x}` literal en un border, es que usaste el flag equivocado.
+- **El tema es cross-stack, NO por-herramienta — ver sección "Tema del stack".** Ghostty, nvim y tmux comparten un id de tema y se voltean juntos con `scripts/theme <id>`. NO edites el `theme=` de Ghostty ni `vim.g.theme` a mano para cambiar el look — usá el switcher (sino quedan desincronizados). Starship se adapta solo (ANSI).
 - **`utility.conf` tiene los popups por proyecto.** `prefix + y` abre Claude Code en una sesión tmux dedicada por directorio (md5 del path = session ID) — cerrás el popup, Claude sigue vivo en background; reabrir desde otro pane del mismo proyecto te devuelve la misma sesión con su contexto. Igual con `prefix + g` para lazygit.
 
 ## nvim design constraints

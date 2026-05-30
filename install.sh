@@ -37,6 +37,11 @@ link "$DOTFILES/ghostty/config.ghostty" "$GHOSTTY_DIR/config.ghostty"
 # Application Support donde vive el config — son dirs distintos. Si los
 # pones en Application Support, Ghostty los ignora y tira "theme not found".
 # Symlink del dir entero para que nuevos themes se expongan automáticamente.
+# Esto también expone la familia del "tema del stack" (scripts/theme): los
+# themes nuevos en ghostty/themes, nvim/lua/themes y tmux/themes viajan
+# gratis con los symlinks de dir padre — no hay que linkearlos uno por uno.
+# Los punteros de selección (current.local) los crea scripts/theme en
+# runtime y son per-máquina (gitignored, *.local): NO se symlinkean acá.
 if [[ -d "$DOTFILES/ghostty/themes" ]]; then
   mkdir -p "$HOME/.config/ghostty"
   link "$DOTFILES/ghostty/themes"       "$HOME/.config/ghostty/themes"

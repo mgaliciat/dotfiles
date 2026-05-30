@@ -16,7 +16,12 @@
 # Dawn, Catppuccin Latte, Kanagawa Lotus (light).
 # Solarized picks: Solarized Dark Patched (estilo craftzdog),
 # Solarized Osaka Night (matchea con solarized-osaka.nvim).
-theme = oled-neon
+#
+# NOTA: este `theme =` es el DEFAULT versionado del stack. La selección
+# activa la maneja `scripts/theme <id>`, que escribe themes/current.local
+# (incluido al final de este archivo, gana por last-wins). Una máquina
+# recién clonada sin current.local cae a este default.
+theme = solarized-osaka
 
 # Custom themes — viven en `ghostty/themes/` (symlinkeado a
 # <config-dir>/themes/ por install.sh).
@@ -297,3 +302,20 @@ macos-non-native-fullscreen = visible-menu
 # Si prefieres ocultar los semáforos (rojo/amarillo/verde) cuando
 # entres a fullscreen para una vista más limpia, descomenta:
 # macos-window-buttons = hidden
+
+# ═══════════════════════════════════════════════════════════════
+#  Tema del stack — override per-máquina (override-at-end)
+# ═══════════════════════════════════════════════════════════════
+
+# `scripts/theme <id>` escribe current.local con un único `theme = <id>`.
+# Va AL FINAL del config → el último `theme=` gana sobre el default de
+# arriba (same-key last-wins de Ghostty). El `?` hace el include OPCIONAL:
+# si no existe (máquina recién clonada, o nunca corriste `theme`), Ghostty
+# lo ignora sin error y usás el default. Mismo patrón que ~/.zshrc.local.
+#
+# Path ABSOLUTO a propósito: los relativos de config-file resuelven
+# contra el dir del config (Application Support), pero los themes viven
+# en ~/.config/ghostty/themes/ (symlink al repo). current.local va ahí
+# para quedar gitignored (*.local) — selección per-máquina dentro del repo.
+config-file = ?~/.config/ghostty/themes/current.local
+

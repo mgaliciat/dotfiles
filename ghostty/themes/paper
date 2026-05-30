@@ -1,0 +1,40 @@
+# paper — light cream + tinta sepia. Espejo de nvim/lua/themes/paper.lua
+# y tmux/themes/paper.conf. Absorbe el viejo "anthropic-light".
+# Convención light: los "bright" (8-15) son MÁS OSCUROS que los normales
+# (más saturación = más contraste sobre fondo claro) — al revés de los dark.
+#
+# OJO: con un theme claro considerá subir `minimum-contrast` a 3.0 en
+# config.ghostty (rescata grays sin distorsionar el coral de marca).
+
+# fondo y texto
+background = #f5ead0
+foreground = #2a1f15
+
+# cursor — Claude coral, alta visibilidad sobre cream
+cursor-color = #d97757
+cursor-text  = #f5ead0
+
+# selección — cream tostado, texto sepia sigue legible
+selection-background = #d4c298
+selection-foreground = #2a1f15
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# normales (0-7)
+palette = 0=#3a2e1f
+palette = 1=#b8493a
+palette = 2=#6b8f4a
+palette = 3=#c08a1e
+palette = 4=#5a7a8e
+palette = 5=#8a5a3f
+palette = 6=#5a8a7e
+palette = 7=#2a1f15
+
+# brillantes (8-15): MÁS oscuros (light theme)
+palette = 8=#7a6a55
+palette = 9=#9a3520
+palette = 10=#557030
+palette = 11=#a07010
+palette = 12=#456080
+palette = 13=#70432f
+palette = 14=#3f6f60
+palette = 15=#1a1208

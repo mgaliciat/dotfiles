@@ -1,5 +1,7 @@
--- ─── theme: warm ─────────────────────────────────────────────
--- Espejo del theme Ghostty `anthropic-warm` (dark sepia/naranja).
+-- ─── theme: anthropic-warm ───────────────────────────────────
+-- Espejo del theme Ghostty `anthropic-warm` y de tmux/themes/anthropic-warm.conf
+-- (dark sepia/terracota cálido). Antes se llamaba "warm" — renombrado al
+-- id canónico de la familia del switcher (mismo string en las 3 capas).
 -- Base tokyonight: variant `night`.
 --
 -- Convención dark theme: los "bright" son MÁS CLAROS que los normales.

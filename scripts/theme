@@ -1,0 +1,126 @@
+#!/usr/bin/env bash
+# ═══════════════════════════════════════════════════════════════
+#  theme — switcher del "tema del stack"
+#
+#  Voltea Ghostty + nvim + tmux a un mismo tema escribiendo punteros
+#  per-máquina (gitignored, *.local). Starship se adapta solo vía ANSI,
+#  no necesita puntero. Las DEFINICIONES de paleta están versionadas
+#  (ghostty/themes/, nvim/lua/themes/, tmux/themes/); acá solo elegimos
+#  cuál está activa — mismo patrón override-at-end que ~/.zshrc.local.
+#
+#  Uso:
+#    theme <id>     aplica el tema a las 3 capas
+#    theme list     lista la familia
+#    theme          muestra la selección actual
+#
+#  Familia canónica: osaka · oled-neon · anthropic-dark · anthropic-warm
+#                    · prism-night · paper
+#  Alias osaka (sub-sabores del plugin, no entradas de la matriz):
+#    solarized-osaka, osaka-moon, osaka-storm, osaka-day
+#
+#  Reload: tmux se re-sourcea en vivo si hay server corriendo. Ghostty y
+#  nvim toman el tema al reabrir/reiniciar (decisión de diseño: sin push
+#  a instancias vivas). En Linux/WSL2 sin Ghostty, ese paso se omite.
+# ═══════════════════════════════════════════════════════════════
+
+set -euo pipefail
+
+FAMILY="osaka oled-neon anthropic-dark anthropic-warm prism-night paper"
+
+GHOSTTY_POINTER="$HOME/.config/ghostty/themes/current.local"
+NVIM_POINTER="$HOME/.config/nvim/lua/theme-current.local"
+TMUX_POINTER="$HOME/.config/tmux/current.local"
+
+# Resuelve un id (canónico o alias) → G (ghostty theme), N (nvim theme),
+# T (archivo de paleta tmux). Devuelve 1 si el id no existe.
+resolve() {
+  case "$1" in
+    osaka|solarized-osaka)             G=solarized-osaka; N=solarized-osaka;       T=osaka ;;
+    osaka-moon|solarized-osaka-moon)   G=solarized-osaka; N=solarized-osaka-moon;  T=osaka ;;
+    osaka-storm|solarized-osaka-storm) G=solarized-osaka; N=solarized-osaka-storm; T=osaka ;;
+    osaka-day|solarized-osaka-day)     G=solarized-osaka; N=solarized-osaka-day;   T=osaka ;;
+    oled-neon)       G=oled-neon;      N=oled-neon;      T=oled-neon ;;
+    anthropic-dark)  G=anthropic-dark; N=anthropic-dark; T=anthropic-dark ;;
+    anthropic-warm)  G=anthropic-warm; N=anthropic-warm; T=anthropic-warm ;;
+    prism-night)     G=prism-night;    N=prism-night;    T=prism-night ;;
+    paper)           G=paper;          N=paper;          T=paper ;;
+    *) return 1 ;;
+  esac
+}
+
+list_family() {
+  echo "Familia del stack:"
+  for t in $FAMILY; do echo "  · $t"; done
+  echo "Alias osaka: solarized-osaka, osaka-moon, osaka-storm, osaka-day"
+}
+
+show_current() {
+  echo "Selección actual (punteros per-máquina):"
+  if [[ -f "$NVIM_POINTER" ]]; then
+    echo "  nvim    → $(tr -d '[:space:]' < "$NVIM_POINTER")"
+  else
+    echo "  nvim    → (default versionado: solarized-osaka)"
+  fi
+  if [[ -f "$GHOSTTY_POINTER" ]]; then
+    echo "  ghostty → $(sed -n 's/^theme = //p' "$GHOSTTY_POINTER")"
+  else
+    echo "  ghostty → (default versionado: solarized-osaka)"
+  fi
+  if [[ -f "$TMUX_POINTER" ]]; then
+    echo "  tmux    → $(sed -n 's#.*themes/\(.*\)\.conf#\1#p' "$TMUX_POINTER")"
+  else
+    echo "  tmux    → (default versionado: osaka)"
+  fi
+}
+
+apply_theme() {
+  local id="$1"
+  if ! resolve "$id"; then
+    echo "theme: '$id' no es un tema válido." >&2
+    echo "" >&2
+    list_family >&2
+    exit 1
+  fi
+
+  local changed=()
+
+  # ─── Ghostty ───  (skip silencioso si no está presente — Linux/WSL2)
+  if [[ -d "$HOME/.config/ghostty" ]]; then
+    mkdir -p "$(dirname "$GHOSTTY_POINTER")"
+    printf 'theme = %s\n' "$G" > "$GHOSTTY_POINTER"
+    changed+=("ghostty=$G")
+  fi
+
+  # ─── nvim ───
+  if [[ -d "$HOME/.config/nvim/lua" ]]; then
+    printf '%s\n' "$N" > "$NVIM_POINTER"
+    changed+=("nvim=$N")
+  fi
+
+  # ─── tmux ───
+  if [[ -d "$HOME/.config/tmux" ]]; then
+    printf 'source ~/.config/tmux/themes/%s.conf\n' "$T" > "$TMUX_POINTER"
+    changed+=("tmux=$T")
+  fi
+
+  echo "✓ tema → $id  (${changed[*]})"
+
+  # ─── reloads ───
+  # tmux: re-sourcea en vivo si hay server (barato y robusto). El chain
+  # re-aplica paleta default → current.local → estructura (re-hornea).
+  if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
+    if tmux source-file "$HOME/.config/tmux/tmux.conf" 2>/dev/null; then
+      echo "  ✓ tmux recargado en vivo"
+    fi
+  fi
+  # Ghostty y nvim: aplican al reabrir.
+  echo "  → Ghostty: reabrí la ventana o recargá con ⌘⇧R"
+  echo "  → nvim:    reiniciá nvim (o :source \$MYVIMRC + :colorscheme)"
+}
+
+case "${1:-}" in
+  "")          show_current ;;
+  list|--list) list_family ;;
+  -h|--help)   sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//' ;;
+  *)           apply_theme "$1" ;;
+esac

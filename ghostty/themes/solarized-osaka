@@ -1,0 +1,41 @@
+# solarized-osaka — deep-ocean Solarized del developer japonés craftzdog.
+# Azul-negro profundo (#001419) con acentos solarized: magenta firma,
+# violet, cyan, blue. Pensado para transparencia + blur sobre wallpaper,
+# sesiones largas sin fatiga. Es el look "estrella" de la familia.
+#
+# Fuente de verdad: el plugin craftzdog/solarized-osaka.nvim. Hex
+# extraídos de `require("solarized-osaka.colors").setup()` — espejo de
+# nvim (plugin) y tmux/themes/osaka.conf. Si el plugin cambia, re-extraé.
+
+# fondo y texto
+background = #001419
+foreground = #9eabac
+
+# cursor — magenta solarized (acento firma, matchea incline.nvim y tmux)
+cursor-color = #d23681
+cursor-text  = #001419
+
+# selección — base02 (apenas más claro que el bg, texto sigue legible)
+selection-background = #063540
+selection-foreground = #9eabac
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# Esquema Solarized clásico (0-7 normales, 8-15 con orange/violet/bases),
+# con los hex específicos de la variante osaka.
+palette = 0=#063540
+palette = 1=#db302d
+palette = 2=#849900
+palette = 3=#b28500
+palette = 4=#268bd3
+palette = 5=#d23681
+palette = 6=#29a298
+palette = 7=#9eabac
+
+palette = 8=#002c38
+palette = 9=#c94c16
+palette = 10=#576d74
+palette = 11=#637981
+palette = 12=#9eabac
+palette = 13=#6d71c4
+palette = 14=#adb7b7
+palette = 15=#ffffff

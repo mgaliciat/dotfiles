@@ -1,22 +1,35 @@
--- ─── theme switcher ───────────────────────────────────────────
--- Selecciona qué paleta usar al arrancar. Variantes disponibles:
+-- ─── theme del stack ──────────────────────────────────────────
+-- nvim es UNA capa del "tema del stack" (junto a Ghostty y tmux). La
+-- selección activa la maneja `scripts/theme <id>`, que escribe el id en
+-- lua/theme-current.local (gitignored, *.local). Acá leemos ese puntero;
+-- si no existe (máquina recién clonada, o nunca corriste `theme`) caemos
+-- al default versionado. Mismo patrón override-at-end que ~/.zshrc.local.
 --
--- Sobre tokyonight (paletas custom en lua/themes/<name>.lua):
---   "anthropic-dark"     dark Claude.ai (brown-black + Claude orange) ← espejo Ghostty
---   "anthropic-light"    light Anthropic (cream paper + sepia)        ← espejo Ghostty
---   "oled-neon"          true black OLED + Dracula neón               ← espejo Ghostty
---   "obsidian"           high-contrast dark + cyan
---   "warm"               dark sepia/naranja (legacy)
---   "paper"              light cream + sepia (legacy)
---
--- Sobre solarized-osaka (plugin separado, lua/plugins/solarized-osaka.lua):
---   "solarized-osaka"        dark / night (default del plugin)
---   "solarized-osaka-day"    light
---   "solarized-osaka-moon"   dark más suave
---   "solarized-osaka-storm"  dark más gris
+-- Familia canónica (id = mismo string en Ghostty/nvim/tmux):
+--   "solarized-osaka"  deep-ocean craftzdog (DEFAULT) ← plugin separado
+--   "oled-neon"        true black OLED + Dracula neón
+--   "anthropic-dark"   dark Claude.ai (brown-black + Claude orange)
+--   "anthropic-warm"   dark sepia/terracota cálido
+--   "prism-night"      azul medianoche + arco del prisma
+--   "paper"            light cream + tinta sepia
+-- (Las variantes solarized-osaka-{day,moon,storm} y "obsidian" siguen
+--  siendo themes válidos acá, pero fuera de la matriz del switcher.)
 --
 -- Cambiar requiere reiniciar nvim (o :source $MYVIMRC + :colorscheme ...).
-vim.g.theme = "oled-neon"
+local function stack_theme()
+  -- lua/theme-current.local vive junto a este archivo (config dir). Como
+  -- ~/.config/nvim es symlink al repo, el puntero queda dentro del repo y
+  -- gitignored por *.local. Una sola línea con el id del tema.
+  local pointer = vim.fn.stdpath("config") .. "/lua/theme-current.local"
+  if vim.fn.filereadable(pointer) == 1 then
+    local line = (vim.fn.readfile(pointer)[1] or ""):gsub("%s+", "")
+    if line ~= "" then
+      return line
+    end
+  end
+  return "solarized-osaka" -- default versionado del stack
+end
+vim.g.theme = stack_theme()
 
 -- ─── vim.opt ──────────────────────────────────────────────────
 -- Buenos defaults. Sigue el espíritu del dotfiles: comentar el WHY,
