@@ -80,12 +80,12 @@ adjust-cell-height = 3%
 # aparte) · native (look macOS estándar) · hidden (sin titlebar).
 macos-titlebar-style = tabs
 
-# Transparencia + blur estilo craftzdog. 0.95 = transparencia sutil
-# (apenas un velo del wallpaper); blur 20 difumina el fondo lo suficiente
-# para que no distraiga del output denso de Claude Code. Si querés más
-# glass: bajar opacity a 0.88 (medio) o 0.80 (marcado) y subir blur a 30-40.
-background-opacity = 0.95
-background-blur = 20
+# Fondo 100% opaco, sin blur — fondo sólido para máxima legibilidad.
+# Con cualquier transparencia (<1.0) el wallpaper se cuela detrás del texto
+# y el ojo intenta enfocar dos planos a la vez → fatiga al leer output denso.
+# Si en el futuro querés el look glass craftzdog: opacity 0.88-0.95 + blur 20-40.
+background-opacity = 1.0
+background-blur = 0
 
 # respira lateralmente — padding generoso para que el output denso
 # de Claude Code (tool calls, diffs, árboles) no se sienta apretado.
