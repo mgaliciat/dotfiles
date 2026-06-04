@@ -1,0 +1,47 @@
+# carbon — minimal + funcional, true black (#000) + un solo acento cálido.
+# Espejo cross-stack: misma paleta horneada en nvim/lua/themes/carbon.lua
+# y tmux/themes/carbon.conf (single source of truth = el palette canónico).
+# Filosofía: alto contraste sobre #000, neutrales grises sin tinte, y UN
+# acento (naranja Claude #d97757) reusado de la paleta Anthropic Warm — sin
+# inventar otros hexes de acento. Los grays cargan el peso; el naranja sólo
+# marca foco (cursor).
+#
+# NOTA: con true black puro, considerá bajar `minimum-contrast` a 1.0 si los
+# grays parecen brillar de más — el enforcement default sobre #000 es agresivo.
+
+# fondo y texto
+background = #000000
+foreground = #e4e4e4
+
+# cursor — Claude orange, único acento de la paleta. Cálido y de máximo
+# contraste sobre #000, no se mimetiza con los neutrales grises del texto.
+cursor-color = #d97757
+cursor-text  = #000000
+
+# selección — gris medio elevado (#2a2a2a) en vez de tinte: coherente con
+# la estética neutral. fg blanco puro mantiene el texto seleccionado legible.
+selection-background = #2a2a2a
+selection-foreground = #ffffff
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# normales (0-7): neutrales + colores funcionales desaturados (no neon).
+# Suficiente croma para distinguir syntax/git status, sin vibrar sobre #000.
+palette = 0=#1c1c1c
+palette = 1=#e35f5f
+palette = 2=#9ec07c
+palette = 3=#d9a441
+palette = 4=#7aa6c2
+palette = 5=#c08fb8
+palette = 6=#7fb5ad
+palette = 7=#d4d4d4
+
+# brillantes (8-15): versiones lifted +luminance. bright_black usa un gris
+# medio (#4a4a4a) que sobre #000 sigue legible — no se traga como #2a2a2a.
+palette = 8=#4a4a4a
+palette = 9=#ef7a7a
+palette = 10=#b3d196
+palette = 11=#e8be6a
+palette = 12=#9bc0d6
+palette = 13=#d4a8cd
+palette = 14=#9fccc4
+palette = 15=#ffffff

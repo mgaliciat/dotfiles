@@ -6,7 +6,8 @@
 -- al default versionado. Mismo patrón override-at-end que ~/.zshrc.local.
 --
 -- Familia canónica (id = mismo string en Ghostty/nvim/tmux):
---   "solarized-osaka"  deep-ocean craftzdog (DEFAULT) ← plugin separado
+--   "carbon"           minimal true-black, high contrast, acento Claude orange (DEFAULT)
+--   "solarized-osaka"  deep-ocean craftzdog ← plugin separado
 --   "oled-neon"        true black OLED + Dracula neón
 --   "anthropic-dark"   dark Claude.ai (brown-black + Claude orange)
 --   "anthropic-warm"   dark sepia/terracota cálido
@@ -27,7 +28,7 @@ local function stack_theme()
       return line
     end
   end
-  return "solarized-osaka" -- default versionado del stack
+  return "carbon" -- default versionado del stack
 end
 vim.g.theme = stack_theme()
 

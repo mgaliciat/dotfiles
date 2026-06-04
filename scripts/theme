@@ -13,8 +13,8 @@
 #    theme list     lista la familia
 #    theme          muestra la selección actual
 #
-#  Familia canónica: osaka · oled-neon · anthropic-dark · anthropic-warm
-#                    · prism-night · paper
+#  Familia canónica: osaka · oled-neon · carbon · anthropic-dark
+#                    · anthropic-warm · prism-night · paper
 #  Alias osaka (sub-sabores del plugin, no entradas de la matriz):
 #    solarized-osaka, osaka-moon, osaka-storm, osaka-day
 #
@@ -25,7 +25,7 @@
 
 set -euo pipefail
 
-FAMILY="osaka oled-neon anthropic-dark anthropic-warm prism-night paper"
+FAMILY="osaka oled-neon carbon anthropic-dark anthropic-warm prism-night paper"
 
 GHOSTTY_POINTER="$HOME/.config/ghostty/themes/current.local"
 NVIM_POINTER="$HOME/.config/nvim/lua/theme-current.local"
@@ -40,6 +40,7 @@ resolve() {
     osaka-storm|solarized-osaka-storm) G=solarized-osaka; N=solarized-osaka-storm; T=osaka ;;
     osaka-day|solarized-osaka-day)     G=solarized-osaka; N=solarized-osaka-day;   T=osaka ;;
     oled-neon)       G=oled-neon;      N=oled-neon;      T=oled-neon ;;
+    carbon)          G=carbon;         N=carbon;         T=carbon ;;
     anthropic-dark)  G=anthropic-dark; N=anthropic-dark; T=anthropic-dark ;;
     anthropic-warm)  G=anthropic-warm; N=anthropic-warm; T=anthropic-warm ;;
     prism-night)     G=prism-night;    N=prism-night;    T=prism-night ;;
@@ -59,17 +60,17 @@ show_current() {
   if [[ -f "$NVIM_POINTER" ]]; then
     echo "  nvim    → $(tr -d '[:space:]' < "$NVIM_POINTER")"
   else
-    echo "  nvim    → (default versionado: solarized-osaka)"
+    echo "  nvim    → (default versionado: carbon)"
   fi
   if [[ -f "$GHOSTTY_POINTER" ]]; then
     echo "  ghostty → $(sed -n 's/^theme = //p' "$GHOSTTY_POINTER")"
   else
-    echo "  ghostty → (default versionado: solarized-osaka)"
+    echo "  ghostty → (default versionado: carbon)"
   fi
   if [[ -f "$TMUX_POINTER" ]]; then
     echo "  tmux    → $(sed -n 's#.*themes/\(.*\)\.conf#\1#p' "$TMUX_POINTER")"
   else
-    echo "  tmux    → (default versionado: osaka)"
+    echo "  tmux    → (default versionado: carbon)"
   fi
 }
 

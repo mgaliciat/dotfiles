@@ -15,13 +15,13 @@
 # Dark Hard, Kanagawa Wave (dark) — Gruvbox Material Light, Rose Pine
 # Dawn, Catppuccin Latte, Kanagawa Lotus (light).
 # Solarized picks: Solarized Dark Patched (estilo craftzdog),
-# Solarized Osaka Night (matchea con solarized-osaka.nvim).
+# carbon — minimal true-black, high contrast (matchea con carbon.lua/.conf).
 #
 # NOTA: este `theme =` es el DEFAULT versionado del stack. La selección
 # activa la maneja `scripts/theme <id>`, que escribe themes/current.local
 # (incluido al final de este archivo, gana por last-wins). Una máquina
 # recién clonada sin current.local cae a este default.
-theme = solarized-osaka
+theme = carbon
 
 # Custom themes — viven en `ghostty/themes/` (symlinkeado a
 # <config-dir>/themes/ por install.sh).
