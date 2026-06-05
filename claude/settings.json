@@ -65,9 +65,11 @@
       "Bash(head .env*)",
       "Bash(tail .env*)",
       "Bash(bat .env*)",
-      "Bash(curl:*)",
       "Bash(rm -rf /:*)",
       "Bash(git push --force:*)"
+    ],
+    "ask": [
+      "Bash(curl:*)"
     ]
   },
   "effortLevel": "high",
