@@ -5,10 +5,12 @@
 .zcompdump*
 *.backup.*
 
-# Claude — skills/memorias per-máquina; settings.json es base portable
-# versionada (sin secrets ni plugins privados). Lo per-máquina (plugins y
-# marketplaces privados) vive en ~/.claude.json, no acá.
-# Los backups settings.json.backup.* los cubre la regla *.backup.* de arriba.
+# Claude — TODO per-máquina, no versionado. settings.json es 100% propio de
+# cada máquina (NO symlinkeado, como ~/.gitconfig): config de permisos/UI
+# diverge por host y arrastraba estado personal a un repo público. skills/ y
+# memory/ se symlinkean sólo si existen localmente. Backups *.backup.* ya
+# cubiertos por la regla de arriba.
+claude/settings.json
 claude/memory/
 claude/skills/
 

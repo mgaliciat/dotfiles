@@ -59,14 +59,11 @@ link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
 # ~/.gitconfig NO se symlinkea — cada máquina lo mantiene 100% propio
 # (credenciales, 1Password vaults, signing keys son per-máquina).
 
-# Claude Code: settings.json es base portable VERSIONADA (permissions, prefs
-# de UI — sin secrets ni plugins privados). skills/ y memory/ siguen siendo
-# per-máquina, no versionados: se symlinkean sólo si existen localmente.
-# Lo per-máquina de settings (plugins y marketplaces privados) vive en
-# ~/.claude.json, que Claude maneja solo y nunca toca este repo.
-if [[ -f "$DOTFILES/claude/settings.json" ]]; then
-  link "$DOTFILES/claude/settings.json" "$HOME/.claude/settings.json"
-fi
+# Claude Code: TODO per-máquina, no versionado. settings.json NO se symlinkea
+# (es 100% propio de cada host, como ~/.gitconfig): permisos/UI divergen por
+# máquina y arrastraba estado personal a un repo público. skills/ y memory/
+# se symlinkean sólo si existen localmente, así cada máquina mantiene su propio
+# ~/.claude/* sin interferencia.
 if [[ -d "$DOTFILES/claude/skills" ]]; then
   link "$DOTFILES/claude/skills"        "$HOME/.claude/skills"
 fi

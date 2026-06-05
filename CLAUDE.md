@@ -26,21 +26,12 @@ The defining decision in this repo. Some things are versioned (shared across mac
 | `git/.gitignore_global`     | `~/.gitconfig` itself (not symlinked at all) |
 | `starship/starship.toml`    |                                              |
 | `ghostty/config.ghostty`    |                                              |
-| `install.sh`                | `~/.claude.json` (plugins, marketplaces privados — Claude lo maneja) |
-| `claude/settings.json` (base portable) | `claude/memory/` (untracked)      |
+| `install.sh`                | `claude/settings.json` (untracked, NO symlinkeado) |
+|                             | `claude/memory/` (untracked)                 |
 |                             | `claude/skills/` (untracked)                 |
 |                             | Caps Lock → Option (System Settings UI)      |
 
-`claude/settings.json` **sí se versiona**, pero sólo como **base portable**: permissions (allowlist read-only + `Bash(openspec *)`, denylist de secrets), prefs de UI (`effortLevel`, `tui`, `theme`), `attribution`, `cleanupPeriodDays`. **Nunca** metas ahí secrets, `enabledPlugins` ni `extraKnownMarketplaces` — el repo es **público** y filtrarías estado personal (p.ej. nombres de marketplaces/repos privados). Eso es per-máquina y vive en `~/.claude.json`, que Claude escribe solo y este repo jamás toca. `settings.json` no tiene split `.local` nativo a nivel user, así que la regla es simple: si es privado, no va al archivo versionado.
-
-**Marketplaces SIEMPRE a scope `local`, nunca `user`.** El default de `/plugin marketplace add` y `/plugin install` es `--scope user`, que escribe `extraKnownMarketplaces`/`enabledPlugins` en `~/.claude/settings.json` — que acá es el symlink al repo **público** → leak. Por eso, **siempre** agregá con `--scope local` (cae en el `.claude/settings.local.json` del repo donde estás, gitignored) parado dentro del repo que de verdad usa el plugin:
-
-```bash
-claude plugin marketplace add cartografos/<repo> --scope local
-claude plugin install <plugin>@<marketplace>     --scope local
-```
-
-`--scope project` queda prohibido para marketplaces privados (comitearía la declaración). Sólo se usaría para catálogos públicos que quieras compartir abiertamente. Si alguna vez ves `extraKnownMarketplaces` o `enabledPlugins` en `git status` de `claude/settings.json`, es un leak: sacalos antes de commitear.
+`claude/settings.json` es **100% per-máquina y NO se versiona ni se symlinkea** — mismo trato que `~/.gitconfig`. Los permisos y prefs de UI divergen por host, y al symlinkearlo a un repo **público** terminaba arrastrando estado personal (p.ej. `enabledPlugins`/`extraKnownMarketplaces` de marketplaces privados que `/plugin` escribe ahí por default). Cada máquina mantiene su propio `~/.claude/settings.json` real e independiente; este repo no lo toca. Si querés una base de arranque, copiala a mano — pero no la pongas en el repo.
 
 `install.sh` symlinks `claude/skills` y `claude/memory` sólo si existen localmente — son intencionalmente per-máquina (ausentes del repo) para que cada máquina tenga estado Claude independiente. No los commitees. Same para `git/.gitconfig` — only the global ignore file is versioned from `git/`.
 
