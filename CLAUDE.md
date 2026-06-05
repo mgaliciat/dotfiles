@@ -26,12 +26,14 @@ The defining decision in this repo. Some things are versioned (shared across mac
 | `git/.gitignore_global`     | `~/.gitconfig` itself (not symlinked at all) |
 | `starship/starship.toml`    |                                              |
 | `ghostty/config.ghostty`    |                                              |
-| `install.sh`                | `claude/settings.json` (untracked)           |
-|                             | `claude/memory/` (untracked)                 |
+| `install.sh`                | `~/.claude.json` (plugins, marketplaces privados — Claude lo maneja) |
+| `claude/settings.json` (base portable) | `claude/memory/` (untracked)      |
 |                             | `claude/skills/` (untracked)                 |
 |                             | Caps Lock → Option (System Settings UI)      |
 
-`install.sh` symlinks `claude/{settings.json,skills,memory}` only if they exist locally. They are intentionally absent from the repo so each machine has fully independent Claude state. Do not commit them. Same for `git/.gitconfig` — only the global ignore file is versioned from `git/`.
+`claude/settings.json` **sí se versiona**, pero sólo como **base portable**: permissions (allowlist read-only + `Bash(openspec *)`, denylist de secrets), prefs de UI (`effortLevel`, `tui`, `theme`), `attribution`, `cleanupPeriodDays`. **Nunca** metas ahí secrets, `enabledPlugins` ni `extraKnownMarketplaces` — el repo es **público** y filtrarías estado personal (p.ej. nombres de marketplaces/repos privados). Eso es per-máquina y vive en `~/.claude.json`, que Claude escribe solo y este repo jamás toca. `settings.json` no tiene split `.local` nativo a nivel user, así que la regla es simple: si es privado, no va al archivo versionado.
+
+`install.sh` symlinks `claude/skills` y `claude/memory` sólo si existen localmente — son intencionalmente per-máquina (ausentes del repo) para que cada máquina tenga estado Claude independiente. No los commitees. Same para `git/.gitconfig` — only the global ignore file is versioned from `git/`.
 
 The override-at-end pattern is load-bearing: in `.zshrc`, `.zshenv`, and `.gitconfig`, the `*.local` source/include is **the last line** so per-máquina values win over repo defaults. Don't move them.
 
