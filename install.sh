@@ -61,14 +61,16 @@ link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
 
 # Claude Code: TODO per-máquina, no versionado. settings.json NO se symlinkea
 # (es 100% propio de cada host, como ~/.gitconfig): permisos/UI divergen por
-# máquina y arrastraba estado personal a un repo público. skills/ y memory/
-# se symlinkean sólo si existen localmente, así cada máquina mantiene su propio
-# ~/.claude/* sin interferencia.
+# máquina y arrastraba estado personal a un repo público. skills/ se symlinkea
+# sólo si existe localmente, así cada máquina mantiene su propio ~/.claude/*
+# sin interferencia.
+#
+# memory/ NO se symlinkea: Claude Code deriva el project-id del path REAL del
+# directorio (ej. trabajando en ~/dotfiles usa ...projects/-Users-foo-dotfiles/
+# memory), así que un symlink a un path adivinado quedaba ignorado. La memoria
+# es per-proyecto y la maneja Claude Code solo.
 if [[ -d "$DOTFILES/claude/skills" ]]; then
   link "$DOTFILES/claude/skills"        "$HOME/.claude/skills"
-fi
-if [[ -d "$DOTFILES/claude/memory" ]]; then
-  link "$DOTFILES/claude/memory"        "$HOME/.claude/projects/-Users-$(whoami | tr '.' '-')/memory"
 fi
 
 # ─── tpm (Tmux Plugin Manager) ────────────────────────────────
@@ -89,7 +91,9 @@ fi
 # el config fresco. Guarda `tmux info` para no romper si tmux no
 # está instalado todavía (primera corrida en máquina nueva).
 if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
-  if tmux source-file "$HOME/.config/tmux/tmux.conf" 2>/dev/null; then
+  # Sin 2>/dev/null: si el config tiene un error de sintaxis queremos verlo,
+  # no tragarlo en silencio (el `tmux info` ya garantiza que hay server).
+  if tmux source-file "$HOME/.config/tmux/tmux.conf"; then
     echo "✓ tmux config recargado en sesiones activas"
   fi
 fi

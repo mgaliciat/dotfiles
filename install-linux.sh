@@ -37,14 +37,11 @@ link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
 # ~/.gitconfig NO se symlinkea — per-máquina, igual que en mac.
 
 # Claude Code per-máquina (mismo patrón que install.sh).
-if [[ -f "$DOTFILES/claude/settings.json" ]]; then
-  link "$DOTFILES/claude/settings.json" "$HOME/.claude/settings.json"
-fi
+# settings.json NO se symlinkea (100% per-máquina, como ~/.gitconfig).
+# memory/ tampoco: Claude Code la maneja per-proyecto derivando el path real
+# del directorio, así que un symlink adivinado quedaba ignorado.
 if [[ -d "$DOTFILES/claude/skills" ]]; then
   link "$DOTFILES/claude/skills"        "$HOME/.claude/skills"
-fi
-if [[ -d "$DOTFILES/claude/memory" ]]; then
-  link "$DOTFILES/claude/memory"        "$HOME/.claude/projects/-home-$(whoami | tr '.' '-')/memory"
 fi
 
 # ─── tpm (Tmux Plugin Manager) ────────────────────────────────
@@ -61,7 +58,9 @@ fi
 # próxima sesión nueva ya leerá el config fresco. Guarda `tmux info`
 # para no romper si tmux no está instalado todavía.
 if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
-  if tmux source-file "$HOME/.config/tmux/tmux.conf" 2>/dev/null; then
+  # Sin 2>/dev/null: un error de sintaxis en el config debe ser visible,
+  # no tragarse en silencio (`tmux info` ya garantiza que hay server).
+  if tmux source-file "$HOME/.config/tmux/tmux.conf"; then
     echo "✓ tmux config recargado en sesiones activas"
   fi
 fi
@@ -245,7 +244,8 @@ if ! command -v delta >/dev/null 2>&1; then
   fi
 fi
 
-# eza — fallback si apt no lo tuvo (Ubuntu < 23.10).
+# eza — fallback si `command -v eza` falla tras apt (apt no lo traía —
+# típico en Ubuntu < 23.10 — o el install falló por otra razón).
 if ! command -v eza >/dev/null 2>&1; then
   echo ""
   echo "→ Instalando eza (GH release fallback, apt no lo tenía)"
