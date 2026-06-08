@@ -27,7 +27,7 @@ export PATH="$HOME/.local/bin:$PATH"
 
 # Pyenv root (solo PATH; init lazy vive en .zshrc para no penalizar startup).
 export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+[[ -d "$PYENV_ROOT/bin" ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 
 # ─── env vars de CLI tools ────────────────────────────────────
 # bat — usa colores del terminal (Anthropic Warm) en vez de su propio theme.

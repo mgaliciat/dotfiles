@@ -131,7 +131,9 @@ pyenv() {
 command -v zoxide >/dev/null && eval "$(zoxide init zsh --cmd cd)"
 
 # fzf → fuzzy finder. Habilita Ctrl+R (history), Ctrl+T (files), Alt+C (cd).
-source <(fzf --zsh) 2>/dev/null
+# command -v guard (mismo patrón que zoxide arriba): sin fzf instalado
+# evitamos el error en cada shell start, sin enmascararlo con 2>/dev/null.
+command -v fzf >/dev/null && source <(fzf --zsh)
 
 # ─── funciones helper ─────────────────────────────────────────
 # mkcd, port, server, gco, dex, dlogs, etc. (ver zsh/functions.zsh).
