@@ -42,12 +42,18 @@ server() {
 # Uso: gco
 gco() {
   local branch
+  # `git branch --all` indenta con 2 espacios (y la rama actual con `* `).
+  # Hay que strippear ESO en origen: `${branch## }` solo quita un espacio y
+  # dejaba `git checkout " main"` → "pathspec did not match" al elegir
+  # cualquier rama no-actual.
   branch=$(git branch --all 2>/dev/null \
            | grep -v HEAD \
            | sed 's|remotes/origin/||' \
+           | sed 's/^[ *]*//' \
            | sort -u \
            | fzf) || return
-  git checkout "${branch## }"
+  [[ -n "$branch" ]] || return   # fzf cancelado → no intentes checkout
+  git checkout "$branch"
 }
 
 # ─── docker ───────────────────────────────────────────────────
@@ -117,10 +123,12 @@ _fzf_cd_widget() {
         --preview='eza -1 --color=always --icons {} 2>/dev/null || ls {}' \
         --preview-window=right:50%:wrap)
 
+  # reset-prompt solo si hubo cd real — al cancelar fzf ($dir vacío) un
+  # redibujado del prompt es ruido innecesario.
   if [[ -n "$dir" ]]; then
     builtin cd -- "$dir"
+    zle reset-prompt
   fi
-  zle reset-prompt
 }
 # Solo registramos el widget en shells interactivos — `zle` no existe en
 # no-interactive (scripts, tools sourcing functions.zsh) y spamearía error.
