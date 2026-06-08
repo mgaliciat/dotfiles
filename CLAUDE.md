@@ -33,7 +33,7 @@ The defining decision in this repo. Some things are versioned (shared across mac
 
 `claude/settings.json` es **100% per-máquina y NO se versiona ni se symlinkea** — mismo trato que `~/.gitconfig`. Los permisos y prefs de UI divergen por host, y al symlinkearlo a un repo **público** terminaba arrastrando estado personal (p.ej. `enabledPlugins`/`extraKnownMarketplaces` de marketplaces privados que `/plugin` escribe ahí por default). Cada máquina mantiene su propio `~/.claude/settings.json` real e independiente; este repo no lo toca. Si querés una base de arranque, copiala a mano — pero no la pongas en el repo.
 
-`install.sh` symlinks `claude/skills` y `claude/memory` sólo si existen localmente — son intencionalmente per-máquina (ausentes del repo) para que cada máquina tenga estado Claude independiente. No los commitees. Same para `git/.gitconfig` — only the global ignore file is versioned from `git/`.
+`install.sh` symlinks `claude/skills` sólo si existe localmente — es intencionalmente per-máquina (ausente del repo) para que cada máquina tenga estado Claude independiente. No lo commitees. `claude/memory/` **ya NO se symlinkea**: Claude Code deriva el project-id del path real del directorio (trabajando en `~/dotfiles` usa `~/.claude/projects/-Users-m-galicia-dotfiles/memory/`), así que un symlink a un path adivinado quedaba ignorado — la memoria es per-proyecto y la maneja Claude Code solo. Same para `git/.gitconfig` — only the global ignore file is versioned from `git/`.
 
 The override-at-end pattern is load-bearing: in `.zshrc`, `.zshenv`, and `.gitconfig`, the `*.local` source/include is **the last line** so per-máquina values win over repo defaults. Don't move them.
 
@@ -51,7 +51,7 @@ El look de la terminal es **un solo tema que abarca tres capas** (Ghostty + nvim
 ## zsh design constraints
 
 - **No framework** (no Oh My Zsh, no zinit, no zplug). Startup target: <50ms. Adding a plugin manager is a regression, not an upgrade.
-- **Plugin source order is mandatory** in `zsh/.zshrc`: autosuggestions → syntax-highlighting → history-substring-search. Inverting 2↔3 silently breaks highlighting on history matches.
+- **Plugin source order is mandatory** in `zsh/.zshrc`: fzf-tab → autosuggestions → syntax-highlighting → history-substring-search. fzf-tab carga primero (después de `compinit`) para envolver el widget de completion antes de que los otros se enganchen; invertir autosuggestions↔highlighting↔history-substring rompe en silencio el highlighting sobre matches de history.
 - **`pyenv` is lazy-loaded** via a shim function that self-replaces on first call. Eager `pyenv init` adds ~40ms. Other tools (`zoxide`, `fzf`) are eager because they're cheap.
 - **`.zshenv` vs `.zshrc`**: env vars and `PATH` that subprocesses (Docker, Claude Code, scripts) need go in `.zshenv`. Aliases, prompt, plugins, UI go in `.zshrc`. Don't move PATH setup into `.zshrc` — non-interactive shells won't see it.
 - **Plugin loading es cross-platform vía discovery dinámico.** El `_load_zsh_plugin` en `.zshrc` probe varios paths en orden (macOS brew → linuxbrew → apt `/usr/share` → manual `~/.zsh/plugins`). Esto permite el mismo `.zshrc` symlinkeado en mac y Linux/WSL2 sin tocar. NO volver a hardcodear `/opt/homebrew/share/...` por más limpio que se vea — rompés Linux.
@@ -98,7 +98,7 @@ El look de la terminal es **un solo tema que abarca tres capas** (Ghostty + nvim
 
 ## Cross-references to other Claude state
 
-The user's auto-memory (`~/.claude/projects/-Users-m-galicia/memory/`) — which is symlinked from `claude/memory/` when present — contains durable preferences and project context. Two memories particularly relevant here:
+The user's auto-memory (per-proyecto, manejada por Claude Code en `~/.claude/projects/<id-del-path>/memory/`; ya no se symlinkea desde el repo) contains durable preferences and project context. Two memories particularly relevant here:
 
 - **Docker-only dev workflow** — host-side runtime managers (mise, nvm, pyenv outside Docker) have low ROI. Runtimes live in Dockerfiles. Don't suggest uninstalling host node/npm — Claude Code itself is installed via global npm.
 - **Ghostty config gotchas** — already encoded above (no inline comments; `audible-bell` is not a valid key — use `bell-features`).

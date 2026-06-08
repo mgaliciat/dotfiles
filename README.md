@@ -15,8 +15,8 @@ Personal config for macOS — Ghostty terminal, zsh, Starship prompt, Neovim, tm
 | `starship/starship.toml` | Starship prompt config |
 | `ghostty/config.ghostty` | Ghostty terminal config — theme, fonts, keybinds |
 | `git/.gitignore_global` | Global gitignore (macOS noise, editor files, build dirs) |
-| `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*`, solarized-osaka theme |
-| `tmux/` | tmux config — prefix `C-t`, popups Alt+c/C/s/g/Enter, modular (theme/statusline/utility) |
+| `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*`, tema `carbon` por defecto (+ variante solarized-osaka) |
+| `tmux/` | tmux config — prefix `C-t`, popups Alt+c/C/s/d/g/Enter, modular (theme/statusline/utility) |
 | `lazygit/config.yml` | lazygit theme + custom commands |
 | `scripts/` | Helpers — `ide` (nvim+lazygit IDE layout), `tmux-claude` (session picker) |
 | `install.sh` | Symlinks everything into place + auto-install deps |
@@ -40,9 +40,9 @@ cd ~/dotfiles
 
 `install.sh` se encarga de:
 
-1. Symlinkear configs (`.zshrc`, `.zshenv`, `.gitignore_global`, ghostty, starship, nvim, tmux, lazygit, claude/skills, claude/memory si existen local)
+1. Symlinkear configs (`.zshrc`, `.zshenv`, `.gitignore_global`, ghostty, starship, nvim, tmux, lazygit, claude/skills si existe local)
 2. Auto-instalar dependencias faltantes vía Homebrew:
-   - **Formulae**: `starship`, `zsh-syntax-highlighting`, `zsh-autosuggestions`, `zsh-history-substring-search`, `fzf-tab`, `eza`, `bat`, `fd`, `ripgrep`, `zoxide`, `fzf`, `git-delta`, `pyenv`, `neovim`, `tree-sitter-cli`, `tmux`, `lazygit`
+   - **Formulae**: `starship`, `zsh-syntax-highlighting`, `zsh-autosuggestions`, `zsh-history-substring-search`, `fzf-tab`, `eza`, `bat`, `fd`, `ripgrep`, `gomi`, `zoxide`, `fzf`, `git-delta`, `pyenv`, `neovim`, `tree-sitter-cli`, `tmux`, `lazygit`
    - **Casks**: `ghostty`, `font-plemol-jp-nf`, `font-ia-writer-mono`, `font-monaspace`
 3. Clonar tpm (Tmux Plugin Manager) si falta
 4. Recargar tmux config si hay un server corriendo

@@ -24,15 +24,22 @@
 theme = carbon
 
 # Custom themes — viven en `ghostty/themes/` (symlinkeado a
-# <config-dir>/themes/ por install.sh).
+# <config-dir>/themes/ por install.sh). Familia canónica del stack (mismo
+# id en Ghostty/nvim/tmux, se voltean juntos con `scripts/theme <id>`):
+#   · carbon — minimal true-black (#000) + alto contraste, único acento
+#     Claude orange (#d97757). DEFAULT del stack.
+#   · solarized-osaka — deep-ocean estilo craftzdog (azul casi negro). En
+#     Ghostty es el theme `solarized-osaka`; la paleta sale del plugin nvim.
 #   · oled-neon — true black (#000) + paleta neon Dracula-style.
 #     Pensado para OLED y sesiones nocturnas; máximo contraste.
+#   · anthropic-dark — dark Claude.ai (brown-black + Claude orange).
 #   · anthropic-warm — carbón cálido + paleta Claude (terracota, oliva,
 #     ámbar, naranja). Pensado para display-p3 + transparencia, sesiones
 #     largas sin fatiga.
 #   · prism-night — azul-noche profundo (#0a0e1a) con acentos del
 #     espectro (naranja → amarillo → verde → cyan → azul → violeta).
 #     Sampleado del wallpaper "prism" de macOS.
+#   · paper — light cream + tinta sepia (único claro de la familia).
 # Si volvés a Solarized Dark Patched, descomentá para recuperar el
 # "deep ocean" azul casi negro estilo craftzdog.
 # background = #031219
