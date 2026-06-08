@@ -57,18 +57,24 @@ list_family() {
 
 show_current() {
   echo "Selección actual (punteros per-máquina):"
+  # `${var:-(malformed)}` cubre el caso de un puntero corrupto/vacío: sin
+  # esto el output mostraría "  nvim →" sin valor, confuso de diagnosticar.
+  local v
   if [[ -f "$NVIM_POINTER" ]]; then
-    echo "  nvim    → $(tr -d '[:space:]' < "$NVIM_POINTER")"
+    v=$(tr -d '[:space:]' < "$NVIM_POINTER")
+    echo "  nvim    → ${v:-(malformed)}"
   else
     echo "  nvim    → (default versionado: carbon)"
   fi
   if [[ -f "$GHOSTTY_POINTER" ]]; then
-    echo "  ghostty → $(sed -n 's/^theme = //p' "$GHOSTTY_POINTER")"
+    v=$(sed -n 's/^theme = //p' "$GHOSTTY_POINTER")
+    echo "  ghostty → ${v:-(malformed)}"
   else
     echo "  ghostty → (default versionado: carbon)"
   fi
   if [[ -f "$TMUX_POINTER" ]]; then
-    echo "  tmux    → $(sed -n 's#.*themes/\(.*\)\.conf#\1#p' "$TMUX_POINTER")"
+    v=$(sed -n 's#.*themes/\(.*\)\.conf#\1#p' "$TMUX_POINTER")
+    echo "  tmux    → ${v:-(malformed)}"
   else
     echo "  tmux    → (default versionado: carbon)"
   fi
@@ -94,12 +100,14 @@ apply_theme() {
 
   # ─── nvim ───
   if [[ -d "$HOME/.config/nvim/lua" ]]; then
+    mkdir -p "$(dirname "$NVIM_POINTER")"
     printf '%s\n' "$N" > "$NVIM_POINTER"
     changed+=("nvim=$N")
   fi
 
   # ─── tmux ───
   if [[ -d "$HOME/.config/tmux" ]]; then
+    mkdir -p "$(dirname "$TMUX_POINTER")"
     printf 'source ~/.config/tmux/themes/%s.conf\n' "$T" > "$TMUX_POINTER"
     changed+=("tmux=$T")
   fi
@@ -110,7 +118,8 @@ apply_theme() {
   # tmux: re-sourcea en vivo si hay server (barato y robusto). El chain
   # re-aplica paleta default → current.local → estructura (re-hornea).
   if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
-    if tmux source-file "$HOME/.config/tmux/tmux.conf" 2>/dev/null; then
+    # Sin 2>/dev/null: un error al re-sourcear el tema debe verse.
+    if tmux source-file "$HOME/.config/tmux/tmux.conf"; then
       echo "  ✓ tmux recargado en vivo"
     fi
   fi
@@ -122,6 +131,9 @@ apply_theme() {
 case "${1:-}" in
   "")          show_current ;;
   list|--list) list_family ;;
-  -h|--help)   sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//' ;;
+  # Imprime el header doc-block (entre las dos líneas `# ═══`) sin números
+  # de línea hardcodeados, robusto ante ediciones. ${BASH_SOURCE[0]} en vez
+  # de $0 por si el script se sourcea en algún contexto.
+  -h|--help)   sed -n '/^# ═══/,/^# ═══/p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//' ;;
   *)           apply_theme "$1" ;;
 esac
