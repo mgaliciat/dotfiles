@@ -64,20 +64,11 @@ else
   compinit -C   # skip security check (más rápido)
 fi
 
-# fzf-tab requiere `menu no` — el menú nativo de zsh interfiere con fzf
-# reemplazando el widget de completion. Si sacás fzf-tab volvé a `menu select`.
-zstyle ':completion:*' menu no
+# Menú nativo de zsh: primer Tab completa el prefijo común, segundo Tab
+# abre el menú navegable. (Antes vivía fzf-tab acá — se quitó porque la
+# lista interactiva de fzf no gustó; el menú clásico se siente más terminal.)
+zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' # case-insensitive
-
-# fzf-tab: preview contextual al tabular.
-#  - cd/__zoxide_z: muestra contenido del dir (con eza si está)
-#  - git checkout/switch: muestra el log del branch
-#  - kill/proceso: muestra info del PID
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always --icons $realpath 2>/dev/null || ls $realpath'
-zstyle ':fzf-tab:complete:__zoxide_z:*' fzf-preview 'eza -1 --color=always --icons $realpath 2>/dev/null || ls $realpath'
-zstyle ':fzf-tab:complete:git-(checkout|switch):*' fzf-preview 'git log --oneline --color=always -20 $word 2>/dev/null'
-zstyle ':fzf-tab:complete:kill:argument-rest' fzf-preview 'ps -p $word -o pid,user,start,command 2>/dev/null'
-zstyle ':fzf-tab:*' switch-group ',' '.'   # , y . para navegar entre grupos de completions
 
 # ─── key bindings (estilo emacs, default de zsh) ──────────────
 bindkey -e
@@ -170,13 +161,10 @@ alias ....='cd ../../..'
 
 # ─── plugins (cross-platform discovery, no Oh My Zsh) ─────────
 # Orden estricto requerido por los plugins:
-#   1. fzf-tab               (DEBE cargarse después de compinit y ANTES
-#                             de autosuggestions/highlighting porque
-#                             envuelve el widget de completion)
-#   2. autosuggestions       (gris en historial, → acepta)
-#   3. syntax-highlighting   (verde/rojo según comando válido)
-#   4. history-substring-search   (↑/↓ por substring — habilita los bindkeys de arriba)
-# Si invertís el orden 3↔4, los matches de history-substring quedan
+#   1. autosuggestions       (gris en historial, → acepta)
+#   2. syntax-highlighting   (verde/rojo según comando válido)
+#   3. history-substring-search   (↑/↓ por substring — habilita los bindkeys de arriba)
+# Si invertís el orden 2↔3, los matches de history-substring quedan
 # sin highlightear. Documentado en docs del plugin.
 #
 # Discovery: probamos paths en orden — macOS brew → linuxbrew →
@@ -198,7 +186,6 @@ _load_zsh_plugin() {
     done
   done
 }
-_load_zsh_plugin fzf-tab
 _load_zsh_plugin zsh-autosuggestions
 _load_zsh_plugin zsh-syntax-highlighting
 _load_zsh_plugin zsh-history-substring-search

@@ -122,7 +122,6 @@ if command -v brew >/dev/null 2>&1; then
     zsh-syntax-highlighting
     zsh-autosuggestions
     zsh-history-substring-search
-    fzf-tab
     eza
     bat
     fd

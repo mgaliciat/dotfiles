@@ -51,7 +51,7 @@ El look de la terminal es **un solo tema que abarca tres capas** (Ghostty + nvim
 ## zsh design constraints
 
 - **No framework** (no Oh My Zsh, no zinit, no zplug). Startup target: <50ms. Adding a plugin manager is a regression, not an upgrade.
-- **Plugin source order is mandatory** in `zsh/.zshrc`: fzf-tab → autosuggestions → syntax-highlighting → history-substring-search. fzf-tab carga primero (después de `compinit`) para envolver el widget de completion antes de que los otros se enganchen; invertir autosuggestions↔highlighting↔history-substring rompe en silencio el highlighting sobre matches de history.
+- **Plugin source order is mandatory** in `zsh/.zshrc`: autosuggestions → syntax-highlighting → history-substring-search. Invertir highlighting↔history-substring rompe en silencio el highlighting sobre matches de history. (fzf-tab se probó y se quitó: la lista interactiva de fzf al tabular no gustó — Tab usa el menú nativo `menu select`. No reintroducirlo.)
 - **`pyenv` is lazy-loaded** via a shim function that self-replaces on first call. Eager `pyenv init` adds ~40ms. Other tools (`zoxide`, `fzf`) are eager because they're cheap.
 - **`.zshenv` vs `.zshrc`**: env vars and `PATH` that subprocesses (Docker, Claude Code, scripts) need go in `.zshenv`. Aliases, prompt, plugins, UI go in `.zshrc`. Don't move PATH setup into `.zshrc` — non-interactive shells won't see it.
 - **Plugin loading es cross-platform vía discovery dinámico.** El `_load_zsh_plugin` en `.zshrc` probe varios paths en orden (macOS brew → linuxbrew → apt `/usr/share` → manual `~/.zsh/plugins`). Esto permite el mismo `.zshrc` symlinkeado en mac y Linux/WSL2 sin tocar. NO volver a hardcodear `/opt/homebrew/share/...` por más limpio que se vea — rompés Linux.

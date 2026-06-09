@@ -74,16 +74,6 @@ if [[ ! -d "$HSS_DIR" ]]; then
   git clone --depth 1 https://github.com/zsh-users/zsh-history-substring-search "$HSS_DIR"
 fi
 
-# ─── fzf-tab (tampoco está en apt) ────────────────────────────
-# Mismo patrón que arriba: clone a ~/.zsh/plugins/. El discovery
-# del .zshrc lo recoge como fallback. En mac viene como formula
-# brew `fzf-tab`, en Linux toca a mano.
-FZFTAB_DIR="$HOME/.zsh/plugins/fzf-tab"
-if [[ ! -d "$FZFTAB_DIR" ]]; then
-  echo "→ Clonando fzf-tab"
-  git clone --depth 1 https://github.com/Aloxaf/fzf-tab "$FZFTAB_DIR"
-fi
-
 # ─── apt packages ──────────────────────────────────────────────
 # Lo que apt tiene out-of-the-box en Ubuntu 24.04 / Debian 12.
 # Lazygit y nvim modernos NO están — esos van por GitHub releases / AppImage.
