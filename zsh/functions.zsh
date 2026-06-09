@@ -110,7 +110,6 @@ _fzf_cd_widget() {
   dir=$({
     echo "$HOME/.config"
     echo "$HOME/dotfiles"
-    [[ -d "$HOME/finance" ]] && echo "$HOME/finance"
     for parent in "$HOME/projects" "$HOME/code" "$HOME/work" "$HOME/Developments"; do
       [[ -d "$parent" ]] && find "$parent" -maxdepth 3 -type d -name ".git" \
         -exec dirname {} \; 2>/dev/null
@@ -136,32 +135,6 @@ if [[ -o interactive ]]; then
   zle -N _fzf_cd_widget
   bindkey '^F' _fzf_cd_widget
 fi
-
-# ─── proyectos ────────────────────────────────────────────────
-
-# Abre el "workspace finanzas": cd a ~/finance + sesión tmux dedicada
-# con `claude --dangerously-skip-permissions` (equivalente shell del
-# popup Alt+Shift+C). Sesión persistente — si ya existe attachea y
-# mantenés contexto de Claude entre invocaciones.
-#
-# Si ya estás dentro de tmux usa switch-client; afuera, attach normal.
-# Uso: finance
-finance() {
-  local dir="$HOME/finance"
-  local session="finance"
-
-  [[ -d "$dir" ]] || { echo "finance: $dir no existe" >&2; return 1; }
-  cd "$dir" || return
-
-  tmux has-session -t "$session" 2>/dev/null || \
-    tmux new-session -d -s "$session" -c "$dir" "claude --dangerously-skip-permissions"
-
-  if [[ -n "$TMUX" ]]; then
-    tmux switch-client -t "$session"
-  else
-    tmux attach-session -t "$session"
-  fi
-}
 
 # ─── tema del stack ───────────────────────────────────────────
 # Wrapper de scripts/theme: voltea Ghostty + nvim + tmux a un mismo

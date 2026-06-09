@@ -78,7 +78,7 @@ Atajo: correr `./install.sh` después del pull es idempotente y aplica lo que pu
 
 ```sh
 # ~/.zshenv.local — never commit
-export PG_FINANCE_PASSWORD="..."
+export PG_PASSWORD="..."
 export REDASH_API_KEY="..."
 ```
 
