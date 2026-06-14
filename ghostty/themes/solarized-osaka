@@ -3,39 +3,43 @@
 # violet, cyan, blue. Pensado para transparencia + blur sobre wallpaper,
 # sesiones largas sin fatiga. Es el look "estrella" de la familia.
 #
-# Fuente de verdad: el plugin craftzdog/solarized-osaka.nvim. Hex
-# extraídos de `require("solarized-osaka.colors").setup()` — espejo de
-# nvim (plugin) y tmux/themes/osaka.conf. Si el plugin cambia, re-extraé.
+# Fuente de verdad: el plugin craftzdog/solarized-osaka.nvim. El ANSI de
+# abajo es espejo LITERAL de su `M.terminal()` (theme.lua) — lo que el
+# plugin exporta a `:terminal` dentro de nvim. Mapeo PLANO (no Solarized
+# clásico): brights == normales, sin orange/violet en el ANSI, blanco = fg
+# apagado. Así el shell de Ghostty y un `:terminal` en nvim se ven idénticos.
+# Si el plugin cambia su paleta/terminal, re-extraé.
 
-# fondo y texto
+# fondo y texto — bg = base04; fg = plugin Normal fg (hsl 186,8,55)
 background = #001419
-foreground = #9eabac
+foreground = #839395
 
 # cursor — magenta solarized (acento firma, matchea incline.nvim y tmux)
 cursor-color = #d23681
 cursor-text  = #001419
 
-# selección — base02 (apenas más claro que el bg, texto sigue legible)
+# selección — base02 (apenas más claro que el bg), fg alineado al texto
 selection-background = #063540
-selection-foreground = #9eabac
+selection-foreground = #839395
 
 # ─── ANSI 16 ─────────────────────────────────────────────────
-# Esquema Solarized clásico (0-7 normales, 8-15 con orange/violet/bases),
-# con los hex específicos de la variante osaka.
-palette = 0=#063540
+# Espejo de M.terminal() del plugin. color_0/8 = darken(bg,0.8,#000) ≈ bg
+# (texto "negro" puro casi se funde con el fondo — comportamiento upstream).
+# Brights 9-15 repiten exactamente sus normales; 7/15 = fg.
+palette = 0=#001014
 palette = 1=#db302d
 palette = 2=#849900
 palette = 3=#b28500
 palette = 4=#268bd3
 palette = 5=#d23681
 palette = 6=#29a298
-palette = 7=#9eabac
+palette = 7=#839395
 
-palette = 8=#002c38
-palette = 9=#c94c16
-palette = 10=#576d74
-palette = 11=#637981
-palette = 12=#9eabac
-palette = 13=#6d71c4
-palette = 14=#adb7b7
-palette = 15=#ffffff
+palette = 8=#001014
+palette = 9=#db302d
+palette = 10=#849900
+palette = 11=#b28500
+palette = 12=#268bd3
+palette = 13=#d23681
+palette = 14=#29a298
+palette = 15=#839395
