@@ -18,7 +18,7 @@ Personal config for macOS — Ghostty terminal, zsh, Starship prompt, Neovim, tm
 | `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*`, tema `carbon` por defecto (+ variante solarized-osaka) |
 | `tmux/` | tmux config — prefix `C-t`, popups Alt+c/C/s/d/g/Enter, modular (theme/statusline/utility) |
 | `lazygit/config.yml` | lazygit theme + custom commands |
-| `scripts/` | Helpers — `ide` (nvim+lazygit IDE layout), `tmux-claude` (session picker) |
+| `scripts/` | Helpers — `ide` (nvim+lazygit IDE layout), `theme` (switcher de tema cross-stack) |
 | `install.sh` | Symlinks everything into place + auto-install deps |
 | `install-linux.sh` | Portable subset para Ubuntu/Debian/WSL2 |
 
