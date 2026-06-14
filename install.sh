@@ -85,6 +85,46 @@ if [[ ! -d "$TPM_DIR" ]]; then
   echo "✓ tpm instalado. Dentro de tmux: prefix + I para instalar plugins"
 fi
 
+# ─── tmux-claude-session-manager + hooks de estado ────────────
+# El plugin (picker prefix+u) lo declara tmux.conf y lo instalaría tpm con
+# prefix+I, pero lo pre-clonamos acá para que scripts/state.sh exista ANTES de
+# mergear los hooks — sino los hooks llamarían a un script inexistente (exit 127)
+# hasta que corras prefix+I. Idempotente; tpm lo detecta ya clonado en su path.
+CLAUDE_TMUX_DIR="$HOME/.config/tmux/plugins/tmux-claude-session-manager"
+if [[ ! -d "$CLAUDE_TMUX_DIR" ]]; then
+  echo "→ Clonando tmux-claude-session-manager en $CLAUDE_TMUX_DIR"
+  git clone --depth 1 https://github.com/craftzdog/tmux-claude-session-manager "$CLAUDE_TMUX_DIR"
+fi
+
+# Los hooks de estado (working/waiting/idle) viven en ~/.claude/settings.json,
+# que es per-máquina y NO se symlinkea (ver nota de Claude Code arriba). En vez
+# de symlinkear, MERGEAMOS el fragmento versionado de forma aditiva e idempotente
+# con jq: preserva el resto del settings.json y cualquier .hooks que ya tengas.
+# Gated a que existan jq + state.sh + el fragmento.
+SETTINGS="$HOME/.claude/settings.json"
+HOOKS_FRAGMENT="$DOTFILES/claude/claude-session-hooks.json"
+if command -v jq >/dev/null 2>&1 && [[ -f "$CLAUDE_TMUX_DIR/scripts/state.sh" && -f "$HOOKS_FRAGMENT" ]]; then
+  mkdir -p "$(dirname "$SETTINGS")"
+  [[ -f "$SETTINGS" ]] || echo '{}' > "$SETTINGS"
+  if jq -e '[.. | strings] | any(test("tmux-claude-session-manager/scripts/state.sh"))' "$SETTINGS" >/dev/null 2>&1; then
+    echo "✓ hooks claude-session-manager ya presentes en settings.json"
+  else
+    HOOKS_TMP="$(mktemp)"
+    # Append por-evento (preserva .hooks existentes); escritura atómica tmp+mv
+    # para no dejar el settings.json corrupto si jq falla a mitad.
+    if jq --slurpfile frag "$HOOKS_FRAGMENT" '
+          reduce ($frag[0].hooks | to_entries[]) as $e (.;
+            .hooks[$e.key] = ((.hooks[$e.key] // []) + $e.value))
+        ' "$SETTINGS" > "$HOOKS_TMP"; then
+      mv "$HOOKS_TMP" "$SETTINGS"
+      echo "✓ hooks claude-session-manager mergeados en settings.json (per-máquina)"
+    else
+      rm -f "$HOOKS_TMP"
+      echo "⚠️  merge de hooks falló — settings.json quedó intacto"
+    fi
+  fi
+fi
+
 # Si hay tmux server corriendo, recargá el config para aplicar los
 # cambios en sesiones activas sin tener que entrar al server a
 # mano. Si no hay server, skip — la próxima sesión nueva ya leerá
@@ -129,6 +169,7 @@ if command -v brew >/dev/null 2>&1; then
     gomi                  # `rm` con papelera + restore interactivo (alias `gm`)
     zoxide
     fzf
+    jq                    # merge idempotente de los hooks de claude-session-manager en settings.json
     git-delta
     pyenv
     neovim

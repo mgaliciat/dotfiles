@@ -52,6 +52,39 @@ if [[ ! -d "$TPM_DIR" ]]; then
   echo "✓ tpm instalado. Dentro de tmux: prefix + I para instalar plugins"
 fi
 
+# ─── tmux-claude-session-manager + hooks de estado ────────────
+# Espejo de install.sh: pre-clonamos el plugin (para que state.sh exista antes
+# de mergear los hooks, sin exit 127) y mergeamos el fragmento versionado al
+# ~/.claude/settings.json real de forma aditiva e idempotente con jq. El
+# settings.json NO se symlinkea (per-máquina); esto solo le INYECTA los hooks.
+CLAUDE_TMUX_DIR="$HOME/.config/tmux/plugins/tmux-claude-session-manager"
+if [[ ! -d "$CLAUDE_TMUX_DIR" ]]; then
+  echo "→ Clonando tmux-claude-session-manager en $CLAUDE_TMUX_DIR"
+  git clone --depth 1 https://github.com/craftzdog/tmux-claude-session-manager "$CLAUDE_TMUX_DIR"
+fi
+
+SETTINGS="$HOME/.claude/settings.json"
+HOOKS_FRAGMENT="$DOTFILES/claude/claude-session-hooks.json"
+if command -v jq >/dev/null 2>&1 && [[ -f "$CLAUDE_TMUX_DIR/scripts/state.sh" && -f "$HOOKS_FRAGMENT" ]]; then
+  mkdir -p "$(dirname "$SETTINGS")"
+  [[ -f "$SETTINGS" ]] || echo '{}' > "$SETTINGS"
+  if jq -e '[.. | strings] | any(test("tmux-claude-session-manager/scripts/state.sh"))' "$SETTINGS" >/dev/null 2>&1; then
+    echo "✓ hooks claude-session-manager ya presentes en settings.json"
+  else
+    HOOKS_TMP="$(mktemp)"
+    if jq --slurpfile frag "$HOOKS_FRAGMENT" '
+          reduce ($frag[0].hooks | to_entries[]) as $e (.;
+            .hooks[$e.key] = ((.hooks[$e.key] // []) + $e.value))
+        ' "$SETTINGS" > "$HOOKS_TMP"; then
+      mv "$HOOKS_TMP" "$SETTINGS"
+      echo "✓ hooks claude-session-manager mergeados en settings.json (per-máquina)"
+    else
+      rm -f "$HOOKS_TMP"
+      echo "⚠️  merge de hooks falló — settings.json quedó intacto"
+    fi
+  fi
+fi
+
 # Si hay tmux server corriendo, recargá el config para aplicar los
 # cambios en sesiones activas sin tener que entrar al server a
 # mano. Si no hay server (típico en WSL2 fresh login), skip — la
@@ -89,6 +122,7 @@ if command -v apt-get >/dev/null 2>&1; then
     fd-find                       # binary es 'fdfind' — apt lo nombra así por colisión con otro 'fd'
     bat                           # en Ubuntu 20.04 era 'batcat'; 22.04+ es 'bat'
     fzf
+    jq                            # merge idempotente de los hooks de claude-session-manager
     eza                           # apt 23.10+; en versiones viejas falla → fallback GH release abajo
     zsh-syntax-highlighting
     zsh-autosuggestions
