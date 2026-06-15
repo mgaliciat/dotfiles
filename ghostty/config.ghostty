@@ -257,44 +257,35 @@ keybind = cmd+eight=goto_tab:8
 keybind = cmd+nine=goto_tab:9
 
 # ═══════════════════════════════════════════════════════════════
-#  PAQUETE 5 — Dock icon coordinado con Vesper
+#  PAQUETE 5 — Dock icon coordinado con el tema activo (solarized-osaka)
 # ═══════════════════════════════════════════════════════════════
 
 # custom-style: frame aluminum (mac-nativo) + pantalla deep-ocean
-# osaka (#031219 → #073642) + fantasma naranja Claude. Variantes
-# built-in (mutuamente excluyentes con custom-style — NO aceptan
-# overrides de color): official, blueprint, chalkboard, microchip,
-# glass, holographic, paper, retro, xray.
+# osaka (#001419, el mismo bg del theme) + fantasma magenta firma.
+# Variantes built-in (mutuamente excluyentes con custom-style — NO
+# aceptan overrides de color): official, blueprint, chalkboard,
+# microchip, glass, holographic, paper, retro, xray.
 macos-icon = custom-style
 
 # Frame: aluminum (gris hardware mac). Alternativas:
 # beige (paper-ish cálido), plastic (off-white), chrome (sleek).
 macos-icon-frame = aluminum
 
-# Fantasma blanco — neutral, brand-agnostic, máximo contraste sobre la
-# screen prism (donde el verde láser se mimetizaba con la banda ROYGBIV).
-# Variantes: #d97757 Claude orange · #50fa7b verde láser (matchea cursor
-# oled-neon) · #ff79c6 magenta neon (standout sin mimetizarse).
-macos-icon-ghost-color = #ffffff
+# Fantasma magenta firma (#d23681) — EL acento de solarized-osaka, el
+# mismo del cursor en Ghostty/nvim/tmux. Ata el icono a la identidad del
+# theme. Variantes: #ffffff blanco neutral (máx contraste, brand-agnostic)
+# · #29a298 cyan solarized · #d97757 Claude orange.
+macos-icon-ghost-color = #d23681
 
-# Pantalla: gradiente "prism" inspirado en el wallpaper macOS Prism —
-# deep midnight blue (#0a0e1a) dominante con una banda ROYGBIV cruzando
-# la parte superior-media. Ghostty sólo soporta gradientes LINEALES
-# VERTICALES (primer color = abajo, último = arriba, hasta 64 stops),
-# así que el diagonal real del wallpaper no se replica — la banda queda
-# horizontal en el icono.
+# Pantalla: deep-ocean solarized-osaka liso, sin banda de acentos. Ghostty
+# sólo soporta gradientes LINEALES VERTICALES (primer color = abajo, último
+# = arriba); aquí un degradé sutil del bg del theme (#001419) a base02
+# (#063540), apenas un lift hacia arriba para dar profundidad sin ruido.
 #
-# Decoupled del `background` del terminal: este icono se queda prism
-# aunque cambies de theme. Si querés que vuelva a seguir al bg, reemplazar
-# con `macos-icon-screen-color = <bg>,<bg-lift>`.
-#
-# Estructura (bottom → top):
-#   1-5  hold deep midnight (zona "foreground" del wallpaper, abajo)
-#   6    lift sutil hacia la banda
-#   7-12 ROYGBIV (cool blue → cyan → green → yellow → orange → red)
-#   13   post-rainbow violet glow
-#   14   deep midnight de vuelta (zona "sky", arriba)
-macos-icon-screen-color = #0a0e1a,#0a0e1a,#0a0e1a,#0a0e1a,#0d1428,#1a2238,#4a7ec8,#8be9fd,#50fa7b,#f1fa8c,#ff8c42,#c8553d,#2a1828,#0a0e1a
+# Horneado a osaka a propósito (NO sigue al theme switcher): si cambiás a
+# otro theme con `scripts/theme <id>` el icono se queda osaka. Para
+# re-sincronizar con otro theme, usá su `background` + un lift de su base02.
+macos-icon-screen-color = #001419,#063540
 
 # ═══════════════════════════════════════════════════════════════
 #  PAQUETE 6 — Fullscreen pro (macOS)
