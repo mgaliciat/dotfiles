@@ -87,12 +87,13 @@ adjust-cell-height = 3%
 # aparte) · native (look macOS estándar) · hidden (sin titlebar).
 macos-titlebar-style = tabs
 
-# Fondo 100% opaco, sin blur — fondo sólido para máxima legibilidad.
-# Con cualquier transparencia (<1.0) el wallpaper se cuela detrás del texto
-# y el ojo intenta enfocar dos planos a la vez → fatiga al leer output denso.
-# Si en el futuro querés el look glass craftzdog: opacity 0.88-0.95 + blur 20-40.
-background-opacity = 1.0
-background-blur = 0
+# Look "glass" de craftzdog: fondo semi-transparente + blur fuerte para que
+# el wallpaper se cuele detrás (deep-ocean osaka pensado para esto). nvim
+# hereda la transparencia (Normal sin bg) y los paneles quedan como "islas".
+# Trade-off: con output denso el ojo enfoca dos planos — si cansa, subí opacity
+# hacia 0.95 o volvé a 1.0 + blur 0 para el modo sólido legible.
+background-opacity = 0.9
+background-blur = 30
 
 # respira lateralmente — padding generoso para que el output denso
 # de Claude Code (tool calls, diffs, árboles) no se sienta apretado.
