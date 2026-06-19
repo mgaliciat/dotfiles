@@ -21,7 +21,7 @@
 # activa la maneja `scripts/theme <id>`, que escribe themes/current.local
 # (incluido al final de este archivo, gana por last-wins). Una máquina
 # recién clonada sin current.local cae a este default.
-theme = carbon
+theme = solarized-osaka
 
 # Custom themes — viven en `ghostty/themes/` (symlinkeado a
 # <config-dir>/themes/ por install.sh). Familia canónica del stack (mismo
@@ -66,7 +66,7 @@ minimum-contrast = 1.1
 # de starship/devicons sin fallback). "Console" = ratio 5:6 (más compacto
 # que el ratio 1:2 de PlemolJP estándar), ideal para terminales densos.
 font-family             = PlemolJP Console NF
-font-size = 17
+font-size = 15
 
 # Ligaduras estándar — iA Writer no es texture-healing pero soporta
 # +liga para los operadores comunes (=>, !=, >=, etc.).

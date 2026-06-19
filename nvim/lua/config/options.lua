@@ -28,7 +28,7 @@ local function stack_theme()
       return line
     end
   end
-  return "carbon" -- default versionado del stack
+  return "solarized-osaka" -- default versionado del stack (osaka craftzdog)
 end
 vim.g.theme = stack_theme()
 
