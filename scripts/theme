@@ -14,7 +14,7 @@
 #    theme          muestra la selección actual
 #
 #  Familia canónica: osaka · oled-neon · carbon · anthropic-dark
-#                    · anthropic-warm · prism-night · paper
+#                    · anthropic-warm · prism-night · paper · solarized-light
 #  Alias osaka (sub-sabores del plugin, no entradas de la matriz):
 #    solarized-osaka, osaka-moon, osaka-storm, osaka-day
 #
@@ -25,7 +25,7 @@
 
 set -euo pipefail
 
-FAMILY="osaka oled-neon carbon anthropic-dark anthropic-warm prism-night paper"
+FAMILY="osaka oled-neon carbon anthropic-dark anthropic-warm prism-night paper solarized-light"
 
 GHOSTTY_POINTER="$HOME/.config/ghostty/themes/current.local"
 NVIM_POINTER="$HOME/.config/nvim/lua/theme-current.local"
@@ -45,6 +45,7 @@ resolve() {
     anthropic-warm)  G=anthropic-warm; N=anthropic-warm; T=anthropic-warm ;;
     prism-night)     G=prism-night;    N=prism-night;    T=prism-night ;;
     paper)           G=paper;          N=paper;          T=paper ;;
+    solarized-light) G=solarized-light; N=solarized-light; T=solarized-light ;;
     *) return 1 ;;
   esac
 }

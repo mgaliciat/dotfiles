@@ -151,7 +151,7 @@ theme() {
 if (( $+functions[compdef] )); then
   _theme() {
     compadd osaka oled-neon carbon anthropic-dark anthropic-warm prism-night paper \
-            solarized-osaka osaka-moon osaka-storm osaka-day list
+            solarized-light solarized-osaka osaka-moon osaka-storm osaka-day list
   }
   compdef _theme theme
 fi

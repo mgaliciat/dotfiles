@@ -1,0 +1,44 @@
+# solarized-light — Solarized Light canónico de Ethan Schoonover.
+# Espejo de nvim/lua/themes/solarized-light.lua y tmux/themes/solarized-light.conf.
+#
+# Paleta = la oficial de Solarized (mismos hex que la familia osaka del
+# repo derivan, pero acá en su forma LIGHT clásica: fondo base3, texto
+# base00). El mapeo ANSI 16 es el esquema canónico de Solarized — los
+# "bright" (8-15) son los tonos base oscuros (base03/base01/base00/base0),
+# que sobre fondo claro dan más contraste. No es la convención dark.
+#
+# OJO: con un theme claro considerá subir `minimum-contrast` a 3.0 en
+# config.ghostty (rescata grays sin distorsionar los acentos).
+
+# fondo y texto
+background = #fdf6e3
+foreground = #657b83
+
+# cursor — base01 (tinta enfatizada), alta visibilidad sobre base3
+cursor-color = #586e75
+cursor-text  = #fdf6e3
+
+# selección — base2, texto base01 sigue legible
+selection-background = #eee8d5
+selection-foreground = #586e75
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# Esquema canónico Solarized. normales (0-7)
+palette = 0=#073642
+palette = 1=#dc322f
+palette = 2=#859900
+palette = 3=#b58900
+palette = 4=#268bd2
+palette = 5=#d33682
+palette = 6=#2aa198
+palette = 7=#eee8d5
+
+# brillantes (8-15): tonos base oscuros + naranja/violeta
+palette = 8=#002b36
+palette = 9=#cb4b16
+palette = 10=#586e75
+palette = 11=#657b83
+palette = 12=#839496
+palette = 13=#6c71c4
+palette = 14=#93a1a1
+palette = 15=#fdf6e3
