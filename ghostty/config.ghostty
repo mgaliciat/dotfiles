@@ -48,6 +48,18 @@ theme = solarized-osaka
 # M-chip / Retina. Sin downside fuera de equipos no-P3.
 window-colorspace = display-p3
 
+# ─── shader CRT sutil (estático) ───────────────────────────────
+# Post-proceso GLSL: scanlines + aperture grille + phosphor bloom, todo
+# como función de fragCoord (nunca de iTime) — CERO animación, a
+# diferencia del CRT viejo del repo que roleaba scanlines y parpadeaba
+# (terminó revertido por molesto en sesiones largas). Detalle y tuning
+# de intensidad en el header de crt.glsl. Para apagarlo: comentar la
+# línea de abajo.
+custom-shader = ~/.config/ghostty/shaders/crt.glsl
+# El shader no usa iTime → no necesita el loop de redraw animado.
+# Ahorra GPU/batería sin perder nada visual.
+custom-shader-animation = false
+
 # Contraste mínimo automático. Tradeoff fino:
 #   1.1 = sin enforcement (default amable). Dim grays se evaporan
 #         en light themes, brand colors fieles.
@@ -87,13 +99,13 @@ adjust-cell-height = 3%
 # aparte) · native (look macOS estándar) · hidden (sin titlebar).
 macos-titlebar-style = tabs
 
-# Look "glass" de craftzdog: fondo semi-transparente + blur fuerte para que
-# el wallpaper se cuele detrás (deep-ocean osaka pensado para esto). nvim
-# hereda la transparencia (Normal sin bg) y los paneles quedan como "islas".
-# Trade-off: con output denso el ojo enfoca dos planos — si cansa, subí opacity
-# hacia 0.95 o volvé a 1.0 + blur 0 para el modo sólido legible.
-background-opacity = 0.9
-background-blur = 30
+# Modo sólido — sin "glass" de craftzdog. Con el shader CRT activo
+# (ghostty/shaders/crt.glsl) queríamos descartar que el 10% de wallpaper
+# desenfocado que se mezclaba encima (background-opacity < 1) diluyera el
+# oscurecimiento de las scanlines; de paso, fondo 100% legible sin doble
+# plano de foco. Para volver al look glass: opacity 0.9 + blur 30.
+background-opacity = 1.0
+background-blur = 0
 
 # respira lateralmente — padding generoso para que el output denso
 # de Claude Code (tool calls, diffs, árboles) no se sienta apretado.

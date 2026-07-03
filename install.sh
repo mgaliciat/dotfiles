@@ -46,6 +46,14 @@ if [[ -d "$DOTFILES/ghostty/themes" ]]; then
   mkdir -p "$HOME/.config/ghostty"
   link "$DOTFILES/ghostty/themes"       "$HOME/.config/ghostty/themes"
 fi
+# Custom shaders (post-process GLSL). Mismo razonamiento que themes: el
+# config vive en Application Support, pero referenciamos el shader por
+# ~/.config/ghostty/shaders/ y exponemos el dir entero acá para que
+# nuevos .glsl queden disponibles sin tocar install.sh.
+if [[ -d "$DOTFILES/ghostty/shaders" ]]; then
+  mkdir -p "$HOME/.config/ghostty"
+  link "$DOTFILES/ghostty/shaders"      "$HOME/.config/ghostty/shaders"
+fi
 link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
 link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
 link "$DOTFILES/tmux"                   "$HOME/.config/tmux"
