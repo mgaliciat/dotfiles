@@ -21,18 +21,18 @@
 # activa la maneja `scripts/theme <id>`, que escribe themes/current.local
 # (incluido al final de este archivo, gana por last-wins). Una máquina
 # recién clonada sin current.local cae a este default.
-theme = light-2026
+theme = dark-2026
 
 # Custom themes — viven en `ghostty/themes/` (symlinkeado a
 # <config-dir>/themes/ por install.sh). Familia canónica del stack (mismo
 # id en Ghostty/nvim/tmux, se voltean juntos con `scripts/theme <id>`):
 #   · light-2026 — clon del theme "2026 Light" que Microsoft shippeó como
 #     nuevo default de VS Code (extensions/theme-defaults/themes/2026-light.json,
-#     refresh "Focus" de 2026). Blanco puro + acento azul #0069CC. DEFAULT
-#     del stack.
+#     refresh "Focus" de 2026). Blanco puro + acento azul #0069CC.
 #   · dark-2026 — companion oscuro de light-2026, clon de "Dark 2026"
 #     (extensions/theme-defaults/themes/2026-dark.json, default de VS Code
-#     desde 1.113). Casi-negro #121314 + acento teal-azul #3994BC.
+#     desde 1.113). Casi-negro #121314 + acento teal-azul #3994BC. DEFAULT
+#     del stack.
 #   · carbon — minimal true-black (#000) + alto contraste, único acento
 #     Claude orange (#d97757).
 #   · solarized-osaka — deep-ocean estilo craftzdog (azul casi negro). En
