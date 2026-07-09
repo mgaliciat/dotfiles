@@ -150,7 +150,7 @@ theme() {
 # functions.zsh se sourcea en un contexto sin compdef.
 if (( $+functions[compdef] )); then
   _theme() {
-    compadd osaka oled-neon carbon anthropic-dark anthropic-warm prism-night paper \
+    compadd light-2026 dark-2026 osaka oled-neon carbon anthropic-dark anthropic-warm prism-night paper \
             solarized-light solarized-osaka osaka-moon osaka-storm osaka-day list
   }
   compdef _theme theme

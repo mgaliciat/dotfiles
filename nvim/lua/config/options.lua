@@ -6,13 +6,16 @@
 -- al default versionado. Mismo patrón override-at-end que ~/.zshrc.local.
 --
 -- Familia canónica (id = mismo string en Ghostty/nvim/tmux):
---   "carbon"           minimal true-black, high contrast, acento Claude orange (DEFAULT)
+--   "light-2026"       clon de "2026 Light", el nuevo default claro de
+--                       VS Code (extensions/theme-defaults/themes/2026-light.json) (DEFAULT)
+--   "carbon"           minimal true-black, high contrast, acento Claude orange
 --   "solarized-osaka"  deep-ocean craftzdog ← plugin separado
 --   "oled-neon"        true black OLED + Dracula neón
 --   "anthropic-dark"   dark Claude.ai (brown-black + Claude orange)
 --   "anthropic-warm"   dark sepia/terracota cálido
 --   "prism-night"      azul medianoche + arco del prisma
 --   "paper"            light cream + tinta sepia
+--   "solarized-light"  Solarized Light canónico
 -- (Las variantes solarized-osaka-{day,moon,storm} y "obsidian" siguen
 --  siendo themes válidos acá, pero fuera de la matriz del switcher.)
 --
@@ -28,7 +31,7 @@ local function stack_theme()
       return line
     end
   end
-  return "solarized-osaka" -- default versionado del stack (osaka craftzdog)
+  return "light-2026" -- default versionado del stack (clon de VS Code 2026 Light)
 end
 vim.g.theme = stack_theme()
 

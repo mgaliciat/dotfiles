@@ -1,0 +1,53 @@
+# light-2026 — clon de "2026 Light", el nuevo theme claro por default de
+# VS Code (refresh "Focus" de 2026, mismo ciclo que trajo Dark 2026 como
+# default en 1.113). Hex sacados directo de
+# extensions/theme-defaults/themes/2026-light.json en microsoft/vscode
+# (editor.background, focusBorder, tokenColors, etc.) — no son un guess,
+# son los valores reales que shippea el editor.
+# Espejo de nvim/lua/themes/light-2026.lua y tmux/themes/light-2026.conf.
+#
+# VS Code no define una paleta ANSI de 16 colores (su formato es
+# UI-chrome + tokenColors, no terminal), así que el ANSI de acá es una
+# construcción razonada a partir de esos mismos hex — mismo problema que
+# resolvió solarized-osaka.lua mirando el `M.terminal()` del plugin.
+# Convención light theme del repo (ver paper/solarized-light): los
+# "brillantes" (8-15) son más saturados/oscuros que los normales — dan
+# más contraste sobre fondo blanco.
+#
+# OJO: con este theme claro, `minimum-contrast` en config.ghostty ya
+# está en 3.0 (rescata grays sin distorsionar el azul de acento).
+
+# fondo y texto — editor.background / editor.foreground
+background = #ffffff
+foreground = #202020
+
+# cursor — editorCursor.foreground + el azul de acento (button.background
+# / focusBorder), el color más icónico del theme
+cursor-color = #0069cc
+cursor-text  = #ffffff
+
+# selección — editor.selectionBackground (#0069CC a 25% alpha) horneado
+# sobre blanco; texto foreground sigue legible encima
+selection-background = #bfd9f2
+selection-foreground = #202020
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# normales (0-7) — tonos base de tokenColors, sin forzar saturación
+palette = 0=#57606a
+palette = 1=#cf222e
+palette = 2=#116329
+palette = 3=#667309
+palette = 4=#0069cc
+palette = 5=#8250df
+palette = 6=#1b7c83
+palette = 7=#6e7781
+
+# brillantes (8-15): más saturados/oscuros (light theme)
+palette = 8=#1f2328
+palette = 9=#ad0707
+palette = 10=#587c0c
+palette = 11=#b69500
+palette = 12=#1a5cff
+palette = 13=#652d90
+palette = 14=#145e63
+palette = 15=#202020

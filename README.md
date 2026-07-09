@@ -15,7 +15,7 @@ Personal config for macOS — Ghostty terminal, zsh, Starship prompt, Neovim, tm
 | `starship/starship.toml` | Starship prompt config |
 | `ghostty/config.ghostty` | Ghostty terminal config — theme, fonts, keybinds |
 | `git/.gitignore_global` | Global gitignore (macOS noise, editor files, build dirs) |
-| `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*`, tema `carbon` por defecto (+ variante solarized-osaka) |
+| `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*`, tema `light-2026` por defecto (clon de VS Code 2026 Light) |
 | `tmux/` | tmux config — prefix `C-t`, popups Alt+c/C/s/d/g/Enter, modular (theme/statusline/utility) |
 | `lazygit/config.yml` | lazygit theme + custom commands |
 | `scripts/` | Helpers — `ide` (nvim+lazygit IDE layout), `theme` (switcher de tema cross-stack) |

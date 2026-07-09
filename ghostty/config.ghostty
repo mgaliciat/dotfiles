@@ -21,13 +21,20 @@
 # activa la maneja `scripts/theme <id>`, que escribe themes/current.local
 # (incluido al final de este archivo, gana por last-wins). Una máquina
 # recién clonada sin current.local cae a este default.
-theme = solarized-osaka
+theme = light-2026
 
 # Custom themes — viven en `ghostty/themes/` (symlinkeado a
 # <config-dir>/themes/ por install.sh). Familia canónica del stack (mismo
 # id en Ghostty/nvim/tmux, se voltean juntos con `scripts/theme <id>`):
+#   · light-2026 — clon del theme "2026 Light" que Microsoft shippeó como
+#     nuevo default de VS Code (extensions/theme-defaults/themes/2026-light.json,
+#     refresh "Focus" de 2026). Blanco puro + acento azul #0069CC. DEFAULT
+#     del stack.
+#   · dark-2026 — companion oscuro de light-2026, clon de "Dark 2026"
+#     (extensions/theme-defaults/themes/2026-dark.json, default de VS Code
+#     desde 1.113). Casi-negro #121314 + acento teal-azul #3994BC.
 #   · carbon — minimal true-black (#000) + alto contraste, único acento
-#     Claude orange (#d97757). DEFAULT del stack.
+#     Claude orange (#d97757).
 #   · solarized-osaka — deep-ocean estilo craftzdog (azul casi negro). En
 #     Ghostty es el theme `solarized-osaka`; la paleta sale del plugin nvim.
 #   · oled-neon — true black (#000) + paleta neon Dracula-style.
@@ -39,7 +46,8 @@ theme = solarized-osaka
 #   · prism-night — azul-noche profundo (#0a0e1a) con acentos del
 #     espectro (naranja → amarillo → verde → cyan → azul → violeta).
 #     Sampleado del wallpaper "prism" de macOS.
-#   · paper — light cream + tinta sepia (único claro de la familia).
+#   · paper — light cream + tinta sepia.
+#   · solarized-light — Solarized Light canónico de Ethan Schoonover.
 # Si volvés a Solarized Dark Patched, descomentá para recuperar el
 # "deep ocean" azul casi negro estilo craftzdog.
 # background = #031219
@@ -48,29 +56,18 @@ theme = solarized-osaka
 # M-chip / Retina. Sin downside fuera de equipos no-P3.
 window-colorspace = display-p3
 
-# ─── shader CRT sutil (estático) ───────────────────────────────
-# Post-proceso GLSL: scanlines + aperture grille + phosphor bloom, todo
-# como función de fragCoord (nunca de iTime) — CERO animación, a
-# diferencia del CRT viejo del repo que roleaba scanlines y parpadeaba
-# (terminó revertido por molesto en sesiones largas). Detalle y tuning
-# de intensidad en el header de crt.glsl. Para apagarlo: comentar la
-# línea de abajo.
-custom-shader = ~/.config/ghostty/shaders/crt.glsl
-# El shader no usa iTime → no necesita el loop de redraw animado.
-# Ahorra GPU/batería sin perder nada visual.
-custom-shader-animation = false
-
 # Contraste mínimo automático. Tradeoff fino:
 #   1.1 = sin enforcement (default amable). Dim grays se evaporan
 #         en light themes, brand colors fieles.
 #   3.0 = WCAG AA large-text. Rescata los peores grays pero preserva
 #         brand colors como Claude orange (#d97757, ratio 3.28:1 sobre
-#         cream — pasa intacto). Sweet spot para light themes.
+#         cream — pasa intacto). Sweet spot para light themes — el
+#         default del stack (light-2026) es claro, así que va acá.
 #   4.5 = WCAG AA body text. Rescata todo gray pero DISTORSIONA brand
 #         colors: Claude orange queda casi negro. No recomendado.
 # Si volvés a dark theme con grays muted intencionales (Poimandres
 # Storm, Kanso Zen), bajá a 1.1 para fidelidad total al theme.
-minimum-contrast = 1.1
+minimum-contrast = 3.0
 
 # ─── tipografía ───────────────────────────────────────────────
 # PlemolJP Console NF — fuente bilingüe JP/EN del estilo craftzdog.
@@ -99,11 +96,9 @@ adjust-cell-height = 3%
 # aparte) · native (look macOS estándar) · hidden (sin titlebar).
 macos-titlebar-style = tabs
 
-# Modo sólido — sin "glass" de craftzdog. Con el shader CRT activo
-# (ghostty/shaders/crt.glsl) queríamos descartar que el 10% de wallpaper
-# desenfocado que se mezclaba encima (background-opacity < 1) diluyera el
-# oscurecimiento de las scanlines; de paso, fondo 100% legible sin doble
-# plano de foco. Para volver al look glass: opacity 0.9 + blur 30.
+# Modo sólido — sin "glass" de craftzdog. Fondo 100% legible sin un
+# segundo plano de wallpaper desenfocado compitiendo con el texto. Para
+# volver al look glass: opacity 0.9 + blur 30.
 background-opacity = 1.0
 background-blur = 0
 
@@ -270,11 +265,11 @@ keybind = cmd+eight=goto_tab:8
 keybind = cmd+nine=goto_tab:9
 
 # ═══════════════════════════════════════════════════════════════
-#  PAQUETE 5 — Dock icon coordinado con el tema activo (solarized-osaka)
+#  PAQUETE 5 — Dock icon coordinado con el tema activo (light-2026)
 # ═══════════════════════════════════════════════════════════════
 
-# custom-style: frame aluminum (mac-nativo) + pantalla deep-ocean
-# osaka (#001419, el mismo bg del theme) + fantasma magenta firma.
+# custom-style: frame aluminum (mac-nativo) + pantalla blanca light-2026
+# (#ffffff, el mismo bg del theme) + fantasma azul de acento.
 # Variantes built-in (mutuamente excluyentes con custom-style — NO
 # aceptan overrides de color): official, blueprint, chalkboard,
 # microchip, glass, holographic, paper, retro, xray.
@@ -284,21 +279,23 @@ macos-icon = custom-style
 # beige (paper-ish cálido), plastic (off-white), chrome (sleek).
 macos-icon-frame = aluminum
 
-# Fantasma magenta firma (#d23681) — EL acento de solarized-osaka, el
-# mismo del cursor en Ghostty/nvim/tmux. Ata el icono a la identidad del
-# theme. Variantes: #ffffff blanco neutral (máx contraste, brand-agnostic)
-# · #29a298 cyan solarized · #d97757 Claude orange.
-macos-icon-ghost-color = #d23681
+# Fantasma azul de acento (#0069cc) — EL acento de light-2026 (button.background
+# / focusBorder en el JSON fuente de VS Code), el mismo del cursor en
+# Ghostty/nvim/tmux. Ata el icono a la identidad del theme. Variantes:
+# #ffffff blanco neutral (máx contraste, brand-agnostic) · #d97757 Claude orange.
+macos-icon-ghost-color = #0069cc
 
-# Pantalla: deep-ocean solarized-osaka liso, sin banda de acentos. Ghostty
-# sólo soporta gradientes LINEALES VERTICALES (primer color = abajo, último
-# = arriba); aquí un degradé sutil del bg del theme (#001419) a base02
-# (#063540), apenas un lift hacia arriba para dar profundidad sin ruido.
+# Pantalla: blanco light-2026 liso, sin banda de acentos. Ghostty sólo
+# soporta gradientes LINEALES VERTICALES (primer color = abajo, último =
+# arriba); acá un degradé sutil del bg del theme (#ffffff) a su superficie
+# elevada (#fafafd — sideBar/activityBar bg en el JSON fuente), apenas un
+# lift hacia arriba para dar profundidad sin ruido.
 #
-# Horneado a osaka a propósito (NO sigue al theme switcher): si cambiás a
-# otro theme con `scripts/theme <id>` el icono se queda osaka. Para
-# re-sincronizar con otro theme, usá su `background` + un lift de su base02.
-macos-icon-screen-color = #001419,#063540
+# Horneado a light-2026 a propósito (NO sigue al theme switcher): si
+# cambiás a otro theme con `scripts/theme <id>` el icono se queda
+# light-2026. Para re-sincronizar con otro theme, usá su `background` +
+# un lift hacia su superficie elevada.
+macos-icon-screen-color = #ffffff,#fafafd
 
 # ═══════════════════════════════════════════════════════════════
 #  PAQUETE 6 — Fullscreen pro (macOS)

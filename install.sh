@@ -46,14 +46,6 @@ if [[ -d "$DOTFILES/ghostty/themes" ]]; then
   mkdir -p "$HOME/.config/ghostty"
   link "$DOTFILES/ghostty/themes"       "$HOME/.config/ghostty/themes"
 fi
-# Custom shaders (post-process GLSL). Mismo razonamiento que themes: el
-# config vive en Application Support, pero referenciamos el shader por
-# ~/.config/ghostty/shaders/ y exponemos el dir entero acá para que
-# nuevos .glsl queden disponibles sin tocar install.sh.
-if [[ -d "$DOTFILES/ghostty/shaders" ]]; then
-  mkdir -p "$HOME/.config/ghostty"
-  link "$DOTFILES/ghostty/shaders"      "$HOME/.config/ghostty/shaders"
-fi
 link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
 link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
 link "$DOTFILES/tmux"                   "$HOME/.config/tmux"
@@ -63,18 +55,17 @@ link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
 # Las DEFINICIONES de tema viajan versionadas (ghostty/themes, nvim/lua/themes,
 # tmux/themes — symlinkeadas arriba), pero la SELECCIÓN activa son punteros
 # per-máquina (gitignored, *.local) que NO viajan con el repo. Una máquina recién
-# clonada arranca SIN punteros → las 3 capas caen al default versionado (carbon,
-# true-black). Eso es lo que se vio como "Ghostty negro" en una mac nueva: no es
-# osaka roto, es carbon. Para tener PARIDAD de look across las 3 macs sembramos
-# acá el tema baseline en la primera corrida, vía scripts/theme (que escribe los
-# 3 punteros con un solo id canónico).
+# clonada arranca SIN punteros → las 3 capas caen al default versionado
+# (light-2026, clon de VS Code 2026 Light). Para tener PARIDAD de look across
+# las 3 macs sembramos acá el tema baseline en la primera corrida, vía
+# scripts/theme (que escribe los 3 punteros con un solo id canónico).
 #
 # Set-if-absent (NO clobber): si YA hay un puntero (elegiste otro tema con
 # `scripts/theme` en esta máquina) respetamos esa elección — re-correr install.sh
 # no te la pisa, fiel al patrón override-at-end del resto del repo. Para volver al
 # baseline en una máquina: borrá los *.local y re-corré, o `scripts/theme <id>`.
 # Cambiar el baseline de TODAS las macs = editar DEFAULT_THEME acá (viaja en git).
-DEFAULT_THEME="osaka"
+DEFAULT_THEME="light-2026"
 if [[ ! -f "$HOME/.config/ghostty/themes/current.local" \
    && ! -f "$HOME/.config/nvim/lua/theme-current.local" \
    && ! -f "$HOME/.config/tmux/current.local" ]]; then

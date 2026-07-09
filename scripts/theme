@@ -13,8 +13,9 @@
 #    theme list     lista la familia
 #    theme          muestra la selección actual
 #
-#  Familia canónica: osaka · oled-neon · carbon · anthropic-dark
-#                    · anthropic-warm · prism-night · paper · solarized-light
+#  Familia canónica: light-2026 (default) · dark-2026 · osaka · oled-neon
+#                    · carbon · anthropic-dark · anthropic-warm
+#                    · prism-night · paper · solarized-light
 #  Alias osaka (sub-sabores del plugin, no entradas de la matriz):
 #    solarized-osaka, osaka-moon, osaka-storm, osaka-day
 #
@@ -25,7 +26,7 @@
 
 set -euo pipefail
 
-FAMILY="osaka oled-neon carbon anthropic-dark anthropic-warm prism-night paper solarized-light"
+FAMILY="light-2026 dark-2026 osaka oled-neon carbon anthropic-dark anthropic-warm prism-night paper solarized-light"
 
 GHOSTTY_POINTER="$HOME/.config/ghostty/themes/current.local"
 NVIM_POINTER="$HOME/.config/nvim/lua/theme-current.local"
@@ -35,6 +36,8 @@ TMUX_POINTER="$HOME/.config/tmux/current.local"
 # T (archivo de paleta tmux). Devuelve 1 si el id no existe.
 resolve() {
   case "$1" in
+    light-2026)      G=light-2026;      N=light-2026;      T=light-2026 ;;
+    dark-2026)       G=dark-2026;       N=dark-2026;       T=dark-2026 ;;
     osaka|solarized-osaka)             G=solarized-osaka; N=solarized-osaka;       T=osaka ;;
     osaka-moon|solarized-osaka-moon)   G=solarized-osaka; N=solarized-osaka-moon;  T=osaka ;;
     osaka-storm|solarized-osaka-storm) G=solarized-osaka; N=solarized-osaka-storm; T=osaka ;;
@@ -65,19 +68,19 @@ show_current() {
     v=$(tr -d '[:space:]' < "$NVIM_POINTER")
     echo "  nvim    → ${v:-(malformed)}"
   else
-    echo "  nvim    → (default versionado: carbon)"
+    echo "  nvim    → (default versionado: light-2026)"
   fi
   if [[ -f "$GHOSTTY_POINTER" ]]; then
     v=$(sed -n 's/^theme = //p' "$GHOSTTY_POINTER")
     echo "  ghostty → ${v:-(malformed)}"
   else
-    echo "  ghostty → (default versionado: carbon)"
+    echo "  ghostty → (default versionado: light-2026)"
   fi
   if [[ -f "$TMUX_POINTER" ]]; then
     v=$(sed -n 's#.*themes/\(.*\)\.conf#\1#p' "$TMUX_POINTER")
     echo "  tmux    → ${v:-(malformed)}"
   else
-    echo "  tmux    → (default versionado: carbon)"
+    echo "  tmux    → (default versionado: light-2026)"
   fi
 }
 

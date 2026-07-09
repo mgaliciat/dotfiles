@@ -1,0 +1,51 @@
+# dark-2026 — clon de "Dark 2026", el nuevo theme oscuro por default de
+# VS Code (refresh "Focus" de 2026, default desde 1.113 del 25 de marzo
+# de 2026). Hex sacados directo de
+# extensions/theme-defaults/themes/2026-dark.json en microsoft/vscode
+# (editor.background, focusBorder, tokenColors, etc.) — no son un guess,
+# son los valores reales que shippea el editor. Companion oscuro de
+# `light-2026` (mismo refresh, mismo criterio de extracción).
+# Espejo de nvim/lua/themes/dark-2026.lua y tmux/themes/dark-2026.conf.
+#
+# VS Code no define una paleta ANSI de 16 colores (su formato es
+# UI-chrome + tokenColors, no terminal), así que el ANSI de acá es una
+# construcción razonada a partir de esos mismos hex — mismo problema que
+# resolvió solarized-osaka.lua mirando el `M.terminal()` del plugin.
+# Convención dark theme del repo (ver carbon/oled-neon): los "brillantes"
+# (8-15) son más claros/vívidos que los normales — convención ANSI
+# estándar, sin invertir (eso es solo para los themes claros).
+
+# fondo y texto — editor.background / editor.foreground
+background = #121314
+foreground = #bbbebf
+
+# cursor — el acento teal-azul de la familia focusBorder/badge/menu
+# (menu.selectionBorder, sin alpha), el color más icónico del theme
+cursor-color = #3994bc
+cursor-text  = #121314
+
+# selección — editor.selectionBackground (#276782 a ~87% alpha) horneado
+# sobre el bg; texto foreground sigue legible encima
+selection-background = #245c73
+selection-foreground = #bbbebf
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# normales (0-7) — tonos base de tokenColors, sin forzar saturación
+palette = 0=#242526
+palette = 1=#ff7b72
+palette = 2=#7ee787
+palette = 3=#e5ba7d
+palette = 4=#79c0ff
+palette = 5=#d2a8ff
+palette = 6=#48a0c7
+palette = 7=#8b949e
+
+# brillantes (8-15): más claros/vívidos (convención dark estándar)
+palette = 8=#555555
+palette = 9=#ffa198
+palette = 10=#86cf86
+palette = 11=#cca700
+palette = 12=#57a3f8
+palette = 13=#ad80d7
+palette = 14=#53a5ca
+palette = 15=#ffffff
