@@ -40,8 +40,8 @@ link "$DOTFILES/ghostty/config.ghostty" "$GHOSTTY_DIR/config.ghostty"
 # Esto también expone la familia del "tema del stack" (scripts/theme): los
 # themes nuevos en ghostty/themes, nvim/lua/themes y tmux/themes viajan
 # gratis con los symlinks de dir padre — no hay que linkearlos uno por uno.
-# Los punteros de selección (current.local) los crea scripts/theme en
-# runtime y son per-máquina (gitignored, *.local): NO se symlinkean acá.
+# El puntero de selección (themes/current) también viaja versionado dentro
+# de ese dir, así que un `git pull` propaga el tema sin re-correr esto.
 if [[ -d "$DOTFILES/ghostty/themes" ]]; then
   mkdir -p "$HOME/.config/ghostty"
   link "$DOTFILES/ghostty/themes"       "$HOME/.config/ghostty/themes"
@@ -51,27 +51,12 @@ link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
 link "$DOTFILES/tmux"                   "$HOME/.config/tmux"
 link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
 
-# ─── tema del stack: baseline en instalación ──────────────────
-# Las DEFINICIONES de tema viajan versionadas (ghostty/themes, nvim/lua/themes,
-# tmux/themes — symlinkeadas arriba), pero la SELECCIÓN activa son punteros
-# per-máquina (gitignored, *.local) que NO viajan con el repo. Una máquina recién
-# clonada arranca SIN punteros → las 3 capas caen al default versionado
-# (light-2026, clon de VS Code 2026 Light). Para tener PARIDAD de look across
-# las 3 macs sembramos acá el tema baseline en la primera corrida, vía
-# scripts/theme (que escribe los 3 punteros con un solo id canónico).
-#
-# Set-if-absent (NO clobber): si YA hay un puntero (elegiste otro tema con
-# `scripts/theme` en esta máquina) respetamos esa elección — re-correr install.sh
-# no te la pisa, fiel al patrón override-at-end del resto del repo. Para volver al
-# baseline en una máquina: borrá los *.local y re-corré, o `scripts/theme <id>`.
-# Cambiar el baseline de TODAS las macs = editar DEFAULT_THEME acá (viaja en git).
-DEFAULT_THEME="light-2026"
-if [[ ! -f "$HOME/.config/ghostty/themes/current.local" \
-   && ! -f "$HOME/.config/nvim/lua/theme-current.local" \
-   && ! -f "$HOME/.config/tmux/current.local" ]]; then
-  echo "→ Sembrando tema baseline del stack: $DEFAULT_THEME"
-  "$DOTFILES/scripts/theme" "$DEFAULT_THEME" || true
-fi
+# ─── tema del stack ───────────────────────────────────────────
+# Nada que hacer acá. Tanto las DEFINICIONES de paleta como la SELECCIÓN
+# activa (los punteros ghostty/themes/current, nvim/lua/theme-current,
+# tmux/theme-current.conf) están versionadas y llegan con el clone/pull;
+# los symlinks de dir de arriba las exponen sin trabajo extra. Cambiar el
+# tema de TODAS las máquinas = `scripts/theme <id>` + commit + pull.
 
 # Caps Lock → Option: System Settings → Keyboard → Keyboard Shortcuts →
 # Modifier Keys → Caps Lock = Option ⌥. Es per-device y per-máquina, no

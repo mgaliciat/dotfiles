@@ -34,20 +34,10 @@ link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
 link "$DOTFILES/tmux"                   "$HOME/.config/tmux"
 link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
 
-# ─── tema del stack: baseline en instalación ──────────────────
-# Mismo patrón que install.sh: la SELECCIÓN activa del tema son punteros
-# per-máquina (gitignored, *.local) que no viajan con el repo, así que una
-# máquina recién clonada cae al default versionado (light-2026). Sembramos
-# el baseline para paridad de look. Acá solo aplican nvim + tmux (sin
-# ghostty en Linux/WSL2); scripts/theme omite la capa Ghostty sin error.
-# Set-if-absent: no pisa una elección local hecha con `scripts/theme`.
-# Cambiar baseline = editar DEFAULT_THEME.
-DEFAULT_THEME="light-2026"
-if [[ ! -f "$HOME/.config/nvim/lua/theme-current.local" \
-   && ! -f "$HOME/.config/tmux/current.local" ]]; then
-  echo "→ Sembrando tema baseline del stack: $DEFAULT_THEME"
-  "$DOTFILES/scripts/theme" "$DEFAULT_THEME" || true
-fi
+# ─── tema del stack ───────────────────────────────────────────
+# Nada que hacer acá. Mismo motivo que en install.sh: paletas Y selección
+# activa viajan versionadas y llegan por los symlinks de dir de arriba
+# (acá solo nvim + tmux; sin ghostty en Linux/WSL2).
 
 # ~/.gitconfig NO se symlinkea — per-máquina, igual que en mac.
 

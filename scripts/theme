@@ -2,18 +2,22 @@
 # ═══════════════════════════════════════════════════════════════
 #  theme — switcher del "tema del stack"
 #
-#  Voltea Ghostty + nvim + tmux a un mismo tema escribiendo punteros
-#  per-máquina (gitignored, *.local). Starship se adapta solo vía ANSI,
-#  no necesita puntero. Las DEFINICIONES de paleta están versionadas
-#  (ghostty/themes/, nvim/lua/themes/, tmux/themes/); acá solo elegimos
-#  cuál está activa — mismo patrón override-at-end que ~/.zshrc.local.
+#  Voltea Ghostty + nvim + tmux a un mismo tema escribiendo tres punteros
+#  VERSIONADOS. Starship se adapta solo vía ANSI, no necesita puntero. Las
+#  DEFINICIONES de paleta están versionadas (ghostty/themes/,
+#  nvim/lua/themes/, tmux/themes/); acá solo elegimos cuál está activa.
+#
+#  La selección viaja en git (a diferencia de ~/.zshrc.local y compañía):
+#  cambiar de tema ensucia el working tree y hay que COMMITEAR para que un
+#  `git pull` lo propague a las otras máquinas. Es deliberado — antes los
+#  punteros eran *.local y el tema nunca viajaba.
 #
 #  Uso:
 #    theme <id>     aplica el tema a las 3 capas
 #    theme list     lista la familia
 #    theme          muestra la selección actual
 #
-#  Familia canónica: light-2026 (default) · dark-2026 · osaka · oled-neon
+#  Familia canónica: dark-2026 (default) · light-2026 · osaka · oled-neon
 #                    · carbon · anthropic-dark · anthropic-warm
 #                    · prism-night · paper · solarized-light
 #  Alias osaka (sub-sabores del plugin, no entradas de la matriz):
@@ -28,9 +32,24 @@ set -euo pipefail
 
 FAMILY="light-2026 dark-2026 osaka oled-neon carbon anthropic-dark anthropic-warm prism-night paper solarized-light"
 
-GHOSTTY_POINTER="$HOME/.config/ghostty/themes/current.local"
-NVIM_POINTER="$HOME/.config/nvim/lua/theme-current.local"
-TMUX_POINTER="$HOME/.config/tmux/current.local"
+# Punteros de selección. VERSIONADOS (no son *.local): viven dentro del
+# repo vía los symlinks de dir (~/.config/{ghostty/themes,nvim,tmux} →
+# dotfiles/), así que escribirlos acá ensucia el working tree y hay que
+# commitearlos para que el tema viaje a las otras máquinas. Escribimos por
+# el path ~/.config a propósito: son archivos regulares dentro de un dir
+# symlinkeado, así que no hay riesgo de clobberear un symlink.
+GHOSTTY_POINTER="$HOME/.config/ghostty/themes/current"
+NVIM_POINTER="$HOME/.config/nvim/lua/theme-current"
+TMUX_POINTER="$HOME/.config/tmux/theme-current.conf"
+
+# Punteros de la era per-máquina (gitignored). Ya nadie los lee — ningún
+# config los referencia —, pero borrarlos evita que alguien los edite
+# esperando que sigan haciendo algo.
+LEGACY_POINTERS=(
+  "$HOME/.config/ghostty/themes/current.local"
+  "$HOME/.config/nvim/lua/theme-current.local"
+  "$HOME/.config/tmux/current.local"
+)
 
 # Resuelve un id (canónico o alias) → G (ghostty theme), N (nvim theme),
 # T (archivo de paleta tmux). Devuelve 1 si el id no existe.
@@ -60,7 +79,7 @@ list_family() {
 }
 
 show_current() {
-  echo "Selección actual (punteros per-máquina):"
+  echo "Selección actual (punteros versionados):"
   # `${var:-(malformed)}` cubre el caso de un puntero corrupto/vacío: sin
   # esto el output mostraría "  nvim →" sin valor, confuso de diagnosticar.
   local v
@@ -68,19 +87,19 @@ show_current() {
     v=$(tr -d '[:space:]' < "$NVIM_POINTER")
     echo "  nvim    → ${v:-(malformed)}"
   else
-    echo "  nvim    → (default versionado: light-2026)"
+    echo "  nvim    → (default versionado: dark-2026)"
   fi
   if [[ -f "$GHOSTTY_POINTER" ]]; then
     v=$(sed -n 's/^theme = //p' "$GHOSTTY_POINTER")
     echo "  ghostty → ${v:-(malformed)}"
   else
-    echo "  ghostty → (default versionado: light-2026)"
+    echo "  ghostty → (default versionado: dark-2026)"
   fi
   if [[ -f "$TMUX_POINTER" ]]; then
     v=$(sed -n 's#.*themes/\(.*\)\.conf#\1#p' "$TMUX_POINTER")
     echo "  tmux    → ${v:-(malformed)}"
   else
-    echo "  tmux    → (default versionado: light-2026)"
+    echo "  tmux    → (default versionado: dark-2026)"
   fi
 }
 
@@ -94,6 +113,10 @@ apply_theme() {
   fi
 
   local changed=()
+
+  # Barrido de la era per-máquina. Inertes (nadie los sourcea), pero un
+  # `current.local` con otro tema al lado del puntero real es una trampa.
+  rm -f "${LEGACY_POINTERS[@]}"
 
   # ─── Ghostty ───  (skip silencioso si no está presente — Linux/WSL2)
   if [[ -d "$HOME/.config/ghostty" ]]; then
@@ -120,7 +143,7 @@ apply_theme() {
 
   # ─── reloads ───
   # tmux: re-sourcea en vivo si hay server (barato y robusto). El chain
-  # re-aplica paleta default → current.local → estructura (re-hornea).
+  # re-aplica paleta default → theme-current.conf → estructura (re-hornea).
   if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
     # Sin 2>/dev/null: un error al re-sourcear el tema debe verse.
     if tmux source-file "$HOME/.config/tmux/tmux.conf"; then
@@ -130,6 +153,9 @@ apply_theme() {
   # Ghostty y nvim: aplican al reabrir.
   echo "  → Ghostty: reabrí la ventana o recargá con ⌘⇧R"
   echo "  → nvim:    reiniciá nvim (o :source \$MYVIMRC + :colorscheme)"
+  # Los punteros son versionados: sin commit el tema no llega a las otras
+  # máquinas. Es el paso que más se olvida, así que lo decimos siempre.
+  echo "  → git:     commiteá los punteros para propagar el tema"
 }
 
 case "${1:-}" in

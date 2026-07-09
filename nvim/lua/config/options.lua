@@ -1,13 +1,15 @@
 -- ─── theme del stack ──────────────────────────────────────────
 -- nvim es UNA capa del "tema del stack" (junto a Ghostty y tmux). La
 -- selección activa la maneja `scripts/theme <id>`, que escribe el id en
--- lua/theme-current.local (gitignored, *.local). Acá leemos ese puntero;
--- si no existe (máquina recién clonada, o nunca corriste `theme`) caemos
--- al default versionado. Mismo patrón override-at-end que ~/.zshrc.local.
+-- lua/theme-current. Ese puntero está VERSIONADO a propósito (no es un
+-- *.local): la selección viaja en git, así un `git pull` propaga el tema
+-- a las otras máquinas. El fallback de abajo es sólo red de seguridad
+-- por si borrás el puntero.
 --
 -- Familia canónica (id = mismo string en Ghostty/nvim/tmux):
---   "light-2026"       clon de "2026 Light", el nuevo default claro de
---                       VS Code (extensions/theme-defaults/themes/2026-light.json) (DEFAULT)
+--   "dark-2026"        clon de "Dark 2026", el default oscuro de VS Code
+--                       (extensions/theme-defaults/themes/2026-dark.json) (DEFAULT)
+--   "light-2026"       clon de "2026 Light", su companion claro
 --   "carbon"           minimal true-black, high contrast, acento Claude orange
 --   "solarized-osaka"  deep-ocean craftzdog ← plugin separado
 --   "oled-neon"        true black OLED + Dracula neón
@@ -21,17 +23,17 @@
 --
 -- Cambiar requiere reiniciar nvim (o :source $MYVIMRC + :colorscheme ...).
 local function stack_theme()
-  -- lua/theme-current.local vive junto a este archivo (config dir). Como
-  -- ~/.config/nvim es symlink al repo, el puntero queda dentro del repo y
-  -- gitignored por *.local. Una sola línea con el id del tema.
-  local pointer = vim.fn.stdpath("config") .. "/lua/theme-current.local"
+  -- lua/theme-current vive junto a este archivo (config dir). Como
+  -- ~/.config/nvim es symlink al repo, el puntero queda dentro del repo
+  -- y viaja en git. Una sola línea con el id del tema.
+  local pointer = vim.fn.stdpath("config") .. "/lua/theme-current"
   if vim.fn.filereadable(pointer) == 1 then
     local line = (vim.fn.readfile(pointer)[1] or ""):gsub("%s+", "")
     if line ~= "" then
       return line
     end
   end
-  return "light-2026" -- default versionado del stack (clon de VS Code 2026 Light)
+  return "dark-2026" -- default versionado del stack (clon de VS Code Dark 2026)
 end
 vim.g.theme = stack_theme()
 
