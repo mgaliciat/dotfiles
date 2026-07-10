@@ -37,11 +37,9 @@ link "$DOTFILES/ghostty/config.ghostty" "$GHOSTTY_DIR/config.ghostty"
 # Application Support donde vive el config — son dirs distintos. Si los
 # pones en Application Support, Ghostty los ignora y tira "theme not found".
 # Symlink del dir entero para que nuevos themes se expongan automáticamente.
-# Esto también expone la familia del "tema del stack" (scripts/theme): los
-# themes nuevos en ghostty/themes, nvim/lua/themes y tmux/themes viajan
-# gratis con los symlinks de dir padre — no hay que linkearlos uno por uno.
-# El puntero de selección (themes/current) también viaja versionado dentro
-# de ese dir, así que un `git pull` propaga el tema sin re-correr esto.
+# Esto también expone la familia del "tema del stack": los themes nuevos
+# en ghostty/themes, nvim/lua/themes y tmux/themes viajan gratis con los
+# symlinks de dir padre — no hay que linkearlos uno por uno.
 if [[ -d "$DOTFILES/ghostty/themes" ]]; then
   mkdir -p "$HOME/.config/ghostty"
   link "$DOTFILES/ghostty/themes"       "$HOME/.config/ghostty/themes"
@@ -52,11 +50,11 @@ link "$DOTFILES/tmux"                   "$HOME/.config/tmux"
 link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
 
 # ─── tema del stack ───────────────────────────────────────────
-# Nada que hacer acá. Tanto las DEFINICIONES de paleta como la SELECCIÓN
-# activa (los punteros ghostty/themes/current, nvim/lua/theme-current,
-# tmux/theme-current.conf) están versionadas y llegan con el clone/pull;
-# los symlinks de dir de arriba las exponen sin trabajo extra. Cambiar el
-# tema de TODAS las máquinas = `scripts/theme <id>` + commit + pull.
+# Nada que hacer acá. La selección del tema es un valor directo en cada
+# config versionado (Ghostty `theme =`, nvim `vim.g.theme`, el `source`
+# de paleta en tmux.conf) y llega con el clone/pull; los symlinks de dir
+# de arriba exponen las paletas sin trabajo extra. Cambiar el tema de
+# TODAS las máquinas = editar esas 3 líneas + commit + pull.
 
 # Caps Lock → Option: System Settings → Keyboard → Keyboard Shortcuts →
 # Modifier Keys → Caps Lock = Option ⌥. Es per-device y per-máquina, no

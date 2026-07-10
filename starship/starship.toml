@@ -19,7 +19,7 @@
 #    bright-yellow    = cmd duration (solo si > 2s)
 #
 #  100% ANSI, sin excepciones hex: el prompt entero sigue el tema del
-#  stack (scripts/theme). En osaka los slots caen en solarized frío.
+#  stack (el `theme =` de Ghostty). En osaka los slots caen en solarized frío.
 # ═══════════════════════════════════════════════════════════════
 
 add_newline = false

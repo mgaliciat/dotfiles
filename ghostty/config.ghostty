@@ -17,15 +17,15 @@
 # Solarized picks: Solarized Dark Patched (estilo craftzdog),
 # carbon — minimal true-black, high contrast (matchea con carbon.lua/.conf).
 #
-# NOTA: este `theme =` es sólo el FALLBACK. La selección activa la maneja
-# `scripts/theme <id>`, que escribe themes/current (versionado, incluido al
-# final de este archivo, gana por last-wins). Este default sólo se ve si
-# borraste ese puntero.
-theme = dark-2026
+# NOTA: este `theme =` es LA selección activa y la fuente de verdad. Como
+# el archivo está versionado, un `git pull` propaga el tema a las otras
+# máquinas. Para cambiar el look: editá esta línea (y las líneas equivalentes
+# de nvim y tmux — comparten id) y commiteá. No hay switcher ni puntero.
+theme = xcode-oled
 
 # Custom themes — viven en `ghostty/themes/` (symlinkeado a
 # <config-dir>/themes/ por install.sh). Familia canónica del stack (mismo
-# id en Ghostty/nvim/tmux, se voltean juntos con `scripts/theme <id>`):
+# id en Ghostty/nvim/tmux; para voltear el look editás las 3 configs):
 #   · light-2026 — clon del theme "2026 Light" que Microsoft shippeó como
 #     nuevo default de VS Code (extensions/theme-defaults/themes/2026-light.json,
 #     refresh "Focus" de 2026). Blanco puro + acento azul #0069CC.
@@ -292,10 +292,9 @@ macos-icon-ghost-color = #0069cc
 # elevada (#fafafd — sideBar/activityBar bg en el JSON fuente), apenas un
 # lift hacia arriba para dar profundidad sin ruido.
 #
-# Horneado a light-2026 a propósito (NO sigue al theme switcher): si
-# cambiás a otro theme con `scripts/theme <id>` el icono se queda
-# light-2026. Para re-sincronizar con otro theme, usá su `background` +
-# un lift hacia su superficie elevada.
+# Horneado a light-2026 a propósito (NO sigue al `theme =` de arriba): si
+# cambiás el tema, el icono se queda light-2026. Para re-sincronizarlo con
+# otro theme, usá su `background` + un lift hacia su superficie elevada.
 macos-icon-screen-color = #ffffff,#fafafd
 
 # ═══════════════════════════════════════════════════════════════
@@ -311,27 +310,4 @@ macos-non-native-fullscreen = visible-menu
 # Si prefieres ocultar los semáforos (rojo/amarillo/verde) cuando
 # entres a fullscreen para una vista más limpia, descomenta:
 # macos-window-buttons = hidden
-
-# ═══════════════════════════════════════════════════════════════
-#  Tema del stack — selección activa (override-at-end)
-# ═══════════════════════════════════════════════════════════════
-
-# `scripts/theme <id>` escribe themes/current con un único `theme = <id>`.
-# Va AL FINAL del config → el último `theme=` gana sobre el default de
-# arriba (same-key last-wins de Ghostty).
-#
-# themes/current está VERSIONADO a propósito (no es un *.local): la
-# selección viaja en git, así un `git pull` propaga el tema a las otras
-# máquinas. Contrapartida asumida: `scripts/theme` ensucia el working
-# tree y hay que commitear el cambio para que viaje. Si en su lugar
-# querés que cada máquina tenga su propio tema, gitignorá este archivo.
-#
-# El `?` (include opcional) queda como red de seguridad: si borrás el
-# puntero, Ghostty no falla y caés al default de arriba.
-#
-# Path ABSOLUTO a propósito: los relativos de config-file resuelven
-# contra el dir del config (Application Support), pero los themes viven
-# en ~/.config/ghostty/themes/ (symlink al repo). El puntero va ahí para
-# que un `git pull` lo entregue sin re-correr install.sh.
-config-file = ?~/.config/ghostty/themes/current
 

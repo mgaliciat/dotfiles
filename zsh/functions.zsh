@@ -135,23 +135,3 @@ if [[ -o interactive ]]; then
   zle -N _fzf_cd_widget
   bindkey '^F' _fzf_cd_widget
 fi
-
-# ─── tema del stack ───────────────────────────────────────────
-# Wrapper de scripts/theme: voltea Ghostty + nvim + tmux a un mismo
-# tema de la familia (osaka, xcode-oled, anthropic-dark, …). El detalle
-# del mecanismo (punteros versionados, reloads) vive en el script.
-#   theme <id>   aplica · theme list   lista · theme   muestra el actual
-theme() {
-  "$HOME/dotfiles/scripts/theme" "$@"
-}
-
-# Completion: la familia + alias osaka + subcomandos. compinit ya corrió
-# (lo carga .zshrc antes de sourcear functions.zsh), pero guardamos por si
-# functions.zsh se sourcea en un contexto sin compdef.
-if (( $+functions[compdef] )); then
-  _theme() {
-    compadd light-2026 dark-2026 osaka xcode-oled carbon anthropic-dark anthropic-warm prism-night paper \
-            solarized-light solarized-osaka osaka-moon osaka-storm osaka-day list
-  }
-  compdef _theme theme
-fi

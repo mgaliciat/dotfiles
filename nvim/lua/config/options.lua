@@ -1,14 +1,13 @@
 -- ─── theme del stack ──────────────────────────────────────────
 -- nvim es UNA capa del "tema del stack" (junto a Ghostty y tmux). La
--- selección activa la maneja `scripts/theme <id>`, que escribe el id en
--- lua/theme-current. Ese puntero está VERSIONADO a propósito (no es un
--- *.local): la selección viaja en git, así un `git pull` propaga el tema
--- a las otras máquinas. El fallback de abajo es sólo red de seguridad
--- por si borrás el puntero.
+-- selección es este string, versionado y fuente de verdad: un `git pull`
+-- propaga el tema a las otras máquinas. Para cambiar el look editá esta
+-- línea (y las equivalentes de Ghostty y tmux — comparten id) y commiteá.
+-- No hay switcher ni puntero; requiere reiniciar nvim.
 --
 -- Familia canónica (id = mismo string en Ghostty/nvim/tmux):
 --   "dark-2026"        clon de "Dark 2026", el default oscuro de VS Code
---                       (extensions/theme-defaults/themes/2026-dark.json) (DEFAULT)
+--                       (extensions/theme-defaults/themes/2026-dark.json)
 --   "light-2026"       clon de "2026 Light", su companion claro
 --   "carbon"           minimal true-black, high contrast, acento Claude orange
 --   "solarized-osaka"  deep-ocean craftzdog ← plugin separado
@@ -19,23 +18,8 @@
 --   "paper"            light cream + tinta sepia
 --   "solarized-light"  Solarized Light canónico
 -- (Las variantes solarized-osaka-{day,moon,storm} y "obsidian" siguen
---  siendo themes válidos acá, pero fuera de la matriz del switcher.)
---
--- Cambiar requiere reiniciar nvim (o :source $MYVIMRC + :colorscheme ...).
-local function stack_theme()
-  -- lua/theme-current vive junto a este archivo (config dir). Como
-  -- ~/.config/nvim es symlink al repo, el puntero queda dentro del repo
-  -- y viaja en git. Una sola línea con el id del tema.
-  local pointer = vim.fn.stdpath("config") .. "/lua/theme-current"
-  if vim.fn.filereadable(pointer) == 1 then
-    local line = (vim.fn.readfile(pointer)[1] or ""):gsub("%s+", "")
-    if line ~= "" then
-      return line
-    end
-  end
-  return "dark-2026" -- default versionado del stack (clon de VS Code Dark 2026)
-end
-vim.g.theme = stack_theme()
+--  siendo themes válidos acá, pero fuera de la matriz.)
+vim.g.theme = "xcode-oled"
 
 -- ─── vim.opt ──────────────────────────────────────────────────
 -- Buenos defaults. Sigue el espíritu del dotfiles: comentar el WHY,
