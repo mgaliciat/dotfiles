@@ -91,43 +91,32 @@ if [[ ! -d "$TPM_DIR" ]]; then
   echo "✓ tpm instalado. Dentro de tmux: prefix + I para instalar plugins"
 fi
 
-# ─── tmux-claude-session-manager + hooks de estado ────────────
-# El plugin (picker prefix+u) lo declara tmux.conf y lo instalaría tpm con
-# prefix+I, pero lo pre-clonamos acá para que scripts/state.sh exista ANTES de
-# mergear los hooks — sino los hooks llamarían a un script inexistente (exit 127)
-# hasta que corras prefix+I. Idempotente; tpm lo detecta ya clonado en su path.
-CLAUDE_TMUX_DIR="$HOME/.config/tmux/plugins/tmux-claude-session-manager"
-if [[ ! -d "$CLAUDE_TMUX_DIR" ]]; then
-  echo "→ Clonando tmux-claude-session-manager en $CLAUDE_TMUX_DIR"
-  git clone --depth 1 https://github.com/craftzdog/tmux-claude-session-manager "$CLAUDE_TMUX_DIR"
-fi
-
-# Los hooks de estado (working/waiting/idle) viven en ~/.claude/settings.json,
-# que es per-máquina y NO se symlinkea (ver nota de Claude Code arriba). En vez
-# de symlinkear, MERGEAMOS el fragmento versionado de forma aditiva e idempotente
-# con jq: preserva el resto del settings.json y cualquier .hooks que ya tengas.
-# Gated a que existan jq + state.sh + el fragmento.
+# ─── tmux-claude-session-manager ──────────────────────────────
+# Picker de sesiones Claude (prefix+u / Alt+u), declarado como @plugin en
+# tmux.conf — tpm lo clona con prefix+I como al resto. Desde que el plugin
+# pasó a leer estado vía `claude agents --json` (sin hooks), ya no hace falta
+# pre-clonarlo acá.
+#
+# Migración: versiones viejas de este installer mergeaban 4 hooks
+# (UserPromptSubmit/Notification/PreToolUse/Stop → scripts/state.sh) en
+# ~/.claude/settings.json. El plugin borró state.sh, así que esos hooks
+# ahora fallan (exit 127) en cada evento. Convergente: los limpiamos acá
+# si están, en cualquier máquina que todavía los tenga.
 SETTINGS="$HOME/.claude/settings.json"
-HOOKS_FRAGMENT="$DOTFILES/claude/claude-session-hooks.json"
-if command -v jq >/dev/null 2>&1 && [[ -f "$CLAUDE_TMUX_DIR/scripts/state.sh" && -f "$HOOKS_FRAGMENT" ]]; then
-  mkdir -p "$(dirname "$SETTINGS")"
-  [[ -f "$SETTINGS" ]] || echo '{}' > "$SETTINGS"
-  if jq -e '[.. | strings] | any(test("tmux-claude-session-manager/scripts/state.sh"))' "$SETTINGS" >/dev/null 2>&1; then
-    echo "✓ hooks claude-session-manager ya presentes en settings.json"
+if command -v jq >/dev/null 2>&1 && [[ -f "$SETTINGS" ]] \
+   && jq -e '[.. | strings] | any(test("tmux-claude-session-manager/scripts/state.sh"))' "$SETTINGS" >/dev/null 2>&1; then
+  SETTINGS_TMP="$(mktemp)"
+  if jq '.hooks |= (to_entries
+          | map(.value |= map(select(
+              (.hooks // []) | any(.command? // "" | test("tmux-claude-session-manager/scripts/state.sh")) | not
+            )))
+          | map(select((.value | length) > 0))
+          | from_entries)' "$SETTINGS" > "$SETTINGS_TMP"; then
+    mv "$SETTINGS_TMP" "$SETTINGS"
+    echo "✓ hooks obsoletos de claude-session-manager (state.sh) limpiados de settings.json"
   else
-    HOOKS_TMP="$(mktemp)"
-    # Append por-evento (preserva .hooks existentes); escritura atómica tmp+mv
-    # para no dejar el settings.json corrupto si jq falla a mitad.
-    if jq --slurpfile frag "$HOOKS_FRAGMENT" '
-          reduce ($frag[0].hooks | to_entries[]) as $e (.;
-            .hooks[$e.key] = ((.hooks[$e.key] // []) + $e.value))
-        ' "$SETTINGS" > "$HOOKS_TMP"; then
-      mv "$HOOKS_TMP" "$SETTINGS"
-      echo "✓ hooks claude-session-manager mergeados en settings.json (per-máquina)"
-    else
-      rm -f "$HOOKS_TMP"
-      echo "⚠️  merge de hooks falló — settings.json quedó intacto"
-    fi
+    rm -f "$SETTINGS_TMP"
+    echo "⚠️  limpieza de hooks obsoletos falló — settings.json quedó intacto"
   fi
 fi
 
@@ -175,7 +164,7 @@ if command -v brew >/dev/null 2>&1; then
     gomi                  # `rm` con papelera + restore interactivo (alias `gm`)
     zoxide
     fzf
-    jq                    # merge idempotente de los hooks de claude-session-manager en settings.json
+    jq                    # requerido por tmux-claude-session-manager (parsea `claude agents --json`)
     git-delta
     pyenv
     neovim
