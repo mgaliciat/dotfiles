@@ -37,8 +37,9 @@ theme = dark-2026
 #     Claude orange (#d97757).
 #   · solarized-osaka — deep-ocean estilo craftzdog (azul casi negro). En
 #     Ghostty es el theme `solarized-osaka`; la paleta sale del plugin nvim.
-#   · oled-neon — true black (#000) + paleta neon Dracula-style.
-#     Pensado para OLED y sesiones nocturnas; máximo contraste.
+#   · xcode-oled — syntax de Xcode "Default (Dark)" (hex reales del plist
+#     de Apple) sobre true black (#000). Pensado para OLED: píxeles del
+#     fondo apagados. Reemplazó a oled-neon (Dracula) en la familia.
 #   · anthropic-dark — dark Claude.ai (brown-black + Claude orange).
 #   · anthropic-warm — carbón cálido + paleta Claude (terracota, oliva,
 #     ámbar, naranja). Pensado para display-p3 + transparencia, sesiones

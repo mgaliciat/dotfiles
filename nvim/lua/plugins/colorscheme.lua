@@ -12,7 +12,7 @@
 --
 --   anthropic-dark   dark Claude.ai (brown-black + Claude orange) ← espejo Ghostty
 --   anthropic-light  light Anthropic (cream paper + sepia)         ← espejo Ghostty
---   oled-neon        true black OLED + Dracula neón                ← espejo Ghostty
+--   xcode-oled       true black OLED + syntax Xcode Default (Dark) ← espejo Ghostty
 --   obsidian         high-contrast dark, acento cyan
 --   warm             dark sepia/naranja (legacy)
 --   paper            light cream + tinta sepia (legacy)

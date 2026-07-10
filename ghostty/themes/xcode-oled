@@ -1,0 +1,85 @@
+# xcode-oled — syntax highlighting de Xcode "Default (Dark)" sobre un
+# fondo true black (#000) pensado para OLED: los píxeles del background
+# quedan literalmente apagados (negro real + ahorro de batería).
+#
+# PROVENIENCIA de los hex: son los valores REALES que shippea Apple, no
+# un guess ni un port. Salen del plist `Default (Dark).xccolortheme`
+# (claves DVTSourceTextBackground / DVTSourceTextSelectionColor /
+# DVTSourceTextSyntaxColors, RGBA float → hex). Verificado contra dos
+# copias independientes del archivo (cntrump/xcode-default-theme y
+# davidbalbert/Watt): coinciden exacto. OJO: los ports a VS Code que
+# andan dando vueltas NO son fieles (mapean keyword a #ff7ab2 y comment
+# a un verde) — no los uses como fuente.
+#
+# ÚNICA desviación deliberada de Apple: el background. Xcode usa #1f1f24
+# (gris azulado); acá va #000000, que es el punto del theme. El resto de
+# la paleta es literal.
+#
+# Espejo de nvim/lua/themes/xcode-oled.lua y tmux/themes/xcode-oled.conf.
+
+# fondo y texto — bg true black; fg = xcode.syntax.plain
+background = #000000
+foreground = #ffffff
+
+# cursor — xcode.syntax.keyword (el rosa más icónico del theme). Apple
+# usa un insertion point BLANCO, pero sobre plain text también blanco el
+# cursor se pierde; el rosa mantiene 7.3:1 sobre #000 y no se confunde
+# con ningún token.
+cursor-color = #fc5fa3
+cursor-text  = #000000
+
+# selección — DVTSourceTextSelectionColor literal de Apple. Sobre #000
+# da 3.08:1, suficiente para que se lea como banda sin tapar el texto.
+selection-background = #515b70
+selection-foreground = #ffffff
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# Xcode no define paleta de terminal (su formato es syntax + chrome, no
+# ANSI), así que el mapeo de abajo es una construcción: cada slot toma
+# el token de Xcode semánticamente más cercano.
+#
+# Slots normales (0-7) — todos hex literales de Apple:
+#   0 black   = DVTSourceTextBackground (el bg propio de Xcode)
+#   1 red     = xcode.syntax.string
+#   2 green   = xcode.syntax.identifier.function  (teal-verde, "project")
+#   3 yellow  = xcode.syntax.number
+#   4 blue    = xcode.syntax.declaration.other
+#   5 magenta = xcode.syntax.keyword
+#   6 cyan    = xcode.syntax.declaration.type
+#   7 white   = gris claro (fg suavizado para texto no-plain)
+#
+# Sin slot ANSI: los púrpuras de los identificadores "system"
+# (#d0a8ff type.system, #a167e6 function.system), el naranja de
+# preprocessor (#fd8f3f) y el marrón de attribute (#bf8555). Quedan
+# fuera — la spec de 16 colores no tiene dónde ponerlos.
+palette = 0=#1f1f24
+palette = 1=#fc6a5d
+palette = 2=#67b7a4
+palette = 3=#d0bf69
+palette = 4=#41a1c0
+palette = 5=#fc5fa3
+palette = 6=#5dd8ff
+palette = 7=#dfdfe0
+
+# Brillantes (8-15). Convención dark theme del repo (ver carbon):
+# más claros/vívidos que los normales, sin invertir.
+#
+# Cinco son hex literales de Apple, aprovechando que su paleta ya trae
+# el par "oscuro/claro" del mismo token:
+#   8  bright_black  = xcode.syntax.comment      (slate; 4.7:1 sobre #000,
+#                      así que el texto dim sigue legible — no se evapora)
+#   10 bright_green  = identifier.type           (aqua, el "claro" de #67b7a4)
+#   11 bright_yellow = markup.aside.kind         (gold claro)
+#   12 bright_blue   = xcode.syntax.url
+#   15 bright_white  = xcode.syntax.plain
+#
+# Los otros tres (9, 13, 14) Apple no los tiene: son el normal levantado
+# +0.08 de lightness en HSL (hue y saturación intactos), no elegidos a ojo.
+palette = 8=#6c7986
+palette = 9=#fd8f85
+palette = 10=#9ef1dd
+palette = 11=#ffdb8b
+palette = 12=#5482ff
+palette = 13=#fd87ba
+palette = 14=#86e2ff
+palette = 15=#ffffff

@@ -8,7 +8,7 @@
 -- Espejo del theme Ghostty `dark-2026` y tmux/themes/dark-2026.conf.
 -- Base tokyonight: variant `night`.
 --
--- Convención dark theme del repo (ver carbon/oled-neon): los "bright"
+-- Convención dark theme del repo (ver carbon/xcode-oled): los "bright"
 -- son más claros/vívidos que los normales — convención ANSI estándar,
 -- sin invertir. VS Code no define ANSI de 16 colores (es un formato
 -- UI-chrome + tokenColors, no terminal), así que ese mapeo acá es una

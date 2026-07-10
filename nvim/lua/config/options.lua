@@ -12,7 +12,7 @@
 --   "light-2026"       clon de "2026 Light", su companion claro
 --   "carbon"           minimal true-black, high contrast, acento Claude orange
 --   "solarized-osaka"  deep-ocean craftzdog ← plugin separado
---   "oled-neon"        true black OLED + Dracula neón
+--   "xcode-oled"       true black OLED + syntax de Xcode "Default (Dark)"
 --   "anthropic-dark"   dark Claude.ai (brown-black + Claude orange)
 --   "anthropic-warm"   dark sepia/terracota cálido
 --   "prism-night"      azul medianoche + arco del prisma

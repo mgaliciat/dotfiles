@@ -11,7 +11,7 @@
 # UI-chrome + tokenColors, no terminal), así que el ANSI de acá es una
 # construcción razonada a partir de esos mismos hex — mismo problema que
 # resolvió solarized-osaka.lua mirando el `M.terminal()` del plugin.
-# Convención dark theme del repo (ver carbon/oled-neon): los "brillantes"
+# Convención dark theme del repo (ver carbon/xcode-oled): los "brillantes"
 # (8-15) son más claros/vívidos que los normales — convención ANSI
 # estándar, sin invertir (eso es solo para los themes claros).
 

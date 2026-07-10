@@ -17,7 +17,7 @@
 #    theme list     lista la familia
 #    theme          muestra la selección actual
 #
-#  Familia canónica: dark-2026 (default) · light-2026 · osaka · oled-neon
+#  Familia canónica: dark-2026 (default) · light-2026 · osaka · xcode-oled
 #                    · carbon · anthropic-dark · anthropic-warm
 #                    · prism-night · paper · solarized-light
 #  Alias osaka (sub-sabores del plugin, no entradas de la matriz):
@@ -30,7 +30,7 @@
 
 set -euo pipefail
 
-FAMILY="light-2026 dark-2026 osaka oled-neon carbon anthropic-dark anthropic-warm prism-night paper solarized-light"
+FAMILY="light-2026 dark-2026 osaka xcode-oled carbon anthropic-dark anthropic-warm prism-night paper solarized-light"
 
 # Punteros de selección. VERSIONADOS (no son *.local): viven dentro del
 # repo vía los symlinks de dir (~/.config/{ghostty/themes,nvim,tmux} →
@@ -61,7 +61,7 @@ resolve() {
     osaka-moon|solarized-osaka-moon)   G=solarized-osaka; N=solarized-osaka-moon;  T=osaka ;;
     osaka-storm|solarized-osaka-storm) G=solarized-osaka; N=solarized-osaka-storm; T=osaka ;;
     osaka-day|solarized-osaka-day)     G=solarized-osaka; N=solarized-osaka-day;   T=osaka ;;
-    oled-neon)       G=oled-neon;      N=oled-neon;      T=oled-neon ;;
+    xcode-oled)      G=xcode-oled;     N=xcode-oled;     T=xcode-oled ;;
     carbon)          G=carbon;         N=carbon;         T=carbon ;;
     anthropic-dark)  G=anthropic-dark; N=anthropic-dark; T=anthropic-dark ;;
     anthropic-warm)  G=anthropic-warm; N=anthropic-warm; T=anthropic-warm ;;
