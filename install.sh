@@ -79,6 +79,35 @@ if [[ -d "$DOTFILES/claude/skills" ]]; then
   link "$DOTFILES/claude/skills"        "$HOME/.claude/skills"
 fi
 
+# ─── status line de Claude Code ───────────────────────────────
+# El script (claude/statusline.sh) es genérico — sin estado personal —
+# así que SÍ se versiona y symlinkea, a diferencia de settings.json.
+# Muestra modelo, directorio, git branch y una barra de uso de contexto
+# coloreada (verde/amarillo/rojo).
+link "$DOTFILES/claude/statusline.sh" "$HOME/.claude/statusline.sh"
+
+# La activación (campo "statusLine" en settings.json) SÍ es per-máquina:
+# solo la agregamos si no existe ya, para no pisar una config propia que
+# hayas armado a mano en esa máquina. Si ya está — sea esta u otra — no
+# tocamos nada.
+SETTINGS="$HOME/.claude/settings.json"
+if command -v jq >/dev/null 2>&1; then
+  mkdir -p "$(dirname "$SETTINGS")"
+  [[ -f "$SETTINGS" ]] || echo '{}' > "$SETTINGS"
+  if jq -e '.statusLine' "$SETTINGS" >/dev/null 2>&1; then
+    echo "✓ statusLine ya configurado en settings.json — no se toca"
+  else
+    SETTINGS_TMP="$(mktemp)"
+    if jq '.statusLine = {"type": "command", "command": "~/.claude/statusline.sh"}' "$SETTINGS" > "$SETTINGS_TMP"; then
+      mv "$SETTINGS_TMP" "$SETTINGS"
+      echo "✓ statusLine agregado a settings.json"
+    else
+      rm -f "$SETTINGS_TMP"
+      echo "⚠️  no se pudo agregar statusLine — settings.json quedó intacto"
+    fi
+  fi
+fi
+
 # ─── tpm (Tmux Plugin Manager) ────────────────────────────────
 # Clona tpm en la ubicación que espera nuestro tmux.conf.
 # Idempotente: si ya está, skip. Después de instalar, en tmux:

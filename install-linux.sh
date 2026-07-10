@@ -49,6 +49,29 @@ if [[ -d "$DOTFILES/claude/skills" ]]; then
   link "$DOTFILES/claude/skills"        "$HOME/.claude/skills"
 fi
 
+# ─── status line de Claude Code (espejo de install.sh) ────────
+# Script genérico versionado; la activación en settings.json solo se
+# agrega si no existe ya (no pisa una config propia de la máquina).
+link "$DOTFILES/claude/statusline.sh" "$HOME/.claude/statusline.sh"
+
+SETTINGS="$HOME/.claude/settings.json"
+if command -v jq >/dev/null 2>&1; then
+  mkdir -p "$(dirname "$SETTINGS")"
+  [[ -f "$SETTINGS" ]] || echo '{}' > "$SETTINGS"
+  if jq -e '.statusLine' "$SETTINGS" >/dev/null 2>&1; then
+    echo "✓ statusLine ya configurado en settings.json — no se toca"
+  else
+    SETTINGS_TMP="$(mktemp)"
+    if jq '.statusLine = {"type": "command", "command": "~/.claude/statusline.sh"}' "$SETTINGS" > "$SETTINGS_TMP"; then
+      mv "$SETTINGS_TMP" "$SETTINGS"
+      echo "✓ statusLine agregado a settings.json"
+    else
+      rm -f "$SETTINGS_TMP"
+      echo "⚠️  no se pudo agregar statusLine — settings.json quedó intacto"
+    fi
+  fi
+fi
+
 # ─── tpm (Tmux Plugin Manager) ────────────────────────────────
 TPM_DIR="$HOME/.config/tmux/plugins/tpm"
 if [[ ! -d "$TPM_DIR" ]]; then
