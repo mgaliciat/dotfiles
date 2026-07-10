@@ -1,11 +1,12 @@
 #!/bin/bash
-# Claude Code status line: model, cwd, git branch, context-usage bar.
+# Claude Code status line: model, cwd, git branch, context-usage bar, session cost.
 # JSON session data arrives on stdin (see: https://code.claude.com/docs/en/statusline).
 input=$(cat)
 
 MODEL=$(echo "$input" | jq -r '.model.display_name')
 DIR=$(echo "$input" | jq -r '.workspace.current_dir')
 PCT=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1)
+COST=$(echo "$input" | jq -r '.cost.total_cost_usd // 0')
 
 CYAN='\033[36m'; GREEN='\033[32m'; YELLOW='\033[33m'; RED='\033[31m'; RESET='\033[0m'
 
@@ -21,6 +22,9 @@ BAR=""
 [ "$EMPTY" -gt 0 ] && printf -v PAD "%${EMPTY}s" && BAR="${BAR}${PAD// /░}"
 
 BRANCH=""
-git rev-parse --git-dir > /dev/null 2>&1 && BRANCH=" | 🌿 $(git branch --show-current 2>/dev/null)"
+git rev-parse --git-dir > /dev/null 2>&1 && BRANCH=" | ⎇ $(git branch --show-current 2>/dev/null)"
 
-echo -e "${CYAN}[$MODEL]${RESET} 📁 ${DIR##*/}${BRANCH} | ${BAR_COLOR}${BAR}${RESET} ${PCT}%"
+COST_FMT=$(printf '$%.2f' "$COST")
+
+echo -e "${CYAN}[$MODEL]${RESET} ${DIR##*/}${BRANCH} | ctx ${BAR_COLOR}${BAR}${RESET} ${PCT}% | ${COST_FMT}"
+echo
