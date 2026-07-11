@@ -108,6 +108,88 @@ if command -v jq >/dev/null 2>&1; then
   fi
 fi
 
+# ─── permisos base de Claude Code ─────────────────────────────
+# Igual que statusLine: excepción controlada, additive-only. Solo agrega
+# permissions.allow/deny si esas keys NO existen ya en settings.json — si
+# armaste tu propia lista a mano en esta máquina, no se toca. Lista curada
+# a partir de la doc oficial (https://code.claude.com/docs/en/permissions)
+# y best practices de la comunidad: comandos read-only de Bash reconocidos
+# por Claude Code (git status/diff/log, ls, cat, grep, find, pwd, head,
+# tail, wc, which, diff, stat, du, cd...) YA NO piden confirmación por
+# default, así que no hace falta listarlos acá. El allow cubre lo que sigue
+# generando fricción real: writes de git, build/test tooling (npm, cargo,
+# go, make, gradle/kotlinc/ktlint) y reemplazos modernos de esos read-only
+# clásicos que Claude SÍ sigue confirmando por no estar en esa lista interna
+# (rg, fd, eza, bat, fzf, jq, tree, delta — todo Homebrew formulae de este
+# mismo repo, ver REQUIRED_FORMULAE más abajo). El deny bloquea lo
+# obviamente destructivo incluso bajo bypassPermissions/auto.
+SETTINGS="$HOME/.claude/settings.json"
+if command -v jq >/dev/null 2>&1; then
+  mkdir -p "$(dirname "$SETTINGS")"
+  [[ -f "$SETTINGS" ]] || echo '{}' > "$SETTINGS"
+
+  if jq -e '.permissions.allow' "$SETTINGS" >/dev/null 2>&1; then
+    echo "✓ permissions.allow ya configurado en settings.json — no se toca"
+  else
+    SETTINGS_TMP="$(mktemp)"
+    if jq '.permissions //= {} | .permissions.allow = [
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "Bash(cargo build *)",
+      "Bash(cargo test *)",
+      "Bash(make *)",
+      "Bash(docker ps *)",
+      "Bash(docker images *)",
+      "Bash(go build *)",
+      "Bash(go test *)",
+      "Bash(go vet *)",
+      "Bash(go mod *)",
+      "Bash(go run *)",
+      "Bash(gofmt *)",
+      "Bash(kotlinc *)",
+      "Bash(ktlint *)",
+      "Bash(./gradlew build)",
+      "Bash(./gradlew test)",
+      "Bash(./gradlew clean)",
+      "Bash(gradle build)",
+      "Bash(gradle test)",
+      "Bash(fzf *)",
+      "Bash(rg *)",
+      "Bash(fd *)",
+      "Bash(eza *)",
+      "Bash(bat *)",
+      "Bash(jq *)",
+      "Bash(tree *)",
+      "Bash(delta *)"
+    ]' "$SETTINGS" > "$SETTINGS_TMP"; then
+      mv "$SETTINGS_TMP" "$SETTINGS"
+      echo "✓ permissions.allow agregado a settings.json"
+    else
+      rm -f "$SETTINGS_TMP"
+      echo "⚠️  no se pudo agregar permissions.allow — settings.json quedó intacto"
+    fi
+  fi
+
+  if jq -e '.permissions.deny' "$SETTINGS" >/dev/null 2>&1; then
+    echo "✓ permissions.deny ya configurado en settings.json — no se toca"
+  else
+    SETTINGS_TMP="$(mktemp)"
+    if jq '.permissions //= {} | .permissions.deny = [
+      "Bash(rm -rf *)",
+      "Bash(git push --force*)",
+      "Bash(sudo *)"
+    ]' "$SETTINGS" > "$SETTINGS_TMP"; then
+      mv "$SETTINGS_TMP" "$SETTINGS"
+      echo "✓ permissions.deny agregado a settings.json"
+    else
+      rm -f "$SETTINGS_TMP"
+      echo "⚠️  no se pudo agregar permissions.deny — settings.json quedó intacto"
+    fi
+  fi
+fi
+
 # ─── tpm (Tmux Plugin Manager) ────────────────────────────────
 # Clona tpm en la ubicación que espera nuestro tmux.conf.
 # Idempotente: si ya está, skip. Después de instalar, en tmux:
