@@ -21,11 +21,12 @@
 background = #000000
 foreground = #ffffff
 
-# cursor — xcode.syntax.keyword (el rosa más icónico del theme). Apple
-# usa un insertion point BLANCO, pero sobre plain text también blanco el
-# cursor se pierde; el rosa mantiene 7.3:1 sobre #000 y no se confunde
-# con ningún token.
-cursor-color = #fc5fa3
+# cursor — xcode.syntax.comment (el gris slate, mismo hex que @thm_subtle
+# en tmux y bright_black en la paleta ANSI de abajo). Apple usa un
+# insertion point BLANCO, pero sobre plain text también blanco el cursor
+# se pierde; este gris da contraste sin ser tan protagonista como el rosa
+# de acento (que queda reservado para keyword/@thm_accent).
+cursor-color = #6c7986
 cursor-text  = #000000
 
 # selección — DVTSourceTextSelectionColor literal de Apple. Sobre #000
