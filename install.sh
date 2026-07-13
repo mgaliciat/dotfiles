@@ -105,6 +105,7 @@ if command -v brew >/dev/null 2>&1; then
     tree-sitter-cli       # parser generator que usa el branch `main` de nvim-treesitter
     tmux
     lazygit
+    rtk                   # proxy CLI que reduce tokens en Claude Code — ver sección rtk más abajo
   )
   REQUIRED_CASKS=(
     ghostty
@@ -156,6 +157,15 @@ fi
 # Muestra modelo, directorio, git branch y una barra de uso de contexto
 # coloreada (verde/amarillo/rojo).
 link "$DOTFILES/claude/statusline.sh" "$HOME/.claude/statusline.sh"
+
+# ─── CLAUDE.md user-level de Claude Code ──────────────────────
+# claude/CLAUDE.md son preferencias que aplican a TODOS los proyectos
+# (no solo este repo) — a diferencia de settings.json, es prosa sin
+# estado sensible per-máquina, así que SÍ se versiona y symlinkea. Va
+# ANTES de la sección de rtk más abajo: rtk init --global le agrega una
+# línea `@RTK.md` si falta — queremos que esa escritura caiga sobre el
+# archivo versionado (a través del symlink), no sobre un archivo suelto.
+link "$DOTFILES/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
 
 # La activación (campo "statusLine" en settings.json) SÍ es per-máquina:
 # solo la agregamos si no existe ya, para no pisar una config propia que
@@ -258,6 +268,149 @@ if command -v jq >/dev/null 2>&1; then
       rm -f "$SETTINGS_TMP"
       echo "⚠️  no se pudo agregar permissions.deny — settings.json quedó intacto"
     fi
+  fi
+fi
+
+# ─── rtk (proxy CLI que reduce tokens) ────────────────────────
+# Instala el hook PreToolUse (matcher Bash -> "rtk hook claude") que
+# reescribe comandos comunes (git status, cargo test, etc.) a su
+# equivalente rtk con output comprimido, reduciendo tokens de contexto.
+# A diferencia de los bloques statusLine/permissions de arriba, acá NO
+# manejamos la idempotencia con jq propio: `rtk init --global --auto-patch`
+# ya detecta si el hook está y no lo duplica (verificado corriéndolo dos
+# veces seguidas), así que alcanza con invocarlo en cada run. También crea
+# ~/.claude/RTK.md (referencia de comandos) y agrega una línea @RTK.md a
+# ~/.claude/CLAUDE.md — el CLAUDE.md GLOBAL de Claude Code, no este repo.
+# Doc: https://github.com/rtk-ai/rtk
+if command -v rtk >/dev/null 2>&1; then
+  if rtk init --global --auto-patch >/dev/null 2>&1; then
+    echo "✓ rtk hook de Claude Code configurado (o ya estaba)"
+  else
+    echo "⚠️  rtk init --global falló — revisar a mano (rtk init --global -v)"
+  fi
+fi
+
+# ─── codebase-memory-mcp (MCP server de grafo de código) ──────
+# Servidor MCP que indexa el codebase en un grafo de conocimiento
+# persistente — 14 tools (search_graph, trace_path, get_architecture,
+# search_code, etc.), 158 lenguajes vía tree-sitter. Sin binario en
+# Homebrew todavía, así que usamos el install.sh oficial del proyecto
+# (curl | bash), igual que hacemos con tpm vía git clone de un repo
+# externo. Sin flag --global como rtk: acá `install -y` YA registra el
+# MCP server + hooks a nivel de agente (~/.claude/.mcp.json,
+# ~/.claude.json) para TODOS los proyectos por default — no hay modo
+# per-proyecto que elegir. Variante SIN --ui (headless, default del
+# propio installer): el consumidor acá es el agente vía MCP tools, no
+# un humano navegando el grafo 3D en localhost:9749 — mantiene el
+# binario liviano y no abre un puerto HTTP local sin necesidad. Instala
+# solo si falta el binario (~260MB, no hace falta re-descargar en cada
+# corrida); `install -y` del propio script ya es idempotente (detecta
+# agentes, no duplica hooks/MCP entries — verificado con --dry-run).
+# auto_index=true SIEMPRE se fuerza (barato, idempotente) para que
+# proyectos nuevos se indexen solos al conectar. Doc:
+# https://github.com/DeusData/codebase-memory-mcp
+if ! command -v codebase-memory-mcp >/dev/null 2>&1; then
+  echo ""
+  echo "→ Instalando codebase-memory-mcp"
+  curl -fsSL https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh | bash
+fi
+
+if command -v codebase-memory-mcp >/dev/null 2>&1; then
+  codebase-memory-mcp config set auto_index true >/dev/null 2>&1
+  echo "✓ codebase-memory-mcp: auto_index=true"
+fi
+
+# Limpieza convergente: el binario (no el curl installer de arriba) hace
+# su propio fopen(~/.zshrc, "a") y agrega `export PATH=...` si no
+# encuentra un match TEXTUAL exacto en el archivo (src/cli/cli.c,
+# cbm_detect_shell_rc). Nuestro PATH vive en zsh/.zshenv con `$HOME`
+# (no el path absoluto expandido), así que ese chequeo naive nunca lo
+# reconoce y siempre re-agrega su línea — con el path de ESTA máquina
+# hardcodeado. Como ~/.zshrc es symlink a este repo, eso ensucia el
+# archivo versionado en cada máquina nueva. La sacamos si aparece.
+ZSHRC="$HOME/.zshrc"
+if [[ -f "$ZSHRC" ]] && grep -qF "# Added by codebase-memory-mcp install" "$ZSHRC"; then
+  ZSHRC_TMP="$(mktemp)"
+  if awk '
+    /^# Added by codebase-memory-mcp install$/ { skip = 2; next }
+    skip > 0 { skip--; next }
+    { print }
+  ' "$ZSHRC" > "$ZSHRC_TMP"; then
+    mv "$ZSHRC_TMP" "$ZSHRC"
+    echo "✓ línea de PATH que codebase-memory-mcp agregó a .zshrc limpiada (ya cubierto por .zshenv)"
+  else
+    rm -f "$ZSHRC_TMP"
+    echo "⚠️  no se pudo limpiar .zshrc — revisar a mano"
+  fi
+fi
+
+# ─── ponytail (plugin de Claude Code — "lazy senior dev" skill) ──
+# A diferencia de rtk/codebase-memory-mcp, este NO es un binario — es un
+# plugin real de marketplace (DietrichGebert/ponytail). Se instala 100%
+# con la CLI de plugins de Claude Code, que ya es idempotente por sí
+# misma (verificado corriendo ambos comandos dos veces seguidas: la
+# segunda detecta "already on disk" / "already installed" y no falla ni
+# duplica), así que alcanza con invocarla en cada corrida. Un solo
+# `install` trae el plugin Y sus 6 skills bundled (ponytail,
+# ponytail-review, ponytail-audit, ponytail-debt, ponytail-gain,
+# ponytail-help) — no hay paso separado para las skills. Requiere `node`
+# en PATH (hooks del plugin son Node.js) — si falta, el plugin igual
+# instala pero la activación automática queda muda en vez de tirar error
+# en cada prompt (comportamiento documentado por el propio proyecto, no
+# lo forzamos acá). Scope `-s user`: activo en todos los proyectos, no
+# solo este repo. URL https:// completa, NO el shorthand `owner/repo`:
+# el shorthand clona por SSH (`git@github.com:...`) — en una máquina
+# fresca sin llave SSH registrada en GitHub esto falla; la URL https
+# clona por HTTPS y no requiere auth para un repo público (verificado:
+# `marketplace add owner/repo` mostró "Cloning via SSH", `marketplace add
+# https://...` mostró "Cloning repository: https://..."). Doc:
+# https://github.com/DietrichGebert/ponytail
+if command -v claude >/dev/null 2>&1; then
+  if ! command -v node >/dev/null 2>&1; then
+    echo "ℹ️  node no detectado — ponytail se instala igual, pero sus hooks de activación automática van a quedar mudos hasta que node esté en PATH"
+  fi
+
+  if claude plugin marketplace add https://github.com/DietrichGebert/ponytail >/dev/null 2>&1; then
+    echo "✓ ponytail marketplace agregado (o ya estaba)"
+  else
+    echo "⚠️  no se pudo agregar el marketplace de ponytail — revisar a mano"
+  fi
+
+  if claude plugin install ponytail@ponytail -s user >/dev/null 2>&1; then
+    echo "✓ ponytail plugin + skills instalados (o ya estaba)"
+  else
+    echo "⚠️  no se pudo instalar ponytail — revisar a mano (claude plugin install ponytail@ponytail)"
+  fi
+fi
+
+# ─── andrej-karpathy-skills (plugin de Claude Code — guidelines) ──
+# Mismo mecanismo que ponytail (plugin de marketplace, no binario) —
+# multica-ai/andrej-karpathy-skills. Guidelines de comportamiento
+# (pensar antes de codear, simplicidad, cambios quirúrgicos, ejecución
+# goal-driven con tests) — más liviano que ponytail: 1 skill, sin hooks,
+# sin dependencia de node (~103 tokens always-on vs ~983 de ponytail).
+# Overlap intencional con ponytail en "no sobre-construyas" — distinto
+# énfasis (esto es sobre proceso/comunicación, ponytail sobre líneas de
+# código) y el costo extra es marginal. Nombre marketplace/plugin
+# (`karpathy-skills` / `andrej-karpathy-skills`) sacado directo de
+# .claude-plugin/marketplace.json del repo — el README todavía linkea al
+# nombre viejo del repo (forrestchang/...) de antes de que lo transfirieran
+# a multica-ai; usamos el nombre actual. Idempotente (mismo patrón que
+# ponytail, verificado corriendo ambos comandos dos veces seguidas). URL
+# https:// completa, no shorthand — mismo motivo que ponytail (shorthand
+# clona por SSH, falla en máquina fresca sin llave GitHub).
+# Doc: https://github.com/multica-ai/andrej-karpathy-skills
+if command -v claude >/dev/null 2>&1; then
+  if claude plugin marketplace add https://github.com/multica-ai/andrej-karpathy-skills >/dev/null 2>&1; then
+    echo "✓ andrej-karpathy-skills marketplace agregado (o ya estaba)"
+  else
+    echo "⚠️  no se pudo agregar el marketplace de andrej-karpathy-skills — revisar a mano"
+  fi
+
+  if claude plugin install andrej-karpathy-skills@karpathy-skills -s user >/dev/null 2>&1; then
+    echo "✓ andrej-karpathy-skills plugin instalado (o ya estaba)"
+  else
+    echo "⚠️  no se pudo instalar andrej-karpathy-skills — revisar a mano (claude plugin install andrej-karpathy-skills@karpathy-skills)"
   fi
 fi
 

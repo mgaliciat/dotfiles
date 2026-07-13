@@ -10,6 +10,12 @@
 # se symlinkea sólo si existe localmente; memory/ ya ni se symlinkea (la
 # maneja Claude Code per-proyecto). Backups *.backup.* ya cubiertos por la
 # regla de arriba.
+#
+# codebase-memory/ (dentro de skills/) tampoco se versiona a propósito: la
+# escribe/actualiza el propio binario codebase-memory-mcp (install -y y en
+# runtime) — versionarla la dejaría desincronizada apenas el binario la
+# reescriba con una versión nueva, y esa escritura caería silenciosamente
+# sobre un archivo trackeado por git (skills/ es symlink al repo).
 claude/settings.json
 claude/memory/
 claude/skills/
