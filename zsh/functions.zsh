@@ -23,9 +23,14 @@ myip() {
   curl -s https://api.ipify.org && echo
 }
 
-# IP local (LAN) — prueba Wi-Fi (en0) y luego Ethernet (en1).
+# IP local (LAN). En macOS prueba Wi-Fi (en0) y luego Ethernet (en1);
+# en Linux/WSL2 no existe `ipconfig` → fallback a `hostname -I`.
 localip() {
-  ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1
+  if command -v ipconfig >/dev/null; then
+    ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1
+  else
+    hostname -I 2>/dev/null | awk '{print $1}'
+  fi
 }
 
 # HTTP server en el dir actual. Default port 8000.

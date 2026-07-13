@@ -1,5 +1,4 @@
 .DS_Store
-.zshenv.local
 *.local
 .zsh_history
 .zcompdump*
@@ -7,9 +6,10 @@
 
 # Claude — TODO per-máquina, no versionado. settings.json es 100% propio de
 # cada máquina (NO symlinkeado, como ~/.gitconfig): config de permisos/UI
-# diverge por host y arrastraba estado personal a un repo público. skills/ y
-# memory/ se symlinkean sólo si existen localmente. Backups *.backup.* ya
-# cubiertos por la regla de arriba.
+# diverge por host y arrastraba estado personal a un repo público. skills/
+# se symlinkea sólo si existe localmente; memory/ ya ni se symlinkea (la
+# maneja Claude Code per-proyecto). Backups *.backup.* ya cubiertos por la
+# regla de arriba.
 claude/settings.json
 claude/memory/
 claude/skills/

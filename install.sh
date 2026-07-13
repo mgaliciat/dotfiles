@@ -79,6 +79,77 @@ if [[ -d "$DOTFILES/claude/skills" ]]; then
   link "$DOTFILES/claude/skills"        "$HOME/.claude/skills"
 fi
 
+# ─── dependencias (Homebrew) ──────────────────────────────────
+# Auto-instala lo que falte. Idempotente: re-runs detectan instalados y skipean.
+# Si no hay brew, muestra cómo instalarlo y termina sin fallar el script.
+# Va ANTES de los bloques de settings.json de más abajo: esos usan jq
+# (instalado acá) — si corrieran primero, en una máquina fresca se
+# skipearían en silencio y recién aplicarían en la segunda corrida.
+if command -v brew >/dev/null 2>&1; then
+  REQUIRED_FORMULAE=(
+    starship
+    zsh-syntax-highlighting
+    zsh-autosuggestions
+    zsh-history-substring-search
+    eza
+    bat
+    fd
+    ripgrep
+    gomi                  # `rm` con papelera + restore interactivo (alias `gm`)
+    zoxide
+    fzf
+    jq                    # requerido por tmux-claude-session-manager (parsea `claude agents --json`)
+    git-delta
+    pyenv
+    neovim
+    tree-sitter-cli       # parser generator que usa el branch `main` de nvim-treesitter
+    tmux
+    lazygit
+  )
+  REQUIRED_CASKS=(
+    ghostty
+    # Fonts referenciadas por ghostty/config.ghostty.
+    # PlemolJP Console NF = primary (estilo craftzdog, bilingüe JP/EN
+    # con Nerd Font integrado). iA Writer Mono y Monaspace quedan como
+    # fallback chain. Ioskeley salió porque PlemolJP NF ya trae íconos.
+    font-plemol-jp-nf
+    font-ia-writer-mono
+    font-monaspace
+  )
+
+  MISSING_FORMULAE=()
+  for pkg in "${REQUIRED_FORMULAE[@]}"; do
+    brew list --formula "$pkg" >/dev/null 2>&1 || MISSING_FORMULAE+=("$pkg")
+  done
+
+  MISSING_CASKS=()
+  for pkg in "${REQUIRED_CASKS[@]}"; do
+    brew list --cask "$pkg" >/dev/null 2>&1 || MISSING_CASKS+=("$pkg")
+  done
+
+  if [[ ${#MISSING_FORMULAE[@]} -gt 0 ]]; then
+    echo ""
+    echo "→ Instalando formulae faltantes: ${MISSING_FORMULAE[*]}"
+    brew install "${MISSING_FORMULAE[@]}"
+  fi
+
+  if [[ ${#MISSING_CASKS[@]} -gt 0 ]]; then
+    echo ""
+    echo "→ Instalando casks faltantes: ${MISSING_CASKS[*]}"
+    brew install --cask "${MISSING_CASKS[@]}"
+  fi
+
+  if [[ ${#MISSING_FORMULAE[@]} -eq 0 && ${#MISSING_CASKS[@]} -eq 0 ]]; then
+    echo "✓ Todas las dependencias de Homebrew ya están instaladas"
+  fi
+else
+  echo ""
+  echo "⚠️  Homebrew no detectado — saltando auto-install de dependencias."
+  echo "   Para instalarlo:"
+  echo "     /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+  echo "   Después re-corré: ./install.sh"
+fi
+
 # ─── status line de Claude Code ───────────────────────────────
 # El script (claude/statusline.sh) es genérico — sin estado personal —
 # así que SÍ se versiona y symlinkea, a diferencia de settings.json.
@@ -259,73 +330,6 @@ if [[ -d "/Applications/Visual Studio Code.app" ]]; then
   fi
 fi
 
-# ─── dependencias (Homebrew) ──────────────────────────────────
-# Auto-instala lo que falte. Idempotente: re-runs detectan instalados y skipean.
-# Si no hay brew, muestra cómo instalarlo y termina sin fallar el script.
-if command -v brew >/dev/null 2>&1; then
-  REQUIRED_FORMULAE=(
-    starship
-    zsh-syntax-highlighting
-    zsh-autosuggestions
-    zsh-history-substring-search
-    eza
-    bat
-    fd
-    ripgrep
-    gomi                  # `rm` con papelera + restore interactivo (alias `gm`)
-    zoxide
-    fzf
-    jq                    # requerido por tmux-claude-session-manager (parsea `claude agents --json`)
-    git-delta
-    pyenv
-    neovim
-    tree-sitter-cli       # parser generator que usa el branch `main` de nvim-treesitter
-    tmux
-    lazygit
-  )
-  REQUIRED_CASKS=(
-    ghostty
-    # Fonts referenciadas por ghostty/config.ghostty.
-    # PlemolJP Console NF = primary (estilo craftzdog, bilingüe JP/EN
-    # con Nerd Font integrado). iA Writer Mono y Monaspace quedan como
-    # fallback chain. Ioskeley salió porque PlemolJP NF ya trae íconos.
-    font-plemol-jp-nf
-    font-ia-writer-mono
-    font-monaspace
-  )
-
-  MISSING_FORMULAE=()
-  for pkg in "${REQUIRED_FORMULAE[@]}"; do
-    brew list --formula "$pkg" >/dev/null 2>&1 || MISSING_FORMULAE+=("$pkg")
-  done
-
-  MISSING_CASKS=()
-  for pkg in "${REQUIRED_CASKS[@]}"; do
-    brew list --cask "$pkg" >/dev/null 2>&1 || MISSING_CASKS+=("$pkg")
-  done
-
-  if [[ ${#MISSING_FORMULAE[@]} -gt 0 ]]; then
-    echo ""
-    echo "→ Instalando formulae faltantes: ${MISSING_FORMULAE[*]}"
-    brew install "${MISSING_FORMULAE[@]}"
-  fi
-
-  if [[ ${#MISSING_CASKS[@]} -gt 0 ]]; then
-    echo ""
-    echo "→ Instalando casks faltantes: ${MISSING_CASKS[*]}"
-    brew install --cask "${MISSING_CASKS[@]}"
-  fi
-
-  if [[ ${#MISSING_FORMULAE[@]} -eq 0 && ${#MISSING_CASKS[@]} -eq 0 ]]; then
-    echo "✓ Todas las dependencias de Homebrew ya están instaladas"
-  fi
-else
-  echo ""
-  echo "⚠️  Homebrew no detectado — saltando auto-install de dependencias."
-  echo "   Para instalarlo:"
-  echo "     /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
-  echo "   Después re-corré: ./install.sh"
-fi
 
 echo ""
 echo "✅ Done. Next steps:"

@@ -39,9 +39,9 @@ export BAT_THEME="ansi"
 export EDITOR="nvim"
 export VISUAL="nvim"
 
-# Claude Code — modo anti-parpadeo experimental. Evita el "flash" del banner
-# completo que se colapsa de golpe al header compacto al iniciar una sesión.
-# (No fuerza la caja completa — no hay setting para eso; solo suaviza el render.)
+# Claude Code — renderer clásico main-screen en vez de fullscreen (env var
+# documentada: code.claude.com/docs/en/env-vars). Evita el "flash" del banner
+# al iniciar sesión y mantiene la conversación en el scrollback nativo.
 export CLAUDE_CODE_NO_FLICKER=1
 
 # ─── overrides locales (no versionado) ────────────────────────

@@ -25,7 +25,8 @@ link() {
 }
 
 # ─── symlinks (subset portable de install.sh) ─────────────────
-# Skip: ghostty (GUI), karabiner (macOS only), themes (eran de Ghostty).
+# Skip: ghostty y sus themes (GUI macOS-only). El resto del repo es
+# el subset portable y se linkea igual que en mac.
 link "$DOTFILES/zsh/.zshrc"             "$HOME/.zshrc"
 link "$DOTFILES/zsh/.zshenv"            "$HOME/.zshenv"
 link "$DOTFILES/starship/starship.toml" "$HOME/.config/starship.toml"
@@ -47,6 +48,63 @@ link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
 # del directorio, así que un symlink adivinado quedaba ignorado.
 if [[ -d "$DOTFILES/claude/skills" ]]; then
   link "$DOTFILES/claude/skills"        "$HOME/.claude/skills"
+fi
+
+# ─── apt packages ──────────────────────────────────────────────
+# Lo que apt tiene out-of-the-box en Ubuntu 24.04 / Debian 12.
+# Lazygit y nvim modernos NO están — esos van por GitHub releases / AppImage.
+# Va ANTES de los bloques de settings.json de más abajo: esos usan jq
+# (instalado acá) — si corrieran primero, en una máquina fresca se
+# skipearían en silencio y recién aplicarían en la segunda corrida.
+if command -v apt-get >/dev/null 2>&1; then
+  APT_PACKAGES=(
+    zsh
+    git
+    curl
+    unzip
+    build-essential
+    tmux
+    ripgrep
+    fd-find                       # binary es 'fdfind' — apt lo nombra así por colisión con otro 'fd'
+    bat                           # en Ubuntu 20.04 era 'batcat'; 22.04+ es 'bat'
+    fzf
+    jq                            # requerido por tmux-claude-session-manager (parsea `claude agents --json`)
+    eza                           # apt 23.10+; en versiones viejas falla → fallback GH release abajo
+    zsh-syntax-highlighting
+    zsh-autosuggestions
+    python3
+    python3-pip
+  )
+  # NOTA: 'neovim' NO está en esta lista a propósito — apt tiene v0.6.x,
+  # tus plugins (lazy.nvim, blink.cmp, rustaceanvim) necesitan 0.10+.
+  # Lo instalamos via GH release tarball abajo.
+
+  MISSING_APT=()
+  for pkg in "${APT_PACKAGES[@]}"; do
+    dpkg -s "$pkg" >/dev/null 2>&1 || MISSING_APT+=("$pkg")
+  done
+
+  if [[ ${#MISSING_APT[@]} -gt 0 ]]; then
+    echo ""
+    echo "→ apt packages a instalar: ${MISSING_APT[*]}"
+    echo "  (requiere sudo)"
+    sudo apt-get update
+    # `|| true`: algunos packages pueden no existir en Ubuntu viejo (ej. eza
+    # pre-23.10). Continuamos para que cargo los cubra después.
+    sudo apt-get install -y "${MISSING_APT[@]}" || \
+      echo "⚠️  Algunos packages fallaron — cargo install va a cubrir lo que falta."
+  fi
+else
+  echo "⚠️  apt-get no detectado — saltando instalación de packages."
+fi
+
+# fd: el paquete apt es fd-find y su binario se llama `fdfind`. El .zshrc
+# (compartido con mac) espera `fd` — symlink en ~/.local/bin (ya en PATH
+# vía .zshenv) para que fd/alias find funcionen igual en ambos.
+if ! command -v fd >/dev/null 2>&1 && command -v fdfind >/dev/null 2>&1; then
+  mkdir -p "$HOME/.local/bin"
+  ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
+  echo "✓ symlink fd → fdfind en ~/.local/bin"
 fi
 
 # ─── status line de Claude Code (espejo de install.sh) ────────
@@ -128,51 +186,6 @@ HSS_DIR="$HOME/.zsh/plugins/zsh-history-substring-search"
 if [[ ! -d "$HSS_DIR" ]]; then
   echo "→ Clonando zsh-history-substring-search"
   git clone --depth 1 https://github.com/zsh-users/zsh-history-substring-search "$HSS_DIR"
-fi
-
-# ─── apt packages ──────────────────────────────────────────────
-# Lo que apt tiene out-of-the-box en Ubuntu 24.04 / Debian 12.
-# Lazygit y nvim modernos NO están — esos van por GitHub releases / AppImage.
-if command -v apt-get >/dev/null 2>&1; then
-  APT_PACKAGES=(
-    zsh
-    git
-    curl
-    unzip
-    build-essential
-    tmux
-    ripgrep
-    fd-find                       # binary es 'fdfind' — apt lo nombra así por colisión con otro 'fd'
-    bat                           # en Ubuntu 20.04 era 'batcat'; 22.04+ es 'bat'
-    fzf
-    jq                            # requerido por tmux-claude-session-manager (parsea `claude agents --json`)
-    eza                           # apt 23.10+; en versiones viejas falla → fallback GH release abajo
-    zsh-syntax-highlighting
-    zsh-autosuggestions
-    python3
-    python3-pip
-  )
-  # NOTA: 'neovim' NO está en esta lista a propósito — apt tiene v0.6.x,
-  # tus plugins (lazy.nvim, blink.cmp, rustaceanvim) necesitan 0.10+.
-  # Lo instalamos via GH release tarball abajo.
-
-  MISSING_APT=()
-  for pkg in "${APT_PACKAGES[@]}"; do
-    dpkg -s "$pkg" >/dev/null 2>&1 || MISSING_APT+=("$pkg")
-  done
-
-  if [[ ${#MISSING_APT[@]} -gt 0 ]]; then
-    echo ""
-    echo "→ apt packages a instalar: ${MISSING_APT[*]}"
-    echo "  (requiere sudo)"
-    sudo apt-get update
-    # `|| true`: algunos packages pueden no existir en Ubuntu viejo (ej. eza
-    # pre-23.10). Continuamos para que cargo los cubra después.
-    sudo apt-get install -y "${MISSING_APT[@]}" || \
-      echo "⚠️  Algunos packages fallaron — cargo install va a cubrir lo que falta."
-  fi
-else
-  echo "⚠️  apt-get no detectado — saltando instalación de packages."
 fi
 
 # ─── starship + zoxide (curl installers oficiales) ─────────────

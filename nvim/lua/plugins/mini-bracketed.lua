@@ -19,6 +19,9 @@
 --   comment      []  (vacío)  — `]c/[c` ya lo usás para treesitter classes
 --   quickfix     []  (vacío)  — preferís telescope para esto
 --   window       []  (vacío)  — ya tenés <C-h/j/k/l>
+--   treesitter   []  (vacío)  — `]t/[t` ya lo usa todo-comments (next/prev
+--                              TODO); sin esto ambos mapean ]t/[t global y
+--                              gana uno u otro según orden de carga
 --   yank         (suffix por default) — ESTA es la joya: ciclar yank history
 
 return {
@@ -26,10 +29,11 @@ return {
   event = "BufReadPost",
   config = function()
     require("mini.bracketed").setup({
-      file     = { suffix = "" },
-      comment  = { suffix = "" },
-      quickfix = { suffix = "" },
-      window   = { suffix = "" },
+      file       = { suffix = "" },
+      comment    = { suffix = "" },
+      quickfix   = { suffix = "" },
+      window     = { suffix = "" },
+      treesitter = { suffix = "" },
     })
   end,
 }

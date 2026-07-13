@@ -8,14 +8,19 @@
 --   on_colors(c)   sobreescribe la paleta interna de tokyonight
 --   on_highlights(hl, c)   tweaks de grupos específicos
 --
--- Themes disponibles actualmente (todos sobre tokyonight):
+-- Themes disponibles actualmente (todos sobre tokyonight; salvo
+-- obsidian, cada uno tiene espejo Ghostty + tmux — familia del stack):
 --
---   anthropic-dark   dark Claude.ai (brown-black + Claude orange) ← espejo Ghostty
---   anthropic-light  light Anthropic (cream paper + sepia)         ← espejo Ghostty
---   xcode-oled       true black OLED + syntax Xcode Default (Dark) ← espejo Ghostty
---   obsidian         high-contrast dark, acento cyan
---   warm             dark sepia/naranja (legacy)
---   paper            light cream + tinta sepia (legacy)
+--   dark-2026        clon "Dark 2026" default de VS Code (casi-negro + teal)
+--   light-2026       clon "2026 Light" (blanco puro + azul #0069CC)
+--   carbon           minimal true-black, high contrast, acento Claude orange
+--   xcode-oled       true black OLED + syntax Xcode Default (Dark)
+--   anthropic-dark   dark Claude.ai (brown-black + Claude orange)
+--   anthropic-warm   carbón cálido + paleta Claude (terracota, oliva, ámbar)
+--   prism-night      azul-noche profundo + acentos espectro
+--   paper            light cream + tinta sepia
+--   solarized-light  Solarized Light canónico
+--   obsidian         high-contrast dark, acento cyan (solo nvim + fallback)
 --
 -- Variantes solarized-osaka NO viven en este selector — usan su propio
 -- plugin spec (lua/plugins/solarized-osaka.lua) porque vienen con paleta

@@ -139,14 +139,19 @@ alias ll='eza -lah --git --group-directories-first'
 alias lt='eza --tree --level=2 --git-ignore'
 alias cat='bat --paging=never --style=plain'     # `cat` real disponible como \cat
 alias catp='bat'                                  # bat con paging + header completo
-alias find='fd'
+# command -v guard: en apt el binario es `fdfind` (install-linux.sh
+# symlinkea fdfind → fd en ~/.local/bin); si ninguno existe, mejor el
+# `find` clásico que un alias roto.
+command -v fd >/dev/null && alias find='fd'
 # ripgrep ya se invoca como 'rg' — sin alias necesario
 
 # borrado seguro: gomi manda a una papelera con restore interactivo
 # (`gomi` sin args lista lo borrado y deja recuperar con fzf). `rm`
 # real se deja intacto a propósito — scripts y `rm -rf` deliberado
-# no deben pasar por la papelera.
-alias gm='gomi'
+# no deben pasar por la papelera. command -v guard: gomi llega por
+# brew (mac); en Linux no lo instala nadie — sin guard, `gm` sería
+# un alias a un comando inexistente.
+command -v gomi >/dev/null && alias gm='gomi'
 
 # git (los sub-aliases viven en .gitconfig)
 alias g='git'
