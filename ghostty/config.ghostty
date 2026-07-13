@@ -1,27 +1,26 @@
 # ═══════════════════════════════════════════════════════════════
 #  Ghostty — Claude Code edition
-#  Tema activo: ver línea `theme =` abajo. Sólo built-ins de
-#  Ghostty (lista: `ghostty +list-themes`). Tipografía: PlemolJP
-#  Console NF.
+#  Tema activo: ver línea `theme =` abajo (custom de ghostty/themes/,
+#  familia del "tema del stack"). Tipografía: PlemolJP Console NF.
 #
 #  NOTA: Ghostty NO permite comentarios inline en la misma línea
 #  que un valor. Siempre van en una línea propia.
 # ═══════════════════════════════════════════════════════════════
 
 # ─── tema ─────────────────────────────────────────────────────
-# Built-in de Ghostty (469 disponibles, lista con `ghostty +list-themes`
+# Acepta un custom de ghostty/themes/ (la familia del stack, abajo) o un
+# built-in de Ghostty (469 disponibles, lista con `ghostty +list-themes`
 # o preview en https://ghosttythemes.com).
-# Warm picks: Gruvbox Material Dark, Gruvbox Dark Hard, Everforest
+# Warm picks built-in: Gruvbox Material Dark, Gruvbox Dark Hard, Everforest
 # Dark Hard, Kanagawa Wave (dark) — Gruvbox Material Light, Rose Pine
-# Dawn, Catppuccin Latte, Kanagawa Lotus (light).
-# Solarized picks: Solarized Dark Patched (estilo craftzdog),
-# carbon — minimal true-black, high contrast (matchea con carbon.lua/.conf).
+# Dawn, Catppuccin Latte, Kanagawa Lotus (light). Solarized pick:
+# Solarized Dark Patched (estilo craftzdog).
 #
 # NOTA: este `theme =` es LA selección activa y la fuente de verdad. Como
 # el archivo está versionado, un `git pull` propaga el tema a las otras
 # máquinas. Para cambiar el look: editá esta línea (y las líneas equivalentes
 # de nvim y tmux — comparten id) y commiteá. No hay switcher ni puntero.
-theme = xcode-oled
+theme = solarized-osaka
 
 # Custom themes — viven en `ghostty/themes/` (symlinkeado a
 # <config-dir>/themes/ por install.sh). Familia canónica del stack (mismo
@@ -31,8 +30,7 @@ theme = xcode-oled
 #     refresh "Focus" de 2026). Blanco puro + acento azul #0069CC.
 #   · dark-2026 — companion oscuro de light-2026, clon de "Dark 2026"
 #     (extensions/theme-defaults/themes/2026-dark.json, default de VS Code
-#     desde 1.113). Casi-negro #121314 + acento teal-azul #3994BC. DEFAULT
-#     del stack.
+#     desde 1.113). Casi-negro #121314 + acento teal-azul #3994BC.
 #   · carbon — minimal true-black (#000) + alto contraste, único acento
 #     Claude orange (#d97757).
 #   · solarized-osaka — deep-ocean estilo craftzdog (azul casi negro). En
@@ -49,9 +47,12 @@ theme = xcode-oled
 #     Sampleado del wallpaper "prism" de macOS.
 #   · paper — light cream + tinta sepia.
 #   · solarized-light — Solarized Light canónico de Ethan Schoonover.
-# Si volvés a Solarized Dark Patched, descomentá para recuperar el
-# "deep ocean" azul casi negro estilo craftzdog.
-# background = #031219
+# Override de canvas estilo craftzdog: su Ghostty usa el built-in
+# "Solarized Dark - Patched" pero pisa el fondo con #031219 (deep ocean
+# azul casi negro, un pelo más claro que el base04 #001419 del plugin).
+# Este override gana sobre el background del theme — es LO que se ve
+# detrás del blur. Comentalo para volver al bg literal del theme activo.
+background = #031219
 
 # Display P3 wide-gamut — naranja y crema saturan más en pantallas
 # M-chip / Retina. Sin downside fuera de equipos no-P3.
@@ -62,13 +63,14 @@ window-colorspace = display-p3
 #         en light themes, brand colors fieles.
 #   3.0 = WCAG AA large-text. Rescata los peores grays pero preserva
 #         brand colors como Claude orange (#d97757, ratio 3.28:1 sobre
-#         cream — pasa intacto). Sweet spot para light themes — el
-#         default del stack (light-2026) es claro, así que va acá.
+#         cream — pasa intacto). Sweet spot para light themes (light-2026,
+#         paper, solarized-light).
 #   4.5 = WCAG AA body text. Rescata todo gray pero DISTORSIONA brand
 #         colors: Claude orange queda casi negro. No recomendado.
-# Si volvés a dark theme con grays muted intencionales (Poimandres
-# Storm, Kanso Zen), bajá a 1.1 para fidelidad total al theme.
-minimum-contrast = 3.0
+# En 1.1 porque el tema activo (solarized-osaka) es dark con grays
+# muted intencionales (base01/base00 solarized) — fidelidad total al
+# theme. Si cambiás a un tema claro de la familia, subí a 3.0.
+minimum-contrast = 1.1
 
 # ─── tipografía ───────────────────────────────────────────────
 # PlemolJP Console NF — fuente bilingüe JP/EN del estilo craftzdog.
@@ -97,11 +99,12 @@ adjust-cell-height = 3%
 # aparte) · native (look macOS estándar) · hidden (sin titlebar).
 macos-titlebar-style = tabs
 
-# Modo sólido — sin "glass" de craftzdog. Fondo 100% legible sin un
-# segundo plano de wallpaper desenfocado compitiendo con el texto. Para
-# volver al look glass: opacity 0.9 + blur 30.
-background-opacity = 1.0
-background-blur = 0
+# Look "glass" de craftzdog: mismos valores que su dotfiles-public
+# (background-opacity 0.9 + blur radius 20) — el wallpaper se ve
+# desenfocado detrás del deep ocean. Para volver al modo sólido
+# (fondo 100% legible): opacity 1.0 + blur 0.
+background-opacity = 0.9
+background-blur = 20
 
 # respira lateralmente — padding generoso para que el output denso
 # de Claude Code (tool calls, diffs, árboles) no se sienta apretado.
@@ -266,7 +269,7 @@ keybind = cmd+eight=goto_tab:8
 keybind = cmd+nine=goto_tab:9
 
 # ═══════════════════════════════════════════════════════════════
-#  PAQUETE 5 — Dock icon coordinado con el tema activo (light-2026)
+#  PAQUETE 5 — Dock icon estilo light-2026 (horneado, no sigue al tema)
 # ═══════════════════════════════════════════════════════════════
 
 # custom-style: frame aluminum (mac-nativo) + pantalla blanca light-2026

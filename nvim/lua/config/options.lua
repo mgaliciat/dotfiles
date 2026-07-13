@@ -19,7 +19,7 @@
 --   "solarized-light"  Solarized Light canónico
 -- (Las variantes solarized-osaka-{day,moon,storm} y "obsidian" siguen
 --  siendo themes válidos acá, pero fuera de la matriz.)
-vim.g.theme = "xcode-oled"
+vim.g.theme = "solarized-osaka"
 
 -- ─── vim.opt ──────────────────────────────────────────────────
 -- Buenos defaults. Sigue el espíritu del dotfiles: comentar el WHY,
