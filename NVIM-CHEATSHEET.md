@@ -53,7 +53,7 @@ Para todo lo demás: **`<leader>fk`** abre el buscador de keymaps (telescope), y
 | Tecla | Acción |
 |-------|--------|
 | `s` + 2 chars | saltar a cualquier lado de la pantalla |
-| `S` | saltar por nodos treesitter |
+| `S` | saltar por nodos treesitter (normal/operator; en visual `S` es el wrap de nvim-surround) |
 
 ---
 
@@ -105,7 +105,7 @@ Para todo lo demás: **`<leader>fk`** abre el buscador de keymaps (telescope), y
 | `p` en visual | pegar sin perder el yank |
 | `<leader>p` / `<leader>P` | pegar último yank (ignora deletes) |
 | `<leader>d` / `x` | borrar sin contaminar el registro |
-| `+` / `-` | incrementar / decrementar (dial: bool, fechas, semver, let↔const) |
+| `+` / `<C-x>` | incrementar / decrementar (dial: bool, fechas, semver, let↔const; `-` es de oil.nvim) |
 
 ---
 
@@ -134,4 +134,4 @@ Para todo lo demás: **`<leader>fk`** abre el buscador de keymaps (telescope), y
 
 ---
 
-> 🤠 **Cowboy mode**: si martilás `hjkl`/`+`/`-` más de 10 veces en 2s, te frena. Usá motions reales (`w`, `b`, `f{char}`, `s` de flash, `5j`).
+> 🤠 **Cowboy mode**: si martilás `hjkl` más de 10 veces en 2s, te frena. Usá motions reales (`w`, `b`, `f{char}`, `s` de flash, `5j`).

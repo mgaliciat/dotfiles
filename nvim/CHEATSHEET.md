@@ -172,12 +172,12 @@ Todos son **aceleradores dentro del modelo vim**, no muletas Mac. Diseñados par
 | `<leader>d` (normal / visual) | Delete sin contaminar registro (al black-hole `"_`) |
 | `<leader>D` | Delete hasta EOL sin contaminar registro |
 | `x` | Borrar 1 char sin contaminar registro |
-| `+` | Increment número bajo cursor (= `<C-a>`) |
-| `-` | Decrement número bajo cursor (= `<C-x>`) |
+| `+` | Increment número bajo cursor (= `<C-a>`, smart vía dial) |
+| `<C-x>` | Decrement (smart vía dial). `-` no está mapeado: lo usa oil.nvim para "parent dir" |
 
 ### 🤠 Cowboy mode
 
-Si presionás `h j k l + -` **más de 10 veces en 2 segundos**, se bloquea y muestra `🤠 Hold it Cowboy!`. Te fuerza a aprender motions reales:
+Si presionás `h j k l` **más de 10 veces en 2 segundos**, se bloquea y muestra `🤠 Hold it Cowboy!`. Te fuerza a aprender motions reales:
 
 - En vez de `jjjjjj` → usá `}` (próximo párrafo), `5j` (5 líneas), `/foo` (buscar), `Gg` (ir al final/inicio).
 - En vez de `hhhhh` → usá `b` (palabra atrás), `0` (inicio de línea), `F<char>` (saltar a char).

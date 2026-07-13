@@ -15,10 +15,10 @@ Personal config for macOS — Ghostty terminal, zsh, Starship prompt, Neovim, tm
 | `starship/starship.toml` | Starship prompt config |
 | `ghostty/config.ghostty` | Ghostty terminal config — theme, fonts, keybinds |
 | `git/.gitignore_global` | Global gitignore (macOS noise, editor files, build dirs) |
-| `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*`, tema `light-2026` por defecto (clon de VS Code 2026 Light) |
-| `tmux/` | tmux config — prefix `C-t`, popups Alt+c/C/s/d/g/Enter, modular (theme/statusline/utility) |
+| `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*`; el tema activo es `vim.g.theme` en `lua/config/options.lua` (hoy `solarized-osaka`, parte del tema cross-stack Ghostty+nvim+tmux) |
+| `tmux/` | tmux config — prefix `C-t`, popups Alt+c/C/y/u/d/g/Enter, modular (theme/statusline/utility) |
 | `lazygit/config.yml` | lazygit theme + custom commands |
-| `scripts/` | Helpers — `ide` (nvim+lazygit IDE layout), `theme` (switcher de tema cross-stack) |
+| `scripts/` | Helpers — `ide` (layout tmux de 5 panes estilo IDE, `prefix + g`) |
 | `install.sh` | Symlinks everything into place + auto-install deps |
 | `install-linux.sh` | Portable subset para Ubuntu/Debian/WSL2 |
 
@@ -42,7 +42,7 @@ cd ~/dotfiles
 
 1. Symlinkear configs (`.zshrc`, `.zshenv`, `.gitignore_global`, ghostty, starship, nvim, tmux, lazygit, claude/skills si existe local)
 2. Auto-instalar dependencias faltantes vía Homebrew:
-   - **Formulae**: `starship`, `zsh-syntax-highlighting`, `zsh-autosuggestions`, `zsh-history-substring-search`, `eza`, `bat`, `fd`, `ripgrep`, `gomi`, `zoxide`, `fzf`, `git-delta`, `pyenv`, `neovim`, `tree-sitter-cli`, `tmux`, `lazygit`
+   - **Formulae**: `starship`, `zsh-syntax-highlighting`, `zsh-autosuggestions`, `zsh-history-substring-search`, `eza`, `bat`, `fd`, `ripgrep`, `gomi`, `zoxide`, `fzf`, `jq`, `git-delta`, `pyenv`, `neovim`, `tree-sitter-cli`, `tmux`, `lazygit`
    - **Casks**: `ghostty`, `font-plemol-jp-nf`, `font-ia-writer-mono`, `font-monaspace`
 3. Clonar tpm (Tmux Plugin Manager) si falta
 4. Recargar tmux config si hay un server corriendo
@@ -73,7 +73,7 @@ Atajo: correr `./install.sh` después del pull es idempotente y aplica lo que pu
 
 ## Per-machine config (not versioned)
 
-- **`~/.gitconfig.local`** — git identity (`user.name`, `user.email`, signing key). `install.sh` te lo pregunta interactivamente la primera vez y lo crea. `git/.gitconfig` lo incluye automáticamente vía `[include]`.
+- **`~/.gitconfig.local`** — git identity (`user.name`, `user.email`, signing key). Se crea a mano; tu `~/.gitconfig` (que tampoco se versiona) lo incluye vía `[include]` al final para que gane sobre cualquier default.
 - **`~/.zshenv.local`** — secrets (DB passwords, API keys). Creado manualmente:
 
 ```sh

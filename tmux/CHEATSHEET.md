@@ -12,10 +12,11 @@ Convención: `prefix x` = presionás `Ctrl+t`, soltás, después `x`.
 |---|---|
 | `Alt+c` | **Claude Code en popup 90%** — sesión "default" persistente por proyecto |
 | `Alt+C` | **Claude YOLO** — igual que `Alt+c` pero con `--dangerously-skip-permissions` (sesión separada) ⚠️ |
-| `Alt+s` | **Selector de sesiones** — fzf con TODAS las Claude del proyecto + opción de crear nueva con nombre |
+| `Alt+u` | **Picker central de sesiones Claude** (plugin session-manager) — TODAS las sesiones, estado live working/waiting/idle + preview |
+| `Alt+y` | **Launcher Claude por directorio** (plugin session-manager) |
 | `Alt+d` | **Cerrar popup Claude** (detach seguro — solo si estás dentro de sesión `claude*`) |
-| `Alt+g` | **lazygit en popup 85%** — git UI flotante en el cwd |
-| `Alt+Enter` | Shell rápida en popup 70% — para comandos one-off sin ocupar pane |
+| `Alt+g` | **lazygit en popup 90%** — git UI flotante en el cwd |
+| `Alt+Enter` | Shell rápida en popup 90% — para comandos one-off sin ocupar pane |
 | `prefix b` | **Toggle statusline** on/off (default: OFF, sin distracción) |
 
 **Cuándo usar `Alt+C` (YOLO) vs `Alt+c` (normal):**
@@ -23,24 +24,23 @@ Convención: `prefix x` = presionás `Ctrl+t`, soltás, después `x`.
 - `Alt+C` → refactors masivos, exploración rápida, repos sandbox. Claude ejecuta todo sin preguntar. **Solo en repos versionados o que podés tirar.**
 - Las sesiones son distintas (`claude-<hash>` vs `claude-yolo-<hash>`) → no se mezcla el contexto.
 
-**Cuándo usar `Alt+s` (selector) vs `Alt+c`/`Alt+C`:**
+**Cuándo usar `Alt+u`/`Alt+y` (plugin) vs `Alt+c`/`Alt+C`:**
 - `Alt+c`/`Alt+C` → te dan la sesión "default" del proyecto. Una sola.
-- `Alt+s` → cuando querés **varias sesiones en paralelo** dentro del mismo proyecto (ej: una para refactor, otra para debug). El picker te lista todas las que hay y te deja crear nueva con nombre custom (`claude-<hash>-refactor`, `claude-<hash>-debug`, etc.).
+- `Alt+u` → picker central: lista TODAS las sesiones Claude del server (de todos los proyectos) con estado live (working/waiting/idle, vía `claude agents --json`) y preview. Reemplazó al viejo selector `Alt+s`.
+- `Alt+y` → launcher por directorio del plugin. Para un mismo dir resuelve a la **misma** sesión `claude-<hash>` que `Alt+c` (mismo algoritmo md5) — se comparten, no se duplican.
 
 **Cómo funciona el popup de Claude:**
 1. `cd ~/proyectos/foo` → `Alt+c` → se crea sesión `claude-<md5>` con Claude corriendo.
 2. Cerrás el popup con `Alt+d` (detach) → Claude sigue vivo en background.
 3. Volvés más tarde a `~/proyectos/foo` → `Alt+c` → reattacheás la **misma** sesión con todo el contexto.
 4. Cambias a `~/proyectos/bar` → `Alt+c` → sesión DISTINTA (diferente md5).
-5. Querés otra Claude paralela en el mismo proyecto → `Alt+s` → "+ Nueva sesión" → nombre.
+5. ¿Perdiste el hilo de qué Claude anda dónde? → `Alt+u` → picker con estado live de todas.
 
 **Convención de nombres de sesión:**
-- `claude-<hash>` → la default que abre `Alt+c`
+- `claude-<hash>` → la default que abren `Alt+c` / `Alt+y` (comparten hash)
 - `claude-yolo-<hash>` → la default YOLO que abre `Alt+C`
-- `claude-<hash>-<name>` → nombradas (creadas vía `Alt+s`)
-- `claude-<hash>-<name>-yolo` → nombradas YOLO
 
-Para listar sesiones de Claude activas: `tmux ls | grep claude`.
+Para listar sesiones de Claude activas: `tmux ls | grep claude` (o `Alt+u`).
 Para matar una sesión específica: `tmux kill-session -t claude-<hash>`.
 
 ---
@@ -125,6 +125,7 @@ Entrás con `prefix [`. Salís con `q`.
 |---|---|
 | `prefix r` | **Recargar config** (sin matar sesión) |
 | `prefix o` | Abrir `pane_current_path` en Finder |
+| `prefix g` | **Layout IDE** — arma 5 panes (principal + 2 columnas + terminal + sidebar); no lanza apps, solo el layout |
 | `prefix ?` | Listar TODOS los keybindings (`q` para salir) |
 | `prefix t` | Reloj en pane fullscreen (estético) |
 
@@ -144,6 +145,7 @@ Plugins actuales:
 - `tmux-pain-control` — `prefix h/j/k/l` navegar, `prefix H/J/K/L` resize
 - `tmux-resurrect` — `prefix Ctrl+s` save, `prefix Ctrl+r` restore (sobrevive reboots)
 - `tmux-continuum` — auto-save de resurrect cada 15 min + auto-restore al iniciar
+- `tmux-claude-session-manager` — picker/launcher de sesiones Claude (rebindeado a `Alt+u` / `Alt+y`, ver arriba)
 
 ---
 
