@@ -1,27 +1,59 @@
 # CLAUDE.md (user-level)
 
-Preferencias que aplican a **todos** los proyectos, no solo a este repo de dotfiles — a diferencia de un `CLAUDE.md` de proyecto puntual, esto viaja con vos a cualquier máquina/repo. Versionado y symlinkeado por `install.sh` a `~/.claude/CLAUDE.md`, mismo trato que `claude/statusline.sh` (ver `CLAUDE.md` de este repo, sección "per-máquina split").
+Preferences that apply to **every** project, not just this dotfiles repo — unlike a per-project `CLAUDE.md`, this travels with you to any machine/repo. Versioned and symlinked by `install.sh` to `~/.claude/CLAUDE.md`, same treatment as `claude/statusline.sh` (see this repo's `CLAUDE.md`, "per-máquina split" section).
 
 @RTK.md
 
-## Herramientas que instala este dotfiles
+## Tools installed by this dotfiles repo
 
 ### rtk — github.com/rtk-ai/rtk
 
-Proxy CLI que reescribe comandos Bash comunes (`git status`, `cargo test`, `npm test`, etc.) a su equivalente `rtk`, con output filtrado/comprimido para ahorrar tokens de contexto. **No requiere acción tuya** — el hook `PreToolUse` (`rtk hook claude`) lo hace transparente en cada llamada Bash. Referencia de comandos meta en `@RTK.md` (arriba) — p.ej. `rtk gain` para ver el ahorro acumulado.
+A proxy CLI that rewrites common Bash commands (`git status`, `cargo test`, `npm test`, etc.) to their `rtk` equivalent, with filtered/compressed output to save context tokens. **No action needed on your side** — the `PreToolUse` hook (`rtk hook claude`) makes it transparent on every Bash call. Meta-command reference in `@RTK.md` (above) — e.g. `rtk gain` to see the accumulated savings.
 
 ### codebase-memory-mcp — github.com/DeusData/codebase-memory-mcp
 
-Servidor MCP que indexa el código de cada proyecto en un grafo de conocimiento persistente. **Preferí sus tools por sobre Grep/Glob/Read crudo** para cualquier exploración estructural de código:
+MCP server that indexes each project's code into a persistent knowledge graph. **Prefer its tools over raw Grep/Glob/Read** for any structural code exploration:
 
-- `search_graph` / `search_code` en vez de grep para encontrar funciones, clases, rutas
-- `trace_path` para call chains (quién llama a qué, data flow, cross-service)
-- `get_code_snippet` para leer una función/clase puntual sin abrir el archivo entero
-- `get_architecture` para overview de un proyecto (lenguajes, entry points, hotspots, capas, clusters)
-- `query_graph` para patrones Cypher complejos (dead code, alta complejidad, etc.)
-- `list_projects` para ver qué proyectos ya están indexados (con su `root_path` absoluto) y consultarlos sin estar parado en esa carpeta
-- Si un proyecto no está indexado todavía, corré `index_repository` primero
+- `search_graph` / `search_code` instead of grep to find functions, classes, routes
+- `trace_path` for call chains (who calls what, data flow, cross-service)
+- `get_code_snippet` to read a single function/class without opening the whole file
+- `get_architecture` for a project overview (languages, entry points, hotspots, layers, clusters)
+- `query_graph` for complex Cypher patterns (dead code, high complexity, etc.)
+- `list_projects` to see which projects are already indexed (with their absolute `root_path`) and query them without being inside that folder
+- If a project isn't indexed yet, run `index_repository` first
 
-Grep/Glob/Read siguen sirviendo para texto plano, configs, y archivos no-código.
+Grep/Glob/Read are still the right tools for plain text, configs, and non-code files.
 
-También instala la skill `codebase-memory` (se activa sola con triggers tipo "explore the codebase", "who calls this function", "dead code", etc. — no hace falta invocarla a mano). Trae decision matrix, workflows de exploración/tracing, y ejemplos de Cypher para `query_graph` — más detalle que esta lista. Usala cuando el trigger aplique.
+It also installs the `codebase-memory` skill (self-activating on triggers like "explore the codebase", "who calls this function", "dead code", etc. — no need to invoke it by hand). It brings a decision matrix, exploration/tracing workflows, and Cypher examples for `query_graph` — more detail than this list. Use it whenever the trigger applies.
+
+## 🤖 IA & TOKEN OPTIMIZATION PROTOCOL
+
+To minimize token consumption, maximize inference speed, and maintain strict reliability against our Spec-Driven Development (SDD) goals, you MUST follow these communication rules:
+
+### 1. High-Efficiency Output Format
+*   **NEVER rewrite whole files** for minor changes.
+*   Always use the **Unified DIFF / SEARCH-REPLACE block format** to modify code.
+*   Keep explanations, conversational filler, and pleasantries to an absolute zero. Go straight to the solution.
+
+Example of allowed code modification format:
+<<<<<<< SEARCH
+const total = price * quantity;
+=======
+// Applied SDD-04: VAT calculation included
+const total = (price * quantity) * 1.16;
+>>>>>>> REPLACE
+
+### 2. XML Tagging for Structured Thinking
+Before outputting any code modification or system architecture advice, use compact XML tags to separate your reasoning from the execution.
+*   Use `<thinking>` to briefly map which parts of the SDD are affected (maximum 3 bullet points).
+*   Use `<code>` to wrap the exact diffs.
+*   *Note:* Keep the `<thinking>` section under 60 tokens. Do not over-explain.
+
+### 3. Context & Cache Awareness
+*   This `CLAUDE.md` file, along with the project architecture details above, serves as your anchor context.
+*   Assume the user is using **Prompt Caching**. Do not summarize, repeat, or acknowledge the rules, specs, or codebase structure provided in previous messages. Treat them as read-only, instantly accessible memory.
+*   If you need clarification on a spec, ask a single, precise, direct question. Do not guess or write speculative code.
+
+### 4. Code Generation Constraints
+*   **Do not generate tests unless explicitly requested.** If the SDD requires TDD, write *only* the test file first, output it, and wait for user execution results.
+*   Strictly respect the boundaries of the file you are editing. Do not suggest changes to adjacent files unless they break compilation/typing.
