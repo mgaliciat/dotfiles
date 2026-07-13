@@ -229,7 +229,7 @@ if ! command -v rtk >/dev/null 2>&1; then
 fi
 
 if command -v rtk >/dev/null 2>&1; then
-  if rtk init --global --auto-patch >/dev/null 2>&1; then
+  if rtk init --global --auto-patch >/dev/null 2>&1 </dev/null; then
     echo "✓ rtk hook de Claude Code configurado (o ya estaba)"
   else
     echo "⚠️  rtk init --global falló — revisar a mano (rtk init --global -v)"

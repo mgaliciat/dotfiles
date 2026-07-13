@@ -283,7 +283,7 @@ fi
 # ~/.claude/CLAUDE.md — el CLAUDE.md GLOBAL de Claude Code, no este repo.
 # Doc: https://github.com/rtk-ai/rtk
 if command -v rtk >/dev/null 2>&1; then
-  if rtk init --global --auto-patch >/dev/null 2>&1; then
+  if rtk init --global --auto-patch >/dev/null 2>&1 </dev/null; then
     echo "✓ rtk hook de Claude Code configurado (o ya estaba)"
   else
     echo "⚠️  rtk init --global falló — revisar a mano (rtk init --global -v)"
@@ -370,13 +370,13 @@ if command -v claude >/dev/null 2>&1; then
     echo "ℹ️  node no detectado — ponytail se instala igual, pero sus hooks de activación automática van a quedar mudos hasta que node esté en PATH"
   fi
 
-  if claude plugin marketplace add https://github.com/DietrichGebert/ponytail >/dev/null 2>&1; then
+  if claude plugin marketplace add https://github.com/DietrichGebert/ponytail >/dev/null 2>&1 </dev/null; then
     echo "✓ ponytail marketplace agregado (o ya estaba)"
   else
     echo "⚠️  no se pudo agregar el marketplace de ponytail — revisar a mano"
   fi
 
-  if claude plugin install ponytail@ponytail -s user >/dev/null 2>&1; then
+  if claude plugin install ponytail@ponytail -s user >/dev/null 2>&1 </dev/null; then
     echo "✓ ponytail plugin + skills instalados (o ya estaba)"
   else
     echo "⚠️  no se pudo instalar ponytail — revisar a mano (claude plugin install ponytail@ponytail)"
@@ -401,13 +401,13 @@ fi
 # clona por SSH, falla en máquina fresca sin llave GitHub).
 # Doc: https://github.com/multica-ai/andrej-karpathy-skills
 if command -v claude >/dev/null 2>&1; then
-  if claude plugin marketplace add https://github.com/multica-ai/andrej-karpathy-skills >/dev/null 2>&1; then
+  if claude plugin marketplace add https://github.com/multica-ai/andrej-karpathy-skills >/dev/null 2>&1 </dev/null; then
     echo "✓ andrej-karpathy-skills marketplace agregado (o ya estaba)"
   else
     echo "⚠️  no se pudo agregar el marketplace de andrej-karpathy-skills — revisar a mano"
   fi
 
-  if claude plugin install andrej-karpathy-skills@karpathy-skills -s user >/dev/null 2>&1; then
+  if claude plugin install andrej-karpathy-skills@karpathy-skills -s user >/dev/null 2>&1 </dev/null; then
     echo "✓ andrej-karpathy-skills plugin instalado (o ya estaba)"
   else
     echo "⚠️  no se pudo instalar andrej-karpathy-skills — revisar a mano (claude plugin install andrej-karpathy-skills@karpathy-skills)"
