@@ -6,16 +6,12 @@
 
 # Claude — TODO per-máquina, no versionado. settings.json es 100% propio de
 # cada máquina (NO symlinkeado, como ~/.gitconfig): config de permisos/UI
-# diverge por host y arrastraba estado personal a un repo público. skills/
-# se symlinkea sólo si existe localmente; memory/ ya ni se symlinkea (la
-# maneja Claude Code per-proyecto). Backups *.backup.* ya cubiertos por la
-# regla de arriba.
+# diverge por host y arrastraba estado personal a un repo público. skills/ y
+# memory/ ya ni se symlinkean (ver install.sh). Backups *.backup.* ya cubiertos
+# por la regla de arriba.
 #
-# codebase-memory/ (dentro de skills/) tampoco se versiona a propósito: la
-# escribe/actualiza el propio binario codebase-memory-mcp (install -y y en
-# runtime) — versionarla la dejaría desincronizada apenas el binario la
-# reescriba con una versión nueva, y esa escritura caería silenciosamente
-# sobre un archivo trackeado por git (skills/ es symlink al repo).
+# Las tres entradas quedan acá igual, defensivamente: si alguien recrea el dir
+# en el repo por costumbre, git no lo levanta.
 claude/settings.json
 claude/memory/
 claude/skills/

@@ -67,17 +67,22 @@ link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
 
 # Claude Code: TODO per-máquina, no versionado. settings.json NO se symlinkea
 # (es 100% propio de cada host, como ~/.gitconfig): permisos/UI divergen por
-# máquina y arrastraba estado personal a un repo público. skills/ se symlinkea
-# sólo si existe localmente, así cada máquina mantiene su propio ~/.claude/*
-# sin interferencia.
+# máquina y arrastraba estado personal a un repo público.
 #
-# memory/ NO se symlinkea: Claude Code deriva el project-id del path REAL del
-# directorio (ej. trabajando en ~/dotfiles usa ...projects/-Users-foo-dotfiles/
-# memory), así que un symlink a un path adivinado quedaba ignorado. La memoria
-# es per-proyecto y la maneja Claude Code solo.
-if [[ -d "$DOTFILES/claude/skills" ]]; then
-  link "$DOTFILES/claude/skills"        "$HOME/.claude/skills"
-fi
+# skills/ tampoco se symlinkea (desde jul-2026). ~/.claude/skills es el path
+# REAL donde Claude Code lee las skills del usuario, así que el symlink sí
+# funcionaba — pero apuntaba al repo, y su contenido (skill `learned` que
+# escribe Claude, `codebase-memory` que reescribe el binario en cada install)
+# es 100% per-máquina: nunca se versionó, vivía gitignoreado. Cero beneficio,
+# y un `git add -f` o un .gitignore aflojado filtraba estado personal a un
+# repo público. Hoy es un dir real; el binario codebase-memory-mcp lo crea si
+# no existe.
+#
+# memory/ NO se symlinkea, por un motivo DISTINTO: Claude Code deriva el
+# project-id del path REAL del directorio (ej. trabajando en ~/dotfiles usa
+# ...projects/-Users-foo-dotfiles/memory), así que ahí el symlink apuntaba al
+# path equivocado y quedaba ignorado. La memoria es per-proyecto y la maneja
+# Claude Code solo.
 
 # ─── dependencias (Homebrew) ──────────────────────────────────
 # Auto-instala lo que falte. Idempotente: re-runs detectan instalados y skipean.

@@ -44,11 +44,12 @@ link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
 
 # Claude Code per-máquina (mismo patrón que install.sh).
 # settings.json NO se symlinkea (100% per-máquina, como ~/.gitconfig).
+# skills/ tampoco (desde jul-2026): su contenido es per-máquina y nunca se
+# versionó, así que el symlink al repo era indirección pura — y filtraba
+# estado personal al repo público si el .gitignore se aflojaba. ~/.claude/skills
+# es un dir real; el binario codebase-memory-mcp lo crea si falta.
 # memory/ tampoco: Claude Code la maneja per-proyecto derivando el path real
 # del directorio, así que un symlink adivinado quedaba ignorado.
-if [[ -d "$DOTFILES/claude/skills" ]]; then
-  link "$DOTFILES/claude/skills"        "$HOME/.claude/skills"
-fi
 
 # ─── apt packages ──────────────────────────────────────────────
 # Lo que apt tiene out-of-the-box en Ubuntu 24.04 / Debian 12.
