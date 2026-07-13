@@ -14,13 +14,15 @@ Personal config for macOS — Ghostty terminal, zsh, Starship prompt, Neovim, tm
 | `zsh/.zshenv` | Env vars and PATH, loaded for all shells |
 | `starship/starship.toml` | Starship prompt config |
 | `ghostty/config.ghostty` | Ghostty terminal config — theme, fonts, keybinds |
-| `git/.gitignore_global` | Global gitignore (macOS noise, editor files, build dirs) |
-| `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*`; el tema activo es `vim.g.theme` en `lua/config/options.lua` (hoy `solarized-osaka`, parte del tema cross-stack Ghostty+nvim+tmux) |
-| `tmux/` | tmux config — prefix `C-t`, popups Alt+c/C/y/u/d/g/Enter, modular (theme/statusline/utility) |
+| `git/.gitignore_global` | Global gitignore — macOS noise, editor files, build dirs, **y también scratch de agentes IA** (`.claude/`, `.cursor/`, `.aider*`, `.covenant/`, etc.) que se excluye a propósito en todos los repos |
+| `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*`; el tema activo es `vim.g.theme` en `lua/config/options.lua` (hoy `solarized-osaka`, parte del tema cross-stack Ghostty+nvim+tmux). Cheatsheet completo en `nvim/CHEATSHEET.md`; versión condensada para revisar diffs de IA en `NVIM-CHEATSHEET.md` (raíz) |
+| `tmux/` | tmux config — prefix `C-t`, popups Alt+c/C/y/u/d/g/Enter, modular (theme/statusline/utility). Cheatsheet en `tmux/CHEATSHEET.md` |
 | `lazygit/config.yml` | lazygit theme + custom commands |
 | `scripts/` | Helpers — `ide` (layout tmux de 5 panes estilo IDE, `prefix + g`) |
-| `install.sh` | Symlinks everything into place + auto-install deps |
+| `claude/` | Config user-level de Claude Code — `CLAUDE.md` (→ `~/.claude/CLAUDE.md`, qué herramientas de este dotfiles usar) y `statusline.sh` |
+| `install.sh` | Entry point macOS — symlinks + auto-install deps |
 | `install-linux.sh` | Portable subset para Ubuntu/Debian/WSL2 |
+| `install-windows.ps1` | Windows nativo (sin WSL2) — alcance angosto, solo piezas de Claude Code (ver comentario en el script) |
 
 ## Setup on a new machine
 

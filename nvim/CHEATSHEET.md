@@ -2,6 +2,8 @@
 
 Comandos relevantes para **esta config específica**. Para referencia exhaustiva de vim, usá `:help` dentro de nvim. Este documento cubre: lo nativo más usado + todos los keymaps custom + plugins instalados.
 
+> Versión condensada (solo lo esencial para revisar diffs generados por IA): `../NVIM-CHEATSHEET.md` en la raíz del repo.
+
 `<leader>` = **barra espaciadora**. `<CR>` = Enter. `<C-x>` = Ctrl+x. `<A-x>` = Alt+x. `<S-x>` = Shift+x.
 
 ---

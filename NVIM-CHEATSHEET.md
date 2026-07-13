@@ -4,6 +4,8 @@ Atajos más usados de mi config. `<leader>` = **espacio**. Salir de insert: **`j
 
 Para todo lo demás: **`<leader>fk`** abre el buscador de keymaps (telescope), y **`<leader>`** solo dispara which-key con el menú de continuaciones.
 
+> Referencia exhaustiva (todos los keymaps custom + plugins): `nvim/CHEATSHEET.md`.
+
 ---
 
 ## Archivos y carpetas
