@@ -9,6 +9,11 @@
 #     bloques jq de install.sh/install-linux.sh, acá con JSON nativo)
 #   - rtk (sin instalador oficial para Windows — bajamos el zip release)
 #   - codebase-memory-mcp (instalador oficial install.ps1)
+#   - plugins de marketplace (ponytail, andrej-karpathy-skills)
+#
+# Esos cuatro bullets son los tres mecanismos de claude/install/ (settings.sh /
+# binaries.sh / plugins.sh) replicados a mano: PowerShell no puede sourcear los
+# scripts bash. Si tocás algo allá, chequeá si aplica acá.
 #
 # Uso: abrí PowerShell (5.1 o pwsh 7+) parado en esta carpeta y corré
 #   ./install-windows.ps1
@@ -206,6 +211,54 @@ if ($Cbm) {
     Write-Host "OK  codebase-memory-mcp: MCP server + hooks + skill registrados"
     & $Cbm.Source config set auto_index true | Out-Null
     Write-Host "OK  codebase-memory-mcp: auto_index=true"
+}
+
+# ─── plugins de marketplace (mecanismo 3) ───────────────────────
+# Port de claude/install/plugins.sh — PowerShell no puede sourcear bash, así
+# que se replica. `claude plugin` es la misma CLI cross-platform y escribe ella
+# sola extraKnownMarketplaces + enabledPlugins en settings.json; nosotros no
+# tocamos el archivo acá (por eso este bloque va DESPUÉS del WriteAllText de
+# arriba: si escribiéramos $Settings después, pisaríamos lo que la CLI puso).
+#
+# URL https:// completa, NO el shorthand owner/repo: el shorthand clona por SSH
+# y falla en una máquina fresca sin llave registrada en GitHub. Idempotente: la
+# segunda corrida detecta "already installed" y no duplica.
+#
+# `$null |` cierra stdin: en mac uno de estos comandos quedó colgado esperando un
+# prompt interactivo invisible (equivalente al `</dev/null` de plugins.sh).
+function Install-ClaudePlugin {
+    param([string]$Url, [string]$Plugin, [string]$Label)
+
+    $null | & claude plugin marketplace add $Url 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "OK  ${Label}: marketplace agregado (o ya estaba)"
+    } else {
+        Write-Host "!!  no se pudo agregar el marketplace de $Label -- revisar a mano" -ForegroundColor Yellow
+    }
+
+    # Scope `-s user`: activo en TODOS los proyectos, no solo este repo.
+    $null | & claude plugin install $Plugin -s user 2>&1 | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "OK  ${Label}: plugin instalado (o ya estaba)"
+    } else {
+        Write-Host "!!  no se pudo instalar $Label -- revisar a mano (claude plugin install $Plugin)" -ForegroundColor Yellow
+    }
+}
+
+if (Get-Command claude -ErrorAction SilentlyContinue) {
+    # ponytail: 1 install trae el plugin Y sus 6 skills bundled. Sus hooks son
+    # Node.js -- sin node instala igual, pero la activación automática queda muda.
+    if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
+        Write-Host "i   node no detectado -- ponytail se instala igual, pero sus hooks de activacion automatica van a quedar mudos hasta que node este en PATH"
+    }
+    Install-ClaudePlugin "https://github.com/DietrichGebert/ponytail" "ponytail@ponytail" "ponytail"
+
+    # andrej-karpathy-skills: 1 skill, sin hooks, sin node. Nombres sacados de
+    # .claude-plugin/marketplace.json del repo, no del README (que sigue con el
+    # nombre viejo, de antes de transferirlo a multica-ai).
+    Install-ClaudePlugin "https://github.com/multica-ai/andrej-karpathy-skills" "andrej-karpathy-skills@karpathy-skills" "andrej-karpathy-skills"
+} else {
+    Write-Host "i   claude no detectado en PATH -- saltando plugins"
 }
 
 Write-Host ""

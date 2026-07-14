@@ -108,191 +108,23 @@ if ! command -v fd >/dev/null 2>&1 && command -v fdfind >/dev/null 2>&1; then
   echo "✓ symlink fd → fdfind en ~/.local/bin"
 fi
 
-# ─── status line + CLAUDE.md user-level de Claude Code (espejo de install.sh) ───
-# Scripts/prosa genéricos versionados; la activación en settings.json
-# solo se agrega si no existe ya (no pisa una config propia de la máquina).
-link "$DOTFILES/claude/statusline.sh" "$HOME/.claude/statusline.sh"
-
-# Va ANTES de la sección rtk de más abajo: rtk init --global le agrega
-# una línea `@RTK.md` si falta, y queremos que esa escritura caiga sobre
-# el archivo versionado (a través del symlink), no sobre uno suelto.
-link "$DOTFILES/claude/CLAUDE.md" "$HOME/.claude/CLAUDE.md"
-
-SETTINGS="$HOME/.claude/settings.json"
-if command -v jq >/dev/null 2>&1; then
-  mkdir -p "$(dirname "$SETTINGS")"
-  [[ -f "$SETTINGS" ]] || echo '{}' > "$SETTINGS"
-  if jq -e '.statusLine' "$SETTINGS" >/dev/null 2>&1; then
-    echo "✓ statusLine ya configurado en settings.json — no se toca"
-  else
-    SETTINGS_TMP="$(mktemp)"
-    if jq '.statusLine = {"type": "command", "command": "~/.claude/statusline.sh"}' "$SETTINGS" > "$SETTINGS_TMP"; then
-      mv "$SETTINGS_TMP" "$SETTINGS"
-      echo "✓ statusLine agregado a settings.json"
-    else
-      rm -f "$SETTINGS_TMP"
-      echo "⚠️  no se pudo agregar statusLine — settings.json quedó intacto"
-    fi
-  fi
-fi
-
-# ─── permisos base de Claude Code (espejo de install.sh) ──────
-# Igual que statusLine: excepción controlada, additive-only. Solo agrega
-# permissions.allow/deny si esas keys NO existen ya en settings.json — si
-# armaste tu propia lista a mano en esta máquina, no se toca. Lista curada
-# a partir de la doc oficial (https://code.claude.com/docs/en/permissions):
-# comandos read-only de Bash (git status/diff/log, ls, cat, grep, find,
-# pwd, head, tail, wc, which, diff, stat, du, cd...) ya no piden
-# confirmación por default. El allow cubre lo que sigue generando
-# fricción real: writes de git, build/test tooling (npm, cargo, go, make,
-# gradle/kotlinc/ktlint) y reemplazos modernos de esos read-only clásicos
-# (rg, fd, eza, bat, fzf, jq, tree, delta — todos instalados por este
-# script, ver APT_PACKAGES/cargo/GH-release más abajo). El deny bloquea
-# lo obviamente destructivo incluso bajo bypassPermissions/auto.
-SETTINGS="$HOME/.claude/settings.json"
-if command -v jq >/dev/null 2>&1; then
-  mkdir -p "$(dirname "$SETTINGS")"
-  [[ -f "$SETTINGS" ]] || echo '{}' > "$SETTINGS"
-
-  if jq -e '.permissions.allow' "$SETTINGS" >/dev/null 2>&1; then
-    echo "✓ permissions.allow ya configurado en settings.json — no se toca"
-  else
-    SETTINGS_TMP="$(mktemp)"
-    if jq '.permissions //= {} | .permissions.allow = [
-      "Bash(git add *)",
-      "Bash(git commit *)",
-      "Bash(npm run *)",
-      "Bash(npm test *)",
-      "Bash(cargo build *)",
-      "Bash(cargo test *)",
-      "Bash(make *)",
-      "Bash(docker ps *)",
-      "Bash(docker images *)",
-      "Bash(go build *)",
-      "Bash(go test *)",
-      "Bash(go vet *)",
-      "Bash(go mod *)",
-      "Bash(go run *)",
-      "Bash(gofmt *)",
-      "Bash(kotlinc *)",
-      "Bash(ktlint *)",
-      "Bash(./gradlew build)",
-      "Bash(./gradlew test)",
-      "Bash(./gradlew clean)",
-      "Bash(gradle build)",
-      "Bash(gradle test)",
-      "Bash(fzf *)",
-      "Bash(rg *)",
-      "Bash(fd *)",
-      "Bash(eza *)",
-      "Bash(bat *)",
-      "Bash(jq *)",
-      "Bash(tree *)",
-      "Bash(delta *)"
-    ]' "$SETTINGS" > "$SETTINGS_TMP"; then
-      mv "$SETTINGS_TMP" "$SETTINGS"
-      echo "✓ permissions.allow agregado a settings.json"
-    else
-      rm -f "$SETTINGS_TMP"
-      echo "⚠️  no se pudo agregar permissions.allow — settings.json quedó intacto"
-    fi
-  fi
-
-  if jq -e '.permissions.deny' "$SETTINGS" >/dev/null 2>&1; then
-    echo "✓ permissions.deny ya configurado en settings.json — no se toca"
-  else
-    SETTINGS_TMP="$(mktemp)"
-    if jq '.permissions //= {} | .permissions.deny = [
-      "Bash(rm -rf *)",
-      "Bash(git push --force*)",
-      "Bash(sudo *)"
-    ]' "$SETTINGS" > "$SETTINGS_TMP"; then
-      mv "$SETTINGS_TMP" "$SETTINGS"
-      echo "✓ permissions.deny agregado a settings.json"
-    else
-      rm -f "$SETTINGS_TMP"
-      echo "⚠️  no se pudo agregar permissions.deny — settings.json quedó intacto"
-    fi
-  fi
-fi
-
-# ─── rtk (proxy CLI que reduce tokens) ────────────────────────
-# Mismo comportamiento que install.sh (mac) — ver ese script para el
-# razonamiento completo. Sin Homebrew acá: usamos el curl installer
-# oficial de rtk (baja a ~/.local/bin, mismo patrón que starship/zoxide
-# más abajo). Solo instala si falta el binario; `rtk init --global
-# --auto-patch` es idempotente (no duplica el hook en re-runs).
-if ! command -v rtk >/dev/null 2>&1; then
-  echo ""
-  echo "→ Instalando rtk (curl installer oficial)"
-  curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh \
-    || echo "⚠️  rtk install falló"
-fi
-
-if command -v rtk >/dev/null 2>&1; then
-  if rtk init --global --auto-patch >/dev/null 2>&1 </dev/null; then
-    echo "✓ rtk hook de Claude Code configurado (o ya estaba)"
-  else
-    echo "⚠️  rtk init --global falló — revisar a mano (rtk init --global -v)"
-  fi
-fi
-
-# ─── codebase-memory-mcp (MCP server de grafo de código) ──────
-# Mismo comportamiento que install.sh (mac) — sin Homebrew acá tampoco,
-# así que usamos el install.sh oficial del proyecto (curl | bash), que
-# ya detecta el binario Linux (arm64/amd64) solo. Sin --ui (headless,
-# default del propio installer). Solo instala si falta el binario
-# (~260MB, no hace falta re-descargar en cada corrida).
-if ! command -v codebase-memory-mcp >/dev/null 2>&1; then
-  echo ""
-  echo "→ Instalando codebase-memory-mcp"
-  curl -fsSL https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh | bash \
-    || echo "⚠️  codebase-memory-mcp install falló"
-fi
-
-# `install -y` corre SIEMPRE (espejo de install.sh): es lo que registra el MCP
-# server + hooks + la skill `codebase-memory` en ~/.claude/. Si vivía solo
-# dentro del curl de arriba, un ~/.claude borrado a mano no se reconstruía
-# nunca (binario presente → guard en falso → cero reinstall). Idempotente.
-if command -v codebase-memory-mcp >/dev/null 2>&1; then
-  codebase-memory-mcp install -y >/dev/null 2>&1 \
-    && echo "✓ codebase-memory-mcp: MCP server + hooks + skill registrados" \
-    || echo "⚠️  codebase-memory-mcp install -y falló"
-  codebase-memory-mcp config set auto_index true >/dev/null 2>&1
-  echo "✓ codebase-memory-mcp: auto_index=true"
-fi
-
-# Limpieza convergente (espejo de install.sh): el binario hace su propio
-# fopen(~/.zshrc, "a") y agrega `export PATH=...` si no encuentra un
-# match TEXTUAL exacto (src/cli/cli.c, cbm_detect_shell_rc). Nuestro PATH
-# vive en zsh/.zshenv con `$HOME`, así que ese chequeo naive nunca lo
-# reconoce y re-agrega su línea con el path de esta máquina hardcodeado.
-# Como ~/.zshrc es symlink a este repo, ensucia el archivo versionado —
-# y como `install -y` corre en CADA corrida, reaparece siempre. Va DESPUÉS
-# del install -y (al revés, el binario re-ensuciaría el archivo). El binario
-# escribe 3 líneas: una EN BLANCO, el marker y el export — el awk difiere los
-# blancos (pending) y los descarta si lo que sigue es el marker.
-ZSHRC="$HOME/.zshrc"
-if [[ -f "$ZSHRC" ]] && grep -qF "# Added by codebase-memory-mcp install" "$ZSHRC"; then
-  ZSHRC_TMP="$(mktemp)"
-  if awk '
-    /^# Added by codebase-memory-mcp install$/ { skip = 2; pending = 0; next }
-    skip > 0 { skip--; next }
-    /^$/ { pending++; next }
-    { while (pending-- > 0) print ""; pending = 0; print }
-    END { while (pending-- > 0) print "" }
-  ' "$ZSHRC" > "$ZSHRC_TMP"; then
-    # `cat >` y NO `mv`: ~/.zshrc es un SYMLINK al repo — `mv` lo reemplaza por
-    # un archivo regular y deja la línea sucia en el repo. La redirección
-    # escribe a través del symlink (que es lo que queremos limpiar).
-    cat "$ZSHRC_TMP" > "$ZSHRC"
-    rm -f "$ZSHRC_TMP"
-    echo "✓ línea de PATH que codebase-memory-mcp agregó a .zshrc limpiada (ya cubierto por .zshenv)"
-  else
-    rm -f "$ZSHRC_TMP"
-    echo "⚠️  no se pudo limpiar .zshrc — revisar a mano"
-  fi
-fi
+# ─── Claude Code ──────────────────────────────────────────────
+# Mismos scripts que install.sh (mac) — la lógica de Claude Code no diverge
+# entre plataformas, así que vive una sola vez en claude/install/. Tres
+# mecanismos partidos por QUIÉN escribe en settings.json: nosotros con jq
+# (settings.sh), el binario externo (binaries.sh), la CLI de plugins
+# (plugins.sh). Detalle en claude/install/README.md.
+#
+# `rtk` acá no viene de Homebrew: binaries.sh cae solo al curl installer
+# oficial cuando el binario falta (el guard `command -v` cubre los dos casos).
+#
+# El orden es load-bearing: settings.sh symlinkea ~/.claude/CLAUDE.md, y
+# `rtk init` (binaries.sh) le agrega una línea @RTK.md — queremos que caiga
+# sobre el archivo versionado a través del symlink, no sobre uno suelto.
+# Van DESPUÉS del bloque de apt: settings.sh necesita jq.
+source "$DOTFILES/claude/install/settings.sh"
+source "$DOTFILES/claude/install/binaries.sh"
+source "$DOTFILES/claude/install/plugins.sh"
 
 # ─── tpm (Tmux Plugin Manager) ────────────────────────────────
 TPM_DIR="$HOME/.config/tmux/plugins/tpm"
@@ -300,34 +132,6 @@ if [[ ! -d "$TPM_DIR" ]]; then
   echo "→ Clonando tpm en $TPM_DIR"
   git clone --depth 1 https://github.com/tmux-plugins/tpm "$TPM_DIR"
   echo "✓ tpm instalado. Dentro de tmux: prefix + I para instalar plugins"
-fi
-
-# ─── tmux-claude-session-manager ──────────────────────────────
-# Espejo de install.sh: el plugin lee estado vía `claude agents --json`
-# (sin hooks), así que ya no hace falta pre-clonarlo — tpm lo clona con
-# prefix+I como al resto.
-#
-# Migración: versiones viejas de este installer mergeaban 4 hooks
-# (UserPromptSubmit/Notification/PreToolUse/Stop → scripts/state.sh) en
-# ~/.claude/settings.json. El plugin borró state.sh, así que esos hooks
-# ahora fallan (exit 127) en cada evento. Convergente: los limpiamos acá
-# si están, en cualquier máquina que todavía los tenga.
-SETTINGS="$HOME/.claude/settings.json"
-if command -v jq >/dev/null 2>&1 && [[ -f "$SETTINGS" ]] \
-   && jq -e '[.. | strings] | any(test("tmux-claude-session-manager/scripts/state.sh"))' "$SETTINGS" >/dev/null 2>&1; then
-  SETTINGS_TMP="$(mktemp)"
-  if jq '.hooks |= (to_entries
-          | map(.value |= map(select(
-              (.hooks // []) | any(.command? // "" | test("tmux-claude-session-manager/scripts/state.sh")) | not
-            )))
-          | map(select((.value | length) > 0))
-          | from_entries)' "$SETTINGS" > "$SETTINGS_TMP"; then
-    mv "$SETTINGS_TMP" "$SETTINGS"
-    echo "✓ hooks obsoletos de claude-session-manager (state.sh) limpiados de settings.json"
-  else
-    rm -f "$SETTINGS_TMP"
-    echo "⚠️  limpieza de hooks obsoletos falló — settings.json quedó intacto"
-  fi
 fi
 
 # Si hay tmux server corriendo, recargá el config para aplicar los
