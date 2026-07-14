@@ -195,8 +195,15 @@ if (-not (Get-Command codebase-memory-mcp -ErrorAction SilentlyContinue)) {
     }
 }
 
+# `install -y` corre SIEMPRE (espejo de install.sh): es lo que registra el MCP
+# server + hooks + la skill `codebase-memory` en ~/.claude/. Si vivia solo
+# dentro del install.ps1 oficial de arriba, un ~/.claude borrado a mano no se
+# reconstruia nunca (binario presente -> guard en falso -> cero reinstall).
+# Idempotente.
 $Cbm = Get-Command codebase-memory-mcp -ErrorAction SilentlyContinue
 if ($Cbm) {
+    & $Cbm.Source install -y | Out-Null
+    Write-Host "OK  codebase-memory-mcp: MCP server + hooks + skill registrados"
     & $Cbm.Source config set auto_index true | Out-Null
     Write-Host "OK  codebase-memory-mcp: auto_index=true"
 }

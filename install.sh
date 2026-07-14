@@ -320,7 +320,16 @@ if ! command -v codebase-memory-mcp >/dev/null 2>&1; then
   curl -fsSL https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh | bash
 fi
 
+# `install -y` corre SIEMPRE, no solo cuando bajamos el binario: es lo que
+# registra el MCP server + hooks + la skill `codebase-memory` en ~/.claude/.
+# Si vivía solo dentro del curl de arriba, un ~/.claude borrado a mano no se
+# reconstruía nunca (el binario seguía presente → guard en falso → cero
+# reinstall). Es idempotente (verificado con --dry-run: detecta config
+# existente y no duplica), así que re-correrlo es barato.
 if command -v codebase-memory-mcp >/dev/null 2>&1; then
+  codebase-memory-mcp install -y >/dev/null 2>&1 \
+    && echo "✓ codebase-memory-mcp: MCP server + hooks + skill registrados" \
+    || echo "⚠️  codebase-memory-mcp install -y falló"
   codebase-memory-mcp config set auto_index true >/dev/null 2>&1
   echo "✓ codebase-memory-mcp: auto_index=true"
 fi
@@ -332,16 +341,30 @@ fi
 # (no el path absoluto expandido), así que ese chequeo naive nunca lo
 # reconoce y siempre re-agrega su línea — con el path de ESTA máquina
 # hardcodeado. Como ~/.zshrc es symlink a este repo, eso ensucia el
-# archivo versionado en cada máquina nueva. La sacamos si aparece.
+# archivo versionado — y como `install -y` corre en CADA corrida (ver
+# arriba), reaparece siempre, no solo en una máquina nueva. Va DESPUÉS
+# del install -y: al revés, el binario re-ensuciaría el archivo y
+# `git status` quedaría sucio tras cada ./install.sh.
+#
+# El binario escribe 3 líneas: una EN BLANCO, el marker, y el export.
+# El awk difiere los blancos (pending) y los descarta si lo que sigue es
+# el marker — sin eso quedaba un `+` de línea vacía en el diff del repo.
 ZSHRC="$HOME/.zshrc"
 if [[ -f "$ZSHRC" ]] && grep -qF "# Added by codebase-memory-mcp install" "$ZSHRC"; then
   ZSHRC_TMP="$(mktemp)"
   if awk '
-    /^# Added by codebase-memory-mcp install$/ { skip = 2; next }
+    /^# Added by codebase-memory-mcp install$/ { skip = 2; pending = 0; next }
     skip > 0 { skip--; next }
-    { print }
+    /^$/ { pending++; next }
+    { while (pending-- > 0) print ""; pending = 0; print }
+    END { while (pending-- > 0) print "" }
   ' "$ZSHRC" > "$ZSHRC_TMP"; then
-    mv "$ZSHRC_TMP" "$ZSHRC"
+    # `cat >` y NO `mv`: ~/.zshrc es un SYMLINK al repo. `mv` reemplaza el
+    # symlink por un archivo regular (rompe el dotfile y deja la línea sucia
+    # en el repo); la redirección escribe A TRAVÉS del symlink, que es lo que
+    # queremos — limpiar el archivo versionado.
+    cat "$ZSHRC_TMP" > "$ZSHRC"
+    rm -f "$ZSHRC_TMP"
     echo "✓ línea de PATH que codebase-memory-mcp agregó a .zshrc limpiada (ya cubierto por .zshenv)"
   else
     rm -f "$ZSHRC_TMP"

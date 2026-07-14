@@ -250,7 +250,14 @@ if ! command -v codebase-memory-mcp >/dev/null 2>&1; then
     || echo "⚠️  codebase-memory-mcp install falló"
 fi
 
+# `install -y` corre SIEMPRE (espejo de install.sh): es lo que registra el MCP
+# server + hooks + la skill `codebase-memory` en ~/.claude/. Si vivía solo
+# dentro del curl de arriba, un ~/.claude borrado a mano no se reconstruía
+# nunca (binario presente → guard en falso → cero reinstall). Idempotente.
 if command -v codebase-memory-mcp >/dev/null 2>&1; then
+  codebase-memory-mcp install -y >/dev/null 2>&1 \
+    && echo "✓ codebase-memory-mcp: MCP server + hooks + skill registrados" \
+    || echo "⚠️  codebase-memory-mcp install -y falló"
   codebase-memory-mcp config set auto_index true >/dev/null 2>&1
   echo "✓ codebase-memory-mcp: auto_index=true"
 fi
@@ -260,16 +267,26 @@ fi
 # match TEXTUAL exacto (src/cli/cli.c, cbm_detect_shell_rc). Nuestro PATH
 # vive en zsh/.zshenv con `$HOME`, así que ese chequeo naive nunca lo
 # reconoce y re-agrega su línea con el path de esta máquina hardcodeado.
-# Como ~/.zshrc es symlink a este repo, ensucia el archivo versionado.
+# Como ~/.zshrc es symlink a este repo, ensucia el archivo versionado —
+# y como `install -y` corre en CADA corrida, reaparece siempre. Va DESPUÉS
+# del install -y (al revés, el binario re-ensuciaría el archivo). El binario
+# escribe 3 líneas: una EN BLANCO, el marker y el export — el awk difiere los
+# blancos (pending) y los descarta si lo que sigue es el marker.
 ZSHRC="$HOME/.zshrc"
 if [[ -f "$ZSHRC" ]] && grep -qF "# Added by codebase-memory-mcp install" "$ZSHRC"; then
   ZSHRC_TMP="$(mktemp)"
   if awk '
-    /^# Added by codebase-memory-mcp install$/ { skip = 2; next }
+    /^# Added by codebase-memory-mcp install$/ { skip = 2; pending = 0; next }
     skip > 0 { skip--; next }
-    { print }
+    /^$/ { pending++; next }
+    { while (pending-- > 0) print ""; pending = 0; print }
+    END { while (pending-- > 0) print "" }
   ' "$ZSHRC" > "$ZSHRC_TMP"; then
-    mv "$ZSHRC_TMP" "$ZSHRC"
+    # `cat >` y NO `mv`: ~/.zshrc es un SYMLINK al repo — `mv` lo reemplaza por
+    # un archivo regular y deja la línea sucia en el repo. La redirección
+    # escribe a través del symlink (que es lo que queremos limpiar).
+    cat "$ZSHRC_TMP" > "$ZSHRC"
+    rm -f "$ZSHRC_TMP"
     echo "✓ línea de PATH que codebase-memory-mcp agregó a .zshrc limpiada (ya cubierto por .zshenv)"
   else
     rm -f "$ZSHRC_TMP"
