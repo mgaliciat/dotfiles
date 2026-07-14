@@ -26,6 +26,19 @@ Grep/Glob/Read are still the right tools for plain text, configs, and non-code f
 
 It also installs the `codebase-memory` skill (self-activating on triggers like "explore the codebase", "who calls this function", "dead code", etc. — no need to invoke it by hand). It brings a decision matrix, exploration/tracing workflows, and Cypher examples for `query_graph` — more detail than this list. Use it whenever the trigger applies.
 
+### context7 — github.com/upstash/context7
+
+Hosted MCP server that injects **current** documentation for a library into context. Nothing is installed locally — `binaries.sh` only registers the endpoint, and the API key comes from the environment (`~/.zshenv.local`), so a machine without a key simply won't have these tools.
+
+Two tools, used in order:
+
+- `resolve-library-id` — turn a library name ("drizzle", "polars") into the id Context7 indexes it under
+- `query-docs` — ask a question against that library's live docs
+
+**Use it when the failure mode is a wrong API signature**, which is exactly where training-cutoff knowledge betrays you: a library released or reworked after the cutoff, a fast-moving one (most JS/TS tooling), or any time you're about to write a call from memory and aren't certain the signature is current. Cheaper to ask than to ship a plausible, wrong argument list and debug it later.
+
+**Not** a general-purpose search: for the stable core of a mature language, or for anything not a library (configs, your own code, prose), it just costs a round-trip. Well-known and stable → answer directly.
+
 ## 🤖 IA & TOKEN OPTIMIZATION PROTOCOL
 
 To minimize token consumption, maximize inference speed, and maintain strict reliability against our Spec-Driven Development (SDD) goals, you MUST follow these communication rules:

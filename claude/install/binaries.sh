@@ -82,6 +82,48 @@ if command -v codebase-memory-mcp >/dev/null 2>&1; then
   echo "✓ codebase-memory-mcp: auto_index=true"
 fi
 
+# ─── context7 (up-to-date library docs MCP) ───────────────────
+# Hosted HTTP server — nothing to install, no binary, no local port: we only
+# register the endpoint. It injects current docs for the library you are using,
+# which is what kills the "invented API signature" failure on libs the model
+# knows poorly. Doc: https://github.com/upstash/context7
+#
+# The key is read from the ENVIRONMENT, never from the repo: it lives in
+# ~/.zshenv.local (per-machine secrets, gitignored) and this repo is PUBLIC.
+# Hence the guard: a machine with no key simply skips this — install.sh must not
+# fail there. Do NOT "helpfully" default the key to an empty string; that
+# registers the server with a broken header and it fails at call time, which is
+# much harder to diagnose than a server that is plainly absent.
+#
+# `--scope user` is load-bearing: the CLI default is `local`, which scopes the
+# server to the CURRENT directory's project entry in ~/.claude.json — it would
+# work while running install.sh from the dotfiles repo and be invisible from
+# every other project. `user` is the one that means "all projects".
+#
+# The registration lands in ~/.claude.json (per-machine, not versioned, not
+# symlinked — same treatment as settings.json), so the key never reaches git.
+#
+# NOTE the upstream install path is `npx ctx7 setup`, which we deliberately do
+# NOT use: it does interactive OAuth, and an installer that blocks on a browser
+# prompt is the `</dev/null` footgun all over again — except here there is no
+# default to fall through to. Registering the endpoint by hand is equivalent.
+#
+# Idempotence is ours: `claude mcp add` errors out if the name already exists.
+# Guarding on absence also means a ROTATED key is not picked up by a re-run —
+# for that, `claude mcp remove context7 -s user` first, then re-run install.sh.
+if command -v claude >/dev/null 2>&1 && [[ -n "$CONTEXT7_API_KEY" ]]; then
+  if claude mcp get context7 >/dev/null 2>&1; then
+    echo "✓ context7: already registered"
+  elif claude mcp add --transport http context7 https://mcp.context7.com/mcp \
+      --scope user --header "CONTEXT7_API_KEY: $CONTEXT7_API_KEY" >/dev/null 2>&1 </dev/null; then
+    echo "✓ context7: MCP server registered (user scope)"
+  else
+    echo "⚠️  context7 registration failed — check by hand (claude mcp add ...)"
+  fi
+elif [[ -z "$CONTEXT7_API_KEY" ]]; then
+  echo "→ context7: skipped (no CONTEXT7_API_KEY — add it to ~/.zshenv.local)"
+fi
+
 # ── convergent cleanup: the line the binary puts in ~/.zshrc ──
 # The binary (src/cli/cli.c, cbm_detect_shell_rc) does its own
 # fopen(~/.zshrc, "a") and appends `export PATH=...` if it does not find an exact

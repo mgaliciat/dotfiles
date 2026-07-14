@@ -43,7 +43,7 @@ Everything this repo does to `~/.claude/` lives in `claude/install/`, split by *
 | | File | Who writes `settings.json` | Idempotency | Currently |
 |---|---|---|---|---|
 | **1** | `settings.sh` | **We do**, with `jq` | Our guard (only if the key is absent) | `statusLine`, `permissions.*`, stale-hook cleanup, symlinks for `statusline.sh` + `CLAUDE.md` |
-| **2** | `binaries.sh` | The **external binary**, in its own setup command | The binary handles it | `rtk`, `codebase-memory-mcp` |
+| **2** | `binaries.sh` | The **external binary**, in its own setup command | The binary handles it | `rtk`, `codebase-memory-mcp`, `context7` (endpoint-only, key from env) |
 | **3** | `plugins.sh` | The **CLI** (`claude plugin`) | The CLI handles it | `ponytail`, `andrej-karpathy-skills` |
 
 `install.sh` and `install-linux.sh` source all three. `install-windows.ps1` **replicates them by hand** (PowerShell can't source bash) — it's the only copy left and nothing keeps it in sync automatically.
@@ -69,7 +69,9 @@ The full reasoning lives in the comments of each `claude/install/*.sh` (that's t
 
 Preferences that apply to ALL projects, not just this repo — distinct from the project `CLAUDE.md` you're reading now. Two admitted categories: (a) which tools from these dotfiles to use and how; (b) general output/communication preferences the user wants on every machine.
 
-**Hard rule for what may go in:** nothing that isn't guaranteed on all THREE platforms. If it depends on a tool that isn't in `install.sh` **and** `install-linux.sh` **and** `install-windows.ps1`, it doesn't belong (that's how the user's Docker-only workflow was ruled out — not every machine has Docker). Category (b) doesn't depend on installed tools, so the check doesn't apply there.
+**What may go in:** a tool has to be *installed by this repo* to be documented here — if it's not in `install.sh` or `install-linux.sh`, it doesn't belong (that's how the Docker-only workflow was ruled out: not every machine has Docker, and no installer puts it there). Category (b) doesn't depend on installed tools, so the check doesn't apply there.
+
+**Windows is allowed to lag.** This used to demand all THREE installers, `install-windows.ps1` included. Dropped (jul-2026): that script is hand-replicated, unsynced by construction, and gating the shared docs on the narrowest platform meant the two machines that *do* have a tool couldn't be told about it. mac + Linux is the bar; Windows catches up as things get tested there. The cost is real and accepted — a tool documented here but absent on Windows means Claude reads about tools it doesn't have on that box. It degrades to a bad suggestion, not a broken install. If that ever bites, the fix is to close the gap in `install-windows.ps1`, not to re-gate the docs. **Currently lagging: `context7`** (registered on mac/Linux only).
 
 ## The stack theme
 
