@@ -1,54 +1,60 @@
-# claude/install/ — cómo se configura Claude Code
+# claude/install/ — how Claude Code is configured
 
-Todo lo que este repo le hace a `~/.claude/` vive acá, partido por **quién escribe
-en `settings.json`**. Esa es la línea divisoria — no "qué instala", sino quién es el
-autor de la escritura, porque de eso depende quién maneja la idempotencia y dónde
-buscar cuando algo se rompe.
+Everything this repo does to `~/.claude/` lives here, split by **who writes to
+`settings.json`**. That is the dividing line — not "what it installs", but who authors
+the write, because that determines who handles idempotence and where to look when
+something breaks.
 
-Los tres archivos se **sourcean** desde los installers de bash (`install.sh`,
-`install-linux.sh` — los dos sourcean los tres); no son ejecutables sueltos. Asumen
-`link()`, `$DOTFILES` y `$TS` del padre, y que `jq` ya está instalado (los installers
-corren su bloque de deps antes).
+The three files are **sourced** from the bash installers (`install.sh`,
+`install-linux.sh` — both source all three); they are not standalone executables. They
+assume `link()`, `$DOTFILES` and `$TS` from the parent, and that `jq` is already
+installed (the installers run their deps block first).
 
-| | Archivo | Quién escribe en `settings.json` | Idempotencia |
+| | File | Who writes to `settings.json` | Idempotence |
 |---|---|---|---|
-| **1** | `settings.sh` | **Nosotros**, con `jq` | Guard nuestro: solo si la key no existe |
-| **2** | `binaries.sh` | El **binario externo**, en su comando de setup | La maneja el binario |
-| **3** | `plugins.sh` | La **CLI de Claude Code** (`claude plugin`) | La maneja la CLI |
+| **1** | `settings.sh` | **Us**, with `jq` | Our own guard: only if the key does not exist |
+| **2** | `binaries.sh` | The **external binary**, in its setup command | Handled by the binary |
+| **3** | `plugins.sh` | The **Claude Code CLI** (`claude plugin`) | Handled by the CLI |
 
-**1 — `settings.sh`.** Lo único que escribimos a mano: `statusLine`, `permissions.allow/deny`,
-y la limpieza convergente de los hooks obsoletos de `tmux-claude-session-manager`. Additive-only,
-con guard: si la key ya existe en esa máquina, no se toca. También symlinkea las dos piezas
-versionadas de `claude/` (`statusline.sh`, `CLAUDE.md` user-level).
+**1 — `settings.sh`.** The only thing we write by hand: `statusLine`, `permissions.allow/deny`,
+and the convergent cleanup of the obsolete `tmux-claude-session-manager` hooks. Additive-only,
+with a guard: if the key already exists on that machine, it is not touched. It also symlinks the
+two versioned pieces of `claude/` (`statusline.sh`, the user-level `CLAUDE.md`).
 
-**2 — `binaries.sh`.** Instalás el binario (brew / curl) y corrés *su* comando de setup, que es
-el que escribe hooks, MCP servers y skills en `~/.claude/`. Hoy: `rtk` (hook `PreToolUse` que
-comprime output de Bash) y `codebase-memory-mcp` (MCP server + hooks + la skill `codebase-memory`).
+The permission lists themselves live in **`permissions.json`** — single source of truth, read here
+with `jq --slurpfile` and by `install-windows.ps1` with `ConvertFrom-Json`. Adding a permission in
+one script used to leave the other platform silently behind. The rationale for what is in and out
+of each list is in that file's `_comment`.
 
-**3 — `plugins.sh`.** Un `marketplace add` + un `install` y la CLI hace el resto (incluido
-escribir `extraKnownMarketplaces` / `enabledPlugins`). Es el camino más barato para agregar
-skills o hooks nuevos. Hoy: `ponytail` (6 skills bundled) y `andrej-karpathy-skills`.
-Cuidado en el port de Windows: el bloque de plugins tiene que ir **después** de que el script
-escriba su `settings.json`, o le pisás lo que la CLI acaba de poner ahí.
+**2 — `binaries.sh`.** You install the binary (brew / curl) and run *its* setup command, which is
+the one that writes hooks, MCP servers and skills into `~/.claude/`. Today: `rtk` (a `PreToolUse`
+hook that compresses Bash output) and `codebase-memory-mcp` (MCP server + hooks + the
+`codebase-memory` skill).
 
-## Para agregar algo nuevo
+**3 — `plugins.sh`.** One `marketplace add` + one `install` and the CLI does the rest (including
+writing `extraKnownMarketplaces` / `enabledPlugins`). It is the cheapest way to add new skills or
+hooks. Today: `ponytail` (6 bundled skills) and `andrej-karpathy-skills`.
+Careful in the Windows port: the plugins block has to go **after** the script writes its
+`settings.json`, or you clobber what the CLI just put there.
 
-Existe como plugin de marketplace → mecanismo 3, dos líneas en `plugins.sh`.
-Es un binario o MCP suelto → mecanismo 2. Mecanismo 1 solo cuando no hay nadie más
-que lo escriba.
+## To add something new
 
-## Orden
+It exists as a marketplace plugin → mechanism 3, two lines in `plugins.sh`.
+It is a standalone binary or MCP → mechanism 2. Mechanism 1 only when there is nobody
+else to write it.
 
-`settings.sh` → `binaries.sh` → `plugins.sh`, y es load-bearing: `settings.sh` symlinkea
-`~/.claude/CLAUDE.md`, y `rtk init` (en `binaries.sh`) le agrega una línea `@RTK.md` — queremos
-que esa escritura caiga sobre el archivo versionado a través del symlink, no sobre uno suelto.
+## Order
 
-## Qué NO está acá
+`settings.sh` → `binaries.sh` → `plugins.sh`, and it is load-bearing: `settings.sh` symlinks
+`~/.claude/CLAUDE.md`, and `rtk init` (in `binaries.sh`) adds an `@RTK.md` line to it — we want
+that write to land on the versioned file through the symlink, not on a loose one.
 
-`settings.json` mismo (per-máquina, no versionado — ver `CLAUDE.md` del repo),
-`~/.claude/skills/` (per-máquina, dir real), `~/.claude/projects/*/memory/` (la maneja
-Claude Code sola).
+## What is NOT here
 
-`install-windows.ps1` **no** puede sourcear estos scripts (PowerShell), así que replica los
-tres mecanismos a mano. Si cambiás algo acá, chequeá si aplica allá — es la única copia que
-queda, y no hay nada que la mantenga en sync automáticamente.
+`settings.json` itself (per-machine, not versioned — see the repo's `CLAUDE.md`),
+`~/.claude/skills/` (per-machine, a real dir), `~/.claude/projects/*/memory/` (Claude Code
+handles it on its own).
+
+`install-windows.ps1` **cannot** source these scripts (PowerShell), so it replicates the three
+mechanisms by hand. If you change something here, check whether it applies there — it is the only
+remaining copy, and nothing keeps it in sync automatically.

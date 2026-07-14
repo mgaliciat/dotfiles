@@ -1,21 +1,21 @@
 -- ─── dial.nvim ────────────────────────────────────────────────
--- Reemplaza vainilla <C-a>/<C-x> con increment "inteligente":
---   42        → 43             (números, ya lo hacía vim)
+-- Replaces vanilla <C-a>/<C-x> with "smart" increment:
+--   42        → 43             (numbers, vim already did this)
 --   0xff      → 0x100           (hex)
 --   true      → false           (bool toggle)
---   2024/01/15 → 2024/01/16      (fechas)
+--   2024/01/15 → 2024/01/16      (dates)
 --   1.2.3     → 1.2.4            (semver)
---   let       → const            (cicla {let, const})
+--   let       → const            (cycles {let, const})
 --
 -- Keymaps:
---   <C-a> / <C-x>    increment/decrement (smart) — directos a dial
---   +                idem vía remap (keymaps.lua `+` → <C-a>)
---   -                ⚠️ NO disponible: oil.nvim agarra `-` para
---                    "open parent dir". Usá <C-x> para decrement.
+--   <C-a> / <C-x>    increment/decrement (smart) — straight to dial
+--   +                same via remap (keymaps.lua `+` → <C-a>)
+--   -                ⚠️ NOT available: oil.nvim grabs `-` for
+--                    "open parent dir". Use <C-x> for decrement.
 --
--- Cowboy mode (`config/cowboy.lua`) NO cubre +/- — quedan libres
--- para uso intensivo de increment (mashing 10 veces para bump 10
--- líneas de version, etc.).
+-- Cowboy mode (`config/cowboy.lua`) does NOT cover +/- — they stay free
+-- for heavy increment use (mashing 10 times to bump 10
+-- version lines, etc.).
 
 return {
   "monaqa/dial.nvim",

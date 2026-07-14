@@ -1,32 +1,22 @@
 #!/usr/bin/env bash
-# Symlinks portable dotfiles + auto-install packages para Ubuntu/Debian.
-# Target primario: WSL2 Ubuntu (sin GUI Linux — Windows Terminal afuera).
-# Para macOS usar ./install.sh.
+# Symlinks portable dotfiles + auto-installs packages for Ubuntu/Debian.
+# Primary target: WSL2 Ubuntu (no Linux GUI — Windows Terminal is outside).
+# For macOS use ./install.sh.
 #
-# Idempotente: backs up existing files antes de symlinkear.
-# Strategy: apt para lo que está + cargo install para lo missing.
+# Idempotent: backs up existing files before symlinking.
+# Strategy: apt for what is available + cargo install for what is missing.
 
 set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TS="$(date +%Y%m%d_%H%M%S)"
 
-link() {
-  local src="$1" dst="$2"
-  if [[ -L "$dst" ]]; then
-    rm "$dst"
-  elif [[ -e "$dst" ]]; then
-    echo "→ backing up existing $dst to $dst.backup.$TS"
-    mv "$dst" "$dst.backup.$TS"
-  fi
-  mkdir -p "$(dirname "$dst")"
-  ln -s "$src" "$dst"
-  echo "✓ $dst → $src"
-}
+# link() and bootstrap_tmux(), shared with install.sh.
+source "$DOTFILES/scripts/lib.sh"
 
-# ─── symlinks (subset portable de install.sh) ─────────────────
-# Skip: ghostty y sus themes (GUI macOS-only). El resto del repo es
-# el subset portable y se linkea igual que en mac.
+# ─── symlinks (portable subset of install.sh) ─────────────────
+# Skipped: ghostty and its themes (macOS-only GUI). The rest of the repo is
+# the portable subset and is linked exactly like on mac.
 link "$DOTFILES/zsh/.zshrc"             "$HOME/.zshrc"
 link "$DOTFILES/zsh/.zshenv"            "$HOME/.zshenv"
 link "$DOTFILES/starship/starship.toml" "$HOME/.config/starship.toml"
@@ -35,28 +25,29 @@ link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
 link "$DOTFILES/tmux"                   "$HOME/.config/tmux"
 link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
 
-# ─── tema del stack ───────────────────────────────────────────
-# Nada que hacer acá. Mismo motivo que en install.sh: paletas Y selección
-# activa viajan versionadas y llegan por los symlinks de dir de arriba
-# (acá solo nvim + tmux; sin ghostty en Linux/WSL2).
+# ─── stack theme ──────────────────────────────────────────────
+# Nothing to do here. Same reason as in install.sh: palettes AND the active
+# selection travel versioned and arrive through the dir symlinks above
+# (here only nvim + tmux; no ghostty on Linux/WSL2).
 
-# ~/.gitconfig NO se symlinkea — per-máquina, igual que en mac.
+# ~/.gitconfig is NOT symlinked — per-machine, same as on mac.
 
-# Claude Code per-máquina (mismo patrón que install.sh).
-# settings.json NO se symlinkea (100% per-máquina, como ~/.gitconfig).
-# skills/ tampoco (desde jul-2026): su contenido es per-máquina y nunca se
-# versionó, así que el symlink al repo era indirección pura — y filtraba
-# estado personal al repo público si el .gitignore se aflojaba. ~/.claude/skills
-# es un dir real; el binario codebase-memory-mcp lo crea si falta.
-# memory/ tampoco: Claude Code la maneja per-proyecto derivando el path real
-# del directorio, así que un symlink adivinado quedaba ignorado.
+# Claude Code per-machine (same pattern as install.sh).
+# settings.json is NOT symlinked (100% per-machine, like ~/.gitconfig).
+# skills/ is not either (since jul-2026): its content is per-machine and was
+# never versioned, so the symlink to the repo was pure indirection — and it
+# leaked personal state into the public repo if the .gitignore was loosened.
+# ~/.claude/skills is a real dir; the codebase-memory-mcp binary creates it if
+# missing.
+# memory/ is not either: Claude Code handles it per-project, deriving the real
+# path of the directory, so a guessed symlink was ignored.
 
 # ─── apt packages ──────────────────────────────────────────────
-# Lo que apt tiene out-of-the-box en Ubuntu 24.04 / Debian 12.
-# Lazygit y nvim modernos NO están — esos van por GitHub releases / AppImage.
-# Va ANTES de los bloques de settings.json de más abajo: esos usan jq
-# (instalado acá) — si corrieran primero, en una máquina fresca se
-# skipearían en silencio y recién aplicarían en la segunda corrida.
+# What apt has out-of-the-box on Ubuntu 24.04 / Debian 12.
+# Modern lazygit and nvim are NOT there — those go via GitHub releases / AppImage.
+# It goes BEFORE the settings.json blocks below: those use jq (installed here) —
+# if they ran first, on a fresh machine they would silently skip and only apply
+# on the second run.
 if command -v apt-get >/dev/null 2>&1; then
   APT_PACKAGES=(
     zsh
@@ -66,19 +57,19 @@ if command -v apt-get >/dev/null 2>&1; then
     build-essential
     tmux
     ripgrep
-    fd-find                       # binary es 'fdfind' — apt lo nombra así por colisión con otro 'fd'
-    bat                           # en Ubuntu 20.04 era 'batcat'; 22.04+ es 'bat'
+    fd-find                       # the binary is 'fdfind' — apt names it that way because of a clash with another 'fd'
+    bat                           # on Ubuntu 20.04 it was 'batcat'; 22.04+ it is 'bat'
     fzf
-    jq                            # requerido por tmux-claude-session-manager (parsea `claude agents --json`)
-    eza                           # apt 23.10+; en versiones viejas falla → fallback GH release abajo
+    jq                            # required by tmux-claude-session-manager (parses `claude agents --json`)
+    eza                           # apt 23.10+; on older versions it fails → GH release fallback below
     zsh-syntax-highlighting
     zsh-autosuggestions
     python3
     python3-pip
   )
-  # NOTA: 'neovim' NO está en esta lista a propósito — apt tiene v0.6.x,
-  # tus plugins (lazy.nvim, blink.cmp, rustaceanvim) necesitan 0.10+.
-  # Lo instalamos via GH release tarball abajo.
+  # NOTE: 'neovim' is NOT in this list on purpose — apt has v0.6.x, and your
+  # plugins (lazy.nvim, blink.cmp, rustaceanvim) need 0.10+.
+  # We install it via GH release tarball below.
 
   MISSING_APT=()
   for pkg in "${APT_PACKAGES[@]}"; do
@@ -87,100 +78,81 @@ if command -v apt-get >/dev/null 2>&1; then
 
   if [[ ${#MISSING_APT[@]} -gt 0 ]]; then
     echo ""
-    echo "→ apt packages a instalar: ${MISSING_APT[*]}"
-    echo "  (requiere sudo)"
+    echo "→ apt packages to install: ${MISSING_APT[*]}"
+    echo "  (requires sudo)"
     sudo apt-get update
-    # `|| true`: algunos packages pueden no existir en Ubuntu viejo (ej. eza
-    # pre-23.10). Continuamos para que cargo los cubra después.
+    # `|| true`: some packages may not exist on older Ubuntu (e.g. eza
+    # pre-23.10). We continue so cargo can cover them afterwards.
     sudo apt-get install -y "${MISSING_APT[@]}" || \
-      echo "⚠️  Algunos packages fallaron — cargo install va a cubrir lo que falta."
+      echo "⚠️  Some packages failed — cargo install will cover what is missing."
   fi
 else
-  echo "⚠️  apt-get no detectado — saltando instalación de packages."
+  echo "⚠️  apt-get not detected — skipping package installation."
 fi
 
-# fd: el paquete apt es fd-find y su binario se llama `fdfind`. El .zshrc
-# (compartido con mac) espera `fd` — symlink en ~/.local/bin (ya en PATH
-# vía .zshenv) para que fd/alias find funcionen igual en ambos.
+# fd: the apt package is fd-find and its binary is called `fdfind`. The .zshrc
+# (shared with mac) expects `fd` — symlink it in ~/.local/bin (already in PATH
+# via .zshenv) so fd/the find alias work the same on both.
 if ! command -v fd >/dev/null 2>&1 && command -v fdfind >/dev/null 2>&1; then
   mkdir -p "$HOME/.local/bin"
   ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
-  echo "✓ symlink fd → fdfind en ~/.local/bin"
+  echo "✓ symlink fd → fdfind in ~/.local/bin"
 fi
 
 # ─── Claude Code ──────────────────────────────────────────────
-# Mismos scripts que install.sh (mac) — la lógica de Claude Code no diverge
-# entre plataformas, así que vive una sola vez en claude/install/. Tres
-# mecanismos partidos por QUIÉN escribe en settings.json: nosotros con jq
-# (settings.sh), el binario externo (binaries.sh), la CLI de plugins
-# (plugins.sh). Detalle en claude/install/README.md.
+# Same scripts as install.sh (mac) — the Claude Code logic does not diverge
+# between platforms, so it lives once in claude/install/. Three mechanisms split
+# by WHO writes to settings.json: us with jq (settings.sh), the external binary
+# (binaries.sh), the plugin CLI (plugins.sh). Detail in claude/install/README.md.
 #
-# `rtk` acá no viene de Homebrew: binaries.sh cae solo al curl installer
-# oficial cuando el binario falta (el guard `command -v` cubre los dos casos).
+# `rtk` here does not come from Homebrew: binaries.sh falls back on its own to
+# the official curl installer when the binary is missing (the `command -v` guard
+# covers both cases).
 #
-# El orden es load-bearing: settings.sh symlinkea ~/.claude/CLAUDE.md, y
-# `rtk init` (binaries.sh) le agrega una línea @RTK.md — queremos que caiga
-# sobre el archivo versionado a través del symlink, no sobre uno suelto.
-# Van DESPUÉS del bloque de apt: settings.sh necesita jq.
+# The order is load-bearing: settings.sh symlinks ~/.claude/CLAUDE.md, and
+# `rtk init` (binaries.sh) adds an @RTK.md line to it — we want that to land on
+# the versioned file through the symlink, not on a loose one.
+# They go AFTER the apt block: settings.sh needs jq.
 source "$DOTFILES/claude/install/settings.sh"
 source "$DOTFILES/claude/install/binaries.sh"
 source "$DOTFILES/claude/install/plugins.sh"
 
-# ─── tpm (Tmux Plugin Manager) ────────────────────────────────
-TPM_DIR="$HOME/.config/tmux/plugins/tpm"
-if [[ ! -d "$TPM_DIR" ]]; then
-  echo "→ Clonando tpm en $TPM_DIR"
-  git clone --depth 1 https://github.com/tmux-plugins/tpm "$TPM_DIR"
-  echo "✓ tpm instalado. Dentro de tmux: prefix + I para instalar plugins"
-fi
+bootstrap_tmux
 
-# Si hay tmux server corriendo, recargá el config para aplicar los
-# cambios en sesiones activas sin tener que entrar al server a
-# mano. Si no hay server (típico en WSL2 fresh login), skip — la
-# próxima sesión nueva ya leerá el config fresco. Guarda `tmux info`
-# para no romper si tmux no está instalado todavía.
-if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
-  # Sin 2>/dev/null: un error de sintaxis en el config debe ser visible,
-  # no tragarse en silencio (`tmux info` ya garantiza que hay server).
-  if tmux source-file "$HOME/.config/tmux/tmux.conf"; then
-    echo "✓ tmux config recargado en sesiones activas"
-  fi
-fi
-
-# ─── zsh-history-substring-search (no está en apt) ────────────
-# El plugin manual va a ~/.zsh/plugins/, que el discovery del .zshrc
-# probe como último fallback después de brew/linuxbrew/apt.
+# ─── zsh-history-substring-search (not in apt) ────────────────
+# The manual plugin goes to ~/.zsh/plugins/, which the .zshrc discovery probes
+# as the last fallback after brew/linuxbrew/apt.
 HSS_DIR="$HOME/.zsh/plugins/zsh-history-substring-search"
 if [[ ! -d "$HSS_DIR" ]]; then
-  echo "→ Clonando zsh-history-substring-search"
+  echo "→ Cloning zsh-history-substring-search"
   git clone --depth 1 https://github.com/zsh-users/zsh-history-substring-search "$HSS_DIR"
 fi
 
-# ─── starship + zoxide (curl installers oficiales) ─────────────
-# Estos NO requieren cargo — bajan el binary precompilado a ~/.local/bin.
-# Críticos porque el .zshrc los invoca (eval starship/zoxide init).
+# ─── starship + zoxide (official curl installers) ──────────────
+# These do NOT require cargo — they download the precompiled binary to ~/.local/bin.
+# Critical because the .zshrc invokes them (eval starship/zoxide init).
 
 if ! command -v starship >/dev/null 2>&1; then
   echo ""
-  echo "→ Instalando starship (curl installer oficial)"
-  # -y: install sin prompt; -b ~/.local/bin: no requiere sudo
+  echo "→ Installing starship (official curl installer)"
+  # -y: install without prompt; -b ~/.local/bin: does not require sudo
   curl -sS https://starship.rs/install.sh | sh -s -- --yes --bin-dir "$HOME/.local/bin" \
-    || echo "⚠️  starship install falló — el .zshrc va a skipear prompt"
+    || echo "⚠️  starship install failed — the .zshrc will skip the prompt"
 fi
 
 if ! command -v zoxide >/dev/null 2>&1; then
   echo ""
-  echo "→ Instalando zoxide (curl installer oficial)"
+  echo "→ Installing zoxide (official curl installer)"
   curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash \
-    || echo "⚠️  zoxide install falló — el .zshrc va a skipear cd inteligente"
+    || echo "⚠️  zoxide install failed — the .zshrc will skip smart cd"
 fi
 
-# ─── cargo packages (sólo lo que realmente necesita Rust toolchain) ───
-# delta y tree-sitter no tienen curl installer oficial cómodo.
-# Si falta cargo, los skipeamos con mensaje claro (no son críticos).
+# ─── cargo packages (only what really needs the Rust toolchain) ───
+# delta and tree-sitter have no convenient official curl installer.
+# If cargo is missing we skip them with a clear message (they are not critical).
 if command -v cargo >/dev/null 2>&1; then
   declare -A CARGO_PACKAGES=(
-    [git-delta]=delta             # crate "git-delta" instala binario "delta"
+    [git-delta]=delta             # the "git-delta" crate installs the "delta" binary
     [tree-sitter-cli]=tree-sitter
   )
 
@@ -188,19 +160,19 @@ if command -v cargo >/dev/null 2>&1; then
     binary="${CARGO_PACKAGES[$crate]}"
     if ! command -v "$binary" >/dev/null 2>&1; then
       echo "→ cargo install $crate"
-      cargo install --locked "$crate" || echo "⚠️  $crate falló"
+      cargo install --locked "$crate" || echo "⚠️  $crate failed"
     fi
   done
 else
   echo ""
-  echo "ℹ️  cargo (Rust toolchain) no detectado — tree-sitter-cli skipeado."
-  echo "   (delta se instala via GH release abajo, no requiere cargo)."
-  echo "   Para tree-sitter: instalá rustup y re-corré este script."
+  echo "ℹ️  cargo (Rust toolchain) not detected — tree-sitter-cli skipped."
+  echo "   (delta is installed via GH release below, it does not require cargo)."
+  echo "   For tree-sitter: install rustup and re-run this script."
   echo "     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
 fi
 
-# ─── GitHub release binaries (lo que apt no tiene o tiene viejo) ────
-# Helpers chicos: detección de arch + fetch del tag latest desde GH API.
+# ─── GitHub release binaries (what apt lacks or has outdated) ───────
+# Small helpers: arch detection + fetching the latest tag from the GH API.
 _arch_x86_arm() {
   case "$(uname -m)" in
     x86_64)        echo "$1" ;;
@@ -215,23 +187,23 @@ _gh_latest_tag() {
 
 mkdir -p "$HOME/.local/bin"
 
-# lazygit — no está en apt default. GH release tarball.
+# lazygit — not in apt by default. GH release tarball.
 if ! command -v lazygit >/dev/null 2>&1; then
   echo ""
-  echo "→ Instalando lazygit (GH release)"
+  echo "→ Installing lazygit (GH release)"
   LG_VER=$(_gh_latest_tag jesseduffield/lazygit)
   LG_ARCH=$(_arch_x86_arm x86_64 arm64)
   if [[ -n "$LG_VER" && -n "$LG_ARCH" ]]; then
     curl -fsSL "https://github.com/jesseduffield/lazygit/releases/download/v${LG_VER}/lazygit_${LG_VER}_Linux_${LG_ARCH}.tar.gz" \
       | tar -xz -C /tmp lazygit && install /tmp/lazygit "$HOME/.local/bin/" && rm /tmp/lazygit \
-      || echo "⚠️  lazygit install falló"
+      || echo "⚠️  lazygit install failed"
   else
-    echo "⚠️  No pude resolver versión/arch de lazygit (LG_VER=$LG_VER LG_ARCH=$LG_ARCH)"
+    echo "⚠️  Could not resolve lazygit version/arch (LG_VER=$LG_VER LG_ARCH=$LG_ARCH)"
   fi
 fi
 
-# nvim — apt tiene 0.6.x, tus plugins necesitan 0.10+. Tarball release
-# (no AppImage: el tarball no requiere FUSE, más robusto en WSL2).
+# nvim — apt has 0.6.x, your plugins need 0.10+. Release tarball
+# (not AppImage: the tarball does not require FUSE, more robust on WSL2).
 NVIM_NEEDS_INSTALL=true
 if command -v nvim >/dev/null 2>&1; then
   NVIM_VER=$(nvim --version | head -1 | grep -oP 'v\K[0-9]+\.[0-9]+' | head -1)
@@ -243,7 +215,7 @@ if command -v nvim >/dev/null 2>&1; then
 fi
 if $NVIM_NEEDS_INSTALL; then
   echo ""
-  echo "→ Instalando nvim 0.10+ (GH release tarball)"
+  echo "→ Installing nvim 0.10+ (GH release tarball)"
   NVIM_ARCH=$(_arch_x86_arm x86_64 arm64)
   if [[ -n "$NVIM_ARCH" ]]; then
     NVIM_TARBALL="nvim-linux-${NVIM_ARCH}.tar.gz"
@@ -253,64 +225,64 @@ if $NVIM_NEEDS_INSTALL; then
       && tar -xzf /tmp/nvim.tar.gz -C "$HOME/.local/share/nvim-linux" --strip-components=1 \
       && ln -sf "$HOME/.local/share/nvim-linux/bin/nvim" "$HOME/.local/bin/nvim" \
       && rm /tmp/nvim.tar.gz \
-      || echo "⚠️  nvim install falló"
+      || echo "⚠️  nvim install failed"
   fi
 fi
 
-# delta (git-delta) — GH release .deb. Más fácil que tarball y maneja
-# dependencies/uninstall via apt. dpkg con sudo.
+# delta (git-delta) — GH release .deb. Easier than a tarball and it handles
+# dependencies/uninstall via apt. dpkg with sudo.
 if ! command -v delta >/dev/null 2>&1; then
   echo ""
-  echo "→ Instalando delta (GH release .deb)"
+  echo "→ Installing delta (GH release .deb)"
   DELTA_VER=$(_gh_latest_tag dandavison/delta)
   DELTA_ARCH=$(_arch_x86_arm amd64 arm64)
   if [[ -n "$DELTA_VER" && -n "$DELTA_ARCH" ]]; then
     curl -fsSL "https://github.com/dandavison/delta/releases/download/${DELTA_VER}/git-delta_${DELTA_VER}_${DELTA_ARCH}.deb" -o /tmp/delta.deb \
       && sudo dpkg -i /tmp/delta.deb \
       && rm /tmp/delta.deb \
-      || echo "⚠️  delta install falló (probá: sudo apt --fix-broken install)"
+      || echo "⚠️  delta install failed (try: sudo apt --fix-broken install)"
   fi
 fi
 
-# eza — fallback si `command -v eza` falla tras apt (apt no lo traía —
-# típico en Ubuntu < 23.10 — o el install falló por otra razón).
+# eza — fallback if `command -v eza` fails after apt (apt did not ship it —
+# typical on Ubuntu < 23.10 — or the install failed for some other reason).
 if ! command -v eza >/dev/null 2>&1; then
   echo ""
-  echo "→ Instalando eza (GH release fallback, apt no lo tenía)"
+  echo "→ Installing eza (GH release fallback, apt did not have it)"
   EZA_VER=$(_gh_latest_tag eza-community/eza)
   EZA_ARCH=$(_arch_x86_arm x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu)
   if [[ -n "$EZA_VER" && -n "$EZA_ARCH" ]]; then
     curl -fsSL "https://github.com/eza-community/eza/releases/download/v${EZA_VER}/eza_${EZA_ARCH}.tar.gz" \
       | tar -xz -C /tmp ./eza && install /tmp/eza "$HOME/.local/bin/" && rm /tmp/eza \
-      || echo "⚠️  eza install falló"
+      || echo "⚠️  eza install failed"
   fi
 fi
 
-# ─── pyenv (curl installer oficial) ────────────────────────────
-# apt no tiene pyenv. El installer oficial setea ~/.pyenv y lo deja
-# listo para el lazy-loader del .zshrc.
+# ─── pyenv (official curl installer) ───────────────────────────
+# apt does not have pyenv. The official installer sets up ~/.pyenv and leaves it
+# ready for the .zshrc lazy-loader.
 if [[ ! -d "$HOME/.pyenv" ]]; then
   echo ""
-  echo "→ Instalando pyenv (curl installer oficial)"
-  curl https://pyenv.run | bash || echo "⚠️  pyenv install falló"
+  echo "→ Installing pyenv (official curl installer)"
+  curl https://pyenv.run | bash || echo "⚠️  pyenv install failed"
 fi
 
-# ─── default shell a zsh ───────────────────────────────────────
+# ─── default shell to zsh ──────────────────────────────────────
 if [[ "$(basename "${SHELL:-}")" != "zsh" ]] && command -v zsh >/dev/null 2>&1; then
   echo ""
-  echo "→ Cambiando shell default a zsh"
+  echo "→ Changing default shell to zsh"
   chsh -s "$(command -v zsh)" || \
-    echo "⚠️  chsh falló — corré 'chsh -s \$(which zsh)' a mano (puede pedir password)."
+    echo "⚠️  chsh failed — run 'chsh -s \$(which zsh)' by hand (it may ask for a password)."
 fi
 
-# ─── WSL2-specific helpers (detección heurística) ─────────────
+# ─── WSL2-specific helpers (heuristic detection) ──────────────
 if [[ -n "${WSL_DISTRO_NAME:-}" || -n "${WSLENV:-}" ]] || \
    grep -qi microsoft /proc/version 2>/dev/null; then
   echo ""
-  echo "ℹ️  WSL2 detectado:"
-  echo "   - Fonts: usá las del Windows Terminal (no instales fonts adentro de WSL)."
-  echo "   - Ghostty: no aplicable — config se ignora."
-  echo "   - Clipboard nvim: instalá win32yank para integración con Windows clipboard:"
+  echo "ℹ️  WSL2 detected:"
+  echo "   - Fonts: use the Windows Terminal ones (do not install fonts inside WSL)."
+  echo "   - Ghostty: not applicable — its config is ignored."
+  echo "   - nvim clipboard: install win32yank for Windows clipboard integration:"
   echo "       curl -sLo /tmp/win32yank.zip https://github.com/equalsraf/win32yank/releases/download/v0.1.1/win32yank-x64.zip"
   echo "       mkdir -p ~/.local/bin"
   echo "       unzip -p /tmp/win32yank.zip win32yank.exe > ~/.local/bin/win32yank.exe"
@@ -318,11 +290,11 @@ if [[ -n "${WSL_DISTRO_NAME:-}" || -n "${WSLENV:-}" ]] || \
 fi
 
 echo ""
-echo "✅ Done. Próximos pasos:"
-echo "   1. Credenciales/env vars per-máquina: crear ~/.zshenv.local"
-echo "   2. Aliases/funciones per-máquina: crear ~/.zshrc.local"
-echo "   3. Abrir shell nuevo: exec zsh"
-echo "   4. Adentro de tmux la primera vez: prefix + I para plugins"
-echo "   5. Si algún tool sigue faltando: revisá output arriba — los ⚠️"
-echo "      marcan installs fallidos. Suelen ser problemas de red o arch"
-echo "      no soportada (sólo x86_64 + arm64 implementados)."
+echo "✅ Done. Next steps:"
+echo "   1. Per-machine credentials/env vars: create ~/.zshenv.local"
+echo "   2. Per-machine aliases/functions: create ~/.zshrc.local"
+echo "   3. Open a new shell: exec zsh"
+echo "   4. Inside tmux the first time: prefix + I to install plugins"
+echo "   5. If some tool is still missing: check the output above — the ⚠️"
+echo "      mark failed installs. They are usually network problems or an"
+echo "      unsupported arch (only x86_64 + arm64 are implemented)."

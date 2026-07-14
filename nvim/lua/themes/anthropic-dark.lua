@@ -1,7 +1,7 @@
 -- ─── theme: anthropic-dark ───────────────────────────────────
--- Espejo del bloque "Anthropic DARK" inline en ghostty/config.ghostty.
--- Paleta portada de ashwingopalsamy/claude-code-theme (VS Code,
--- WCAG-validated, normalizada de Anthropic brand-guidelines +
+-- Mirror of the inline "Anthropic DARK" block in ghostty/config.ghostty.
+-- Palette ported from ashwingopalsamy/claude-code-theme (VS Code,
+-- WCAG-validated, normalized from the Anthropic brand-guidelines +
 -- docs.anthropic.com CSS vars).
 --
 -- Brand anchors:
@@ -9,8 +9,8 @@
 --   #D4967E interactive dark (focus/accent)
 --   #141413 ink/bg · #EAE7DF fg · #2B2A27 bg inset
 --
--- Base tokyonight: variant `night`.
--- Convención dark theme: los "bright" son MÁS CLAROS que los normales.
+-- tokyonight base: variant `night`.
+-- Dark theme convention: the "bright" colors are LIGHTER than the normal ones.
 
 local palette = {
   bg          = "#141413",       -- Anthropic ink (bg dark)
@@ -19,7 +19,7 @@ local palette = {
   bg_visual   = "#2B2A27",
   bg_float    = "#1F1D1A",       -- surface
   bg_popup    = "#1F1D1A",
-  bg_search   = "#4A473F",       -- border tone para search match
+  bg_search   = "#4A473F",       -- border tone for search match
   bg_sidebar  = "#1A1917",
   bg_statusline = "#1A1917",
 
@@ -45,7 +45,7 @@ local palette = {
   bright_cyan    = "#BDE0FF",
   bright_white   = "#F5F2E9",
 
-  comment     = "#B8AFA3",       -- syntax comment (warm gray legible)
+  comment     = "#B8AFA3",       -- syntax comment (legible warm gray)
   border      = "#4A473F",
   cursor      = "#D97757",       -- Claude orange (brand secondary)
   accent      = "#D4967E",       -- interactive dark (focus)
@@ -93,7 +93,7 @@ return {
     c.magenta   = palette.magenta
     c.magenta2  = palette.bright_magenta
     c.purple    = palette.magenta
-    c.orange    = palette.cursor          -- Claude orange como "naranja semántico"
+    c.orange    = palette.cursor          -- Claude orange as the "semantic orange"
 
     c.git = {
       add    = palette.green,
@@ -104,7 +104,7 @@ return {
   end,
 
   on_highlights = function(hl, c)
-    hl.CursorLine   = { bg = "#1F1D1A" }       -- surface (apenas más claro que bg)
+    hl.CursorLine   = { bg = "#1F1D1A" }       -- surface (barely lighter than bg)
     hl.CursorLineNr = { fg = palette.cursor, bold = true }
     hl.LineNr       = { fg = c.fg_gutter }
 
@@ -131,7 +131,7 @@ return {
     hl["@markup.raw.block"]            = { bg = code_bg }
     hl.markdownCodeBlock               = { bg = code_bg }
 
-    -- Headings: jerarquía Claude orange → ámbar → verde.
+    -- Headings: Claude orange → amber → green hierarchy.
     hl["@markup.heading.1.markdown"]   = { fg = palette.cursor,         bold = true }
     hl["@markup.heading.2.markdown"]   = { fg = palette.bright_yellow,  bold = true }
     hl["@markup.heading.3.markdown"]   = { fg = palette.bright_green,   bold = true }

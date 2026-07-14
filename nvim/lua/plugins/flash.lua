@@ -1,19 +1,19 @@
 -- ─── flash.nvim ───────────────────────────────────────────────
--- Motion modal: presionás `s` + 2 chars y aparecen labels de 1
--- letra sobre todos los matches en pantalla; presionar el label
--- salta ahí. Reemplaza el ciclo `/<pat><CR>nnn` para nav cercana.
+-- Modal motion: you press `s` + 2 chars and 1-letter labels appear
+-- over every match on screen; pressing the label
+-- jumps there. Replaces the `/<pat><CR>nnn` cycle for nearby nav.
 --
--- Override `s` (substitute char) y `S` es deliberado y estándar
--- en la comunidad: `s` en vanilla es redundante con `cl`, así que
--- el costo es ~0. Encaja con "aceleradores dentro del modelo modal".
+-- Overriding `s` (substitute char) and `S` is deliberate and standard
+-- in the community: `s` in vanilla is redundant with `cl`, so
+-- the cost is ~0. Fits with "accelerators within the modal model".
 --
--- `S` va SOLO en n/o (no en x): en visual, `S` es el wrap de
--- nvim-surround (S<char> envuelve la selección — ver surround.lua).
--- Con x acá, flash cargaba después (VeryLazy > BufReadPost) y pisaba
--- ese mapping en silencio. Treesitter-select en visual sigue vía `R`.
+-- `S` goes ONLY in n/o (not in x): in visual, `S` is nvim-surround's
+-- wrap (S<char> wraps the selection — see surround.lua).
+-- With x here, flash loaded later (VeryLazy > BufReadPost) and silently
+-- clobbered that mapping. Treesitter-select in visual still works via `R`.
 --
--- Bonus: `r` en operator-pending = remote ops (e.g. `yr` + jump
--- = yank en otro lugar sin mover el cursor).
+-- Bonus: `r` in operator-pending = remote ops (e.g. `yr` + jump
+-- = yank somewhere else without moving the cursor).
 
 return {
   "folke/flash.nvim",

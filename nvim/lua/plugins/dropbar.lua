@@ -1,14 +1,14 @@
 -- ─── dropbar.nvim ─────────────────────────────────────────────
--- Winbar con breadcrumbs (estilo VS Code): muestra path → símbolo
--- → bloque del cursor en la barra superior de cada ventana. Útil
--- en archivos largos para saber dónde estás sin scroll.
+-- Winbar with breadcrumbs (VS Code style): shows path → symbol
+-- → cursor block in the top bar of each window. Useful
+-- in long files to know where you are without scrolling.
 --
--- `<leader>h` abre el picker interactivo: navegás los segmentos
--- de la breadcrumb con jklh y `l` entra al menú (definiciones,
--- otros símbolos en el mismo scope).
+-- `<leader>h` opens the interactive picker: you navigate the breadcrumb
+-- segments with jklh and `l` enters the menu (definitions,
+-- other symbols in the same scope).
 --
--- Se excluye `oil` (file manager) y diff windows porque el winbar
--- compite con su propia UI. Config base: ryoppippi/dotfiles.
+-- `oil` (file manager) and diff windows are excluded because the winbar
+-- competes with their own UI. Base config: ryoppippi/dotfiles.
 
 return {
   "Bekaboo/dropbar.nvim",

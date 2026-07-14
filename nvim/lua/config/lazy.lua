@@ -1,6 +1,6 @@
 -- ─── lazy.nvim bootstrap ──────────────────────────────────────
--- Auto-clona lazy si no existe. Idempotente: en runs siguientes solo
--- agrega lazypath al rtp.
+-- Auto-clones lazy if it doesn't exist. Idempotent: on later runs it only
+-- adds lazypath to the rtp.
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
@@ -20,16 +20,16 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
--- import = "plugins" carga TODOS los .lua en lua/plugins/ automáticamente.
--- No hace falta listarlos uno por uno — agregar/quitar plugin = agregar/quitar archivo.
+-- import = "plugins" loads ALL the .lua files in lua/plugins/ automatically.
+-- No need to list them one by one — adding/removing a plugin = adding/removing a file.
 require("lazy").setup({
   spec = { { import = "plugins" } },
   install = { colorscheme = { "tokyonight-night", "habamax" } },
-  checker = { enabled = true, notify = false },  -- chequea updates en background, sin notificar
+  checker = { enabled = true, notify = false },  -- checks for updates in the background, without notifying
   change_detection = { notify = false },
   performance = {
     rtp = {
-      -- Plugins built-in que no usamos. Desactivarlos baja ~5ms en startup.
+      -- Built-in plugins we don't use. Disabling them shaves ~5ms off startup.
       disabled_plugins = {
         "gzip", "matchit", "matchparen", "netrwPlugin",
         "tarPlugin", "tohtml", "tutor", "zipPlugin",

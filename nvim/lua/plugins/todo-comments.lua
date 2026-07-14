@@ -1,10 +1,10 @@
 -- ─── todo-comments.nvim ───────────────────────────────────────
--- Highlight para TODO / FIX / HACK / NOTE / WARN / PERF en comentarios
--- + picker telescope con <leader>ft. `]t` / `[t` navegan entre TODOs
--- en el buffer actual.
+-- Highlight for TODO / FIX / HACK / NOTE / WARN / PERF in comments
+-- + telescope picker with <leader>ft. `]t` / `[t` navigate between TODOs
+-- in the current buffer.
 --
--- `signs = false` para no competir con gitsigns y diagnostics LSP por
--- el signcolumn — el highlight in-line ya es suficiente señal.
+-- `signs = false` so it doesn't compete with gitsigns and LSP diagnostics for
+-- the signcolumn — the inline highlight is already signal enough.
 
 return {
   "folke/todo-comments.nvim",

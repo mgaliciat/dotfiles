@@ -45,7 +45,7 @@ htmlcov/
 *.tsbuildinfo
 coverage/
 
-# Env files (deben ir en .gitignore del repo individual también)
+# Env files (must go in the individual repo's .gitignore too)
 .env
 .env.local
 .env.*.local
@@ -56,7 +56,7 @@ coverage/
 
 # Claude Code
 .claude/
-# contexto personal por proyecto (md de arranque) — solo mío
+# per-project personal context (kickoff md) — mine only
 _brief/
 .covenant/
 openspec/
@@ -70,6 +70,6 @@ CLAUDE.local.md
 .windsurf/
 .continue/
 
-# Specs / research locales (no se suben al repo)
+# Local specs / research (not pushed to the repo)
 docs/specs/
 docs/research/

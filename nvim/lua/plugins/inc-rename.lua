@@ -1,11 +1,11 @@
 -- ─── inc-rename.nvim ──────────────────────────────────────────
--- Rename de LSP con preview en vivo: arrancás `:IncRename foo` y
--- mientras tipeás el nombre nuevo, ves los cambios highlighted en
--- todos los call sites. Mucho mejor UX que el vainilla
--- vim.lsp.buf.rename (input box ciego).
+-- LSP rename with live preview: you start `:IncRename foo` and
+-- while you type the new name, you see the changes highlighted at
+-- every call site. Much better UX than vanilla
+-- vim.lsp.buf.rename (blind input box).
 --
--- El keymap <leader>rn del lsp.lua se cambia a esta versión —
--- ver lua/plugins/lsp.lua (on-attach handler).
+-- The <leader>rn keymap in lsp.lua is switched to this version —
+-- see lua/plugins/lsp.lua (on-attach handler).
 
 return {
   "smjonas/inc-rename.nvim",

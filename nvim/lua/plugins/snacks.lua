@@ -1,35 +1,35 @@
 -- ─── snacks.nvim ──────────────────────────────────────────────
--- Suite de folke con varios módulos UI bajo una sola config. Acá
--- activamos SOLO lo visual minimalista y dejamos el resto off para
--- no pisar plugins existentes:
+-- folke's suite with several UI modules under a single config. Here
+-- we enable ONLY the minimalist visual stuff and leave the rest off so
+-- we don't clobber existing plugins:
 --
---   dashboard  → splash al abrir nvim sin args (recientes + atajos)
---   indent     → guías verticales + scope highlight del bloque actual
---   scroll     → smooth scroll sutil (~150ms)
+--   dashboard  → splash when opening nvim with no args (recents + shortcuts)
+--   indent     → vertical guides + scope highlight of the current block
+--   scroll     → subtle smooth scroll (~150ms)
 --   zen        → focus mode (<leader>z toggle)
 --
--- Off intencionalmente:
---   notifier      → ya tenemos nvim-notify via noice.nvim. Activarlo
---                   duplica el sink de mensajes y rompe el routing a
---                   notify_send que hace noice cuando perdés foco.
---   statuscolumn  → señales de LSP/git ya viven en signcolumn nativo
---                   (signcolumn="yes" en options.lua), no aporta.
---   bigfile/quickfile/words/etc → no se necesitan para "look & feel".
+-- Intentionally off:
+--   notifier      → we already have nvim-notify via noice.nvim. Enabling it
+--                   duplicates the message sink and breaks the routing to
+--                   notify_send that noice does when you lose focus.
+--   statuscolumn  → LSP/git signs already live in the native signcolumn
+--                   (signcolumn="yes" in options.lua), it adds nothing.
+--   bigfile/quickfile/words/etc → not needed for "look & feel".
 --
--- Patrón discovery dinámico: snacks es una "suite componible" igual
--- que el resto del repo (mini.bracketed, blink.cmp). Cada módulo
--- vale por sí mismo; el envoltorio es ergonomía.
+-- Dynamic discovery pattern: snacks is a "composable suite" just like
+-- the rest of the repo (mini.bracketed, blink.cmp). Each module
+-- stands on its own; the wrapper is ergonomics.
 
 return {
   "folke/snacks.nvim",
-  priority = 1000,                       -- antes que el colorscheme: dashboard se monta limpio
-  lazy = false,                          -- la suite se inicializa al arrancar
+  priority = 1000,                       -- before the colorscheme: the dashboard mounts clean
+  lazy = false,                          -- the suite initializes at startup
   ---@type snacks.Config
   opts = {
     -- ─── dashboard ────────────────────────────────────
-    -- Sin ASCII art exagerado: header corto, sección de
-    -- recientes + atajos rápidos. El preset "doom" es el
-    -- más cercano a "minimalista funcional".
+    -- No over-the-top ASCII art: short header, recents
+    -- section + quick shortcuts. The "doom" preset is the
+    -- closest to "functional minimalist".
     dashboard = {
       preset = {
         header = table.concat({
@@ -56,33 +56,33 @@ return {
     },
 
     -- ─── indent ───────────────────────────────────────
-    -- Guías verticales con scope highlight. `only_scope`
-    -- en false: muestra guías en todos los niveles y
-    -- resalta el scope activo encima (lectura más rica
-    -- sin saturar).
+    -- Vertical guides with scope highlight. `only_scope`
+    -- set to false: shows guides at every level and
+    -- highlights the active scope on top (richer reading
+    -- without saturating).
     indent = {
       indent = { char = "│", only_scope = false, only_current = false },
       scope  = { char = "│", underline = false, animate = { enabled = false } },
-      -- Animación del scope desactivada — más limpio en código denso.
+      -- Scope animation disabled — cleaner in dense code.
     },
 
     -- ─── scroll ───────────────────────────────────────
-    -- Smooth scroll sutil. Easing default es bueno;
-    -- 150ms es el sweet spot entre "estático" y "mareo".
+    -- Subtle smooth scroll. The default easing is good;
+    -- 150ms is the sweet spot between "static" and "motion sickness".
     scroll = {
       animate = { duration = { step = 15, total = 150 }, easing = "linear" },
     },
 
     -- ─── zen ──────────────────────────────────────────
-    -- Focus mode minimalista: centra el buffer, oculta
-    -- statusline/numbers. Toggle con <leader>z (definido
-    -- abajo en keys).
+    -- Minimalist focus mode: centers the buffer, hides
+    -- statusline/numbers. Toggle with <leader>z (defined
+    -- below in keys).
     zen = {
       toggles = { dim = true, git_signs = false, diagnostics = false },
       show    = { statusline = false, tabline = false },
     },
 
-    -- Off explícito: documenta intención.
+    -- Explicitly off: documents intent.
     notifier     = { enabled = false },
     statuscolumn = { enabled = false },
     bigfile      = { enabled = false },

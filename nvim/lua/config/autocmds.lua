@@ -3,13 +3,13 @@
 local augroup = vim.api.nvim_create_augroup
 local autocmd = vim.api.nvim_create_autocmd
 
--- Highlight al yankear (feedback visual sin plugins)
+-- Highlight on yank (visual feedback without plugins)
 autocmd("TextYankPost", {
   group = augroup("highlight_yank", { clear = true }),
   callback = function() vim.highlight.on_yank({ timeout = 200 }) end,
 })
 
--- Trim whitespace al guardar. Restaura cursor para evitar saltos.
+-- Trim whitespace on save. Restores the cursor to avoid jumps.
 autocmd("BufWritePre", {
   group = augroup("trim_whitespace", { clear = true }),
   callback = function()
@@ -19,8 +19,8 @@ autocmd("BufWritePre", {
   end,
 })
 
--- Convenciones por lenguaje. vim.opt_local solo afecta al buffer actual.
--- Go usa tabs reales (gofmt los inserta — pelear contra eso es perder).
+-- Per-language conventions. vim.opt_local only affects the current buffer.
+-- Go uses real tabs (gofmt inserts them — fighting that is a losing battle).
 autocmd("FileType", {
   group = augroup("ft_go", { clear = true }),
   pattern = "go",
@@ -31,7 +31,7 @@ autocmd("FileType", {
   end,
 })
 
--- PHP, Rust: 4 espacios por convención
+-- PHP, Rust: 4 spaces by convention
 autocmd("FileType", {
   group = augroup("ft_four_space", { clear = true }),
   pattern = { "php", "rust" },
@@ -42,20 +42,20 @@ autocmd("FileType", {
   end,
 })
 
--- Markdown: wrap activado + spellcheck. Sin números relativos (distrae al escribir prosa).
+-- Markdown: wrap on + spellcheck. No relative numbers (distracting when writing prose).
 autocmd("FileType", {
   group = augroup("ft_markdown", { clear = true }),
   pattern = { "markdown", "gitcommit" },
   callback = function()
     vim.opt_local.wrap = true
-    vim.opt_local.linebreak = true            -- wrap respeta palabras
+    vim.opt_local.linebreak = true            -- wrap respects words
     vim.opt_local.spell = true
-    vim.opt_local.spelllang = { "en", "es" }  -- bilingüe, como tu repo
+    vim.opt_local.spelllang = { "en", "es" }  -- bilingual, like your repo
     vim.opt_local.relativenumber = false
   end,
 })
 
--- Cerrar buffers de utilidad con `q` (sin necesitar :q)
+-- Close utility buffers with `q` (no need for :q)
 autocmd("FileType", {
   group = augroup("close_with_q", { clear = true }),
   pattern = { "help", "lspinfo", "man", "qf", "checkhealth", "startuptime" },
@@ -64,7 +64,7 @@ autocmd("FileType", {
   end,
 })
 
--- Restaurar posición del cursor al reabrir un archivo
+-- Restore cursor position when reopening a file
 autocmd("BufReadPost", {
   group = augroup("restore_cursor", { clear = true }),
   callback = function(ev)

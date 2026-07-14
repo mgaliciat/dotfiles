@@ -1,14 +1,14 @@
 -- ─── glance.nvim ──────────────────────────────────────────────
--- Reemplaza `vim.lsp.buf.definition/references/implementation/
--- type_definition` con una ventana flotante tipo VS Code "Peek".
--- Mantenés el contexto: ves el resultado sin saltar fuera del
--- archivo actual, y desde la peek window podés navegar o entrar.
+-- Replaces `vim.lsp.buf.definition/references/implementation/
+-- type_definition` with a floating window like VS Code's "Peek".
+-- You keep the context: you see the result without jumping out of the
+-- current file, and from the peek window you can navigate or enter.
 --
--- Hook `before_open`: si hay UN SOLO resultado salta directo (igual
--- que el flujo nativo de gd/gr/gi/gt). Si hay varios, abre la peek
--- — ahí es donde gana sobre el nativo, que tira un quickfix list.
+-- `before_open` hook: if there's a SINGLE result it jumps straight there (same
+-- as the native gd/gr/gi/gt flow). If there are several, it opens the peek
+-- — that's where it wins over the native one, which dumps a quickfix list.
 --
--- Las keymaps gd/gr/gi/gt se rebindan en lsp.lua (LspAttach).
+-- The gd/gr/gi/gt keymaps are rebound in lsp.lua (LspAttach).
 
 return {
   "dnlhc/glance.nvim",

@@ -1,6 +1,6 @@
 -- ─── telescope.nvim ───────────────────────────────────────────
--- Fuzzy finder. fzf-native extension acelera el ranking ~10x para
--- repos grandes — build con `make` requiere compiler C (xcode-cli).
+-- Fuzzy finder. The fzf-native extension speeds up ranking ~10x for
+-- large repos — building with `make` requires a C compiler (xcode-cli).
 
 return {
   "nvim-telescope/telescope.nvim",
@@ -38,12 +38,12 @@ return {
         i = {
           ["<C-j>"] = "move_selection_next",
           ["<C-k>"] = "move_selection_previous",
-          ["<Esc>"] = "close",            -- Esc cierra directo (default requiere doble Esc)
+          ["<Esc>"] = "close",            -- Esc closes right away (the default requires a double Esc)
         },
       },
     },
     pickers = {
-      find_files = { hidden = true },     -- incluye dotfiles
+      find_files = { hidden = true },     -- includes dotfiles
       live_grep = { additional_args = function() return { "--hidden" } end },
     },
   },

@@ -1,63 +1,63 @@
 -- ─── theme: xcode-oled ───────────────────────────────────────
--- Espejo de ghostty/themes/xcode-oled y tmux/themes/xcode-oled.conf.
--- Syntax de Xcode "Default (Dark)" sobre true black (#000000) para OLED.
+-- Mirror of ghostty/themes/xcode-oled and tmux/themes/xcode-oled.conf.
+-- Xcode "Default (Dark)" syntax over true black (#000000) for OLED.
 --
--- Los hex son los que shippea Apple en el plist Default (Dark).xccolortheme
--- (ver el header del theme de Ghostty para la proveniencia y por qué los
--- ports a VS Code no sirven de fuente). Única desviación: el bg, que en
--- Xcode es #1f1f24 y acá es negro puro.
+-- The hex values are the ones Apple ships in the Default (Dark).xccolortheme plist
+-- (see the Ghostty theme's header for the provenance and why the
+-- VS Code ports are not a valid source). Only deviation: the bg, which in
+-- Xcode is #1f1f24 and here is pure black.
 --
 -- Brand anchors:
---   #fc5fa3 keyword rosa (cursor · el color más icónico del theme)
---   #9ef1dd type aqua    (accent: focus/interactive)
---   #fc6a5d string salmón · #d0bf69 number gold
---   #000000 bg true black · #ffffff fg (xcode.syntax.plain)
+--   #fc5fa3 pink keyword (cursor · the theme's most iconic color)
+--   #9ef1dd aqua type    (accent: focus/interactive)
+--   #fc6a5d salmon string · #d0bf69 gold number
+--   #000000 true black bg · #ffffff fg (xcode.syntax.plain)
 --
--- Base tokyonight: variant `night`.
--- bg_statusline = #000000 deliberado: en OLED el statusline se funde con
--- el editor y evita el "rectángulo flotante" de un bg distinto al Normal.
+-- tokyonight base: variant `night`.
+-- bg_statusline = #000000 is deliberate: on OLED the statusline blends into
+-- the editor and avoids the "floating rectangle" of a bg different from Normal.
 
 local palette = {
   bg            = "#000000",       -- true black OLED
-  bg_dark       = "#0a0a0a",       -- raised mínimo (sidebars)
+  bg_dark       = "#0a0a0a",       -- minimal raise (sidebars)
   bg_highlight  = "#515b70",       -- DVTSourceTextSelectionColor (Apple)
   bg_visual     = "#515b70",
-  bg_float      = "#0d0d0d",       -- popups: apenas distinguibles del bg
+  bg_float      = "#0d0d0d",       -- popups: barely distinguishable from bg
   bg_popup      = "#0d0d0d",
   bg_search     = "#515b70",
   bg_sidebar    = "#0a0a0a",
-  bg_statusline = "#000000",       -- se funde con el editor en OLED
+  bg_statusline = "#000000",       -- blends into the editor on OLED
 
   fg            = "#ffffff",       -- xcode.syntax.plain
   fg_dark       = "#dfdfe0",
-  fg_gutter     = "#424d5b",       -- DVTSourceTextInvisiblesColor: sutil pero legible
+  fg_gutter     = "#424d5b",       -- DVTSourceTextInvisiblesColor: subtle but legible
 
-  black         = "#1f1f24",       -- el bg propio de Xcode
+  black         = "#1f1f24",       -- Xcode's own bg
   red           = "#fc6a5d",       -- string
-  green         = "#67b7a4",       -- identifier.function (teal-verde, "project")
+  green         = "#67b7a4",       -- identifier.function (teal-green, "project")
   yellow        = "#d0bf69",       -- number
   blue          = "#41a1c0",       -- declaration.other
   magenta       = "#fc5fa3",       -- keyword
   cyan          = "#5dd8ff",       -- declaration.type
   white         = "#dfdfe0",
 
-  -- Apple no define brights. 10/11/12/15 son hex suyos (el "claro" del
-  -- mismo token); 9/13/14 son el normal +0.08 de lightness en HSL.
+  -- Apple doesn't define brights. 10/11/12/15 are hex values of theirs (the "light"
+  -- version of the same token); 9/13/14 are the normal one +0.08 lightness in HSL.
   bright_black   = "#6c7986",      -- comment
-  bright_red     = "#fd8f85",      -- derivado
+  bright_red     = "#fd8f85",      -- derived
   bright_green   = "#9ef1dd",      -- identifier.type (aqua)
   bright_yellow  = "#ffdb8b",      -- markup.aside.kind
   bright_blue    = "#5482ff",      -- url
-  bright_magenta = "#fd87ba",      -- derivado
-  bright_cyan    = "#86e2ff",      -- derivado
+  bright_magenta = "#fd87ba",      -- derived
+  bright_cyan    = "#86e2ff",      -- derived
   bright_white   = "#ffffff",      -- plain
 
   comment       = "#6c7986",       -- xcode.syntax.comment
   border        = "#515b70",
-  cursor        = "#fc5fa3",       -- keyword rosa (brand del theme)
-  accent        = "#9ef1dd",       -- type aqua (focus/interactive)
+  cursor        = "#fc5fa3",       -- pink keyword (the theme's brand)
+  accent        = "#9ef1dd",       -- aqua type (focus/interactive)
 
-  -- Fuera del ANSI 16, pero Xcode los usa mucho y tokyonight tiene slot.
+  -- Outside the ANSI 16, but Xcode uses them a lot and tokyonight has a slot.
   purple        = "#d0a8ff",       -- identifier.type.system
   purple_deep   = "#a167e6",       -- identifier.function.system
   orange        = "#fd8f3f",       -- preprocessor / macro
@@ -104,9 +104,9 @@ return {
     c.cyan      = palette.cyan
     c.magenta   = palette.magenta
     c.magenta2  = palette.bright_magenta
-    -- Xcode SÍ tiene púrpura propio (los identificadores "system"), así
-    -- que no hace falta reciclar el magenta acá — otros themes del repo
-    -- sí lo hacen porque su paleta ANSI no trae púrpura.
+    -- Xcode DOES have its own purple (the "system" identifiers), so
+    -- there's no need to recycle the magenta here — other themes in the repo
+    -- do, because their ANSI palette has no purple.
     c.purple    = palette.purple
     c.orange    = palette.orange
 
@@ -119,7 +119,7 @@ return {
   end,
 
   on_highlights = function(hl, c)
-    hl.CursorLine   = { bg = "#0d0d0d" }       -- mínimo lift sobre #000
+    hl.CursorLine   = { bg = "#0d0d0d" }       -- minimal lift over #000
     hl.CursorLineNr = { fg = palette.cursor, bold = true }
     hl.LineNr       = { fg = c.fg_gutter }
 
@@ -134,8 +134,8 @@ return {
     hl.GitSignsChange = { fg = c.yellow }
     hl.GitSignsDelete = { fg = c.red }
 
-    -- Inline code: bg apenas raised + aqua (el "type" de Xcode).
-    local code_bg = "#1f1f24"                  -- el bg propio de Xcode como raised
+    -- Inline code: barely raised bg + aqua (Xcode's "type").
+    local code_bg = "#1f1f24"                  -- Xcode's own bg used as the raised one
     local code_fg = palette.bright_green
     hl["@markup.raw"]                  = { bg = code_bg, fg = code_fg }
     hl["@markup.raw.markdown_inline"]  = { bg = code_bg, fg = code_fg }
@@ -146,7 +146,7 @@ return {
     hl["@markup.raw.block"]            = { bg = code_bg }
     hl.markdownCodeBlock               = { bg = code_bg }
 
-    -- Headings: jerarquía rosa → aqua → gold (keyword, type, number).
+    -- Headings: pink → aqua → gold hierarchy (keyword, type, number).
     hl["@markup.heading.1.markdown"]   = { fg = palette.magenta,      bold = true }
     hl["@markup.heading.2.markdown"]   = { fg = palette.bright_green, bold = true }
     hl["@markup.heading.3.markdown"]   = { fg = palette.yellow,       bold = true }
@@ -154,17 +154,17 @@ return {
     hl["@markup.link.url"]   = { fg = palette.bright_blue, underline = true }
     hl["@markup.link.label"] = { fg = palette.magenta }
 
-    -- ─── syntax: roles de Xcode, no los de tokyonight ──────────
-    -- ESTO es el theme. Sin este bloque tokyonight aplica SU semántica
-    -- sobre nuestra paleta (String→green, Keyword→cyan) y queda un tema
-    -- con los colores de Xcode pero el highlighting de otro editor.
-    -- Cada grupo se ata al token equivalente del plist de Apple.
+    -- ─── syntax: Xcode's roles, not tokyonight's ───────────────
+    -- THIS is the theme. Without this block tokyonight applies ITS semantics
+    -- over our palette (String→green, Keyword→cyan) and you end up with a theme
+    -- that has Xcode's colors but another editor's highlighting.
+    -- Each group is tied to the equivalent token from Apple's plist.
     --
-    -- Criterio en los dos casos donde treesitter y Xcode no se solapan:
-    --   · @variable → fg plano. Xcode pinta de teal los identificadores
-    --     que su índice resuelve; treesitter pinta TODOS. Colorear cada
-    --     local sería mucho más ruidoso que el editor real.
-    --   · @operator y puntuación → fg plano, como en Xcode.
+    -- Criteria in the two cases where treesitter and Xcode don't overlap:
+    --   · @variable → plain fg. Xcode paints teal the identifiers
+    --     its index resolves; treesitter paints ALL of them. Coloring every
+    --     local would be far noisier than the real editor.
+    --   · @operator and punctuation → plain fg, as in Xcode.
     local xc = {
       keyword   = palette.magenta,      -- xcode.syntax.keyword
       string    = palette.red,          -- xcode.syntax.string
@@ -180,7 +180,7 @@ return {
       plain     = palette.fg,           -- xcode.syntax.plain
     }
 
-    -- Grupos clásicos de vim (los usa el syntax legacy y varios plugins).
+    -- Classic vim groups (used by the legacy syntax and several plugins).
     hl.Comment    = { fg = xc.comment, italic = true }
     hl.Keyword    = { fg = xc.keyword }
     hl.Statement  = { fg = xc.keyword }
@@ -205,7 +205,7 @@ return {
     hl.Macro      = { fg = xc.preproc }
     hl.Special    = { fg = xc.number }
 
-    -- Treesitter (lo que realmente pinta en este nvim).
+    -- Treesitter (what actually paints in this nvim).
     hl["@comment"]              = { fg = xc.comment, italic = true }
     hl["@keyword"]              = { fg = xc.keyword }
     hl["@keyword.function"]     = { fg = xc.keyword }
@@ -250,9 +250,9 @@ return {
     hl["@punctuation.delimiter"]= { fg = xc.plain }
     hl["@punctuation.special"]  = { fg = xc.plain }
 
-    -- LSP semantic tokens: ganan sobre treesitter cuando el server los
-    -- manda, así que sin esto un buffer con LSP activo revierte a los
-    -- colores de tokyonight y el theme se ve distinto según el filetype.
+    -- LSP semantic tokens: they win over treesitter when the server sends
+    -- them, so without this a buffer with an active LSP reverts to
+    -- tokyonight's colors and the theme looks different per filetype.
     hl["@lsp.type.class"]     = { fg = xc.typ }
     hl["@lsp.type.enum"]      = { fg = xc.typ }
     hl["@lsp.type.interface"] = { fg = xc.typ }

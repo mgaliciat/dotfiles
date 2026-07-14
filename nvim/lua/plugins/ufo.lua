@@ -1,20 +1,20 @@
 -- ─── nvim-ufo ─────────────────────────────────────────────────
--- Folding moderno: preview en hover, virtual text con cantidad
--- de líneas plegadas, provider treesitter con fallback a indent
--- (sirve en buffers sin parser TS, tipo logs o txt).
+-- Modern folding: preview on hover, virtual text with the number
+-- of folded lines, treesitter provider with an indent fallback
+-- (works in buffers without a TS parser, like logs or txt).
 --
--- Opciones de fold (foldlevel=99, foldenable=true, foldcolumn="1")
--- viven en config/options.lua — ufo necesita esos defaults antes
--- de attachear sus handlers.
+-- Fold options (foldlevel=99, foldenable=true, foldcolumn="1")
+-- live in config/options.lua — ufo needs those defaults before
+-- attaching its handlers.
 --
 -- Keymaps:
---   zR  abre todos los folds
---   zM  cierra todos los folds
---   zr  reduce un nivel de folding
---   zm  aumenta un nivel de folding
---   K   peek del fold bajo el cursor — vive en plugins/lsp.lua porque
---       el mapeo buffer-local del LspAttach gana sobre cualquier
---       mapeo global que registremos acá.
+--   zR  opens all folds
+--   zM  closes all folds
+--   zr  reduces one folding level
+--   zm  increases one folding level
+--   K   peek of the fold under the cursor — lives in plugins/lsp.lua because
+--       LspAttach's buffer-local mapping wins over any global
+--       mapping we register here.
 
 return {
   "kevinhwang91/nvim-ufo",
@@ -27,9 +27,9 @@ return {
     { "zm", function() require("ufo").closeFoldsWith() end, desc = "Increase fold level" },
   },
   opts = {
-    -- Virtual text al final de la línea plegada: muestra ícono +
-    -- cantidad de líneas. Reemplaza el clásico "+--- N lines ---"
-    -- por algo legible y discreto.
+    -- Virtual text at the end of the folded line: shows an icon +
+    -- the number of lines. Replaces the classic "+--- N lines ---"
+    -- with something legible and discreet.
     fold_virt_text_handler = function(virtText, lnum, endLnum, width, truncate)
       local newVirtText = {}
       local suffix = ("  󰁂 %d "):format(endLnum - lnum)
@@ -56,8 +56,8 @@ return {
       table.insert(newVirtText, { suffix, "MoreMsg" })
       return newVirtText
     end,
-    -- Provider por filetype: treesitter primero (preciso, respeta
-    -- bloques semánticos), indent como fallback (sirve para todo).
+    -- Provider per filetype: treesitter first (precise, respects
+    -- semantic blocks), indent as fallback (works for everything).
     provider_selector = function(_, _, _)
       return { "treesitter", "indent" }
     end,

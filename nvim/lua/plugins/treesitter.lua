@@ -1,17 +1,17 @@
 -- ─── nvim-treesitter (main branch) ────────────────────────────
--- Branch `master` está archivado y es incompatible con nvim ≥0.12
--- (la API de query directives cambió). El plugin se reescribió en
--- `main` con otra interfaz: no hay `setup{}` con módulos como
--- `highlight`/`indent`/`textobjects` — son features built-in de nvim
--- que se activan vía `vim.treesitter.start()` en un autocmd FileType.
+-- The `master` branch is archived and incompatible with nvim ≥0.12
+-- (the query directives API changed). The plugin was rewritten on
+-- `main` with a different interface: there's no `setup{}` with modules like
+-- `highlight`/`indent`/`textobjects` — those are built-in nvim features
+-- enabled via `vim.treesitter.start()` in a FileType autocmd.
 --
--- Requisitos del branch main:
+-- Requirements of the main branch:
 --  - nvim 0.12+ (✓)
---  - tree-sitter-cli ≥0.26.1 desde brew (NO npm). Registrado en install.sh.
---  - main NO soporta lazy-loading → `lazy = false`.
+--  - tree-sitter-cli ≥0.26.1 from brew (NOT npm). Registered in install.sh.
+--  - main does NOT support lazy-loading → `lazy = false`.
 --
--- :TSUpdate corre al instalar/actualizar. Parsers viven en
--- ~/.local/share/nvim/site/parser/ (install_dir default).
+-- :TSUpdate runs on install/update. Parsers live in
+-- ~/.local/share/nvim/site/parser/ (default install_dir).
 
 return {
   {
@@ -21,7 +21,7 @@ return {
     lazy = false,
     config = function()
       require("nvim-treesitter").install({
-        -- Lenguajes que el user usa
+        -- Languages the user uses
         "go", "gomod", "gosum",
         "typescript", "tsx", "javascript", "html", "css", "scss",
         "astro",
@@ -31,23 +31,23 @@ return {
         "sql",
         "bash",
         "markdown", "markdown_inline",
-        -- Soporte general
-        "lua", "vim", "vimdoc", "query",      -- requeridos por nvim mismo
+        -- General support
+        "lua", "vim", "vimdoc", "query",      -- required by nvim itself
         "json", "yaml", "toml",
         "dockerfile",
         "gitcommit", "gitignore", "diff",
         "regex",
       })
 
-      -- Highlight + indent: el branch main no los activa solo, hay que
-      -- prenderlos por filetype. `vim.treesitter.start()` falla silente
-      -- si el parser no está instalado, por eso el pcall.
+      -- Highlight + indent: the main branch doesn't enable them by itself, you have to
+      -- turn them on per filetype. `vim.treesitter.start()` fails silently
+      -- if the parser isn't installed, hence the pcall.
       vim.api.nvim_create_autocmd("FileType", {
         callback = function(args)
           local ft = args.match
           if pcall(vim.treesitter.start, args.buf) then
-            -- Indent treesitter-based (experimental upstream). PHP queda
-            -- afuera — el indent de TS para PHP es flaky igual que antes.
+            -- Treesitter-based indent (experimental upstream). PHP is left
+            -- out — TS indent for PHP is as flaky as it used to be.
             if ft ~= "php" then
               vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
             end
@@ -57,10 +57,10 @@ return {
     end,
   },
 
-  -- ─── textobjects (también branch main, API nueva) ────────────
-  -- En main, los textobjects no se configuran como módulos de
-  -- nvim-treesitter: el plugin separado expone funciones (`select`,
-  -- `move`) que se mapean a teclas manualmente.
+  -- ─── textobjects (also branch main, new API) ─────────────────
+  -- On main, textobjects aren't configured as nvim-treesitter
+  -- modules: the separate plugin exposes functions (`select`,
+  -- `move`) that you map to keys manually.
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
     branch = "main",
@@ -76,7 +76,7 @@ return {
       local select = require("nvim-treesitter-textobjects.select")
       local move = require("nvim-treesitter-textobjects.move")
 
-      -- Selecciones: vaf / vif / vac / vic / vaa / via
+      -- Selections: vaf / vif / vac / vic / vaa / via
       local select_maps = {
         { "af", "@function.outer" },
         { "if", "@function.inner" },
@@ -91,7 +91,7 @@ return {
         end, { desc = "select " .. m[2] })
       end
 
-      -- Movimiento: ]f / [f por funciones, ]c / [c por clases
+      -- Movement: ]f / [f by functions, ]c / [c by classes
       vim.keymap.set({ "n", "x", "o" }, "]f", function()
         move.goto_next_start("@function.outer", "textobjects")
       end, { desc = "next function start" })

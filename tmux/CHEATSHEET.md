@@ -1,174 +1,174 @@
 # tmux cheatsheet
 
-Comandos relevantes para **esta config**. `prefix` = `Ctrl+t`.
+Commands relevant to **this config**. `prefix` = `Ctrl+t`.
 
-Convención: `prefix x` = presionás `Ctrl+t`, soltás, después `x`.
+Convention: `prefix x` = you press `Ctrl+t`, release, then `x`.
 
-`prefix C-t` (o sea, `Ctrl+t` dos veces) manda un `Ctrl+t` **literal** al pane — el escape hatch para tmux anidado o apps que quieren esa tecla.
-
----
-
-## ⭐ Lo más importante (los popups — chord único sin prefix)
-
-| Atajo | Acción |
-|---|---|
-| `Alt+c` | **Claude Code en popup 90%** — sesión "default" persistente por proyecto |
-| `Alt+C` | **Claude YOLO** — igual que `Alt+c` pero con `--dangerously-skip-permissions` (sesión separada) ⚠️ |
-| `Alt+u` | **Picker central de sesiones Claude** (plugin session-manager) — TODAS las sesiones, estado live working/waiting/idle + preview |
-| `Alt+y` | **Launcher Claude por directorio** (plugin session-manager) |
-| `Alt+d` | **Cerrar popup Claude** (detach seguro — solo si estás dentro de sesión `claude*`) |
-| `Alt+g` | **lazygit en popup 90%** — git UI flotante en el cwd |
-| `Alt+Enter` | Shell rápida en popup 90% — para comandos one-off sin ocupar pane |
-| `prefix b` | **Toggle statusline** on/off (default: OFF, sin distracción) |
-
-**Cuándo usar `Alt+C` (YOLO) vs `Alt+c` (normal):**
-- `Alt+c` → workflow diario. Claude pide confirmación antes de cada bash/edit. Más seguro.
-- `Alt+C` → refactors masivos, exploración rápida, repos sandbox. Claude ejecuta todo sin preguntar. **Solo en repos versionados o que podés tirar.**
-- Las sesiones son distintas (`claude-<hash>` vs `claude-yolo-<hash>`) → no se mezcla el contexto.
-
-**Cuándo usar `Alt+u`/`Alt+y` (plugin) vs `Alt+c`/`Alt+C`:**
-- `Alt+c`/`Alt+C` → te dan la sesión "default" del proyecto. Una sola.
-- `Alt+u` → picker central: lista TODAS las sesiones Claude del server (de todos los proyectos) con estado live (working/waiting/idle, vía `claude agents --json`) y preview. Reemplazó al viejo selector `Alt+s`.
-- `Alt+y` → launcher por directorio del plugin. Para un mismo dir resuelve a la **misma** sesión `claude-<hash>` que `Alt+c` (mismo algoritmo md5) — se comparten, no se duplican.
-
-**Cómo funciona el popup de Claude:**
-1. `cd ~/proyectos/foo` → `Alt+c` → se crea sesión `claude-<md5>` con Claude corriendo.
-2. Cerrás el popup con `Alt+d` (detach) → Claude sigue vivo en background.
-3. Volvés más tarde a `~/proyectos/foo` → `Alt+c` → reattacheás la **misma** sesión con todo el contexto.
-4. Cambias a `~/proyectos/bar` → `Alt+c` → sesión DISTINTA (diferente md5).
-5. ¿Perdiste el hilo de qué Claude anda dónde? → `Alt+u` → picker con estado live de todas.
-
-**Convención de nombres de sesión:**
-- `claude-<hash>` → la default que abren `Alt+c` / `Alt+y` (comparten hash)
-- `claude-yolo-<hash>` → la default YOLO que abre `Alt+C`
-
-Para listar sesiones de Claude activas: `tmux ls | grep claude` (o `Alt+u`).
-Para matar una sesión específica: `tmux kill-session -t claude-<hash>`.
+`prefix C-t` (that is, `Ctrl+t` twice) sends a **literal** `Ctrl+t` to the pane — the escape hatch for nested tmux or apps that want that key.
 
 ---
 
-## Sesiones (persistencia — la razón principal de tmux)
+## ⭐ The most important part (the popups — single chord, no prefix)
 
-| Atajo / Comando | Acción |
+| Shortcut | Action |
 |---|---|
-| `tmux new -s nombre` | Crear sesión con nombre |
-| `tmux ls` | Listar sesiones activas |
-| `tmux a` o `tmux attach` | Attachear a la última sesión |
-| `tmux a -t nombre` | Attachear a sesión específica |
-| `prefix d` | **Detach** — salís de tmux, la sesión sigue viva |
-| `prefix s` | Selector de sesiones (con preview) |
-| `prefix $` | Renombrar sesión actual |
-| `tmux kill-session -t nombre` | Matar una sesión |
-| `tmux kill-server` | Matar TODO tmux (cuidado) |
+| `Alt+c` | **Claude Code in a 90% popup** — persistent "default" session per project |
+| `Alt+C` | **Claude YOLO** — same as `Alt+c` but with `--dangerously-skip-permissions` (separate session) ⚠️ |
+| `Alt+u` | **Central picker of Claude sessions** (session-manager plugin) — ALL sessions, live working/waiting/idle state + preview |
+| `Alt+y` | **Claude launcher per directory** (session-manager plugin) |
+| `Alt+d` | **Close the Claude popup** (safe detach — only if you're inside a `claude*` session) |
+| `Alt+g` | **lazygit in a 90% popup** — floating git UI in the cwd |
+| `Alt+Enter` | Quick shell in a 90% popup — for one-off commands without taking up a pane |
+| `prefix b` | **Toggle the statusline** on/off (default: OFF, no distraction) |
 
-**Workflow típico:**
-1. `tmux new -s laburo` → empezás a trabajar.
-2. Cerrás Ghostty (sin querer o intencional) → la sesión persiste.
-3. Abrís Ghostty de nuevo → `tmux a -t laburo` → todo como estaba.
-4. Reboot completo → `tmux-resurrect` restaura panes + comandos (auto via `tmux-continuum`).
+**When to use `Alt+C` (YOLO) vs `Alt+c` (normal):**
+- `Alt+c` → daily workflow. Claude asks for confirmation before each bash/edit. Safer.
+- `Alt+C` → massive refactors, quick exploration, sandbox repos. Claude runs everything without asking. **Only in versioned repos or ones you can throw away.**
+- The sessions are different (`claude-<hash>` vs `claude-yolo-<hash>`) → the context doesn't mix.
+
+**When to use `Alt+u`/`Alt+y` (plugin) vs `Alt+c`/`Alt+C`:**
+- `Alt+c`/`Alt+C` → they give you the project's "default" session. Just one.
+- `Alt+u` → central picker: it lists ALL of the server's Claude sessions (from every project) with live state (working/waiting/idle, via `claude agents --json`) and preview. It replaced the old `Alt+s` selector.
+- `Alt+y` → the plugin's per-directory launcher. For the same dir it resolves to the **same** `claude-<hash>` session as `Alt+c` (same md5 algorithm) — they're shared, not duplicated.
+
+**How the Claude popup works:**
+1. `cd ~/projects/foo` → `Alt+c` → a `claude-<md5>` session is created with Claude running.
+2. You close the popup with `Alt+d` (detach) → Claude stays alive in the background.
+3. You come back later to `~/projects/foo` → `Alt+c` → you reattach to the **same** session with all its context.
+4. You switch to `~/projects/bar` → `Alt+c` → a DIFFERENT session (different md5).
+5. Lost track of which Claude is running where? → `Alt+u` → picker with the live state of all of them.
+
+**Session naming convention:**
+- `claude-<hash>` → the default one that `Alt+c` / `Alt+y` open (they share the hash)
+- `claude-yolo-<hash>` → the YOLO default that `Alt+C` opens
+
+To list the active Claude sessions: `tmux ls | grep claude` (or `Alt+u`).
+To kill a specific session: `tmux kill-session -t claude-<hash>`.
 
 ---
 
-## Windows (tabs dentro de la sesión)
+## Sessions (persistence — the main reason for tmux)
 
-| Atajo | Acción |
+| Shortcut / Command | Action |
 |---|---|
-| `prefix c` | Crear nueva window |
-| `prefix ,` | Renombrar window actual |
-| `prefix &` | Cerrar window (pide confirmación) |
-| `prefix n` / `prefix p` | Siguiente / anterior window |
-| `prefix <num>` | Ir a window N (`prefix 1`, `prefix 2`, ...) |
-| `prefix w` | Selector de windows con preview |
-| `C-S-Left` / `C-S-Right` | Mover window en orden (sin prefix, instantáneo) |
-| `prefix f` | Buscar en todas las windows por texto |
+| `tmux new -s name` | Create a named session |
+| `tmux ls` | List the active sessions |
+| `tmux a` or `tmux attach` | Attach to the last session |
+| `tmux a -t name` | Attach to a specific session |
+| `prefix d` | **Detach** — you leave tmux, the session stays alive |
+| `prefix s` | Session selector (with preview) |
+| `prefix $` | Rename the current session |
+| `tmux kill-session -t name` | Kill a session |
+| `tmux kill-server` | Kill ALL of tmux (careful) |
+
+**Typical workflow:**
+1. `tmux new -s work` → you start working.
+2. You close Ghostty (by accident or on purpose) → the session persists.
+3. You open Ghostty again → `tmux a -t work` → everything as it was.
+4. Full reboot → `tmux-resurrect` restores panes + commands (auto via `tmux-continuum`).
+
+---
+
+## Windows (tabs inside the session)
+
+| Shortcut | Action |
+|---|---|
+| `prefix c` | Create a new window |
+| `prefix ,` | Rename the current window |
+| `prefix &` | Close the window (asks for confirmation) |
+| `prefix n` / `prefix p` | Next / previous window |
+| `prefix <num>` | Go to window N (`prefix 1`, `prefix 2`, ...) |
+| `prefix w` | Window selector with preview |
+| `C-S-Left` / `C-S-Right` | Move the window in the order (no prefix, instant) |
+| `prefix f` | Search across all windows by text |
 
 ---
 
 ## Panes (splits)
 
-| Atajo | Acción |
+| Shortcut | Action |
 |---|---|
-| `prefix \|` | Split vertical (cwd preservado) |
-| `prefix -` | Split horizontal (cwd preservado) |
-| `prefix h/j/k/l` | Navegar pane izq/abajo/arriba/der |
-| `prefix H/J/K/L` | Resize pane (via tmux-pain-control) |
-| `prefix z` | Zoom in/out al pane actual (toggle fullscreen) |
-| `prefix x` | Cerrar pane actual (con confirmación) |
-| `prefix e` | Cerrar todos los **demás** panes de la window — el actual sobrevive (`kill-pane -a`, sin confirm) |
-| `prefix {` / `prefix }` | Swap pane con anterior / siguiente |
-| `prefix q` | Mostrar números de pane (después `<num>` para ir) |
-| `prefix !` | Convertir pane actual en window propia |
-| `prefix Space` | Rotar layout (even-horizontal, tiled, etc.) |
+| `prefix \|` | Vertical split (cwd preserved) |
+| `prefix -` | Horizontal split (cwd preserved) |
+| `prefix h/j/k/l` | Navigate to the left/down/up/right pane |
+| `prefix H/J/K/L` | Resize the pane (via tmux-pain-control) |
+| `prefix z` | Zoom in/out on the current pane (fullscreen toggle) |
+| `prefix x` | Close the current pane (with confirmation) |
+| `prefix e` | Close all the **other** panes of the window — the current one survives (`kill-pane -a`, no confirm) |
+| `prefix {` / `prefix }` | Swap the pane with the previous / next one |
+| `prefix q` | Show the pane numbers (then `<num>` to go there) |
+| `prefix !` | Turn the current pane into its own window |
+| `prefix Space` | Rotate the layout (even-horizontal, tiled, etc.) |
 
 ---
 
-## Copy mode (modo vi)
+## Copy mode (vi mode)
 
-Entrás con `prefix [`. Salís con `q`.
+You enter with `prefix [`. You exit with `q`.
 
-| Atajo (dentro de copy mode) | Acción |
+| Shortcut (inside copy mode) | Action |
 |---|---|
-| `h j k l` | Navegar |
-| `w` / `b` | Próxima / anterior palabra |
-| `g` / `G` | Inicio / fin del buffer |
-| `/` / `?` | Buscar adelante / atrás |
-| `n` / `N` | Siguiente / anterior match |
-| `v` | Empezar selección |
-| `y` | **Copiar al clipboard del sistema** (via pbcopy) |
-| `Enter` | Copiar y salir |
+| `h j k l` | Navigate |
+| `w` / `b` | Next / previous word |
+| `g` / `G` | Start / end of the buffer |
+| `/` / `?` | Search forwards / backwards |
+| `n` / `N` | Next / previous match |
+| `v` | Start the selection |
+| `y` | **Copy to the system clipboard** (via pbcopy) |
+| `Enter` | Copy and exit |
 
-**Para pegar** lo copiado (en cualquier pane): `prefix ]`.
+**To paste** what you copied (in any pane): `prefix ]`.
 
 ---
 
 ## Config
 
-| Atajo / Comando | Acción |
+| Shortcut / Command | Action |
 |---|---|
-| `prefix r` | **Recargar config** (sin matar sesión) |
-| `prefix o` | Abrir `pane_current_path` en Finder |
-| `prefix g` | **Layout IDE** — arma 4 panes (main + columna derecha, terminal 30% abajo, sidebar 20% a toda altura); no lanza apps, solo el layout |
-| `prefix ?` | Listar TODOS los keybindings (`q` para salir) |
-| `prefix t` | Reloj en pane fullscreen (estético) |
+| `prefix r` | **Reload the config** (without killing the session) |
+| `prefix o` | Open `pane_current_path` in Finder |
+| `prefix g` | **IDE layout** — builds 4 panes (main + right column, terminal 30% at the bottom, sidebar 20% at full height); it doesn't launch apps, just the layout |
+| `prefix ?` | List ALL the keybindings (`q` to exit) |
+| `prefix t` | Clock in a fullscreen pane (aesthetic) |
 
 ---
 
 ## Plugins (tpm)
 
-Editás la lista en `tmux/tmux.conf` (sección `# ─── plugins`) y:
+You edit the list in `tmux/tmux.conf` (the `# ─── plugins` section) and:
 
-| Atajo | Acción |
+| Shortcut | Action |
 |---|---|
-| `prefix I` (mayúscula) | **Instalar** plugins nuevos |
-| `prefix U` (mayúscula) | **Actualizar** plugins |
-| `prefix alt+u` | Desinstalar plugins removidos del config |
+| `prefix I` (uppercase) | **Install** new plugins |
+| `prefix U` (uppercase) | **Update** plugins |
+| `prefix alt+u` | Uninstall plugins removed from the config |
 
-Plugins actuales:
-- `tmux-pain-control` — `prefix h/j/k/l` navegar, `prefix H/J/K/L` resize
-- `tmux-resurrect` — `prefix Ctrl+s` save, `prefix Ctrl+r` restore (sobrevive reboots)
-- `tmux-continuum` — auto-save de resurrect cada 15 min + auto-restore al iniciar
-- `tmux-claude-session-manager` — picker/launcher de sesiones Claude (rebindeado a `Alt+u` / `Alt+y`, ver arriba)
+Current plugins:
+- `tmux-pain-control` — `prefix h/j/k/l` to navigate, `prefix H/J/K/L` to resize
+- `tmux-resurrect` — `prefix Ctrl+s` save, `prefix Ctrl+r` restore (survives reboots)
+- `tmux-continuum` — auto-save of resurrect every 15 min + auto-restore on start
+- `tmux-claude-session-manager` — picker/launcher of Claude sessions (rebound to `Alt+u` / `Alt+y`, see above)
 
 ---
 
 ## Mouse
 
-Habilitado por default. Podés:
-- **Click** en pane → selecciona
-- **Click** en window (statusline) → selecciona
-- **Drag** en pane border → resize
-- **Scroll wheel** → entra a copy mode y scrolleás
-- **Drag** sobre texto → selección visual (suelta = copy)
+Enabled by default. You can:
+- **Click** on a pane → selects it
+- **Click** on a window (statusline) → selects it
+- **Drag** on a pane border → resize
+- **Scroll wheel** → enters copy mode and you scroll
+- **Drag** over text → visual selection (release = copy)
 
-Si te molesta: en `tmux.conf` cambiá `set-option -g mouse on` → `off`.
+If it bugs you: in `tmux.conf` change `set-option -g mouse on` → `off`.
 
 ---
 
 ## Tips
 
-- **`prefix` se siente lento al principio** — después de 1 día se vuelve automático.
-- **`prefix d` (detach) es tu amigo.** Cualquier sesión que querés "pausar" se detachea. Volvés con `tmux a -t <nombre>`.
-- **Cada proyecto, su sesión.** Convención útil: `tmux new -s nombre-proyecto` cuando empezás. Después `tmux ls` te muestra contexto.
-- **Para no perder hacks:** todo lo que toques en runtime (split, layout) se pierde al matar sesión salvo que `tmux-resurrect` lo guarde. `prefix Ctrl+s` para forzar save.
-- **Si un atajo no funciona:** `prefix ?` muestra todo lo binded. `:list-keys` también.
-- **Para salir de tmux completamente sin matar:** `prefix d`. NUNCA cierres la terminal con sesiones activas que no querés perder — siempre detacheá primero.
+- **`prefix` feels slow at first** — after 1 day it becomes automatic.
+- **`prefix d` (detach) is your friend.** Any session you want to "pause" gets detached. You come back with `tmux a -t <name>`.
+- **Each project, its session.** A useful convention: `tmux new -s project-name` when you start. Then `tmux ls` shows you the context.
+- **So you don't lose hacks:** everything you touch at runtime (split, layout) is lost when you kill the session unless `tmux-resurrect` saves it. `prefix Ctrl+s` to force a save.
+- **If a shortcut doesn't work:** `prefix ?` shows everything that's bound. `:list-keys` too.
+- **To leave tmux completely without killing it:** `prefix d`. NEVER close the terminal with active sessions you don't want to lose — always detach first.

@@ -1,6 +1,6 @@
 -- ─── theme: obsidian ─────────────────────────────────────────
--- Espejo del theme Ghostty `obsidian` (high-contrast dark, cyan).
--- Base tokyonight: variant `night` (la dark más pura del plugin).
+-- Mirror of the Ghostty theme `obsidian` (high-contrast dark, cyan).
+-- tokyonight base: variant `night` (the plugin's purest dark).
 
 local palette = {
   bg          = "#000000",
@@ -23,7 +23,7 @@ local palette = {
   yellow      = "#ffd866",
   blue        = "#5ab0ff",
   magenta     = "#c678ff",
-  cyan        = "#00e5ff",       -- ACCENT principal
+  cyan        = "#00e5ff",       -- main ACCENT
   white       = "#e8e8e8",
 
   bright_black   = "#3a3a3a",
@@ -35,10 +35,10 @@ local palette = {
   bright_cyan    = "#5cf0ff",
   bright_white   = "#ffffff",
 
-  -- bright_black (#3a3a3a) es demasiado oscuro sobre #000 para texto:
+  -- bright_black (#3a3a3a) is too dark over #000 for text:
   comment     = "#6a6a6a",
   border      = "#3a3a3a",
-  cursor      = "#00e5ff",       -- cyan eléctrico
+  cursor      = "#00e5ff",       -- electric cyan
 }
 
 return {
@@ -64,7 +64,7 @@ return {
 
     c.comment       = palette.comment
     c.border        = palette.border
-    c.border_highlight = palette.cursor  -- cyan acento para focus
+    c.border_highlight = palette.cursor  -- cyan accent for focus
 
     c.red       = palette.red
     c.red1      = palette.bright_red
@@ -83,7 +83,7 @@ return {
     c.magenta   = palette.magenta
     c.magenta2  = palette.bright_magenta
     c.purple    = palette.magenta
-    c.orange    = palette.cyan          -- no hay coral; el rol "acento principal" lo toma cyan
+    c.orange    = palette.cyan          -- there's no coral; cyan takes the "main accent" role
 
     c.git = {
       add    = palette.green,
@@ -109,8 +109,8 @@ return {
     hl.GitSignsChange = { fg = c.yellow }
     hl.GitSignsDelete = { fg = c.red }
 
-    -- Markdown inline code: bg apenas más claro que el bg principal,
-    -- fg magenta para no robarle el cyan a UI/metadatos.
+    -- Markdown inline code: bg barely lighter than the main bg,
+    -- magenta fg so it doesn't steal the cyan from UI/metadata.
     local code_bg = palette.bg_dark
     local code_fg = palette.bright_magenta
     hl["@markup.raw"]                  = { bg = code_bg, fg = code_fg }
@@ -122,7 +122,7 @@ return {
     hl["@markup.raw.block"]            = { bg = code_bg }
     hl.markdownCodeBlock               = { bg = code_bg }
 
-    -- Headings: jerarquía fría → amarillo de respiro.
+    -- Headings: cool hierarchy → yellow as a breather.
     hl["@markup.heading.1.markdown"]   = { fg = palette.cyan,        bold = true }
     hl["@markup.heading.2.markdown"]   = { fg = palette.bright_cyan, bold = true }
     hl["@markup.heading.3.markdown"]   = { fg = palette.yellow,      bold = true }

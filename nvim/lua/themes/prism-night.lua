@@ -1,24 +1,24 @@
 -- ─── theme: prism-night ──────────────────────────────────────
--- Espejo del theme Ghostty `prism-night` y de tmux/themes/prism-night.conf.
--- Paleta sampleada del wallpaper "prism" de macOS: azul medianoche
--- profundo + arco del espectro (naranja → amarillo → verde → cyan →
--- azul → violeta). Antes solo existía en Ghostty; ahora también en nvim.
+-- Mirror of the Ghostty theme `prism-night` and of tmux/themes/prism-night.conf.
+-- Palette sampled from macOS's "prism" wallpaper: deep midnight
+-- blue + the spectrum arc (orange → yellow → green → cyan →
+-- blue → violet). It used to exist only in Ghostty; now in nvim too.
 --
--- Base tokyonight: variant `night`.
--- Convención dark theme: los "bright" son MÁS CLAROS que los normales.
+-- tokyonight base: variant `night`.
+-- Dark theme convention: the "bright" colors are LIGHTER than the normal ones.
 
 local palette = {
-  bg            = "#0a0e1a",       -- azul medianoche profundo
-  bg_dark       = "#070a14",       -- sidebars más oscuros
-  bg_highlight  = "#2e4a7a",       -- selection (azul medio)
+  bg            = "#0a0e1a",       -- deep midnight blue
+  bg_dark       = "#070a14",       -- darker sidebars
+  bg_highlight  = "#2e4a7a",       -- selection (mid blue)
   bg_visual     = "#2e4a7a",
-  bg_float      = "#0d1120",       -- popups apenas distinguibles del bg
+  bg_float      = "#0d1120",       -- popups barely distinguishable from bg
   bg_popup      = "#0d1120",
   bg_search     = "#3a4a6b",
   bg_sidebar    = "#070a14",
   bg_statusline = "#070a14",
 
-  fg            = "#c8d3e8",       -- azul-gris claro
+  fg            = "#c8d3e8",       -- light blue-gray
   fg_dark       = "#8896b8",
   fg_gutter     = "#3a4a6b",
 
@@ -40,9 +40,9 @@ local palette = {
   bright_cyan    = "#7fd9e0",
   bright_white   = "#ffffff",
 
-  comment       = "#6b7a9e",       -- muted blue-gray, legible sobre bg azul
+  comment       = "#6b7a9e",       -- muted blue-gray, legible over the blue bg
   border        = "#3a4a6b",
-  cursor        = "#ff9248",       -- naranja del prisma (acento del theme)
+  cursor        = "#ff9248",       -- prism orange (the theme's accent)
   accent        = "#ff9248",
 }
 
@@ -88,7 +88,7 @@ return {
     c.magenta   = palette.magenta
     c.magenta2  = palette.bright_magenta
     c.purple    = palette.magenta
-    c.orange    = palette.cursor          -- naranja del prisma como "naranja semántico"
+    c.orange    = palette.cursor          -- prism orange as the "semantic orange"
 
     c.git = {
       add    = palette.green,
@@ -99,7 +99,7 @@ return {
   end,
 
   on_highlights = function(hl, c)
-    hl.CursorLine   = { bg = "#0d1120" }       -- mínimo lift sobre el bg
+    hl.CursorLine   = { bg = "#0d1120" }       -- minimal lift over the bg
     hl.CursorLineNr = { fg = palette.cursor, bold = true }
     hl.LineNr       = { fg = c.fg_gutter }
 
@@ -114,7 +114,7 @@ return {
     hl.GitSignsChange = { fg = c.yellow }
     hl.GitSignsDelete = { fg = c.red }
 
-    -- Inline code: bg azul apenas raised + cyan del prisma.
+    -- Inline code: barely raised blue bg + prism cyan.
     local code_bg = "#1a2238"
     local code_fg = palette.cyan
     hl["@markup.raw"]                  = { bg = code_bg, fg = code_fg }
@@ -126,7 +126,7 @@ return {
     hl["@markup.raw.block"]            = { bg = code_bg }
     hl.markdownCodeBlock               = { bg = code_bg }
 
-    -- Headings: arco del prisma naranja → amarillo → verde.
+    -- Headings: prism arc orange → yellow → green.
     hl["@markup.heading.1.markdown"]   = { fg = palette.cursor,        bold = true }
     hl["@markup.heading.2.markdown"]   = { fg = palette.yellow,        bold = true }
     hl["@markup.heading.3.markdown"]   = { fg = palette.green,         bold = true }

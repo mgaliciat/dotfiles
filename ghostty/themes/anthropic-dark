@@ -1,9 +1,9 @@
-# anthropic-dark — dark Claude.ai (tinta carbón + naranja Claude).
-# Espejo de nvim/lua/themes/anthropic-dark.lua. Paleta normalizada de
-# Anthropic brand-guidelines + docs.anthropic.com (WCAG-validated).
+# anthropic-dark — Claude.ai dark (charcoal ink + Claude orange).
+# Mirror of nvim/lua/themes/anthropic-dark.lua. Palette normalized from
+# the Anthropic brand-guidelines + docs.anthropic.com (WCAG-validated).
 # Brand anchors: #D97757 orange (cursor), #141413 ink, #EAE7DF fg.
 
-# fondo y texto
+# background and text
 background = #141413
 foreground = #eae7df
 
@@ -11,12 +11,12 @@ foreground = #eae7df
 cursor-color = #d97757
 cursor-text  = #141413
 
-# selección — bg inset + fg brillante
+# selection — bg inset + bright fg
 selection-background = #2b2a27
 selection-foreground = #f5f2e9
 
 # ─── ANSI 16 ─────────────────────────────────────────────────
-# normales (0-7)
+# normals (0-7)
 palette = 0=#1a1917
 palette = 1=#d47563
 palette = 2=#9aca86
@@ -26,7 +26,7 @@ palette = 5=#9b87f5
 palette = 6=#8cc4ff
 palette = 7=#d9d5cc
 
-# brillantes (8-15): lifted +luminance
+# brights (8-15): lifted +luminance
 palette = 8=#6b665f
 palette = 9=#f09884
 palette = 10=#b6e0a5

@@ -1,414 +1,414 @@
 # nvim cheatsheet
 
-Comandos relevantes para **esta config específica**. Para referencia exhaustiva de vim, usá `:help` dentro de nvim.
+Commands relevant to **this specific config**. For an exhaustive vim reference, use `:help` inside nvim.
 
-> ⚠️ **Este archivo NO está completo.** Cubre lo nativo más usado + el núcleo de la config (LSP, telescope, gitsigns, conform, treesitter), pero le faltan varios plugins que llegaron después: oil, neo-tree, flash, snacks, dap, ufo, glance, blink.cmp, dropbar, mini.bracketed, todo-comments, surround, render-markdown.
+> ⚠️ **This file is NOT complete.** It covers the most-used native stuff + the core of the config (LSP, telescope, gitsigns, conform, treesitter), but it's missing several plugins that arrived later: oil, neo-tree, flash, snacks, dap, ufo, glance, blink.cmp, dropbar, mini.bracketed, todo-comments, surround, render-markdown.
 >
-> Mientras tanto, **`../NVIM-CHEATSHEET.md` (raíz del repo) es el más actualizado de los dos** — nació como versión condensada para revisar diffs de IA, pero hoy cubre más plugins que este. Empezá por ahí.
+> In the meantime, **`../NVIM-CHEATSHEET.md` (repo root) is the more up-to-date of the two** — it started as a condensed version for reviewing AI diffs, but today it covers more plugins than this one. Start there.
 
-`<leader>` = **barra espaciadora**. `<CR>` = Enter. `<C-x>` = Ctrl+x. `<A-x>` = Alt+x. `<S-x>` = Shift+x.
+`<leader>` = **spacebar**. `<CR>` = Enter. `<C-x>` = Ctrl+x. `<A-x>` = Alt+x. `<S-x>` = Shift+x.
 
 ---
 
-## 0. Conceptos base
+## 0. Base concepts
 
-### Modos
+### Modes
 
-| Modo | Cómo entrar | Para qué |
+| Mode | How to enter | What for |
 |---|---|---|
-| **Normal** | `<Esc>` o `jk` | Default. Navegar, comandos. No escribís texto. |
-| **Insert** | `i`, `a`, `o`, `I`, `A`, `O` | Escribir texto. |
-| **Visual** | `v` (char), `V` (línea), `<C-v>` (bloque) | Seleccionar. |
-| **Command** | `:` | Comandos `:w`, `:Telescope`, etc. |
-| **Replace** | `R` | Sobrescribe en vez de insertar. |
-| **Terminal** | `:terminal` | Terminal embebido. `<C-\><C-n>` para volver a normal. |
+| **Normal** | `<Esc>` or `jk` | Default. Navigate, commands. You don't type text. |
+| **Insert** | `i`, `a`, `o`, `I`, `A`, `O` | Type text. |
+| **Visual** | `v` (char), `V` (line), `<C-v>` (block) | Select. |
+| **Command** | `:` | Commands `:w`, `:Telescope`, etc. |
+| **Replace** | `R` | Overwrites instead of inserting. |
+| **Terminal** | `:terminal` | Embedded terminal. `<C-\><C-n>` to go back to normal. |
 
-### Salir / guardar
+### Quit / save
 
-| Acción | Atajo |
+| Action | Shortcut |
 |---|---|
-| Guardar | `<leader>w` o `:w` |
-| Cerrar | `<leader>q` o `:q` |
-| Forzar cerrar todo | `<leader>Q` |
-| Guardar y cerrar | `:wq` o `ZZ` |
-| Cerrar sin guardar | `:q!` o `ZQ` |
+| Save | `<leader>w` or `:w` |
+| Close | `<leader>q` or `:q` |
+| Force close everything | `<leader>Q` |
+| Save and close | `:wq` or `ZZ` |
+| Close without saving | `:q!` or `ZQ` |
 
 ---
 
-## 1. Movimiento (vim nativo, esencial)
+## 1. Movement (native vim, essential)
 
-### Carácter / línea
-- `h j k l` — izquierda, abajo, arriba, derecha
-- `w` / `b` — palabra siguiente / anterior
-- `W` / `B` — WORD siguiente / anterior (separado por espacios, ignora puntuación)
-- `e` — fin de palabra
-- `0` / `^` — inicio de línea / primer no-espacio
-- `$` — fin de línea
-- `f<char>` / `F<char>` — saltar a `<char>` en línea (adelante / atrás)
-- `t<char>` — hasta justo antes de `<char>`
-- `;` / `,` — repetir último `f`/`t` (adelante / atrás)
+### Character / line
+- `h j k l` — left, down, up, right
+- `w` / `b` — next / previous word
+- `W` / `B` — next / previous WORD (space-separated, ignores punctuation)
+- `e` — end of word
+- `0` / `^` — start of line / first non-blank
+- `$` — end of line
+- `f<char>` / `F<char>` — jump to `<char>` in the line (forward / backward)
+- `t<char>` — up to just before `<char>`
+- `;` / `,` — repeat last `f`/`t` (forward / backward)
 
-### Archivo
-- `gg` / `G` — primera / última línea
-- `<num>G` o `:<num>` — ir a línea N (ej: `42G`)
-- `<C-u>` / `<C-d>` — scroll media página arriba / abajo
-- `<C-b>` / `<C-f>` — scroll página entera arriba / abajo
-- `zz` — centrar línea actual en pantalla
-- `zt` / `zb` — línea actual al top / bottom
+### File
+- `gg` / `G` — first / last line
+- `<num>G` or `:<num>` — go to line N (e.g. `42G`)
+- `<C-u>` / `<C-d>` — scroll half a page up / down
+- `<C-b>` / `<C-f>` — scroll a full page up / down
+- `zz` — center the current line on screen
+- `zt` / `zb` — current line to top / bottom
 
-### Saltos
-- `%` — saltar al `()` / `{}` / `[]` que matchea
-- `*` / `#` — buscar palabra bajo cursor adelante / atrás
-- `n` / `N` — siguiente / anterior match de búsqueda
-- `<C-o>` / `<C-i>` — atrás / adelante en jump history
-- `<C-^>` — toggle buffer anterior
+### Jumps
+- `%` — jump to the matching `()` / `{}` / `[]`
+- `*` / `#` — search the word under the cursor forward / backward
+- `n` / `N` — next / previous search match
+- `<C-o>` / `<C-i>` — back / forward in the jump history
+- `<C-^>` — toggle previous buffer
 
 ---
 
-## 2. Edición (vim nativo, esencial)
+## 2. Editing (native vim, essential)
 
-### Texto
-- `i` / `a` — insert antes / después del cursor
-- `I` / `A` — insert al inicio / fin de línea
-- `o` / `O` — nueva línea abajo / arriba (entra a insert)
-- `r<char>` — reemplazar 1 carácter
-- `cw` — cambiar palabra. `cc` — cambiar línea. `C` — cambiar hasta fin de línea
-- `dw` — borrar palabra. `dd` — borrar línea. `D` — borrar hasta fin de línea
-- `x` — borrar carácter. `X` — borrar carácter anterior
-- `yy` — yank (copiar) línea. `Y` — yank hasta fin de línea
-- `p` / `P` — paste después / antes
+### Text
+- `i` / `a` — insert before / after the cursor
+- `I` / `A` — insert at start / end of line
+- `o` / `O` — new line below / above (enters insert)
+- `r<char>` — replace 1 character
+- `cw` — change word. `cc` — change line. `C` — change to end of line
+- `dw` — delete word. `dd` — delete line. `D` — delete to end of line
+- `x` — delete character. `X` — delete previous character
+- `yy` — yank (copy) line. `Y` — yank to end of line
+- `p` / `P` — paste after / before
 - `u` — undo. `<C-r>` — redo
-- `.` — repetir último cambio
-- `J` — juntar línea siguiente con actual
+- `.` — repeat last change
+- `J` — join the next line with the current one
 
-### Text objects (combinan con `d`, `c`, `y`, `v`)
-- `iw` / `aw` — inner word / a word (incluye espacio)
-- `i"` / `a"` — inner / around quotes (igual con `'` y `` ` ``)
-- `i(` / `a(` — inner / around paréntesis (igual con `[`, `{`, `<`)
-- `it` / `at` — inner / around tag HTML
-- `ip` / `ap` — inner / around párrafo
+### Text objects (combine with `d`, `c`, `y`, `v`)
+- `iw` / `aw` — inner word / a word (includes the space)
+- `i"` / `a"` — inner / around quotes (same with `'` and `` ` ``)
+- `i(` / `a(` — inner / around parentheses (same with `[`, `{`, `<`)
+- `it` / `at` — inner / around HTML tag
+- `ip` / `ap` — inner / around paragraph
 - `if` / `af` — inner / around **function** (treesitter)
 - `ic` / `ac` — inner / around **class** (treesitter)
 - `ia` / `aa` — inner / around **argument** (treesitter)
 
-Ejemplos: `daw` borra palabra + espacio. `ci"` cambia contenido entre comillas. `vaf` selecciona función entera.
+Examples: `daw` deletes a word + space. `ci"` changes the content between quotes. `vaf` selects a whole function.
 
-### Modo visual
-- `v` / `V` / `<C-v>` — visual char / línea / bloque
-- `o` — saltar al otro extremo de la selección
-- En visual, todos los operadores funcionan: `d`, `y`, `c`, `>`, `<`
-- `<` / `>` — indentar (mantiene selección, ver custom keymap)
-- `p` — paste sin yankear lo reemplazado (ver custom keymap)
-- `<A-j>` / `<A-k>` — mover selección arriba/abajo (ver custom keymap)
+### Visual mode
+- `v` / `V` / `<C-v>` — visual char / line / block
+- `o` — jump to the other end of the selection
+- In visual, every operator works: `d`, `y`, `c`, `>`, `<`
+- `<` / `>` — indent (keeps the selection, see custom keymap)
+- `p` — paste without yanking what was replaced (see custom keymap)
+- `<A-j>` / `<A-k>` — move the selection up/down (see custom keymap)
 
-### Registros (clipboards múltiples)
-- `"ayy` — yank línea al registro `a`
-- `"ap` — paste del registro `a`
-- `"+y` / `"+p` — yank / paste al system clipboard (ya seteado por default con `clipboard=unnamedplus`)
-- `"_d` — delete sin sobrescribir el yank actual (ej: `"_d` en visual)
-- `:reg` — ver todos los registros
+### Registers (multiple clipboards)
+- `"ayy` — yank the line into register `a`
+- `"ap` — paste from register `a`
+- `"+y` / `"+p` — yank / paste to the system clipboard (already set by default with `clipboard=unnamedplus`)
+- `"_d` — delete without overwriting the current yank (e.g. `"_d` in visual)
+- `:reg` — see all registers
 
 ---
 
-## 3. Custom keymaps de esta config
+## 3. Custom keymaps of this config
 
-Todos están en `lua/config/keymaps.lua` con sus `desc` — los ves también con which-key (presioná `<leader>` y esperá).
+They all live in `lua/config/keymaps.lua` with their `desc` — you can also see them with which-key (press `<leader>` and wait).
 
 ### General
 
-| Atajo | Acción |
+| Shortcut | Action |
 |---|---|
-| `jk` (en insert) | Salir a normal (más rápido que `<Esc>`) |
-| `<Esc>` (en normal) | Limpiar highlight de búsqueda |
-| `<leader>w` | Guardar |
-| `<leader>q` | Cerrar ventana |
-| `<leader>Q` | Cerrar todo forzado |
+| `jk` (in insert) | Exit to normal (faster than `<Esc>`) |
+| `<Esc>` (in normal) | Clear search highlight |
+| `<leader>w` | Save |
+| `<leader>q` | Close window |
+| `<leader>Q` | Force close everything |
 
-### Navegación entre splits
+### Navigation between splits
 
-| Atajo | Acción |
+| Shortcut | Action |
 |---|---|
-| `<C-h>` | Split izquierda |
-| `<C-j>` | Split abajo |
-| `<C-k>` | Split arriba |
-| `<C-l>` | Split derecha |
-| `<C-Arrow>` | Redimensionar split |
+| `<C-h>` | Split left |
+| `<C-j>` | Split down |
+| `<C-k>` | Split up |
+| `<C-l>` | Split right |
+| `<C-Arrow>` | Resize split |
 
 ### Buffers
 
-| Atajo | Acción |
+| Shortcut | Action |
 |---|---|
-| `<S-l>` | Buffer siguiente |
-| `<S-h>` | Buffer anterior |
-| `<leader>bd` | Cerrar buffer actual |
+| `<S-l>` | Next buffer |
+| `<S-h>` | Previous buffer |
+| `<leader>bd` | Close current buffer |
 
-### Mover líneas
+### Moving lines
 
-| Atajo | Acción |
+| Shortcut | Action |
 |---|---|
-| `<A-j>` (normal) | Bajar línea actual |
-| `<A-k>` (normal) | Subir línea actual |
-| `<A-j>` / `<A-k>` (visual) | Mover selección |
+| `<A-j>` (normal) | Move the current line down |
+| `<A-k>` (normal) | Move the current line up |
+| `<A-j>` / `<A-k>` (visual) | Move the selection |
 
-### Visual mejorado
+### Improved visual
 
-| Atajo | Acción |
+| Shortcut | Action |
 |---|---|
-| `<` / `>` (visual) | Indentar manteniendo selección |
-| `p` (visual) | Paste sin perder el yank |
+| `<` / `>` (visual) | Indent keeping the selection |
+| `p` (visual) | Paste without losing the yank |
 
 ### Diagnostics
 
-| Atajo | Acción |
+| Shortcut | Action |
 |---|---|
-| `[d` | Diagnostic anterior |
-| `]d` | Diagnostic siguiente |
-| `<leader>cd` | Mostrar diagnostic de la línea |
+| `[d` | Previous diagnostic |
+| `]d` | Next diagnostic |
+| `<leader>cd` | Show the line's diagnostic |
 
-### Aceleradores (estilo craftzdog)
+### Accelerators (craftzdog style)
 
-Todos son **aceleradores dentro del modelo vim**, no muletas Mac. Diseñados para que el yank register no se contamine y la edición sea más eficiente.
+All of them are **accelerators within the vim model**, not Mac crutches. Designed so the yank register doesn't get polluted and editing is more efficient.
 
-| Atajo | Acción |
+| Shortcut | Action |
 |---|---|
-| `<leader>p` (normal / visual) | Paste del **registro 0** — siempre pega el último yank, ignora deletes |
-| `<leader>P` | Igual pero **antes** del cursor |
-| `<leader>d` (normal / visual) | Delete sin contaminar registro (al black-hole `"_`) |
-| `<leader>D` | Delete hasta EOL sin contaminar registro |
-| `x` | Borrar 1 char sin contaminar registro |
-| `+` | Increment número bajo cursor (= `<C-a>`, smart vía dial) |
-| `<C-x>` | Decrement (smart vía dial). `-` no está mapeado: lo usa oil.nvim para "parent dir" |
+| `<leader>p` (normal / visual) | Paste from **register 0** — always pastes the last yank, ignores deletes |
+| `<leader>P` | Same but **before** the cursor |
+| `<leader>d` (normal / visual) | Delete without polluting the register (to the black-hole `"_`) |
+| `<leader>D` | Delete to EOL without polluting the register |
+| `x` | Delete 1 char without polluting the register |
+| `+` | Increment the number under the cursor (= `<C-a>`, smart via dial) |
+| `<C-x>` | Decrement (smart via dial). `-` is not mapped: oil.nvim uses it for "parent dir" |
 
 ### 🤠 Cowboy mode
 
-Si presionás `h j k l` **más de 10 veces en 2 segundos**, se bloquea y muestra `🤠 Hold it Cowboy!`. Te fuerza a aprender motions reales:
+If you press `h j k l` **more than 10 times in 2 seconds**, it blocks and shows `🤠 Hold it Cowboy!`. It forces you to learn real motions:
 
-- En vez de `jjjjjj` → usá `}` (próximo párrafo), `5j` (5 líneas), `/foo` (buscar), `G` / `gg` (ir al final / inicio).
-- En vez de `hhhhh` → usá `b` (palabra atrás), `0` (inicio de línea), `F<char>` (saltar a char).
-- En vez de `lllll` → usá `w` (palabra adelante), `$` (fin de línea), `f<char>` (saltar a char).
-- Si usás un count (ej: `15j`), **no cuenta como spam**.
+- Instead of `jjjjjj` → use `}` (next paragraph), `5j` (5 lines), `/foo` (search), `G` / `gg` (go to end / start).
+- Instead of `hhhhh` → use `b` (word back), `0` (start of line), `F<char>` (jump to char).
+- Instead of `lllll` → use `w` (word forward), `$` (end of line), `f<char>` (jump to char).
+- If you use a count (e.g. `15j`), it **doesn't count as spam**.
 
 ---
 
-## 4. LSP — stack instalado
+## 4. LSP — installed stack
 
-| Lenguaje | LSP server | Notas |
+| Language | LSP server | Notes |
 |---|---|---|
-| Go | `gopls` | inlay hints completos, gofumpt + staticcheck on |
-| TypeScript / JavaScript / React (.tsx) | `ts_ls` | un solo server para todo el ecosistema TS/JS |
-| Angular | `angularls` | toma el lead en proyectos Angular; ts_ls cubre TS fuera del proyecto |
-| Astro | `astro` | parsea `.astro` con frontmatter mixto |
-| Rust | `rust-analyzer` vía `rustaceanvim` | NO va por lspconfig — plugin propio |
-| PHP | `intelephense` | premium-tier sin licencia (~80% de features); soporta proyectos hasta 5MB |
+| Go | `gopls` | full inlay hints, gofumpt + staticcheck on |
+| TypeScript / JavaScript / React (.tsx) | `ts_ls` | a single server for the whole TS/JS ecosystem |
+| Angular | `angularls` | takes the lead in Angular projects; ts_ls covers TS outside the project |
+| Astro | `astro` | parses `.astro` with mixed frontmatter |
+| Rust | `rust-analyzer` via `rustaceanvim` | does NOT go through lspconfig — its own plugin |
+| PHP | `intelephense` | premium-tier without a license (~80% of features); supports projects up to 5MB |
 | Python | `basedpyright` + `ruff` | basedpyright = type checking; ruff = linter + formatter + import sorter |
-| YAML | `yamlls` | schemas auto vía SchemaStore (k8s, GitHub Actions, etc.) |
-| JSON | `jsonls` | schemas auto vía SchemaStore (package.json, tsconfig, etc.) |
-| HTML | `html` + `emmet_ls` | emmet expande `div.foo>span` → markup |
+| YAML | `yamlls` | automatic schemas via SchemaStore (k8s, GitHub Actions, etc.) |
+| JSON | `jsonls` | automatic schemas via SchemaStore (package.json, tsconfig, etc.) |
+| HTML | `html` + `emmet_ls` | emmet expands `div.foo>span` → markup |
 | CSS / SCSS / Less | `cssls` + `emmet_ls` | |
-| Bash / sh / zsh | `bashls` | usa shellcheck si está en PATH |
-| Lua | `lua_ls` | conoce las APIs de nvim para tu config |
+| Bash / sh / zsh | `bashls` | uses shellcheck if it's in PATH |
+| Lua | `lua_ls` | knows nvim's APIs for your config |
 | Markdown | `marksman` | links, refs, headings |
 
-**Pre-requisitos del SISTEMA** (mason NO los instala):
+**SYSTEM prerequisites** (mason does NOT install them):
 
-| Toolchain | Para qué LSP | Cómo instalar |
+| Toolchain | For which LSP | How to install |
 |---|---|---|
 | `go` | gopls | `brew install go` |
-| `node` | ts_ls, angularls, astro, html, cssls, jsonls, yamlls, intelephense, emmet, bashls, marksman | ya lo tenés (Claude Code lo requiere) |
-| `python3` | basedpyright | macOS trae uno; recomendado `pyenv` para versiones específicas |
+| `node` | ts_ls, angularls, astro, html, cssls, jsonls, yamlls, intelephense, emmet, bashls, marksman | you already have it (Claude Code requires it) |
+| `python3` | basedpyright | macOS ships one; `pyenv` recommended for specific versions |
 | `rustup` | rust-analyzer | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
-| `php` (opcional) | intelephense valida paths | `brew install php` |
+| `php` (optional) | intelephense validates paths | `brew install php` |
 
-Mason descarga el resto bajo demanda. `:Mason` para ver/instalar/actualizar.
+Mason downloads the rest on demand. `:Mason` to view/install/update.
 
-**Verificar estado del LSP en el buffer actual:** `:LspInfo`
+**Check the LSP status in the current buffer:** `:LspInfo`
 
-## LSP keymaps (activos cuando hay un server adjunto)
+## LSP keymaps (active when a server is attached)
 
-Se setean automáticamente en cualquier buffer con LSP activo.
+They're set automatically in any buffer with an active LSP.
 
-| Atajo | Acción |
+| Shortcut | Action |
 |---|---|
-| `gd` | Goto definition — **peek de Glance** si hay varios resultados; salta directo si hay uno solo |
-| `gD` | Goto declaration (jump directo, LSP nativo) |
-| `gr` | Referencias — peek de Glance |
-| `gi` | Goto implementation — peek de Glance |
-| `gt` | Goto type definition — peek de Glance. **Ojo:** en cualquier buffer con LSP, `gt` NO es "próxima tab" (`gT` sí sigue andando) |
-| `K` | Si el cursor está sobre un fold cerrado, abre el peek de ufo; si no, hover docs |
-| `<leader>rn` | Renombrar símbolo con **IncRename** — preview en vivo de los call sites; la cmdline queda abierta para editar |
+| `gd` | Goto definition — **Glance peek** if there are several results; jumps straight there if there's only one |
+| `gD` | Goto declaration (direct jump, native LSP) |
+| `gr` | References — Glance peek |
+| `gi` | Goto implementation — Glance peek |
+| `gt` | Goto type definition — Glance peek. **Careful:** in any buffer with LSP, `gt` is NOT "next tab" (`gT` still works) |
+| `K` | If the cursor is over a closed fold, opens the ufo peek; if not, hover docs |
+| `<leader>rn` | Rename symbol with **IncRename** — live preview of the call sites; the cmdline stays open for editing |
 | `<leader>ca` | Code action (quick fix, refactor) |
 | `<leader>cs` | Signature help |
-| `<leader>cl` | Code lens (ejecutar) |
-| `<leader>ch` | Toggle inlay hints (**vienen activos** por default) |
+| `<leader>cl` | Code lens (run) |
+| `<leader>ch` | Toggle inlay hints (**they come enabled** by default) |
 
-### Treesitter movement (en funciones / clases)
+### Treesitter movement (across functions / classes)
 
-| Atajo | Acción |
+| Shortcut | Action |
 |---|---|
-| `]f` / `[f` | Siguiente / anterior función |
-| `]c` / `[c` | Siguiente / anterior clase |
+| `]f` / `[f` | Next / previous function |
+| `]c` / `[c` | Next / previous class |
 
 ---
 
 ## 5. Telescope (fuzzy finder) — `<leader>f*`
 
-| Atajo | Acción |
+| Shortcut | Action |
 |---|---|
-| `<leader>ff` | Find files (en cwd) |
-| `<leader>fg` | Live grep (buscar texto en proyecto) |
-| `<leader>fb` | Buffers abiertos |
+| `<leader>ff` | Find files (in cwd) |
+| `<leader>fg` | Live grep (search text in the project) |
+| `<leader>fb` | Open buffers |
 | `<leader>fr` | Recent files |
-| `<leader>fh` | Help tags (docs de nvim) |
-| `<leader>fc` | Commands disponibles |
-| `<leader>fk` | Keymaps activos |
-| `<leader>fd` | Diagnostics del workspace |
-| `<leader>fs` | Symbols del documento actual |
-| `<leader>fS` | Symbols del workspace |
-| `<leader>/` | Buscar dentro del buffer actual |
+| `<leader>fh` | Help tags (nvim docs) |
+| `<leader>fc` | Available commands |
+| `<leader>fk` | Active keymaps |
+| `<leader>fd` | Workspace diagnostics |
+| `<leader>fs` | Symbols in the current document |
+| `<leader>fS` | Workspace symbols |
+| `<leader>/` | Search inside the current buffer |
 
-**Dentro de Telescope:**
-- `<C-j>` / `<C-k>` — navegar resultados (igual que `<C-n>` / `<C-p>`)
-- `<CR>` — abrir
-- `<C-x>` — abrir en split horizontal
-- `<C-v>` — abrir en split vertical
-- `<C-t>` — abrir en tab
-- `<Esc>` — cerrar (sin doble escape)
+**Inside Telescope:**
+- `<C-j>` / `<C-k>` — navigate results (same as `<C-n>` / `<C-p>`)
+- `<CR>` — open
+- `<C-x>` — open in a horizontal split
+- `<C-v>` — open in a vertical split
+- `<C-t>` — open in a tab
+- `<Esc>` — close (no double escape)
 
 ---
 
 ## 6. Git — `<leader>g*` (gitsigns)
 
-| Atajo | Acción |
+| Shortcut | Action |
 |---|---|
-| `]h` | Próximo hunk |
-| `[h` | Hunk anterior |
+| `]h` | Next hunk |
+| `[h` | Previous hunk |
 | `<leader>gs` | Stage hunk |
 | `<leader>gr` | Reset hunk |
 | `<leader>gp` | Preview hunk |
-| `<leader>gb` | Toggle blame inline |
-| `<leader>gd` | Diff buffer actual |
+| `<leader>gb` | Toggle inline blame |
+| `<leader>gd` | Diff the current buffer |
 
-Signs en gutter:
-- `│` línea agregada / modificada
-- `_` / `‾` línea eliminada
-- `~` línea cambiada-y-eliminada
-- `┆` archivo untracked
+Gutter signs:
+- `│` added / modified line
+- `_` / `‾` deleted line
+- `~` changed-and-deleted line
+- `┆` untracked file
 
 ---
 
 ## 7. Formatting — `<leader>cf` (conform.nvim)
 
-| Atajo | Acción |
+| Shortcut | Action |
 |---|---|
-| `<leader>cf` (normal / visual) | Formatear buffer o selección |
+| `<leader>cf` (normal / visual) | Format the buffer or selection |
 
-**Format on save automático** (definido en `plugins/conform.lua`) para:
+**Automatic format on save** (defined in `plugins/conform.lua`) for:
 - Go (`goimports` + `gofumpt`)
 - Rust (`rustfmt`)
 - Lua (`stylua`)
 - Python (`ruff_organize_imports` + `ruff_format`)
 
-**Disponibles pero NO on-save** (corré manual con `<leader>cf`):
+**Available but NOT on-save** (run them manually with `<leader>cf`):
 - TS/JS/JSON/YAML/MD → `prettierd` / `prettier`
 - PHP → `php_cs_fixer`
 - SQL → `sqlfluff`
 - shell → `shfmt`
 
-Mason instala los formatters al primer uso. Si falta uno: `:Mason` → buscalo → `i` para install.
+Mason installs the formatters on first use. If one is missing: `:Mason` → find it → `i` to install.
 
 ---
 
 ## 8. Folding (nvim-ufo)
 
-Los folds los provee **nvim-ufo** (cadena treesitter → indent), no el folding nativo. `zR`/`zM`/`zr`/`zm` de abajo son funciones de ufo.
+The folds are provided by **nvim-ufo** (treesitter → indent chain), not by native folding. The `zR`/`zM`/`zr`/`zm` below are ufo functions.
 
-| Atajo | Acción |
+| Shortcut | Action |
 |---|---|
-| `za` | Toggle fold actual |
-| `zM` | Cerrar todos los folds |
-| `zR` | Abrir todos los folds |
-| `zm` / `zr` | Cerrar / abrir un nivel de fold |
-| `zc` / `zo` | Cerrar / abrir fold |
-| `zj` / `zk` | Próximo / anterior fold |
-| `K` | Peek del fold cerrado bajo el cursor (si no hay fold, hover LSP) |
+| `za` | Toggle the current fold |
+| `zM` | Close all folds |
+| `zR` | Open all folds |
+| `zm` / `zr` | Close / open one fold level |
+| `zc` / `zo` | Close / open fold |
+| `zj` / `zk` | Next / previous fold |
+| `K` | Peek the closed fold under the cursor (if there's no fold, LSP hover) |
 
-Por default arrancás con **todo expandido**, por `foldlevel = 99` / `foldlevelstart = 99` en `options.lua`. Ojo: `foldenable` está en **`true`** — ufo lo necesita para renderear su virtual text.
-
----
-
-## 9. Búsqueda y reemplazo
-
-### Buscar
-- `/<patrón>` — buscar adelante
-- `?<patrón>` — buscar atrás
-- `n` / `N` — siguiente / anterior
-- `*` / `#` — buscar palabra bajo cursor
-- `<Esc>` — limpiar highlight (custom)
-
-### Reemplazo `:substitute`
-- `:s/viejo/nuevo/` — primera ocurrencia en línea
-- `:s/viejo/nuevo/g` — todas en línea
-- `:%s/viejo/nuevo/g` — todas en archivo
-- `:%s/viejo/nuevo/gc` — todas en archivo con confirmación
-- `:'<,'>s/viejo/nuevo/g` — en selección visual
-
-Flags útiles: `c` confirmar, `i` case-insensitive, `I` case-sensitive.
+By default you start with **everything expanded**, because of `foldlevel = 99` / `foldlevelstart = 99` in `options.lua`. Careful: `foldenable` is **`true`** — ufo needs it to render its virtual text.
 
 ---
 
-## 10. Splits y tabs
+## 9. Search and replace
+
+### Search
+- `/<pattern>` — search forward
+- `?<pattern>` — search backward
+- `n` / `N` — next / previous
+- `*` / `#` — search the word under the cursor
+- `<Esc>` — clear the highlight (custom)
+
+### Replace `:substitute`
+- `:s/old/new/` — first occurrence in the line
+- `:s/old/new/g` — all in the line
+- `:%s/old/new/g` — all in the file
+- `:%s/old/new/gc` — all in the file with confirmation
+- `:'<,'>s/old/new/g` — in the visual selection
+
+Useful flags: `c` confirm, `i` case-insensitive, `I` case-sensitive.
+
+---
+
+## 10. Splits and tabs
 
 ### Splits
-- `:split` / `:sp` o `<C-w>s` — split horizontal
-- `:vsplit` / `:vsp` o `<C-w>v` — split vertical
-- `<C-w>q` o `:close` — cerrar split
-- `<C-w>o` — solo este split (cierra los demás)
-- `<C-w>=` — igualar tamaños
-- `<C-w>x` — swap con el split siguiente
-- Navegación: `<C-h/j/k/l>` (custom)
+- `:split` / `:sp` or `<C-w>s` — horizontal split
+- `:vsplit` / `:vsp` or `<C-w>v` — vertical split
+- `<C-w>q` or `:close` — close split
+- `<C-w>o` — only this split (closes the rest)
+- `<C-w>=` — equalize sizes
+- `<C-w>x` — swap with the next split
+- Navigation: `<C-h/j/k/l>` (custom)
 - Resize: `<C-Arrow>` (custom)
 
 ### Tabs
-- `:tabnew` — nueva tab
-- `:tabclose` — cerrar tab
-- `gT` — anterior tab. (`gt` y `<num>gt` **no** sirven para navegar tabs: en cualquier buffer con LSP, `gt` está pisado por Glance type-definition, y el count no evita el mapeo. Usá `:tabnext` / `:tabn N`.)
-- `<num>gt` — ir a tab N
+- `:tabnew` — new tab
+- `:tabclose` — close tab
+- `gT` — previous tab. (`gt` and `<num>gt` do **not** work for navigating tabs: in any buffer with LSP, `gt` is clobbered by Glance type-definition, and the count doesn't avoid the mapping. Use `:tabnext` / `:tabn N`.)
+- `<num>gt` — go to tab N
 
 ---
 
-## 11. Mantenimiento
+## 11. Maintenance
 
 ### Plugins (lazy.nvim)
-- `:Lazy` — abrir UI del plugin manager
-- `:Lazy sync` — actualizar e instalar plugins pendientes
-- `:Lazy update` — actualizar plugins
-- `:Lazy clean` — borrar plugins no listados
-- `:Lazy profile` — ver tiempo de carga de cada plugin
-- `:Lazy log` — log de cambios recientes
+- `:Lazy` — open the plugin manager UI
+- `:Lazy sync` — update and install pending plugins
+- `:Lazy update` — update plugins
+- `:Lazy clean` — remove plugins that aren't listed
+- `:Lazy profile` — see each plugin's load time
+- `:Lazy log` — log of recent changes
 
 ### LSP servers (mason)
-- `:Mason` — UI para instalar/desinstalar LSPs, formatters, linters
-- `:MasonInstall <name>` — instalar uno específico
-- `:LspInfo` — estado del LSP en el buffer actual
-- `:LspRestart` — reiniciar LSP del buffer
+- `:Mason` — UI to install/uninstall LSPs, formatters, linters
+- `:MasonInstall <name>` — install a specific one
+- `:LspInfo` — LSP status in the current buffer
+- `:LspRestart` — restart the buffer's LSP
 
 ### Treesitter
-- `:TSUpdate` — actualizar parsers
-- `:TSInstall <lang>` — instalar parser de un lenguaje
-- `:Inspect` — mostrar highlight groups bajo el cursor
-- `:InspectTree` — abrir AST del buffer
+- `:TSUpdate` — update parsers
+- `:TSInstall <lang>` — install a language's parser
+- `:Inspect` — show the highlight groups under the cursor
+- `:InspectTree` — open the buffer's AST
 
-### Diagnóstico
-- `:checkhealth` — chequeo general (nvim, plugins, mason)
-- `:checkhealth lazy` — solo lazy
-- `:checkhealth mason` — solo mason
-- `:messages` — historial de mensajes (útil tras un error que pasó rápido)
+### Diagnosis
+- `:checkhealth` — general check (nvim, plugins, mason)
+- `:checkhealth lazy` — lazy only
+- `:checkhealth mason` — mason only
+- `:messages` — message history (useful after an error that flashed by)
 
 ---
 
 ## 12. which-key
 
-Si te olvidás un atajo, presioná solo `<leader>` y esperá ~400ms. Te aparece un popup con todos los grupos:
+If you forget a shortcut, press just `<leader>` and wait ~400ms. A popup appears with all the groups:
 
 - `<leader>b` → buffer
 - `<leader>c` → code (LSP / debug)
@@ -417,31 +417,31 @@ Si te olvidás un atajo, presioná solo `<leader>` y esperá ~400ms. Te aparece 
 - `<leader>g` → git
 - `<leader>r` → rename
 
-También: `<leader>?` muestra solo los keymaps activos en el buffer actual.
+Also: `<leader>?` shows only the keymaps active in the current buffer.
 
 ---
 
-## 13. Tips útiles
+## 13. Useful tips
 
-- **Macros**: `q<letra>` empezar a grabar, `q` parar, `@<letra>` ejecutar. `@@` repite la última.
-- **Marcas**: `m<letra>` marca posición, `'<letra>` salta a la línea, `` `<letra> `` salta al carácter exacto. Marcas mayúsculas (`mA`) son globales entre archivos.
-- **Increment / decrement**: `<C-a>` suma 1 al número bajo cursor, `<C-x>` resta 1.
-- **`gx`** — abre URL bajo cursor en el navegador.
-- **`gu` / `gU`** — lowercase / uppercase (con motion, ej: `guw` palabra a minúsculas).
-- **`>ip` / `<ip`** — indentar / desindentar párrafo.
-- **`==`** — re-indentar línea según LSP/treesitter.
-- **`gd` en LSP attach** = goto definition. Mucho más útil que el `gd` nativo.
-- **`<C-r>=` en insert** — calculadora inline (escribís `5*7` Enter, inserta `35`).
+- **Macros**: `q<letter>` start recording, `q` stop, `@<letter>` run. `@@` repeats the last one.
+- **Marks**: `m<letter>` marks a position, `'<letter>` jumps to the line, `` `<letter> `` jumps to the exact character. Uppercase marks (`mA`) are global across files.
+- **Increment / decrement**: `<C-a>` adds 1 to the number under the cursor, `<C-x>` subtracts 1.
+- **`gx`** — opens the URL under the cursor in the browser.
+- **`gu` / `gU`** — lowercase / uppercase (with a motion, e.g. `guw` word to lowercase).
+- **`>ip` / `<ip`** — indent / unindent paragraph.
+- **`==`** — re-indent the line according to LSP/treesitter.
+- **`gd` on LSP attach** = goto definition. Much more useful than the native `gd`.
+- **`<C-r>=` in insert** — inline calculator (you type `5*7` Enter, it inserts `35`).
 
 ---
 
-## 14. Cuando algo no funciona
+## 14. When something doesn't work
 
-| Síntoma | Diagnóstico |
+| Symptom | Diagnosis |
 |---|---|
-| Atajo no responde | `:checkhealth which-key` o `:WhichKey <leader>a` para ver si está registrado |
-| LSP no completa | `:LspInfo` muestra si está corriendo. `:Mason` para verificar que el server esté instalado |
-| Color raro | `:Inspect` bajo el cursor muestra qué highlight group lo aplica |
-| Lenguaje sin highlight | `:TSInstall <lang>` para instalar parser |
-| Plugin no carga | `:Lazy` y buscar el plugin — ver si tiene error de instalación |
-| Todo se rompió | `:Lazy restore` vuelve al lockfile (`lazy-lock.json`) |
+| A shortcut doesn't respond | `:checkhealth which-key` or `:WhichKey <leader>a` to see if it's registered |
+| LSP doesn't complete | `:LspInfo` shows whether it's running. `:Mason` to check the server is installed |
+| Odd color | `:Inspect` under the cursor shows which highlight group applies it |
+| Language without highlight | `:TSInstall <lang>` to install the parser |
+| A plugin doesn't load | `:Lazy` and look for the plugin — check for an installation error |
+| Everything broke | `:Lazy restore` goes back to the lockfile (`lazy-lock.json`) |

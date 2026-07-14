@@ -1,20 +1,20 @@
 # ═══════════════════════════════════════════════════════════════
-#  ~/.zshenv — cargado en TODA invocación de zsh (interactiva o no).
-#  Para PATH y env vars que tienen que estar disponibles también
-#  en scripts y subprocesos (Docker, Claude Code, etc.).
-#  UI/aliases/prompt van en .zshrc.
+#  ~/.zshenv — loaded on EVERY zsh invocation (interactive or not).
+#  For PATH and env vars that also have to be available in scripts
+#  and subprocesses (Docker, Claude Code, etc.).
+#  UI/aliases/prompt go in .zshrc.
 # ═══════════════════════════════════════════════════════════════
 
 # ─── PATH ─────────────────────────────────────────────────────
-# Cross-platform: cada bloque se prepende sólo si el dir existe.
-# Orden final (primero = mayor prioridad):
-#   $HOME/.local/bin → Homebrew (mac o linux) → $HOME/.cargo/bin → resto del PATH
-# ~/.zshenv.local puede prepender después y ganar prioridad.
+# Cross-platform: each block is prepended only if the dir exists.
+# Final order (first = highest priority):
+#   $HOME/.local/bin → Homebrew (mac or linux) → $HOME/.cargo/bin → rest of the PATH
+# ~/.zshenv.local can prepend afterwards and win priority.
 
-# Cargo (Rust tools en Linux/WSL: starship, zoxide, delta, etc.)
+# Cargo (Rust tools on Linux/WSL: starship, zoxide, delta, etc.)
 [[ -d "$HOME/.cargo/bin" ]] && export PATH="$HOME/.cargo/bin:$PATH"
 
-# Linuxbrew (raro, pero soportado por completitud)
+# Linuxbrew (rare, but supported for completeness)
 [[ -d "/home/linuxbrew/.linuxbrew/bin" ]] && \
   export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
 
@@ -22,29 +22,29 @@
 [[ -d "/opt/homebrew/bin" ]] && \
   export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
 
-# ~/.local/bin siempre wins — preserva el comportamiento original.
+# ~/.local/bin always wins — preserves the original behavior.
 export PATH="$HOME/.local/bin:$PATH"
 
-# Pyenv root (solo PATH; init lazy vive en .zshrc para no penalizar startup).
+# Pyenv root (PATH only; the lazy init lives in .zshrc so as not to penalize startup).
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d "$PYENV_ROOT/bin" ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 
-# ─── env vars de CLI tools ────────────────────────────────────
-# bat — usa colores del terminal (Anthropic Warm) en vez de su propio theme.
+# ─── CLI tool env vars ────────────────────────────────────────
+# bat — uses the terminal's colors (Anthropic Warm) instead of its own theme.
 export BAT_THEME="ansi"
 
-# Editor por default — nvim para todo lo que respete $EDITOR/$VISUAL:
-# `edit-command-line` (Alt+e en el prompt), `crontab -e`, `less` (tecla v).
-# git usa su propio core.editor, así que esto NO lo pisa.
+# Default editor — nvim for everything that respects $EDITOR/$VISUAL:
+# `edit-command-line` (Alt+e at the prompt), `crontab -e`, `less` (v key).
+# git uses its own core.editor, so this does NOT override it.
 export EDITOR="nvim"
 export VISUAL="nvim"
 
-# Claude Code — renderer clásico main-screen en vez de fullscreen (env var
-# documentada: code.claude.com/docs/en/env-vars). Evita el "flash" del banner
-# al iniciar sesión y mantiene la conversación en el scrollback nativo.
+# Claude Code — classic main-screen renderer instead of fullscreen (documented
+# env var: code.claude.com/docs/en/env-vars). Avoids the banner "flash" when
+# starting a session and keeps the conversation in the native scrollback.
 export CLAUDE_CODE_NO_FLICKER=1
 
-# ─── overrides locales (no versionado) ────────────────────────
-# ~/.zshenv.local para secrets/tokens/env vars per-máquina.
-# Se carga al final para poder prepender al PATH y sobrescribir defaults.
+# ─── local overrides (not versioned) ──────────────────────────
+# ~/.zshenv.local for per-machine secrets/tokens/env vars.
+# Loaded at the end so it can prepend to PATH and override defaults.
 [[ -f ~/.zshenv.local ]] && source ~/.zshenv.local

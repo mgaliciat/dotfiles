@@ -1,30 +1,30 @@
 # ═══════════════════════════════════════════════════════════════
 #  ~/.zshrc → sourced helper functions
 #
-#  Filosofía: solo funciones útiles a diario que no tengan alias
-#  más simple. No bloatear. Lo que sea per-máquina va en ~/.zshrc.local.
+#  Philosophy: only functions useful day to day that don't have a
+#  simpler alias. Don't bloat. Anything per-machine goes in ~/.zshrc.local.
 # ═══════════════════════════════════════════════════════════════
 
-# ─── navegación / shell ───────────────────────────────────────
+# ─── navigation / shell ───────────────────────────────────────
 
-# mkdir + cd en un solo paso.
+# mkdir + cd in a single step.
 mkcd() {
   mkdir -p "$1" && cd "$1"
 }
 
-# Qué proceso está usando un puerto TCP (LISTEN).
-# Uso: port 3000
+# Which process is using a TCP port (LISTEN).
+# Usage: port 3000
 port() {
   lsof -nP -iTCP:"$1" -sTCP:LISTEN
 }
 
-# IP pública (vía ipify).
+# Public IP (via ipify).
 myip() {
   curl -s https://api.ipify.org && echo
 }
 
-# IP local (LAN). En macOS prueba Wi-Fi (en0) y luego Ethernet (en1);
-# en Linux/WSL2 no existe `ipconfig` → fallback a `hostname -I`.
+# Local (LAN) IP. On macOS it tries Wi-Fi (en0) and then Ethernet (en1);
+# on Linux/WSL2 there's no `ipconfig` → fallback to `hostname -I`.
 localip() {
   if command -v ipconfig >/dev/null; then
     ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1
@@ -33,38 +33,38 @@ localip() {
   fi
 }
 
-# HTTP server en el dir actual. Default port 8000.
-# Uso: server  /  server 4000
+# HTTP server in the current dir. Default port 8000.
+# Usage: server  /  server 4000
 server() {
   local p="${1:-8000}"
   echo "→ http://localhost:$p"
   python3 -m http.server "$p"
 }
 
-# ─── git con fzf ──────────────────────────────────────────────
+# ─── git with fzf ─────────────────────────────────────────────
 
-# Pick branch (local + remote) con fzf y checkout.
-# Uso: gco
+# Pick a branch (local + remote) with fzf and check it out.
+# Usage: gco
 gco() {
   local branch
-  # `git branch --all` indenta con 2 espacios (y la rama actual con `* `).
-  # Hay que strippear ESO en origen: `${branch## }` solo quita un espacio y
-  # dejaba `git checkout " main"` → "pathspec did not match" al elegir
-  # cualquier rama no-actual.
+  # `git branch --all` indents with 2 spaces (and the current branch with `* `).
+  # THAT has to be stripped at the source: `${branch## }` only removes one space
+  # and left `git checkout " main"` → "pathspec did not match" when picking
+  # any non-current branch.
   branch=$(git branch --all 2>/dev/null \
            | grep -v HEAD \
            | sed 's|remotes/origin/||' \
            | sed 's/^[ *]*//' \
            | sort -u \
            | fzf) || return
-  [[ -n "$branch" ]] || return   # fzf cancelado → no intentes checkout
+  [[ -n "$branch" ]] || return   # fzf cancelled → don't try to checkout
   git checkout "$branch"
 }
 
 # ─── docker ───────────────────────────────────────────────────
 
-# Exec en un container running (fzf-pick). Intenta bash → fallback sh.
-# Uso: dex
+# Exec into a running container (fzf-pick). Tries bash → falls back to sh.
+# Usage: dex
 dex() {
   local cid
   cid=$(docker ps --format '{{.ID}}\t{{.Names}}\t{{.Image}}' \
@@ -73,8 +73,8 @@ dex() {
     || docker exec -it "$cid" /bin/sh
 }
 
-# Tail logs de un container (running o exited).
-# Uso: dlogs
+# Tail the logs of a container (running or exited).
+# Usage: dlogs
 dlogs() {
   local cid
   cid=$(docker ps -a --format '{{.ID}}\t{{.Names}}\t{{.Status}}' \
@@ -82,34 +82,34 @@ dlogs() {
   docker logs -f --tail=100 "$cid"
 }
 
-# Stop de todos los containers running.
-# Uso: dstop-all
+# Stop all running containers.
+# Usage: dstop-all
 dstop-all() {
   docker ps -q | xargs -r docker stop
 }
 
-# Cleanup agresivo: containers parados, imágenes danglig, volúmenes y networks
-# huérfanos. NO toca containers ni imágenes en uso. Liberá espacio rápido.
-# Uso: dprune-all
+# Aggressive cleanup: stopped containers, dangling images, orphaned volumes
+# and networks. Does NOT touch containers or images in use. Frees space fast.
+# Usage: dprune-all
 dprune-all() {
   docker system prune -af --volumes
 }
 
-# ─── fuzzy cd (estilo craftzdog) ──────────────────────────────
+# ─── fuzzy cd (craftzdog style) ───────────────────────────────
 #
-# Ctrl+F → fzf con lista curada de directorios "interesantes":
-# configs, dotfiles, repos en ubicaciones convencionales y subdirs
-# del cwd. Más opinado que `zoxide` (que va por frecuencia) — útil
-# cuando arrancás desde cero y querés saltar a "ese proyecto que sé
-# que existe en alguna carpeta".
+# Ctrl+F → fzf with a curated list of "interesting" directories:
+# configs, dotfiles, repos in conventional locations and subdirs of
+# the cwd. More opinionated than `zoxide` (which goes by frequency) —
+# useful when you start from scratch and want to jump to "that project
+# I know exists in some folder".
 #
-# Trade-off: Ctrl+F default en emacs-mode es `forward-char` (cursor
-# adelante 1 char). Si lo necesitás, podés usar la flecha → o
-# rebindear a otra tecla (ej. bindkey '^G' _fzf_cd_widget). Craftzdog
-# acepta el trade-off, su mapping fish es idéntico.
+# Trade-off: Ctrl+F by default in emacs-mode is `forward-char` (cursor
+# forward 1 char). If you need it, you can use the → arrow or rebind to
+# another key (e.g. bindkey '^G' _fzf_cd_widget). Craftzdog accepts the
+# trade-off, his fish mapping is identical.
 #
-# Cada bloque del `{ ... }` aporta una fuente; `awk '!a[$0]++'`
-# deduplica preservando orden.
+# Each block in the `{ ... }` contributes a source; `awk '!a[$0]++'`
+# dedupes while preserving order.
 _fzf_cd_widget() {
   local dir
   dir=$({
@@ -119,7 +119,7 @@ _fzf_cd_widget() {
       [[ -d "$parent" ]] && find "$parent" -maxdepth 3 -type d -name ".git" \
         -exec dirname {} \; 2>/dev/null
     done
-    # Subdirs del cwd (no recursivo).
+    # Subdirs of the cwd (not recursive).
     ls -1d "$PWD"/*/ 2>/dev/null | sed 's:/$::'
   } | awk '!a[$0]++' | fzf \
         --height=40% --reverse \
@@ -127,15 +127,16 @@ _fzf_cd_widget() {
         --preview='eza -1 --color=always --icons {} 2>/dev/null || ls {}' \
         --preview-window=right:50%:wrap)
 
-  # reset-prompt solo si hubo cd real — al cancelar fzf ($dir vacío) un
-  # redibujado del prompt es ruido innecesario.
+  # reset-prompt only if there was a real cd — when fzf is cancelled
+  # ($dir empty) a prompt redraw is needless noise.
   if [[ -n "$dir" ]]; then
     builtin cd -- "$dir"
     zle reset-prompt
   fi
 }
-# Solo registramos el widget en shells interactivos — `zle` no existe en
-# no-interactive (scripts, tools sourcing functions.zsh) y spamearía error.
+# We only register the widget in interactive shells — `zle` doesn't exist in
+# non-interactive ones (scripts, tools sourcing functions.zsh) and it would
+# spam an error.
 if [[ -o interactive ]]; then
   zle -N _fzf_cd_widget
   bindkey '^F' _fzf_cd_widget

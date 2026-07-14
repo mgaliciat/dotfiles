@@ -1,103 +1,109 @@
 # shellcheck shell=bash
-# ─── Claude Code: binarios externos que se auto-registran ───
+# ─── Claude Code: external binaries that self-register ───
 #
-# Mecanismo 2 de 3 (ver claude/install/README.md). Instalamos el binario y
-# corremos SU comando de setup — el binario escribe en ~/.claude/ (hooks,
-# MCP server, skills) y maneja su propia idempotencia. Nosotros no tocamos
-# settings.json acá; eso es mecanismo 1 (settings.sh).
+# Mechanism 2 of 3 (see claude/install/README.md). We install the binary and run
+# ITS setup command — the binary writes into ~/.claude/ (hooks, MCP server,
+# skills) and handles its own idempotence. We do not touch settings.json here;
+# that is mechanism 1 (settings.sh).
 #
-# Sourceado por install.sh e install-linux.sh — NO ejecutable suelto.
-# Va DESPUÉS de settings.sh: ese symlinkea ~/.claude/CLAUDE.md, y `rtk init`
-# le agrega una línea @RTK.md — queremos que caiga sobre el archivo versionado.
+# Sourced by install.sh and install-linux.sh — NOT a standalone executable.
+# It goes AFTER settings.sh: that one symlinks ~/.claude/CLAUDE.md, and `rtk init`
+# adds an @RTK.md line to it — we want that to land on the versioned file.
 
-# ─── rtk (proxy CLI que reduce tokens) ────────────────────────
-# Agrega un hook PreToolUse (matcher Bash → "rtk hook claude") que reescribe
-# comandos comunes (git status, cargo test, npm test...) a su equivalente rtk,
-# con output filtrado/comprimido: menos tokens de contexto. También crea
-# ~/.claude/RTK.md (referencia de comandos, per-máquina, no versionada).
+# ─── rtk (token-reducing proxy CLI) ───────────────────────────
+# Adds a PreToolUse hook (matcher Bash → "rtk hook claude") that rewrites common
+# commands (git status, cargo test, npm test...) to their rtk equivalent, with
+# filtered/compressed output: fewer context tokens. It also creates
+# ~/.claude/RTK.md (command reference, per-machine, not versioned).
 #
-# En mac el binario ya viene por Homebrew (REQUIRED_FORMULAE); en Linux no hay
-# formula, así que cae al curl installer oficial. El guard `command -v` unifica
-# los dos casos: si brew ya lo puso, el curl ni se intenta.
+# On mac the binary already comes from Homebrew (REQUIRED_FORMULAE); on Linux
+# there is no formula, so it falls back to the official curl installer. The
+# `command -v` guard unifies both cases: if brew already put it there, the curl
+# is not even attempted.
 #
-# `</dev/null` NO es cosmético: sin eso el comando se colgaba en una terminal
-# real esperando un prompt interactivo invisible (probablemente el trust de
-# filters.toml). --auto-patch solo evita el prompt de "¿parchear settings.json?",
-# no ese otro. stdin cerrado → EOF → el comando sigue con su default.
+# `</dev/null` is NOT cosmetic: without it the command hung in a real terminal
+# waiting for an invisible interactive prompt (probably the trust prompt for
+# filters.toml). --auto-patch only avoids the "patch settings.json?" prompt, not
+# that other one. Closed stdin → EOF → the command continues with its default.
 # Doc: https://github.com/rtk-ai/rtk
 if ! command -v rtk >/dev/null 2>&1; then
   echo ""
-  echo "→ Instalando rtk (curl installer oficial)"
+  echo "→ Installing rtk (official curl installer)"
   curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh \
-    || echo "⚠️  rtk install falló"
+    || echo "⚠️  rtk install failed"
 fi
 
 if command -v rtk >/dev/null 2>&1; then
-  # Idempotencia: la maneja el propio rtk (verificado corriéndolo dos veces —
-  # la segunda detecta el hook existente y no lo duplica), no jq nuestro.
+  # Idempotence: handled by rtk itself (verified by running it twice — the second
+  # run detects the existing hook and does not duplicate it), not by our jq.
   if rtk init --global --auto-patch >/dev/null 2>&1 </dev/null; then
-    echo "✓ rtk hook de Claude Code configurado (o ya estaba)"
+    echo "✓ rtk Claude Code hook configured (or already there)"
   else
-    echo "⚠️  rtk init --global falló — revisar a mano (rtk init --global -v)"
+    echo "⚠️  rtk init --global failed — check by hand (rtk init --global -v)"
   fi
 fi
 
-# ─── codebase-memory-mcp (MCP server de grafo de código) ──────
-# Indexa el codebase en un grafo persistente — 14 tools (search_graph,
-# trace_path, get_architecture...), 158 lenguajes vía tree-sitter. Sin formula
-# de Homebrew, así que va por el install.sh oficial del proyecto en las dos
-# plataformas. Variante SIN --ui (headless, default del propio installer): el
-# consumidor es el agente vía MCP tools, no un humano navegando el grafo 3D en
-# localhost:9749 — así no abre un puerto HTTP local de más.
+# ─── codebase-memory-mcp (code graph MCP server) ──────────────
+# Indexes the codebase into a persistent graph — 14 tools (search_graph,
+# trace_path, get_architecture...), 158 languages via tree-sitter. No Homebrew
+# formula, so it goes through the project's official install.sh on both
+# platforms. Variant WITHOUT --ui (headless, the installer's own default): the
+# consumer is the agent via MCP tools, not a human browsing the 3D graph on
+# localhost:9749 — that way it does not open an extra local HTTP port.
 # Doc: https://github.com/DeusData/codebase-memory-mcp
 #
-# El binario pesa ~260MB: solo lo bajamos si falta.
+# The binary weighs ~260MB: we only download it if it is missing.
 if ! command -v codebase-memory-mcp >/dev/null 2>&1; then
   echo ""
-  echo "→ Instalando codebase-memory-mcp"
+  echo "→ Installing codebase-memory-mcp"
   curl -fsSL https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.sh | bash \
-    || echo "⚠️  codebase-memory-mcp install falló"
+    || echo "⚠️  codebase-memory-mcp install failed"
 fi
 
-# `install -y` corre SIEMPRE — sin guard, y eso es load-bearing. Es el comando
-# que escribe TODO el estado en ~/.claude/: MCP server + hooks (PreToolUse en
-# Grep/Glob, SessionStart, SubagentStart) para cada agente detectado, y la skill
-# `codebase-memory` en ~/.claude/skills/. Si vive bajo el guard del binario (o
-# sea, implícito dentro del curl de arriba), un ~/.claude borrado a mano no se
-# reconstruye NUNCA: el binario sigue en PATH → guard en falso → cero re-registro,
-# y ./install.sh parece correr bien. El estado del binario y el de ~/.claude son
-# independientes. Si volvés a ver la skill `codebase-memory` desaparecida después
-# de un install.sh, alguien re-metió esto adentro del `if`.
-# Es idempotente (verificado con --dry-run: detecta config existente, no duplica).
+# `install -y` runs ALWAYS — with no guard, and that is load-bearing. It is the
+# command that writes ALL the state into ~/.claude/: MCP server + hooks
+# (PreToolUse on Grep/Glob, SessionStart, SubagentStart) for every detected
+# agent, and the `codebase-memory` skill in ~/.claude/skills/. If it lives under
+# the binary's guard (that is, implicitly inside the curl above), a ~/.claude
+# deleted by hand is NEVER rebuilt: the binary is still in PATH → guard false →
+# zero re-registration, and ./install.sh appears to run fine. The state of the
+# binary and the state of ~/.claude are independent. If you see the
+# `codebase-memory` skill missing again after an install.sh, someone put this
+# back inside the `if`.
+# It is idempotent (verified with --dry-run: it detects the existing config and
+# does not duplicate it).
 if command -v codebase-memory-mcp >/dev/null 2>&1; then
   codebase-memory-mcp install -y >/dev/null 2>&1 \
-    && echo "✓ codebase-memory-mcp: MCP server + hooks + skill registrados" \
-    || echo "⚠️  codebase-memory-mcp install -y falló"
-  # auto_index: barato e idempotente, se fuerza en cada corrida para que
-  # proyectos nuevos se indexen solos al conectar.
+    && echo "✓ codebase-memory-mcp: MCP server + hooks + skill registered" \
+    || echo "⚠️  codebase-memory-mcp install -y failed"
+  # auto_index: cheap and idempotent, forced on every run so new projects index
+  # themselves on connect.
   codebase-memory-mcp config set auto_index true >/dev/null 2>&1
   echo "✓ codebase-memory-mcp: auto_index=true"
 fi
 
-# ── limpieza convergente: la línea que el binario mete en ~/.zshrc ──
-# El binario (src/cli/cli.c, cbm_detect_shell_rc) hace su propio
-# fopen(~/.zshrc, "a") y agrega `export PATH=...` si no encuentra un match
-# TEXTUAL exacto. Nuestro PATH vive en zsh/.zshenv con `$HOME` (no el path
-# absoluto expandido), así que ese chequeo naive nunca lo reconoce y siempre
-# re-agrega su línea, con el path de ESTA máquina hardcodeado. Como ~/.zshrc es
-# symlink al repo, eso ensucia el archivo VERSIONADO — y como `install -y` corre
-# en cada corrida, reaparece siempre. Va DESPUÉS del install -y: al revés, el
-# binario re-ensuciaría el archivo y `git status` quedaría sucio tras cada run.
+# ── convergent cleanup: the line the binary puts in ~/.zshrc ──
+# The binary (src/cli/cli.c, cbm_detect_shell_rc) does its own
+# fopen(~/.zshrc, "a") and appends `export PATH=...` if it does not find an exact
+# TEXTUAL match. Our PATH lives in zsh/.zshenv with `$HOME` (not the expanded
+# absolute path), so that naive check never recognizes it and it always re-adds
+# its line, with THIS machine's path hardcoded. Since ~/.zshrc is a symlink into
+# the repo, that dirties the VERSIONED file — and since `install -y` runs on
+# every run, it comes back every time. It goes AFTER the install -y: the other
+# way around, the binary would dirty the file again and `git status` would be
+# dirty after every run.
 #
-# Dos detalles que NO son cosméticos (los dos se rompían en silencio):
-#  - El binario escribe TRES líneas: una EN BLANCO, el marker, y el export. Un
-#    `skip = 2` desde el marker deja la vacía huérfana y el diff seguía con un `+`.
-#    El awk difiere los blancos (pending) y los descarta si lo que sigue es el marker.
-#  - Escribe con `cat >`, NUNCA con `mv`: ~/.zshrc es un SYMLINK al repo. `mv`
-#    reemplaza el symlink por un archivo regular (rompe el dotfile Y deja la línea
-#    sucia intacta en el repo — escribiste al lado, no adentro). La redirección
-#    sigue el symlink y limpia el archivo real. Es la diferencia con settings.sh,
-#    donde mktemp + mv sí es correcto porque settings.json es un archivo real.
+# Two details that are NOT cosmetic (both used to break silently):
+#  - The binary writes THREE lines: a BLANK one, the marker, and the export. A
+#    `skip = 2` from the marker leaves the blank one orphaned and the diff still
+#    showed a `+`. The awk defers the blanks (pending) and drops them if what
+#    follows is the marker.
+#  - It writes with `cat >`, NEVER with `mv`: ~/.zshrc is a SYMLINK into the repo.
+#    `mv` replaces the symlink with a regular file (it breaks the dotfile AND
+#    leaves the dirty line intact in the repo — you wrote next to it, not into
+#    it). The redirection follows the symlink and cleans the real file. That is
+#    the difference with settings.sh, where mktemp + mv IS correct because
+#    settings.json is a real file.
 ZSHRC="$HOME/.zshrc"
 if [[ -f "$ZSHRC" ]] && grep -qF "# Added by codebase-memory-mcp install" "$ZSHRC"; then
   ZSHRC_TMP="$(mktemp)"
@@ -110,9 +116,9 @@ if [[ -f "$ZSHRC" ]] && grep -qF "# Added by codebase-memory-mcp install" "$ZSHR
   ' "$ZSHRC" > "$ZSHRC_TMP"; then
     cat "$ZSHRC_TMP" > "$ZSHRC"
     rm -f "$ZSHRC_TMP"
-    echo "✓ línea de PATH que codebase-memory-mcp agregó a .zshrc limpiada (ya cubierto por .zshenv)"
+    echo "✓ PATH line that codebase-memory-mcp added to .zshrc cleaned up (already covered by .zshenv)"
   else
     rm -f "$ZSHRC_TMP"
-    echo "⚠️  no se pudo limpiar .zshrc — revisar a mano"
+    echo "⚠️  could not clean .zshrc — check by hand"
   fi
 fi

@@ -1,90 +1,90 @@
--- ─── theme del stack ──────────────────────────────────────────
--- nvim es UNA capa del "tema del stack" (junto a Ghostty y tmux). La
--- selección es este string, versionado y fuente de verdad: un `git pull`
--- propaga el tema a las otras máquinas. Para cambiar el look editá esta
--- línea (y las equivalentes de Ghostty y tmux — comparten id) y commiteá.
--- No hay switcher ni puntero; requiere reiniciar nvim.
+-- ─── stack theme ──────────────────────────────────────────────
+-- nvim is ONE layer of the "stack theme" (alongside Ghostty and tmux). The
+-- selection is this string, versioned and the source of truth: a `git pull`
+-- propagates the theme to the other machines. To change the look edit this
+-- line (and the equivalent ones in Ghostty and tmux — they share the id) and commit.
+-- There's no switcher or pointer; it requires restarting nvim.
 --
--- Familia canónica (id = mismo string en Ghostty/nvim/tmux):
---   "dark-2026"        clon de "Dark 2026", el default oscuro de VS Code
+-- Canonical family (id = same string in Ghostty/nvim/tmux):
+--   "dark-2026"        clone of "Dark 2026", VS Code's dark default
 --                       (extensions/theme-defaults/themes/2026-dark.json)
---   "light-2026"       clon de "2026 Light", su companion claro
---   "carbon"           minimal true-black, high contrast, acento Claude orange
---   "solarized-osaka"  deep-ocean craftzdog ← plugin separado
---   "xcode-oled"       true black OLED + syntax de Xcode "Default (Dark)"
+--   "light-2026"       clone of "2026 Light", its light companion
+--   "carbon"           minimal true-black, high contrast, Claude orange accent
+--   "solarized-osaka"  craftzdog deep-ocean ← separate plugin
+--   "xcode-oled"       true black OLED + Xcode "Default (Dark)" syntax
 --   "anthropic-dark"   dark Claude.ai (brown-black + Claude orange)
---   "anthropic-warm"   dark sepia/terracota cálido
---   "prism-night"      azul medianoche + arco del prisma
---   "paper"            light cream + tinta sepia
---   "solarized-light"  Solarized Light canónico
--- (Las variantes solarized-osaka-{day,moon,storm} y "obsidian" siguen
---  siendo themes válidos acá, pero fuera de la matriz.)
+--   "anthropic-warm"   warm dark sepia/terracotta
+--   "prism-night"      midnight blue + prism arc
+--   "paper"            light cream + sepia ink
+--   "solarized-light"  canonical Solarized Light
+-- (The solarized-osaka-{day,moon,storm} variants and "obsidian" are still
+--  valid themes here, but outside the matrix.)
 vim.g.theme = "solarized-osaka"
 
 -- ─── vim.opt ──────────────────────────────────────────────────
--- Buenos defaults. Sigue el espíritu del dotfiles: comentar el WHY,
--- no el WHAT — vim.opt.number = true no necesita comentario.
+-- Good defaults. Follows the spirit of the dotfiles: comment the WHY,
+-- not the WHAT — vim.opt.number = true needs no comment.
 
 local opt = vim.opt
 
--- Líneas
+-- Lines
 opt.number = true
-opt.relativenumber = true            -- saltos con `5j`, `10k` sin contar
+opt.relativenumber = true            -- jumps with `5j`, `10k` without counting
 opt.cursorline = true
-opt.scrolloff = 8                    -- 8 líneas de margen al hacer scroll
+opt.scrolloff = 8                    -- 8 lines of margin when scrolling
 opt.sidescrolloff = 8
-opt.wrap = false                     -- wrap suele ser ruido para código
+opt.wrap = false                     -- wrap is usually noise for code
 
--- Indentación
+-- Indentation
 opt.expandtab = true
 opt.shiftwidth = 2
 opt.tabstop = 2
 opt.softtabstop = 2
 opt.smartindent = true
--- Lenguajes con convención propia override con autocmd (autocmds.lua):
--- Go usa tabs reales; PHP suele ser 4 espacios.
+-- Languages with their own convention override via autocmd (autocmds.lua):
+-- Go uses real tabs; PHP is usually 4 spaces.
 
--- Búsqueda
+-- Search
 opt.ignorecase = true
-opt.smartcase = true                 -- ignora case salvo que escribas mayúsculas
+opt.smartcase = true                 -- ignores case unless you type uppercase
 opt.incsearch = true
 opt.hlsearch = true
 
 -- UI
-opt.termguicolors = true             -- 24-bit. Requiere terminal capable (Ghostty ✓).
-opt.signcolumn = "yes"               -- siempre visible: evita layout shift al aparecer LSP/git signs
-opt.showmode = false                 -- lualine ya muestra el modo
+opt.termguicolors = true             -- 24-bit. Requires a capable terminal (Ghostty ✓).
+opt.signcolumn = "yes"               -- always visible: avoids layout shift when LSP/git signs appear
+opt.showmode = false                 -- lualine already shows the mode
 opt.cmdheight = 1
-opt.pumheight = 10                   -- max items en popup de completion
-opt.splitright = true                -- vsplits a la derecha (intuitivo en pantallas anchas)
+opt.pumheight = 10                   -- max items in the completion popup
+opt.splitright = true                -- vsplits to the right (intuitive on wide screens)
 opt.splitbelow = true
-opt.fillchars = { eob = " " }        -- oculta ~ en líneas vacías al final del buffer
+opt.fillchars = { eob = " " }        -- hides ~ on empty lines at the end of the buffer
 
--- Buffers / archivos
-opt.hidden = true                    -- permite cambiar de buffer sin guardar
-opt.undofile = true                  -- undo persistente entre sesiones (en ~/.local/share/nvim/undo/)
-opt.swapfile = false                 -- molesta más de lo que ayuda con undofile + git
+-- Buffers / files
+opt.hidden = true                    -- allows switching buffers without saving
+opt.undofile = true                  -- persistent undo across sessions (in ~/.local/share/nvim/undo/)
+opt.swapfile = false                 -- more annoying than helpful with undofile + git
 opt.backup = false
-opt.updatetime = 250                 -- gitsigns/lsp respond más rápido (default 4000ms)
-opt.timeoutlen = 400                 -- chord timeout (which-key respeta esto)
+opt.updatetime = 250                 -- gitsigns/lsp respond faster (default 4000ms)
+opt.timeoutlen = 400                 -- chord timeout (which-key respects this)
 
 -- Clipboard
-opt.clipboard = "unnamedplus"        -- comparte yank con clipboard del sistema
+opt.clipboard = "unnamedplus"        -- shares yank with the system clipboard
 
 -- Completion / wildmenu
 opt.completeopt = { "menu", "menuone", "noselect" }
 opt.wildmode = "longest:full,full"
 
--- Folding (nvim-ufo lo provee; arranca con todo expandido)
--- ufo necesita foldlevel alto + foldenable=true; el provider
--- (treesitter→indent) se setea en plugins/ufo.lua, NO acá con
--- foldexpr — ufo registra su propio handler vía API.
-opt.foldcolumn = "1"                 -- columna de fold markers (clickable con ufo)
-opt.foldlevel = 99                   -- abrí todo por default
+-- Folding (nvim-ufo provides it; starts fully expanded)
+-- ufo needs a high foldlevel + foldenable=true; the provider
+-- (treesitter→indent) is set in plugins/ufo.lua, NOT here with
+-- foldexpr — ufo registers its own handler via the API.
+opt.foldcolumn = "1"                 -- fold marker column (clickable with ufo)
+opt.foldlevel = 99                   -- open everything by default
 opt.foldlevelstart = 99
-opt.foldenable = true                -- ufo requiere true para renderear su virtual text
+opt.foldenable = true                -- ufo requires true to render its virtual text
 
--- Caracteres invisibles
+-- Invisible characters
 opt.list = true
 opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 
@@ -93,7 +93,7 @@ vim.diagnostic.config({
   virtual_text = { prefix = "●", spacing = 4 },
   signs = true,
   underline = true,
-  update_in_insert = false,          -- ruidoso mientras escribes
+  update_in_insert = false,          -- noisy while typing
   severity_sort = true,
   float = { border = "rounded", source = true },
 })

@@ -1,12 +1,12 @@
 -- ─── nvim-highlight-colors ────────────────────────────────────
--- Pinta el fondo de literales de color en cualquier archivo:
+-- Paints the background of color literals in any file:
 --   #d97757            ← hex
 --   rgb(217, 119, 87)  ← rgb / hsl
---   bg-orange-500      ← clases de Tailwind
+--   bg-orange-500      ← Tailwind classes
 --   --color-primary    ← CSS vars
 --
--- Render "background" = la celda del color tiñe la palabra entera.
--- Otras opciones: "foreground" (solo el texto) o "first_column".
+-- Render "background" = the color cell tints the whole word.
+-- Other options: "foreground" (text only) or "first_column".
 
 return {
   "brenoprata10/nvim-highlight-colors",

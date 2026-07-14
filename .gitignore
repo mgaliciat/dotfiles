@@ -4,21 +4,21 @@
 .zcompdump*
 *.backup.*
 
-# Claude — TODO per-máquina, no versionado. settings.json es 100% propio de
-# cada máquina (NO symlinkeado, como ~/.gitconfig): config de permisos/UI
-# diverge por host y arrastraba estado personal a un repo público. skills/ y
-# memory/ ya ni se symlinkean (ver install.sh). Backups *.backup.* ya cubiertos
-# por la regla de arriba.
+# Claude — all per-machine, never versioned. settings.json is 100% each machine's
+# own (NOT symlinked, like ~/.gitconfig): permissions/UI config diverges per host
+# and was dragging personal state into a public repo. skills/ and memory/ aren't
+# even symlinked anymore (see install.sh). *.backup.* is already covered by the
+# rule above.
 #
-# Las tres entradas quedan acá igual, defensivamente: si alguien recrea el dir
-# en el repo por costumbre, git no lo levanta.
+# The three entries stay here defensively anyway: if someone recreates the dir in
+# the repo out of habit, git won't pick it up.
 claude/settings.json
 claude/memory/
 claude/skills/
 
-# Git config — per-máquina (cada Mac tiene credenciales, 1Password
-# vaults, signing keys distintos). Solo .gitignore_global se versiona.
+# Git config — per-machine (each Mac has its own credentials, 1Password vaults,
+# signing keys). Only .gitignore_global is versioned.
 git/.gitconfig
 
-# tmux plugins (tpm + plugins se clonan en runtime via install.sh)
+# tmux plugins (tpm + plugins are cloned at runtime by install.sh)
 tmux/plugins/

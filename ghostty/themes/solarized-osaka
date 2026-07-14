@@ -1,31 +1,31 @@
-# solarized-osaka — deep-ocean Solarized del developer japonés craftzdog.
-# Azul-negro profundo (#001419) con acentos solarized: magenta firma,
-# violet, cyan, blue. Pensado para transparencia + blur sobre wallpaper,
-# sesiones largas sin fatiga. Es el look "estrella" de la familia.
+# solarized-osaka — deep-ocean Solarized from Japanese developer craftzdog.
+# Deep blue-black (#001419) with solarized accents: signature magenta,
+# violet, cyan, blue. Made for transparency + blur over a wallpaper,
+# long sessions without fatigue. It's the "star" look of the family.
 #
-# Fuente de verdad: el plugin craftzdog/solarized-osaka.nvim. El ANSI de
-# abajo es espejo LITERAL de su `M.terminal()` (theme.lua) — lo que el
-# plugin exporta a `:terminal` dentro de nvim. Mapeo PLANO (no Solarized
-# clásico): brights == normales, sin orange/violet en el ANSI, blanco = fg
-# apagado. Así el shell de Ghostty y un `:terminal` en nvim se ven idénticos.
-# Si el plugin cambia su paleta/terminal, re-extraé.
+# Source of truth: the craftzdog/solarized-osaka.nvim plugin. The ANSI
+# below is a LITERAL mirror of its `M.terminal()` (theme.lua) — what the
+# plugin exports to `:terminal` inside nvim. FLAT mapping (not classic
+# Solarized): brights == normals, no orange/violet in the ANSI, white = muted
+# fg. That way Ghostty's shell and a `:terminal` in nvim look identical.
+# If the plugin changes its palette/terminal, re-extract.
 
-# fondo y texto — bg = base04; fg = plugin Normal fg (hsl 186,8,55)
+# background and text — bg = base04; fg = plugin Normal fg (hsl 186,8,55)
 background = #001419
 foreground = #839395
 
-# cursor — magenta solarized (acento firma, matchea incline.nvim y tmux)
+# cursor — solarized magenta (signature accent, matches incline.nvim and tmux)
 cursor-color = #d23681
 cursor-text  = #001419
 
-# selección — base02 (apenas más claro que el bg), fg alineado al texto
+# selection — base02 (barely lighter than the bg), fg aligned with the text
 selection-background = #063540
 selection-foreground = #839395
 
 # ─── ANSI 16 ─────────────────────────────────────────────────
-# Espejo de M.terminal() del plugin. color_0/8 = darken(bg,0.8,#000) ≈ bg
-# (texto "negro" puro casi se funde con el fondo — comportamiento upstream).
-# Brights 9-15 repiten exactamente sus normales; 7/15 = fg.
+# Mirror of the plugin's M.terminal(). color_0/8 = darken(bg,0.8,#000) ≈ bg
+# (pure "black" text almost blends into the background — upstream behavior).
+# Brights 9-15 repeat their normals exactly; 7/15 = fg.
 palette = 0=#001014
 palette = 1=#db302d
 palette = 2=#849900

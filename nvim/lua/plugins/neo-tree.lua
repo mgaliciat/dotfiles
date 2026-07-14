@@ -1,14 +1,14 @@
 -- ─── neo-tree.nvim ────────────────────────────────────────────
--- Sidebar persistente a la izquierda. Convive con oil.nvim:
---   • neo-tree = panel lateral siempre visible, abrís archivo y
---     se abre en el split derecho. Workflow tipo IDE.
---   • oil      = buffer-based, ideal para renames masivos, bulk
---     edits de filenames como texto. Workflow tipo vim puro.
+-- Persistent sidebar on the left. Coexists with oil.nvim:
+--   • neo-tree = side panel always visible, you open a file and
+--     it opens in the right split. IDE-style workflow.
+--   • oil      = buffer-based, ideal for massive renames, bulk
+--     edits of filenames as text. Pure vim-style workflow.
 --
--- Keybind: <leader>n (toggle) — `n` por "neo-tree".
--- Auto-open en startup si no abriste un archivo específico
--- (ej. `nvim .` o `nvim` solo) — replica el comportamiento que
--- te gustaba con oil pero sin que desaparezca al editar un file.
+-- Keybind: <leader>n (toggle) — `n` for "neo-tree".
+-- Auto-opens at startup if you didn't open a specific file
+-- (e.g. `nvim .` or plain `nvim`) — replicates the behavior you
+-- liked with oil but without it disappearing when you edit a file.
 
 return {
   "nvim-neo-tree/neo-tree.nvim",
@@ -21,18 +21,18 @@ return {
   cmd = "Neotree",
   keys = {
     { "<leader>n", "<cmd>Neotree toggle<CR>",                desc = "Toggle file tree" },
-    { "<leader>N", "<cmd>Neotree reveal<CR>",                desc = "Reveal current file en tree" },
+    { "<leader>N", "<cmd>Neotree reveal<CR>",                desc = "Reveal current file in tree" },
   },
   opts = {
-    close_if_last_window = true,    -- si cerrás el último buffer normal, neo-tree no queda solo
+    close_if_last_window = true,    -- if you close the last normal buffer, neo-tree isn't left alone
     enable_git_status    = true,
-    enable_diagnostics   = true,    -- LSP signs en el tree
+    enable_diagnostics   = true,    -- LSP signs in the tree
 
     window = {
       position = "left",
       width    = 32,
       mappings = {
-        ["<space>"] = "none",       -- liberá space para tu leader
+        ["<space>"] = "none",       -- free up space for your leader
         ["q"]       = "close_window",
         ["h"]       = "close_node",
         ["l"]       = "open",
@@ -40,10 +40,10 @@ return {
     },
 
     filesystem = {
-      follow_current_file = { enabled = true },   -- highlight automático del file abierto
-      use_libuv_file_watcher = true,              -- updates en cambios externos (git pull, etc.)
+      follow_current_file = { enabled = true },   -- automatic highlight of the open file
+      use_libuv_file_watcher = true,              -- updates on external changes (git pull, etc.)
       filtered_items = {
-        visible          = true,                  -- mostrar hidden por default (consistente con oil + telescope)
+        visible          = true,                  -- show hidden by default (consistent with oil + telescope)
         hide_dotfiles    = false,
         hide_gitignored  = false,
       },
@@ -71,9 +71,9 @@ return {
   config = function(_, opts)
     require("neo-tree").setup(opts)
 
-    -- Auto-abrir en startup si no se pasó un archivo (ej. `nvim` o `nvim .`).
-    -- Si pasás `nvim foo.lua`, el sidebar NO se abre automáticamente —
-    -- arrancás en el archivo y abrís el tree con <leader>n si lo querés.
+    -- Auto-open at startup if no file was passed (e.g. `nvim` or `nvim .`).
+    -- If you pass `nvim foo.lua`, the sidebar does NOT open automatically —
+    -- you start in the file and open the tree with <leader>n if you want it.
     vim.api.nvim_create_autocmd("VimEnter", {
       callback = function()
         local argv0 = vim.fn.argv(0)

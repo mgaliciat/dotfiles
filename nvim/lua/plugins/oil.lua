@@ -1,23 +1,23 @@
 -- ─── oil.nvim ─────────────────────────────────────────────────
--- File explorer como buffer editable. `-` abre el directorio del
--- archivo actual; editás los nombres como texto (rename), borrás
--- líneas (delete), agregás líneas (touch/mkdir), `:w` aplica los
--- cambios al filesystem.
+-- File explorer as an editable buffer. `-` opens the current file's
+-- directory; you edit the names as text (rename), delete
+-- lines (delete), add lines (touch/mkdir), `:w` applies the
+-- changes to the filesystem.
 --
--- No es un side panel persistente — es un buffer normal, encaja
--- con el modelo vim sin agregar chrome de IDE. Reemplaza netrw.
+-- It's not a persistent side panel — it's a normal buffer, it fits
+-- the vim model without adding IDE chrome. Replaces netrw.
 
 return {
   "stevearc/oil.nvim",
-  lazy = false,                                       -- override de netrw → debe cargar al inicio
+  lazy = false,                                       -- netrw override → must load at startup
   dependencies = { "nvim-tree/nvim-web-devicons" },
   opts = {
-    default_file_explorer = true,                     -- reemplaza netrw
+    default_file_explorer = true,                     -- replaces netrw
     view_options = {
-      show_hidden = true,                             -- dotfiles visibles (consistente con telescope)
+      show_hidden = true,                             -- dotfiles visible (consistent with telescope)
     },
     keymaps = {
-      ["q"] = "actions.close",                        -- q cierra el buffer oil
+      ["q"] = "actions.close",                        -- q closes the oil buffer
     },
   },
   keys = {

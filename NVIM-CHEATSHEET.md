@@ -1,139 +1,139 @@
 # nvim cheatsheet
 
-Atajos más usados de mi config. `<leader>` = **espacio**. Salir de insert: **`jk`**.
+Most-used shortcuts from my config. `<leader>` = **space**. Leave insert: **`jk`**.
 
-Para todo lo demás: **`<leader>fk`** abre el buscador de keymaps (telescope), y **`<leader>`** solo dispara which-key con el menú de continuaciones.
+For everything else: **`<leader>fk`** opens the keymap search (telescope), and **`<leader>`** alone fires which-key with the continuation menu.
 
-> Complemento: `nvim/CHEATSHEET.md` cubre más vim nativo y detalle de LSP/telescope/treesitter, pero está **incompleto en plugins** (le faltan oil, flash, dap, ufo y varios más, que sí están acá).
-
----
-
-## Archivos y carpetas
-
-### oil.nvim — editar el directorio como texto (vim puro)
-| Tecla | Acción |
-|-------|--------|
-| `-` | abre el directorio del archivo actual |
-| `<leader>e` | abre oil |
-| `o` / `i` + texto + `:w` | **crear archivo** (`foo.lua`) |
-| nombre con `/` final + `:w` | **crear carpeta** (`utils/`) |
-| `foo/bar/baz.lua` + `:w` | crea carpetas anidadas + archivo |
-| editar línea + `:w` | renombrar |
-| `dd` + `:w` | borrar |
-| `q` | cerrar |
-
-> `:w` aplica los cambios al filesystem (muestra preview antes de confirmar).
-
-### neo-tree — sidebar tipo IDE
-| Tecla | Acción |
-|-------|--------|
-| `<leader>n` | toggle del árbol |
-| `<leader>N` | revelar archivo actual en el árbol |
-| `a` | **add** — `foo.lua` archivo · `foo/` carpeta · `a/b/c.lua` ruta completa |
-| `d` / `r` | borrar / renombrar |
-| `c` / `m` | copiar / mover |
-| `l` / `h` | abrir / colapsar nodo |
-| `q` | cerrar panel |
+> Companion: `nvim/CHEATSHEET.md` covers more native vim and detail on LSP/telescope/treesitter, but it's **incomplete on plugins** (missing oil, flash, dap, ufo and several more, which are here).
 
 ---
 
-## Buscar / navegar (telescope)
-| Tecla | Acción |
+## Files and folders
+
+### oil.nvim — edit the directory as text (pure vim)
+| Key | Action |
+|-------|--------|
+| `-` | open the current file's directory |
+| `<leader>e` | open oil |
+| `o` / `i` + text + `:w` | **create file** (`foo.lua`) |
+| name with trailing `/` + `:w` | **create folder** (`utils/`) |
+| `foo/bar/baz.lua` + `:w` | creates nested folders + file |
+| edit line + `:w` | rename |
+| `dd` + `:w` | delete |
+| `q` | close |
+
+> `:w` applies the changes to the filesystem (shows a preview before confirming).
+
+### neo-tree — IDE-style sidebar
+| Key | Action |
+|-------|--------|
+| `<leader>n` | toggle the tree |
+| `<leader>N` | reveal current file in the tree |
+| `a` | **add** — `foo.lua` file · `foo/` folder · `a/b/c.lua` full path |
+| `d` / `r` | delete / rename |
+| `c` / `m` | copy / move |
+| `l` / `h` | open / collapse node |
+| `q` | close panel |
+
+---
+
+## Search / navigate (telescope)
+| Key | Action |
 |-------|--------|
 | `<leader>ff` | find files |
-| `<leader>fg` | live grep (buscar en todo el proyecto) |
-| `<leader>/` | buscar en el buffer actual |
-| `<leader>fb` | buffers abiertos |
-| `<leader>fr` | recientes |
-| `<leader>fs` / `<leader>fS` | símbolos del documento / workspace |
+| `<leader>fg` | live grep (search the whole project) |
+| `<leader>/` | search in the current buffer |
+| `<leader>fb` | open buffers |
+| `<leader>fr` | recent |
+| `<leader>fs` / `<leader>fS` | document / workspace symbols |
 | `<leader>fd` | diagnostics |
 | `<leader>ft` | TODOs |
 | `<leader>fc` / `<leader>fk` | commands / keymaps |
 | `<leader>fh` | help tags |
 
-### Saltos rápidos (flash)
-| Tecla | Acción |
+### Quick jumps (flash)
+| Key | Action |
 |-------|--------|
-| `s` + 2 chars | saltar a cualquier lado de la pantalla |
-| `S` | saltar por nodos treesitter (normal/operator; en visual `S` es el wrap de nvim-surround) |
+| `s` + 2 chars | jump anywhere on screen |
+| `S` | jump by treesitter nodes (normal/operator; in visual `S` is the nvim-surround wrap) |
 
 ---
 
-## LSP — esencial para revisar código generado
-| Tecla | Acción |
+## LSP — essential for reviewing generated code
+| Key | Action |
 |-------|--------|
-| `gd` | ir a definición (peek si hay varias) |
-| `gr` | referencias |
-| `gi` / `gt` | implementación / type definition |
-| `gD` | declaración |
-| `K` | hover docs (o abre peek de un fold) |
+| `gd` | go to definition (peek if there are several) |
+| `gr` | references |
+| `gi` / `gt` | implementation / type definition |
+| `gD` | declaration |
+| `K` | hover docs (or opens the peek of a fold) |
 | `<leader>ca` | code action (fixes, imports, etc.) |
-| `<leader>rn` | renombrar símbolo (preview en vivo) |
+| `<leader>rn` | rename symbol (live preview) |
 | `<leader>cs` | signature help |
 | `<leader>ch` | toggle inlay hints |
 | `<leader>cl` | run code lens (go test, etc.) |
-| `[d` / `]d` | diagnostic anterior / siguiente |
-| `<leader>cd` | diagnostics de la línea |
+| `[d` / `]d` | previous / next diagnostic |
+| `<leader>cd` | line diagnostics |
 
 ---
 
-## Git (gitsigns) — clave revisando diffs de prompts
-| Tecla | Acción |
+## Git (gitsigns) — key when reviewing prompt diffs
+| Key | Action |
 |-------|--------|
 | `<leader>gs` | stage hunk |
-| `<leader>gr` | reset hunk (descartar cambio) |
+| `<leader>gr` | reset hunk (discard change) |
 | `<leader>gp` | preview hunk |
-| `<leader>gd` | diff del archivo |
-| `<leader>gb` | toggle blame en la línea |
+| `<leader>gd` | file diff |
+| `<leader>gb` | toggle line blame |
 
-> Lazygit completo: **`Alt+g`** en tmux (popup, sin prefix). `prefix + g` es otra cosa: el layout IDE.
+> Full lazygit: **`Alt+g`** in tmux (popup, no prefix). `prefix + g` is something else: the IDE layout.
 
 ---
 
-## Formatear código
-| Tecla | Acción |
+## Format code
+| Key | Action |
 |-------|--------|
-| `<leader>cf` | formatear buffer / selección |
+| `<leader>cf` | format buffer / selection |
 
-> Go, Rust, Lua y Python se formatean **solo al guardar**. Markdown / SQL / PHP: manual con `<leader>cf`.
+> Go, Rust, Lua and Python are formatted **on save only**. Markdown / SQL / PHP: manual with `<leader>cf`.
 
 ---
 
-## Edición rápida
-| Tecla | Acción |
+## Quick editing
+| Key | Action |
 |-------|--------|
-| `<A-j>` / `<A-k>` | mover línea (o selección) abajo / arriba |
-| `<` / `>` en visual | indentar y mantener selección |
-| `p` en visual | pegar sin perder el yank |
-| `<leader>p` / `<leader>P` | pegar último yank (ignora deletes) |
-| `<leader>d` / `x` | borrar sin contaminar el registro |
-| `+` / `<C-x>` | incrementar / decrementar (dial: bool, fechas, semver, let↔const; `-` es de oil.nvim) |
+| `<A-j>` / `<A-k>` | move line (or selection) down / up |
+| `<` / `>` in visual | indent and keep selection |
+| `p` in visual | paste without losing the yank |
+| `<leader>p` / `<leader>P` | paste last yank (ignores deletes) |
+| `<leader>d` / `x` | delete without polluting the register |
+| `+` / `<C-x>` | increment / decrement (dial: bool, dates, semver, let↔const; `-` belongs to oil.nvim) |
 
 ---
 
-## Ventanas, buffers, archivo
-| Tecla | Acción |
+## Windows, buffers, file
+| Key | Action |
 |-------|--------|
-| `<C-h/j/k/l>` | moverse entre splits |
-| `<C-flechas>` | redimensionar split |
-| `<S-l>` / `<S-h>` | buffer siguiente / anterior |
-| `<leader>bd` | cerrar buffer |
-| `<leader>w` / `<leader>q` | guardar / cerrar |
-| `<leader>Q` | cerrar todo (force) |
-| `<Esc>` | limpiar highlight de búsqueda |
+| `<C-h/j/k/l>` | move between splits |
+| `<C-arrows>` | resize split |
+| `<S-l>` / `<S-h>` | next / previous buffer |
+| `<leader>bd` | close buffer |
+| `<leader>w` / `<leader>q` | save / close |
+| `<leader>Q` | close everything (force) |
+| `<Esc>` | clear search highlight |
 
 ---
 
-## Folds, foco, plugins
-| Tecla | Acción |
+## Folds, focus, plugins
+| Key | Action |
 |-------|--------|
-| `zR` / `zM` | abrir / cerrar todos los folds |
-| `zr` / `zm` | reducir / aumentar nivel de fold |
-| `<leader>z` | zen mode (foco) |
-| `<leader>Z` | zen zoom (solo la ventana) |
-| `:Lazy` | gestionar plugins |
-| `:Mason` | gestionar LSPs / formatters |
+| `zR` / `zM` | open / close all folds |
+| `zr` / `zm` | decrease / increase fold level |
+| `<leader>z` | zen mode (focus) |
+| `<leader>Z` | zen zoom (window only) |
+| `:Lazy` | manage plugins |
+| `:Mason` | manage LSPs / formatters |
 
 ---
 
-> 🤠 **Cowboy mode**: si martilás `hjkl` más de 10 veces en 2s, te frena. Usá motions reales (`w`, `b`, `f{char}`, `s` de flash, `5j`).
+> 🤠 **Cowboy mode**: if you hammer `hjkl` more than 10 times in 2s, it stops you. Use real motions (`w`, `b`, `f{char}`, `s` from flash, `5j`).

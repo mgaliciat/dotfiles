@@ -1,31 +1,31 @@
-# carbon — minimal + funcional, true black (#000) + un solo acento cálido.
-# Espejo cross-stack: misma paleta horneada en nvim/lua/themes/carbon.lua
-# y tmux/themes/carbon.conf (single source of truth = el palette canónico).
-# Filosofía: alto contraste sobre #000, neutrales grises sin tinte, y UN
-# acento (naranja Claude #d97757) reusado de la paleta Anthropic Warm — sin
-# inventar otros hexes de acento. Los grays cargan el peso; el naranja sólo
-# marca foco (cursor).
+# carbon — minimal + functional, true black (#000) + a single warm accent.
+# Cross-stack mirror: the same palette baked into nvim/lua/themes/carbon.lua
+# and tmux/themes/carbon.conf (single source of truth = the canonical palette).
+# Philosophy: high contrast over #000, neutral grays with no tint, and ONE
+# accent (Claude orange #d97757) reused from the Anthropic Warm palette — without
+# inventing other accent hexes. The grays carry the weight; the orange only
+# marks focus (cursor).
 #
-# NOTA: con true black puro, considerá bajar `minimum-contrast` a 1.0 si los
-# grays parecen brillar de más — el enforcement default sobre #000 es agresivo.
+# NOTE: with pure true black, consider lowering `minimum-contrast` to 1.0 if the
+# grays look like they're glowing too much — the default enforcement over #000 is aggressive.
 
-# fondo y texto
+# background and text
 background = #000000
 foreground = #e4e4e4
 
-# cursor — Claude orange, único acento de la paleta. Cálido y de máximo
-# contraste sobre #000, no se mimetiza con los neutrales grises del texto.
+# cursor — Claude orange, the palette's only accent. Warm and of maximum
+# contrast over #000, it doesn't blend in with the text's neutral grays.
 cursor-color = #d97757
 cursor-text  = #000000
 
-# selección — gris medio elevado (#2a2a2a) en vez de tinte: coherente con
-# la estética neutral. fg blanco puro mantiene el texto seleccionado legible.
+# selection — elevated mid gray (#2a2a2a) instead of a tint: consistent with
+# the neutral aesthetic. Pure white fg keeps the selected text readable.
 selection-background = #2a2a2a
 selection-foreground = #ffffff
 
 # ─── ANSI 16 ─────────────────────────────────────────────────
-# normales (0-7): neutrales + colores funcionales desaturados (no neon).
-# Suficiente croma para distinguir syntax/git status, sin vibrar sobre #000.
+# normals (0-7): neutrals + desaturated functional colors (not neon).
+# Enough chroma to tell syntax/git status apart, without vibrating over #000.
 palette = 0=#1c1c1c
 palette = 1=#e35f5f
 palette = 2=#9ec07c
@@ -35,8 +35,8 @@ palette = 5=#c08fb8
 palette = 6=#7fb5ad
 palette = 7=#d4d4d4
 
-# brillantes (8-15): versiones lifted +luminance. bright_black usa un gris
-# medio (#4a4a4a) que sobre #000 sigue legible — no se traga como #2a2a2a.
+# brights (8-15): lifted +luminance versions. bright_black uses a mid
+# gray (#4a4a4a) that stays readable over #000 — it doesn't get swallowed like #2a2a2a.
 palette = 8=#4a4a4a
 palette = 9=#ef7a7a
 palette = 10=#b3d196

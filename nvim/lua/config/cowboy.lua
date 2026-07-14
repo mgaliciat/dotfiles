@@ -1,14 +1,14 @@
 -- ─── 🤠 cowboy mode ───────────────────────────────────────────
--- Si presionás h/j/k/l más de 10 veces en 2 segundos, se bloquea
--- y muestra "Hold it Cowboy!". Objetivo educativo: te fuerza a usar
--- motions eficientes (w, b, f<char>, /búsqueda) en vez de martillar
+-- If you press h/j/k/l more than 10 times in 2 seconds, it blocks
+-- and shows "Hold it Cowboy!". Educational goal: it forces you to use
+-- efficient motions (w, b, f<char>, /search) instead of hammering
 -- arrow keys / hjkl.
 --
--- NO cubre +/- (increment/decrement) — para esos no hay alternativa
--- "motion-style"; mashar `+` 10 veces es uso legítimo. Además interfería
--- con dial.nvim (que intercepta <C-a>/<C-x> con increment inteligente).
+-- Does NOT cover +/- (increment/decrement) — for those there's no
+-- "motion-style" alternative; mashing `+` 10 times is legitimate use. It also
+-- interfered with dial.nvim (which intercepts <C-a>/<C-x> with smart increment).
 --
--- Crédito: idea original de craftzdog/Takuya Matsuyama.
+-- Credit: original idea from craftzdog/Takuya Matsuyama.
 -- https://github.com/craftzdog/dotfiles-public
 
 local M = {}
@@ -20,7 +20,7 @@ function M.setup()
     local timer = assert(vim.uv.new_timer())
     local map = key
     vim.keymap.set("n", key, function()
-      -- Si usás un count explícito (ej: `5j`), no cuenta como spam.
+      -- If you use an explicit count (e.g. `5j`), it doesn't count as spam.
       if vim.v.count > 0 then count = 0 end
       if count >= 10 and vim.bo.buftype ~= "nofile" then
         ok = pcall(vim.notify, "🤠 Hold it Cowboy!", vim.log.levels.WARN, {

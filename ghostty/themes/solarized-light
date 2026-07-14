@@ -1,29 +1,29 @@
-# solarized-light — Solarized Light canónico de Ethan Schoonover.
-# Espejo de nvim/lua/themes/solarized-light.lua y tmux/themes/solarized-light.conf.
+# solarized-light — Ethan Schoonover's canonical Solarized Light.
+# Mirror of nvim/lua/themes/solarized-light.lua and tmux/themes/solarized-light.conf.
 #
-# Paleta = la oficial de Solarized (mismos hex que la familia osaka del
-# repo derivan, pero acá en su forma LIGHT clásica: fondo base3, texto
-# base00). El mapeo ANSI 16 es el esquema canónico de Solarized — los
-# "bright" (8-15) son los tonos base oscuros (base03/base01/base00/base0),
-# que sobre fondo claro dan más contraste. No es la convención dark.
+# Palette = Solarized's official one (the same hex the repo's osaka family
+# derives from, but here in its classic LIGHT form: base3 background, base00
+# text). The ANSI 16 mapping is Solarized's canonical scheme — the
+# "brights" (8-15) are the dark base tones (base03/base01/base00/base0),
+# which over a light background give more contrast. It's not the dark convention.
 #
-# OJO: con un theme claro considerá subir `minimum-contrast` a 3.0 en
-# config.ghostty (rescata grays sin distorsionar los acentos).
+# WATCH OUT: with a light theme consider raising `minimum-contrast` to 3.0 in
+# config.ghostty (it rescues grays without distorting the accents).
 
-# fondo y texto
+# background and text
 background = #fdf6e3
 foreground = #657b83
 
-# cursor — base01 (tinta enfatizada), alta visibilidad sobre base3
+# cursor — base01 (emphasized ink), high visibility over base3
 cursor-color = #586e75
 cursor-text  = #fdf6e3
 
-# selección — base2, texto base01 sigue legible
+# selection — base2, base01 text stays readable
 selection-background = #eee8d5
 selection-foreground = #586e75
 
 # ─── ANSI 16 ─────────────────────────────────────────────────
-# Esquema canónico Solarized. normales (0-7)
+# Canonical Solarized scheme. normals (0-7)
 palette = 0=#073642
 palette = 1=#dc322f
 palette = 2=#859900
@@ -33,7 +33,7 @@ palette = 5=#d33682
 palette = 6=#2aa198
 palette = 7=#eee8d5
 
-# brillantes (8-15): tonos base oscuros + naranja/violeta
+# brights (8-15): dark base tones + orange/violet
 palette = 8=#002b36
 palette = 9=#cb4b16
 palette = 10=#586e75

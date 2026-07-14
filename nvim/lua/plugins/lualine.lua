@@ -1,10 +1,10 @@
 -- ─── lualine.nvim ─────────────────────────────────────────────
--- Statusline. Theme = "auto" → lualine detecta el colorscheme
--- activo y aplica el lualine theme que ese plugin exporta
--- (solarized-osaka, tokyonight, etc. todos traen el suyo).
--- Patrón de craftzdog: nunca hardcodear paleta acá, dejar que el
--- colorscheme mande. Cambiás `vim.g.theme` → statusline se
--- sincroniza solo.
+-- Statusline. Theme = "auto" → lualine detects the active
+-- colorscheme and applies the lualine theme that plugin exports
+-- (solarized-osaka, tokyonight, etc. all ship their own).
+-- craftzdog pattern: never hardcode a palette here, let the
+-- colorscheme rule. You change `vim.g.theme` → the statusline
+-- syncs by itself.
 
 return {
   "nvim-lualine/lualine.nvim",
@@ -13,8 +13,8 @@ return {
   opts = {
     options = {
       theme = "auto",
-      -- Sin separators overrides → lualine usa sus defaults
-      -- (powerline chevrons ``), el look de craftzdog/LazyVim.
+      -- No separator overrides → lualine uses its defaults
+      -- (powerline chevrons ``), the craftzdog/LazyVim look.
       globalstatus = true,
       disabled_filetypes = { statusline = { "dashboard", "alpha", "snacks_dashboard" } },
     },

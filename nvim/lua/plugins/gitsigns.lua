@@ -1,5 +1,5 @@
 -- ─── gitsigns.nvim ────────────────────────────────────────────
--- Markers de git en signcolumn + hunk navigation + blame inline.
+-- Git markers in the signcolumn + hunk navigation + inline blame.
 
 return {
   "lewis6991/gitsigns.nvim",
@@ -13,7 +13,7 @@ return {
       changedelete = { text = "~" },
       untracked    = { text = "┆" },
     },
-    current_line_blame = false,           -- toggle con <leader>gb si lo querés
+    current_line_blame = false,           -- toggle with <leader>gb if you want it
     on_attach = function(bufnr)
       local gs = require("gitsigns")
       local map = function(mode, lhs, rhs, desc)

@@ -1,10 +1,10 @@
 -- ─── theme: paper ────────────────────────────────────────────
--- Espejo del theme Ghostty `anthropic-paper` (light cream + sepia).
--- Base tokyonight: variant `day` (la light del plugin).
+-- Mirror of the Ghostty theme `anthropic-paper` (light cream + sepia).
+-- tokyonight base: variant `day` (the plugin's light one).
 --
--- Convención light theme: los "bright" son MÁS OSCUROS que los
--- normales (más saturación = más contraste sobre fondo claro).
--- Al revés de los dark themes.
+-- Light theme convention: the "bright" colors are DARKER than the
+-- normal ones (more saturation = more contrast over a light background).
+-- The opposite of the dark themes.
 
 local palette = {
   bg          = "#f5ead0",       -- paper cream
@@ -13,7 +13,7 @@ local palette = {
   bg_visual   = "#d4c298",
   bg_float    = "#ede0c2",
   bg_popup    = "#ede0c2",
-  bg_search   = "#e8c068",       -- amarillo apagado
+  bg_search   = "#e8c068",       -- muted yellow
   bg_sidebar  = "#ede0c2",
   bg_statusline = "#ede0c2",
 
@@ -30,7 +30,7 @@ local palette = {
   cyan        = "#5a8a7e",
   white       = "#2a1f15",
 
-  bright_black   = "#7a6a55",   -- color de comentarios
+  bright_black   = "#7a6a55",   -- comment color
   bright_red     = "#9a3520",
   bright_green   = "#557030",
   bright_yellow  = "#a07010",
@@ -67,7 +67,7 @@ return {
 
     c.comment       = palette.comment
     c.border        = palette.border
-    c.border_highlight = palette.cursor  -- coral acento para focus
+    c.border_highlight = palette.cursor  -- coral accent for focus
 
     c.red       = palette.red
     c.red1      = palette.bright_red
@@ -86,7 +86,7 @@ return {
     c.magenta   = palette.magenta
     c.magenta2  = palette.bright_magenta
     c.purple    = palette.magenta
-    c.orange    = palette.cursor          -- coral toma el rol "naranja semántico"
+    c.orange    = palette.cursor          -- coral takes the "semantic orange" role
 
     c.git = {
       add    = palette.green,
@@ -112,7 +112,7 @@ return {
     hl.GitSignsChange = { fg = c.yellow }
     hl.GitSignsDelete = { fg = c.red }
 
-    -- Inline code: cream tostado + terracota saturada.
+    -- Inline code: toasted cream + saturated terracotta.
     local code_bg = palette.bg_dark
     local code_fg = palette.bright_red
     hl["@markup.raw"]                  = { bg = code_bg, fg = code_fg }

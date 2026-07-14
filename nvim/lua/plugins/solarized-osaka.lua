@@ -1,24 +1,24 @@
 -- ─── solarized-osaka.nvim ─────────────────────────────────────
--- Theme de craftzdog (fork de tokyonight con paleta solarized).
--- API idéntica a tokyonight, pero el plugin es independiente — por
--- eso NO encaja en el patrón `lua/themes/*.lua` (que sobreescribe
--- tokyonight). Vive como spec separado y se gatea con `enabled`
--- contra `vim.g.theme` para no pelear con tokyonight por el
--- colorscheme final.
+-- craftzdog's theme (tokyonight fork with a solarized palette).
+-- Identical API to tokyonight, but the plugin is independent — that's
+-- why it does NOT fit the `lua/themes/*.lua` pattern (which overrides
+-- tokyonight). It lives as a separate spec and is gated with `enabled`
+-- against `vim.g.theme` so it doesn't fight tokyonight over the
+-- final colorscheme.
 --
--- Variantes registradas por el plugin:
+-- Variants registered by the plugin:
 --   solarized-osaka       (dark / night, default)
 --   solarized-osaka-day   (light)
---   solarized-osaka-moon  (variante dark más suave)
---   solarized-osaka-storm (variante dark más gris)
+--   solarized-osaka-moon  (softer dark variant)
+--   solarized-osaka-storm (grayer dark variant)
 --
--- Activación: setear `vim.g.theme = "solarized-osaka"` (o cualquiera
--- de las variantes de arriba) en lua/config/options.lua.
+-- Activation: set `vim.g.theme = "solarized-osaka"` (or any
+-- of the variants above) in lua/config/options.lua.
 
 local theme_name = vim.g.theme or ""
 
--- Si el theme activo NO es una variante de solarized-osaka, no cargamos
--- el plugin — tokyonight (colorscheme.lua) toma el control.
+-- If the active theme is NOT a solarized-osaka variant, we don't load
+-- the plugin — tokyonight (colorscheme.lua) takes over.
 if not theme_name:match("^solarized%-osaka") then
   return { "craftzdog/solarized-osaka.nvim", enabled = false }
 end
@@ -28,11 +28,11 @@ return {
   lazy = false,
   priority = 1000,
   opts = {
-    -- Hereda la transparencia de Ghostty (estilo craftzdog): Normal sin bg,
-    -- el wallpaper/blur se ve a través del editor. Sidebars y floats, en
-    -- cambio, quedan en "dark" (base04 opaco) — es el look real de craftzdog:
-    -- paneles como "islas" sólidas sobre el fondo see-through, no todo
-    -- transparente. keywords itálicas = default del plugin.
+    -- Inherits Ghostty's transparency (craftzdog style): Normal with no bg,
+    -- the wallpaper/blur shows through the editor. Sidebars and floats, on the
+    -- other hand, stay "dark" (opaque base04) — that's craftzdog's real look:
+    -- panels as solid "islands" over the see-through background, not everything
+    -- transparent. Italic keywords = the plugin's default.
     transparent = true,
     terminal_colors = true,
     styles = {
@@ -43,10 +43,10 @@ return {
       sidebars  = "dark",
       floats    = "dark",
     },
-    -- El colorscheme upstream deja WinBar/WinBarNC con bg sólido (base03).
-    -- Como dropbar.nvim inyecta el breadcrumb en la winbar, hereda ese bg y
-    -- se ve como bloque opaco sobre el Normal transparente. Forzar a NONE
-    -- para que el breadcrumb respire (independiente del estilo de floats).
+    -- The upstream colorscheme leaves WinBar/WinBarNC with a solid bg (base03).
+    -- Since dropbar.nvim injects the breadcrumb into the winbar, it inherits that bg and
+    -- looks like an opaque block over the transparent Normal. Force it to NONE
+    -- so the breadcrumb breathes (independent of the floats style).
     on_highlights = function(hl, _)
       hl.WinBar   = { bg = "NONE" }
       hl.WinBarNC = { bg = "NONE" }

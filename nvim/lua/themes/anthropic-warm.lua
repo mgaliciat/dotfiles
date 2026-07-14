@@ -1,19 +1,19 @@
 -- ─── theme: anthropic-warm ───────────────────────────────────
--- Espejo del theme Ghostty `anthropic-warm` y de tmux/themes/anthropic-warm.conf
--- (dark sepia/terracota cálido). Antes se llamaba "warm" — renombrado al
--- id canónico de la familia del switcher (mismo string en las 3 capas).
--- Base tokyonight: variant `night`.
+-- Mirror of the Ghostty theme `anthropic-warm` and of tmux/themes/anthropic-warm.conf
+-- (warm dark sepia/terracotta). It used to be called "warm" — renamed to the
+-- canonical id of the switcher family (same string across the 3 layers).
+-- tokyonight base: variant `night`.
 --
--- Convención dark theme: los "bright" son MÁS CLAROS que los normales.
+-- Dark theme convention: the "bright" colors are LIGHTER than the normal ones.
 
 local palette = {
-  bg          = "#1a1814",       -- dark warm (no negro puro, tira a sepia)
-  bg_dark     = "#14110d",       -- más oscuro para sidebars
+  bg          = "#1a1814",       -- dark warm (not pure black, leans sepia)
+  bg_dark     = "#14110d",       -- darker, for sidebars
   bg_highlight= "#3a2e1f",       -- selection bg
   bg_visual   = "#3a2e1f",
   bg_float    = "#14110d",
   bg_popup    = "#14110d",
-  bg_search   = "#5a4520",       -- ámbar oscuro saturado para search match
+  bg_search   = "#5a4520",       -- saturated dark amber for search match
   bg_sidebar  = "#14110d",
   bg_statusline = "#14110d",
 
@@ -39,7 +39,7 @@ local palette = {
   bright_cyan    = "#a5c4bc",
   bright_white   = "#f5ead0",
 
-  comment     = "#8a7a60",       -- gris-tierra medio sobre bg warm
+  comment     = "#8a7a60",       -- mid earth-gray over the warm bg
   border      = "#4a3f33",
   cursor      = "#d97757",       -- Claude coral
 }
@@ -67,7 +67,7 @@ return {
 
     c.comment       = palette.comment
     c.border        = palette.border
-    c.border_highlight = palette.cursor  -- coral acento para focus
+    c.border_highlight = palette.cursor  -- coral accent for focus
 
     c.red       = palette.red
     c.red1      = palette.bright_red
@@ -86,7 +86,7 @@ return {
     c.magenta   = palette.magenta
     c.magenta2  = palette.bright_magenta
     c.purple    = palette.magenta
-    c.orange    = palette.cursor          -- coral toma el rol "naranja semántico"
+    c.orange    = palette.cursor          -- coral takes the "semantic orange" role
 
     c.git = {
       add    = palette.green,
@@ -97,7 +97,7 @@ return {
   end,
 
   on_highlights = function(hl, c)
-    hl.CursorLine   = { bg = "#221e18" }       -- apenas más claro que bg
+    hl.CursorLine   = { bg = "#221e18" }       -- barely lighter than bg
     hl.CursorLineNr = { fg = palette.cursor, bold = true }
     hl.LineNr       = { fg = c.fg_gutter }
 
@@ -112,8 +112,8 @@ return {
     hl.GitSignsChange = { fg = c.yellow }
     hl.GitSignsDelete = { fg = c.red }
 
-    -- Inline code: bg apenas más oscuro que el bg principal,
-    -- fg coral cálido (rebota con el acento del cursor).
+    -- Inline code: bg barely darker than the main bg,
+    -- warm coral fg (echoes the cursor accent).
     local code_bg = palette.bg_dark
     local code_fg = palette.bright_magenta   -- = #d97757 coral
     hl["@markup.raw"]                  = { bg = code_bg, fg = code_fg }
@@ -125,7 +125,7 @@ return {
     hl["@markup.raw.block"]            = { bg = code_bg }
     hl.markdownCodeBlock               = { bg = code_bg }
 
-    -- Headings: jerarquía cálida coral → ámbar → verde oliva.
+    -- Headings: warm coral → amber → olive green hierarchy.
     hl["@markup.heading.1.markdown"]   = { fg = palette.cursor,         bold = true }
     hl["@markup.heading.2.markdown"]   = { fg = palette.bright_yellow,  bold = true }
     hl["@markup.heading.3.markdown"]   = { fg = palette.bright_green,   bold = true }

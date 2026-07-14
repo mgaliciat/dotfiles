@@ -1,17 +1,17 @@
 -- ─── render-markdown.nvim ─────────────────────────────────────
--- Renderiza markdown in-buffer en modo normal: headings con icon
--- + color, code blocks con background, checkboxes glyph, bullets,
--- pipe tables alineadas. Al entrar en insert vuelve al texto crudo.
+-- Renders markdown in-buffer in normal mode: headings with icon
+-- + color, code blocks with background, checkbox glyphs, bullets,
+-- aligned pipe tables. When you enter insert it goes back to raw text.
 --
--- Dependencias: nvim-treesitter con parsers `markdown` + `markdown_inline`
--- (ya instalados en plugins/treesitter.lua).
+-- Dependencies: nvim-treesitter with the `markdown` + `markdown_inline` parsers
+-- (already installed in plugins/treesitter.lua).
 --
--- Glyphs usan nerd font (tu Ghostty ya lo tiene — Starship lo requiere).
+-- Glyphs use a nerd font (your Ghostty already has it — Starship requires it).
 --
--- Por qué este plugin y no `peek.nvim` / `markdown-preview.nvim` /
--- `leaf -w` en split: render in-place evita context-switch. Editás en
--- insert (markdown crudo), pasás a normal y lo ves formateado sin moverte
--- de pane. Para "leer doc grande con TOC", leaf sigue siendo mejor opción.
+-- Why this plugin and not `peek.nvim` / `markdown-preview.nvim` /
+-- `leaf -w` in a split: in-place render avoids the context-switch. You edit in
+-- insert (raw markdown), switch to normal and see it formatted without moving
+-- pane. For "reading a big doc with a TOC", leaf is still the better option.
 
 return {
   "MeanderingProgrammer/render-markdown.nvim",
@@ -27,17 +27,17 @@ return {
   opts = {
     file_types = { "markdown" },
 
-    -- Headings: estilo org-mode con icons graduales. `sign = false` evita
-    -- el icono extra en signcolumn (que reservamos para LSP/git).
+    -- Headings: org-mode style with graduated icons. `sign = false` avoids
+    -- the extra icon in the signcolumn (which we reserve for LSP/git).
     heading = {
       sign = false,
       icons = { "◉ ", "○ ", "✸ ", "✿ ", "◆ ", "▪ " },
-      width = "block",     -- background del heading solo cubre el texto, no toda la línea
+      width = "block",     -- the heading background only covers the text, not the whole line
     },
 
-    -- Code blocks: background full, label de lenguaje a la izquierda.
-    -- `width = "block"` evita que el bg se extienda a toda la pantalla
-    -- (que en splits anchos se ve raro).
+    -- Code blocks: full background, language label on the left.
+    -- `width = "block"` prevents the bg from stretching across the whole screen
+    -- (which looks odd in wide splits).
     code = {
       style    = "full",
       width    = "block",
@@ -46,13 +46,13 @@ return {
       language_pad = 1,
     },
 
-    -- Bullets: jerarquía visual por nivel de anidación.
+    -- Bullets: visual hierarchy by nesting level.
     bullet = {
       icons = { "•", "◦", "▪", "▫" },
     },
 
-    -- Checkboxes: glyphs nerd font + custom "in progress" (`[-]` típico
-    -- de muchos sistemas de notas).
+    -- Checkboxes: nerd font glyphs + custom "in progress" (`[-]`, typical
+    -- of many note-taking systems).
     checkbox = {
       unchecked = { icon = "󰄱 " },
       checked   = { icon = "󰱒 " },
@@ -61,13 +61,13 @@ return {
       },
     },
 
-    -- Líneas horizontales `---` se muestran como rule full-width.
+    -- Horizontal lines `---` are shown as a full-width rule.
     dash = { width = "full" },
 
-    -- Tablas `|...|` alineadas con bordes box-drawing.
+    -- `|...|` tables aligned with box-drawing borders.
     pipe_table = { style = "full" },
 
-    -- Quote blocks `>` con barra lateral coloreada.
+    -- Quote blocks `>` with a colored side bar.
     quote = { repeat_linebreak = true },
   },
 }

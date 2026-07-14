@@ -1,10 +1,10 @@
 -- ─── entry point ──────────────────────────────────────────────
--- Orden importa:
---   1. options ANTES que lazy → algunos plugins leen vim.opt al cargar.
---   2. lazy ANTES que keymaps específicos de plugin → keymaps.lua solo
---      define mappings nativos (sin dependencias de plugin).
---   3. autocmds al final → algunos dependen de filetypes que treesitter
---      registra al cargar.
+-- Order matters:
+--   1. options BEFORE lazy → some plugins read vim.opt when loading.
+--   2. lazy BEFORE plugin-specific keymaps → keymaps.lua only defines
+--      native mappings (no plugin dependencies).
+--   3. autocmds last → some depend on filetypes that treesitter
+--      registers when loading.
 
 require("config.options")
 require("config.keymaps")

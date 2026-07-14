@@ -1,36 +1,36 @@
-# dark-2026 — clon de "Dark 2026", el nuevo theme oscuro por default de
-# VS Code (refresh "Focus" de 2026, default desde 1.113 del 25 de marzo
-# de 2026). Hex sacados directo de
-# extensions/theme-defaults/themes/2026-dark.json en microsoft/vscode
-# (editor.background, focusBorder, tokenColors, etc.) — no son un guess,
-# son los valores reales que shippea el editor. Companion oscuro de
-# `light-2026` (mismo refresh, mismo criterio de extracción).
-# Espejo de nvim/lua/themes/dark-2026.lua y tmux/themes/dark-2026.conf.
+# dark-2026 — clone of "Dark 2026", VS Code's new default dark theme
+# (the 2026 "Focus" refresh, default since 1.113 of March 25th
+# 2026). Hex taken straight from
+# extensions/theme-defaults/themes/2026-dark.json in microsoft/vscode
+# (editor.background, focusBorder, tokenColors, etc.) — they're not a guess,
+# they're the real values the editor ships. Dark companion of
+# `light-2026` (same refresh, same extraction criteria).
+# Mirror of nvim/lua/themes/dark-2026.lua and tmux/themes/dark-2026.conf.
 #
-# VS Code no define una paleta ANSI de 16 colores (su formato es
-# UI-chrome + tokenColors, no terminal), así que el ANSI de acá es una
-# construcción razonada a partir de esos mismos hex — mismo problema que
-# resolvió solarized-osaka.lua mirando el `M.terminal()` del plugin.
-# Convención dark theme del repo (ver carbon/xcode-oled): los "brillantes"
-# (8-15) son más claros/vívidos que los normales — convención ANSI
-# estándar, sin invertir (eso es solo para los themes claros).
+# VS Code doesn't define a 16-color ANSI palette (its format is
+# UI-chrome + tokenColors, not terminal), so the ANSI here is a
+# reasoned construction out of those same hex — the same problem
+# solarized-osaka.lua solved by looking at the plugin's `M.terminal()`.
+# The repo's dark theme convention (see carbon/xcode-oled): the "brights"
+# (8-15) are lighter/more vivid than the normals — standard ANSI
+# convention, without inverting (that's only for the light themes).
 
-# fondo y texto — editor.background / editor.foreground
+# background and text — editor.background / editor.foreground
 background = #121314
 foreground = #bbbebf
 
-# cursor — el acento teal-azul de la familia focusBorder/badge/menu
-# (menu.selectionBorder, sin alpha), el color más icónico del theme
+# cursor — the teal-blue accent of the focusBorder/badge/menu family
+# (menu.selectionBorder, without alpha), the theme's most iconic color
 cursor-color = #3994bc
 cursor-text  = #121314
 
-# selección — editor.selectionBackground (#276782 a ~87% alpha) horneado
-# sobre el bg; texto foreground sigue legible encima
+# selection — editor.selectionBackground (#276782 at ~87% alpha) baked
+# over the bg; foreground text stays readable on top
 selection-background = #245c73
 selection-foreground = #bbbebf
 
 # ─── ANSI 16 ─────────────────────────────────────────────────
-# normales (0-7) — tonos base de tokenColors, sin forzar saturación
+# normals (0-7) — base tones from tokenColors, without forcing saturation
 palette = 0=#242526
 palette = 1=#ff7b72
 palette = 2=#7ee787
@@ -40,7 +40,7 @@ palette = 5=#d2a8ff
 palette = 6=#48a0c7
 palette = 7=#8b949e
 
-# brillantes (8-15): más claros/vívidos (convención dark estándar)
+# brights (8-15): lighter/more vivid (standard dark convention)
 palette = 8=#555555
 palette = 9=#ffa198
 palette = 10=#86cf86

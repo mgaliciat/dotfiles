@@ -1,46 +1,46 @@
 #!/usr/bin/env bash
-# ─── scripts/ide — layout tmux estilo IDE ─────────────────────
-# Adaptado de craftzdog/dotfiles-public/.scripts/ide.
+# ─── scripts/ide — IDE-style tmux layout ──────────────────────
+# Adapted from craftzdog/dotfiles-public/.scripts/ide.
 #
-# Layout que arma — 4 panes (vista desde arriba):
+# The layout it builds — 4 panes (seen from above):
 #
 #   ┌──────────────┬───────────────────┬──────────┐
 #   │              │                   │          │
 #   │  main (top-  │   pane right      │ sidebar  │
-#   │  left, queda │                   │   20%    │
-#   │  activo)     │                   │          │
-#   ├──────────────┴───────────────────┤ (alto    │
-#   │                                  │  total)  │
+#   │  left, stays │                   │   20%    │
+#   │  active)     │                   │          │
+#   ├──────────────┴───────────────────┤ (full    │
+#   │                                  │  height) │
 #   │         terminal (30%)           │          │
 #   └──────────────────────────────────┴──────────┘
 #
-# Uso: dentro de una sesión tmux, correr:
+# Usage: inside a tmux session, run:
 #   ~/dotfiles/scripts/ide
-# O agregalo a tu PATH con:
+# Or add it to your PATH with:
 #   ln -s ~/dotfiles/scripts/ide ~/.local/bin/ide
-# Y después solo: `ide`
+# And then just: `ide`
 #
-# Si no estás en tmux, te avisa y sale.
+# If you're not in tmux, it warns you and exits.
 
 if [[ -z "${TMUX:-}" ]]; then
-  echo "Error: este script debe correrse dentro de una sesión tmux."
-  echo "Arrancá tmux primero con: tmux new -s proyecto"
+  echo "Error: this script must be run inside a tmux session."
+  echo "Start tmux first with: tmux new -s project"
   exit 1
 fi
 
-# Sidebar derecho (20%)
+# Right sidebar (20%)
 tmux split-window -h -l 20%
 
-# Volver al pane izquierdo
+# Back to the left pane
 tmux select-pane -L
 
-# Terminal abajo (30% del pane izquierdo)
+# Terminal at the bottom (30% of the left pane)
 tmux split-window -v -l 30%
 
-# En el pane "main" (arriba-izquierda), partirlo en dos columnas
+# In the "main" pane (top-left), split it into two columns
 tmux select-pane -U
 tmux split-window -h -l 50%
 
-# Volver al pane principal (top-left) para que sea el activo al terminar
+# Back to the main pane (top-left) so it's the active one when done
 tmux select-pane -L
 tmux select-pane -U

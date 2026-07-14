@@ -1,0 +1,42 @@
+{
+  "_comment": "Single source of truth for Claude Code's base permissions. Read by claude/install/settings.sh (jq, mac + Linux) and install-windows.ps1 (ConvertFrom-Json). Both are additive-only: they write these lists only if the key does not already exist in that machine's settings.json. Curated from the official docs (https://code.claude.com/docs/en/permissions) — read-only Bash commands (git status/diff/log, ls, cat, grep, find, pwd, head, tail, wc, which, stat, du, cd...) no longer prompt by default, so they are deliberately absent from `allow`. What remains is what still causes real friction: git writes, build/test tooling, and the modern replacements for those classic read-only commands, which Claude Code still confirms because they are not in its internal list (rg, fd, eza, bat, fzf, jq, tree, delta — all installed by these same installers). `deny` blocks the obviously destructive, and applies even under bypassPermissions/auto — but it is best-effort: wildcard patterns do not cover variants like `rm -fr` or `git push -f`. For a real block, the documented path is a PreToolUse hook, not more strings.",
+
+  "allow": [
+    "Bash(git add *)",
+    "Bash(git commit *)",
+    "Bash(npm run *)",
+    "Bash(npm test *)",
+    "Bash(cargo build *)",
+    "Bash(cargo test *)",
+    "Bash(make *)",
+    "Bash(docker ps *)",
+    "Bash(docker images *)",
+    "Bash(go build *)",
+    "Bash(go test *)",
+    "Bash(go vet *)",
+    "Bash(go mod *)",
+    "Bash(go run *)",
+    "Bash(gofmt *)",
+    "Bash(kotlinc *)",
+    "Bash(ktlint *)",
+    "Bash(./gradlew build)",
+    "Bash(./gradlew test)",
+    "Bash(./gradlew clean)",
+    "Bash(gradle build)",
+    "Bash(gradle test)",
+    "Bash(fzf *)",
+    "Bash(rg *)",
+    "Bash(fd *)",
+    "Bash(eza *)",
+    "Bash(bat *)",
+    "Bash(jq *)",
+    "Bash(tree *)",
+    "Bash(delta *)"
+  ],
+
+  "deny": [
+    "Bash(rm -rf *)",
+    "Bash(git push --force*)",
+    "Bash(sudo *)"
+  ]
+}

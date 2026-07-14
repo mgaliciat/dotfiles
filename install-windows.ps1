@@ -1,30 +1,30 @@
-# Piezas de Claude Code para Windows NATIVO (sin WSL2 — WSL2 usa
-# install-linux.sh, que ya lo detecta y da hints específicos).
+# Claude Code pieces for NATIVE Windows (no WSL2 — WSL2 uses
+# install-linux.sh, which already detects it and gives specific hints).
 #
-# Alcance intencionalmente chico: zsh/tmux/nvim no corren nativos en
-# Windows, así que este script NO es un port del resto del dotfiles —
-# ver CLAUDE.md, sección "per-máquina split". Cubre únicamente:
-#   - symlinks de claude/statusline.sh y claude/CLAUDE.md
-#   - statusLine + permissions base en settings.json (equivalente a los
-#     bloques jq de install.sh/install-linux.sh, acá con JSON nativo)
-#   - rtk (sin instalador oficial para Windows — bajamos el zip release)
-#   - codebase-memory-mcp (instalador oficial install.ps1)
-#   - plugins de marketplace (ponytail, andrej-karpathy-skills)
+# Intentionally narrow scope: zsh/tmux/nvim do not run natively on Windows, so
+# this script is NOT a port of the rest of the dotfiles — see CLAUDE.md, the
+# "per-machine split" section. It covers only:
+#   - symlinks for claude/statusline.sh and claude/CLAUDE.md
+#   - statusLine + base permissions in settings.json (equivalent to the jq
+#     blocks in install.sh/install-linux.sh, here with native JSON)
+#   - rtk (no official installer for Windows — we download the release zip)
+#   - codebase-memory-mcp (official install.ps1 installer)
+#   - marketplace plugins (ponytail, andrej-karpathy-skills)
 #
-# Esos cuatro bullets son los tres mecanismos de claude/install/ (settings.sh /
-# binaries.sh / plugins.sh) replicados a mano: PowerShell no puede sourcear los
-# scripts bash. Si tocás algo allá, chequeá si aplica acá.
+# Those four bullets are the three mechanisms of claude/install/ (settings.sh /
+# binaries.sh / plugins.sh) replicated by hand: PowerShell cannot source the bash
+# scripts. If you touch something over there, check whether it applies here.
 #
-# Uso: abrí PowerShell (5.1 o pwsh 7+) parado en esta carpeta y corré
+# Usage: open PowerShell (5.1 or pwsh 7+) in this folder and run
 #   ./install-windows.ps1
-# Si da error de política de ejecución:
+# If it errors with an execution policy problem:
 #   PowerShell -ExecutionPolicy Bypass -File .\install-windows.ps1
 #
-# Symlinks en Windows requieren Developer Mode activado (Settings >
-# Privacy & security > For developers) o correr como Administrador. Si
-# no está disponible, el script cae a copiar el archivo (avisa en pantalla)
-# — no se van a propagar futuros `git pull` hasta que actives Developer Mode
-# y re-corras el script.
+# Symlinks on Windows require Developer Mode enabled (Settings >
+# Privacy & security > For developers) or running as Administrator. If that is
+# not available, the script falls back to copying the file (it warns on screen)
+# — future `git pull`s will not propagate until you enable Developer Mode and
+# re-run the script.
 
 $ErrorActionPreference = "Stop"
 
@@ -50,8 +50,8 @@ function Set-DotfileSymlink {
         New-Item -ItemType SymbolicLink -Path $Destination -Target $Source -Force -ErrorAction Stop | Out-Null
         Write-Host "OK  $Destination -> $Source"
     } catch {
-        Write-Host "!!  no se pudo symlinkear $Destination (activa Developer Mode o corre como Administrador)" -ForegroundColor Yellow
-        Write-Host "    copiando en su lugar -- futuros 'git pull' no se van a propagar hasta re-correr este script" -ForegroundColor Yellow
+        Write-Host "!!  could not symlink $Destination (enable Developer Mode or run as Administrator)" -ForegroundColor Yellow
+        Write-Host "    copying instead -- future 'git pull's will not propagate until you re-run this script" -ForegroundColor Yellow
         Copy-Item $Source $Destination -Force
     }
 }
@@ -60,9 +60,9 @@ function Set-DotfileSymlink {
 Set-DotfileSymlink (Join-Path $Dotfiles "claude\statusline.sh") (Join-Path $ClaudeDir "statusline.sh")
 Set-DotfileSymlink (Join-Path $Dotfiles "claude\CLAUDE.md")     (Join-Path $ClaudeDir "CLAUDE.md")
 
-# ─── settings.json: statusLine + permisos base ─────────────────
-# Additive-only, igual que install.sh/install-linux.sh: si la key ya
-# existe (armaste tu propia config a mano en esta máquina) no se toca.
+# ─── settings.json: statusLine + base permissions ──────────────
+# Additive-only, same as install.sh/install-linux.sh: if the key already exists
+# (you built your own config by hand on this machine) it is not touched.
 $SettingsPath = Join-Path $ClaudeDir "settings.json"
 $Settings = if (Test-Path $SettingsPath) {
     Get-Content $SettingsPath -Raw | ConvertFrom-Json
@@ -71,91 +71,61 @@ $Settings = if (Test-Path $SettingsPath) {
 }
 
 if ($Settings.PSObject.Properties.Name -contains "statusLine") {
-    Write-Host "OK  statusLine ya configurado en settings.json -- no se toca"
+    Write-Host "OK  statusLine already set in settings.json -- leaving it alone"
 } else {
     $Settings | Add-Member -NotePropertyName "statusLine" -NotePropertyValue ([PSCustomObject]@{
         type    = "command"
         command = "~/.claude/statusline.sh"
     })
-    Write-Host "OK  statusLine agregado a settings.json"
+    Write-Host "OK  statusLine added to settings.json"
 }
 
 if (-not ($Settings.PSObject.Properties.Name -contains "permissions")) {
     $Settings | Add-Member -NotePropertyName "permissions" -NotePropertyValue ([PSCustomObject]@{})
 }
 
+# The lists come from claude/install/permissions.json -- the same file the bash
+# side reads with jq. Single source of truth: adding a permission in one place
+# used to leave the other platform silently behind.
+$Permissions = Get-Content (Join-Path $Dotfiles "claude\install\permissions.json") -Raw | ConvertFrom-Json
+
 if ($Settings.permissions.PSObject.Properties.Name -contains "allow") {
-    Write-Host "OK  permissions.allow ya configurado en settings.json -- no se toca"
+    Write-Host "OK  permissions.allow already set in settings.json -- leaving it alone"
 } else {
-    $Settings.permissions | Add-Member -NotePropertyName "allow" -NotePropertyValue @(
-        "Bash(git add *)",
-        "Bash(git commit *)",
-        "Bash(npm run *)",
-        "Bash(npm test *)",
-        "Bash(cargo build *)",
-        "Bash(cargo test *)",
-        "Bash(make *)",
-        "Bash(docker ps *)",
-        "Bash(docker images *)",
-        "Bash(go build *)",
-        "Bash(go test *)",
-        "Bash(go vet *)",
-        "Bash(go mod *)",
-        "Bash(go run *)",
-        "Bash(gofmt *)",
-        "Bash(kotlinc *)",
-        "Bash(ktlint *)",
-        "Bash(./gradlew build)",
-        "Bash(./gradlew test)",
-        "Bash(./gradlew clean)",
-        "Bash(gradle build)",
-        "Bash(gradle test)",
-        "Bash(fzf *)",
-        "Bash(rg *)",
-        "Bash(fd *)",
-        "Bash(eza *)",
-        "Bash(bat *)",
-        "Bash(jq *)",
-        "Bash(tree *)",
-        "Bash(delta *)"
-    )
-    Write-Host "OK  permissions.allow agregado a settings.json"
+    $Settings.permissions | Add-Member -NotePropertyName "allow" -NotePropertyValue $Permissions.allow
+    Write-Host "OK  permissions.allow added to settings.json"
 }
 
 if ($Settings.permissions.PSObject.Properties.Name -contains "deny") {
-    Write-Host "OK  permissions.deny ya configurado en settings.json -- no se toca"
+    Write-Host "OK  permissions.deny already set in settings.json -- leaving it alone"
 } else {
-    $Settings.permissions | Add-Member -NotePropertyName "deny" -NotePropertyValue @(
-        "Bash(rm -rf *)",
-        "Bash(git push --force*)",
-        "Bash(sudo *)"
-    )
-    Write-Host "OK  permissions.deny agregado a settings.json"
+    $Settings.permissions | Add-Member -NotePropertyName "deny" -NotePropertyValue $Permissions.deny
+    Write-Host "OK  permissions.deny added to settings.json"
 }
 
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
 [System.IO.File]::WriteAllText($SettingsPath, ($Settings | ConvertTo-Json -Depth 10), $Utf8NoBom)
 
-# ─── rtk (proxy CLI que reduce tokens) ──────────────────────────
-# Sin instalador oficial para Windows (docs solo dan el zip release +
-# extracción manual) -- bajamos del URL estable "latest/download/<asset>"
-# de GitHub (no requiere consultar la API) y lo dejamos en
-# %LOCALAPPDATA%\Programs\rtk, mismo patrón de directorio que usa el
-# installer oficial de codebase-memory-mcp más abajo.
+# ─── rtk (token-reducing proxy CLI) ─────────────────────────────
+# No official installer for Windows (the docs only give the release zip +
+# manual extraction) -- we download from GitHub's stable
+# "latest/download/<asset>" URL (no API call needed) and drop it in
+# %LOCALAPPDATA%\Programs\rtk, the same directory pattern the official
+# codebase-memory-mcp installer uses below.
 $RtkDir = Join-Path $env:LOCALAPPDATA "Programs\rtk"
 $RtkExe = Join-Path $RtkDir "rtk.exe"
 
 $RtkCmd = Get-Command rtk -ErrorAction SilentlyContinue
 if (-not $RtkCmd -and -not (Test-Path $RtkExe)) {
     Write-Host ""
-    Write-Host "-> Instalando rtk"
+    Write-Host "-> Installing rtk"
     $TmpZip = Join-Path $env:TEMP "rtk.zip"
     try {
         Invoke-WebRequest -Uri "https://github.com/rtk-ai/rtk/releases/latest/download/rtk-x86_64-pc-windows-msvc.zip" -OutFile $TmpZip
         New-Item -ItemType Directory -Path $RtkDir -Force | Out-Null
         Expand-Archive -Path $TmpZip -DestinationPath $RtkDir -Force
     } catch {
-        Write-Host "!!  rtk install fallo: $_" -ForegroundColor Yellow
+        Write-Host "!!  rtk install failed: $_" -ForegroundColor Yellow
     } finally {
         Remove-Item $TmpZip -Force -ErrorAction SilentlyContinue
     }
@@ -168,101 +138,102 @@ if (Test-Path $RtkExe) {
     if ($UserPath -notlike "*$RtkDir*") {
         [Environment]::SetEnvironmentVariable("PATH", "$UserPath;$RtkDir", "User")
         $env:PATH = "$env:PATH;$RtkDir"
-        Write-Host "OK  $RtkDir agregado al PATH de usuario"
+        Write-Host "OK  $RtkDir added to the user PATH"
     }
     try {
         & $RtkExe init --global --auto-patch | Out-Null
-        Write-Host "OK  rtk hook de Claude Code configurado (o ya estaba)"
+        Write-Host "OK  rtk Claude Code hook configured (or already there)"
     } catch {
-        Write-Host "!!  rtk init --global fallo -- revisar a mano ($RtkExe init --global -v)" -ForegroundColor Yellow
+        Write-Host "!!  rtk init --global failed -- check by hand ($RtkExe init --global -v)" -ForegroundColor Yellow
     }
 } else {
-    Write-Host "!!  rtk no se pudo instalar -- revisar a mano (https://github.com/rtk-ai/rtk)" -ForegroundColor Yellow
+    Write-Host "!!  rtk could not be installed -- check by hand (https://github.com/rtk-ai/rtk)" -ForegroundColor Yellow
 }
 
-# ─── codebase-memory-mcp (MCP server de grafo de código) ────────
-# Instalador oficial (install.ps1): baja el binario, corre
-# `install -y` solo (configura Claude Code + agrega su propio dir al
-# PATH de usuario), variante sin --ui (headless, default). Solo se
-# corre si el binario no está ya presente.
+# ─── codebase-memory-mcp (code graph MCP server) ────────────────
+# Official installer (install.ps1): downloads the binary, runs `install -y` on
+# its own (configures Claude Code + adds its own dir to the user PATH), in the
+# variant without --ui (headless, the default). It only runs if the binary is
+# not already present.
 if (-not (Get-Command codebase-memory-mcp -ErrorAction SilentlyContinue)) {
     Write-Host ""
-    Write-Host "-> Instalando codebase-memory-mcp"
+    Write-Host "-> Installing codebase-memory-mcp"
     $TmpPs1 = Join-Path $env:TEMP "cbm-install.ps1"
     try {
         Invoke-WebRequest -Uri "https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.ps1" -OutFile $TmpPs1
         Unblock-File $TmpPs1
         & $TmpPs1
     } catch {
-        Write-Host "!!  codebase-memory-mcp install fallo: $_" -ForegroundColor Yellow
+        Write-Host "!!  codebase-memory-mcp install failed: $_" -ForegroundColor Yellow
     } finally {
         Remove-Item $TmpPs1 -Force -ErrorAction SilentlyContinue
     }
 }
 
-# `install -y` corre SIEMPRE (espejo de install.sh): es lo que registra el MCP
-# server + hooks + la skill `codebase-memory` en ~/.claude/. Si vivia solo
-# dentro del install.ps1 oficial de arriba, un ~/.claude borrado a mano no se
-# reconstruia nunca (binario presente -> guard en falso -> cero reinstall).
-# Idempotente.
+# `install -y` runs ALWAYS (mirror of install.sh): it is what registers the MCP
+# server + hooks + the `codebase-memory` skill in ~/.claude/. If it lived only
+# inside the official install.ps1 above, a ~/.claude deleted by hand would never
+# be rebuilt (binary present -> guard false -> zero reinstall).
+# Idempotent.
 $Cbm = Get-Command codebase-memory-mcp -ErrorAction SilentlyContinue
 if ($Cbm) {
     & $Cbm.Source install -y | Out-Null
-    Write-Host "OK  codebase-memory-mcp: MCP server + hooks + skill registrados"
+    Write-Host "OK  codebase-memory-mcp: MCP server + hooks + skill registered"
     & $Cbm.Source config set auto_index true | Out-Null
     Write-Host "OK  codebase-memory-mcp: auto_index=true"
 }
 
-# ─── plugins de marketplace (mecanismo 3) ───────────────────────
-# Port de claude/install/plugins.sh — PowerShell no puede sourcear bash, así
-# que se replica. `claude plugin` es la misma CLI cross-platform y escribe ella
-# sola extraKnownMarketplaces + enabledPlugins en settings.json; nosotros no
-# tocamos el archivo acá (por eso este bloque va DESPUÉS del WriteAllText de
-# arriba: si escribiéramos $Settings después, pisaríamos lo que la CLI puso).
+# ─── marketplace plugins (mechanism 3) ──────────────────────────
+# Port of claude/install/plugins.sh — PowerShell cannot source bash, so it is
+# replicated. `claude plugin` is the same cross-platform CLI and it writes
+# extraKnownMarketplaces + enabledPlugins into settings.json on its own; we do
+# not touch the file here (that is why this block goes AFTER the WriteAllText
+# above: if we wrote $Settings afterwards, we would clobber what the CLI put
+# there).
 #
-# URL https:// completa, NO el shorthand owner/repo: el shorthand clona por SSH
-# y falla en una máquina fresca sin llave registrada en GitHub. Idempotente: la
-# segunda corrida detecta "already installed" y no duplica.
+# Full https:// URL, NOT the owner/repo shorthand: the shorthand clones over SSH
+# and fails on a fresh machine with no key registered on GitHub. Idempotent: the
+# second run detects "already installed" and does not duplicate.
 #
-# `$null |` cierra stdin: en mac uno de estos comandos quedó colgado esperando un
-# prompt interactivo invisible (equivalente al `</dev/null` de plugins.sh).
+# `$null |` closes stdin: on mac one of these commands hung waiting for an
+# invisible interactive prompt (equivalent to the `</dev/null` in plugins.sh).
 function Install-ClaudePlugin {
     param([string]$Url, [string]$Plugin, [string]$Label)
 
     $null | & claude plugin marketplace add $Url 2>&1 | Out-Null
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "OK  ${Label}: marketplace agregado (o ya estaba)"
+        Write-Host "OK  ${Label}: marketplace added (or already there)"
     } else {
-        Write-Host "!!  no se pudo agregar el marketplace de $Label -- revisar a mano" -ForegroundColor Yellow
+        Write-Host "!!  could not add the $Label marketplace -- check by hand" -ForegroundColor Yellow
     }
 
-    # Scope `-s user`: activo en TODOS los proyectos, no solo este repo.
+    # Scope `-s user`: active in ALL projects, not just this repo.
     $null | & claude plugin install $Plugin -s user 2>&1 | Out-Null
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "OK  ${Label}: plugin instalado (o ya estaba)"
+        Write-Host "OK  ${Label}: plugin installed (or already there)"
     } else {
-        Write-Host "!!  no se pudo instalar $Label -- revisar a mano (claude plugin install $Plugin)" -ForegroundColor Yellow
+        Write-Host "!!  could not install $Label -- check by hand (claude plugin install $Plugin)" -ForegroundColor Yellow
     }
 }
 
 if (Get-Command claude -ErrorAction SilentlyContinue) {
-    # ponytail: 1 install trae el plugin Y sus 6 skills bundled. Sus hooks son
-    # Node.js -- sin node instala igual, pero la activación automática queda muda.
+    # ponytail: 1 install brings the plugin AND its 6 bundled skills. Its hooks are
+    # Node.js -- without node it still installs, but automatic activation goes mute.
     if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-        Write-Host "i   node no detectado -- ponytail se instala igual, pero sus hooks de activacion automatica van a quedar mudos hasta que node este en PATH"
+        Write-Host "i   node not detected -- ponytail installs anyway, but its automatic activation hooks will stay mute until node is in PATH"
     }
     Install-ClaudePlugin "https://github.com/DietrichGebert/ponytail" "ponytail@ponytail" "ponytail"
 
-    # andrej-karpathy-skills: 1 skill, sin hooks, sin node. Nombres sacados de
-    # .claude-plugin/marketplace.json del repo, no del README (que sigue con el
-    # nombre viejo, de antes de transferirlo a multica-ai).
+    # andrej-karpathy-skills: 1 skill, no hooks, no node. Names taken from the
+    # repo's .claude-plugin/marketplace.json, not from the README (which still has
+    # the old name, from before it was transferred to multica-ai).
     Install-ClaudePlugin "https://github.com/multica-ai/andrej-karpathy-skills" "andrej-karpathy-skills@karpathy-skills" "andrej-karpathy-skills"
 } else {
-    Write-Host "i   claude no detectado en PATH -- saltando plugins"
+    Write-Host "i   claude not detected in PATH -- skipping plugins"
 }
 
 Write-Host ""
-Write-Host "Listo. Próximos pasos:"
-Write-Host "  1. Reiniciá la terminal para que el PATH nuevo tome efecto."
-Write-Host "  2. Reiniciá Claude Code."
-Write-Host "  3. Si los symlinks fallaron: activá Developer Mode y re-corré este script."
+Write-Host "Done. Next steps:"
+Write-Host "  1. Restart the terminal so the new PATH takes effect."
+Write-Host "  2. Restart Claude Code."
+Write-Host "  3. If the symlinks failed: enable Developer Mode and re-run this script."

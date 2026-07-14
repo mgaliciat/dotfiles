@@ -1,40 +1,40 @@
 -- ─── colorscheme: selector ───────────────────────────────────
--- Multi-paleta: el theme activo se elige con `vim.g.theme` setteado
--- en `lua/config/options.lua`. Cada paleta vive en `lua/themes/<name>.lua`
--- como módulo lua puro y exporta:
+-- Multi-palette: the active theme is chosen with `vim.g.theme` set
+-- in `lua/config/options.lua`. Each palette lives in `lua/themes/<name>.lua`
+-- as a pure lua module and exports:
 --
---   style          tokyonight variant base ("night" o "day")
---   palette        tabla con todos los hex
---   on_colors(c)   sobreescribe la paleta interna de tokyonight
---   on_highlights(hl, c)   tweaks de grupos específicos
+--   style          base tokyonight variant ("night" or "day")
+--   palette        table with all the hex values
+--   on_colors(c)   overrides tokyonight's internal palette
+--   on_highlights(hl, c)   tweaks for specific groups
 --
--- Themes disponibles actualmente (todos sobre tokyonight; salvo
--- obsidian, cada uno tiene espejo Ghostty + tmux — familia del stack):
+-- Themes currently available (all on top of tokyonight; except
+-- obsidian, each one has a Ghostty + tmux mirror — the stack family):
 --
---   dark-2026        clon "Dark 2026" default de VS Code (casi-negro + teal)
---   light-2026       clon "2026 Light" (blanco puro + azul #0069CC)
---   carbon           minimal true-black, high contrast, acento Claude orange
---   xcode-oled       true black OLED + syntax Xcode Default (Dark)
+--   dark-2026        clone of VS Code's default "Dark 2026" (near-black + teal)
+--   light-2026       clone of "2026 Light" (pure white + blue #0069CC)
+--   carbon           minimal true-black, high contrast, Claude orange accent
+--   xcode-oled       true black OLED + Xcode Default (Dark) syntax
 --   anthropic-dark   dark Claude.ai (brown-black + Claude orange)
---   anthropic-warm   carbón cálido + paleta Claude (terracota, oliva, ámbar)
---   prism-night      azul-noche profundo + acentos espectro
---   paper            light cream + tinta sepia
---   solarized-light  Solarized Light canónico
---   obsidian         high-contrast dark, acento cyan (solo nvim + fallback)
+--   anthropic-warm   warm charcoal + Claude palette (terracotta, olive, amber)
+--   prism-night      deep night-blue + spectrum accents
+--   paper            light cream + sepia ink
+--   solarized-light  canonical Solarized Light
+--   obsidian         high-contrast dark, cyan accent (nvim only + fallback)
 --
--- Variantes solarized-osaka NO viven en este selector — usan su propio
--- plugin spec (lua/plugins/solarized-osaka.lua) porque vienen con paleta
--- completa cocinada. Ambos plugins se gatean mutuamente con `enabled`
--- según vim.g.theme.
+-- The solarized-osaka variants do NOT live in this selector — they use their own
+-- plugin spec (lua/plugins/solarized-osaka.lua) because they ship with a full
+-- baked palette. Both plugins gate each other with `enabled`
+-- according to vim.g.theme.
 --
 -- Switching:
---   1. Editá `vim.g.theme = "<name>"` en lua/config/options.lua
---   2. Reiniciá nvim (o `:source $MYVIMRC | colorscheme tokyonight-<style>`).
+--   1. Edit `vim.g.theme = "<name>"` in lua/config/options.lua
+--   2. Restart nvim (or `:source $MYVIMRC | colorscheme tokyonight-<style>`).
 
 local theme_name = vim.g.theme or "obsidian"
 
--- Bypass: si el theme activo es solarized-osaka, tokyonight no carga
--- (el spec de solarized-osaka toma el control del colorscheme).
+-- Bypass: if the active theme is solarized-osaka, tokyonight doesn't load
+-- (the solarized-osaka spec takes over the colorscheme).
 if theme_name:match("^solarized%-osaka") then
   return { "folke/tokyonight.nvim", enabled = false }
 end
@@ -42,7 +42,7 @@ end
 local ok, theme  = pcall(require, "themes." .. theme_name)
 if not ok then
   vim.notify(
-    "Theme '" .. theme_name .. "' no existe en lua/themes/. Fallback a obsidian.",
+    "Theme '" .. theme_name .. "' does not exist in lua/themes/. Falling back to obsidian.",
     vim.log.levels.WARN
   )
   theme = require("themes.obsidian")

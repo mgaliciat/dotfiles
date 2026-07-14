@@ -1,38 +1,38 @@
-# light-2026 — clon de "2026 Light", el nuevo theme claro por default de
-# VS Code (refresh "Focus" de 2026, mismo ciclo que trajo Dark 2026 como
-# default en 1.113). Hex sacados directo de
-# extensions/theme-defaults/themes/2026-light.json en microsoft/vscode
-# (editor.background, focusBorder, tokenColors, etc.) — no son un guess,
-# son los valores reales que shippea el editor.
-# Espejo de nvim/lua/themes/light-2026.lua y tmux/themes/light-2026.conf.
+# light-2026 — clone of "2026 Light", VS Code's new default light theme
+# (the 2026 "Focus" refresh, the same cycle that brought Dark 2026 as
+# the default in 1.113). Hex taken straight from
+# extensions/theme-defaults/themes/2026-light.json in microsoft/vscode
+# (editor.background, focusBorder, tokenColors, etc.) — they're not a guess,
+# they're the real values the editor ships.
+# Mirror of nvim/lua/themes/light-2026.lua and tmux/themes/light-2026.conf.
 #
-# VS Code no define una paleta ANSI de 16 colores (su formato es
-# UI-chrome + tokenColors, no terminal), así que el ANSI de acá es una
-# construcción razonada a partir de esos mismos hex — mismo problema que
-# resolvió solarized-osaka.lua mirando el `M.terminal()` del plugin.
-# Convención light theme del repo (ver paper/solarized-light): los
-# "brillantes" (8-15) son más saturados/oscuros que los normales — dan
-# más contraste sobre fondo blanco.
+# VS Code doesn't define a 16-color ANSI palette (its format is
+# UI-chrome + tokenColors, not terminal), so the ANSI here is a
+# reasoned construction out of those same hex — the same problem
+# solarized-osaka.lua solved by looking at the plugin's `M.terminal()`.
+# The repo's light theme convention (see paper/solarized-light): the
+# "brights" (8-15) are more saturated/darker than the normals — they give
+# more contrast over a white background.
 #
-# OJO: con este theme claro, `minimum-contrast` en config.ghostty ya
-# está en 3.0 (rescata grays sin distorsionar el azul de acento).
+# WATCH OUT: with this light theme, `minimum-contrast` in config.ghostty is
+# already at 3.0 (it rescues grays without distorting the accent blue).
 
-# fondo y texto — editor.background / editor.foreground
+# background and text — editor.background / editor.foreground
 background = #ffffff
 foreground = #202020
 
-# cursor — editorCursor.foreground + el azul de acento (button.background
-# / focusBorder), el color más icónico del theme
+# cursor — editorCursor.foreground + the accent blue (button.background
+# / focusBorder), the theme's most iconic color
 cursor-color = #0069cc
 cursor-text  = #ffffff
 
-# selección — editor.selectionBackground (#0069CC a 25% alpha) horneado
-# sobre blanco; texto foreground sigue legible encima
+# selection — editor.selectionBackground (#0069CC at 25% alpha) baked
+# over white; foreground text stays readable on top
 selection-background = #bfd9f2
 selection-foreground = #202020
 
 # ─── ANSI 16 ─────────────────────────────────────────────────
-# normales (0-7) — tonos base de tokenColors, sin forzar saturación
+# normals (0-7) — base tones from tokenColors, without forcing saturation
 palette = 0=#57606a
 palette = 1=#cf222e
 palette = 2=#116329
@@ -42,7 +42,7 @@ palette = 5=#8250df
 palette = 6=#1b7c83
 palette = 7=#6e7781
 
-# brillantes (8-15): más saturados/oscuros (light theme)
+# brights (8-15): more saturated/darker (light theme)
 palette = 8=#1f2328
 palette = 9=#ad0707
 palette = 10=#587c0c

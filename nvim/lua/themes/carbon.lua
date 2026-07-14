@@ -1,35 +1,35 @@
 -- ─── theme: carbon ───────────────────────────────────────────
--- Espejo cross-stack del tema `carbon` (mismo id en ghostty/themes/carbon
--- y tmux/themes/carbon.conf — una sola paleta, tres capas).
--- Minimal + funcional + alto contraste sobre true black (#000000).
--- Un único acento cálido: Claude orange #d97757 (de la brand palette
--- del repo — NO se inventan otros hex de acento).
+-- Cross-stack mirror of the `carbon` theme (same id in ghostty/themes/carbon
+-- and tmux/themes/carbon.conf — one palette, three layers).
+-- Minimal + functional + high contrast over true black (#000000).
+-- A single warm accent: Claude orange #d97757 (from the repo's brand
+-- palette — do NOT invent other accent hex values).
 --
 -- Brand anchors:
---   #d97757 cursor/accent (Claude orange · el ÚNICO color cálido)
---   #e4e4e4 fg neutro de alto contraste sobre #000
---   #6a6a6a comment (gris medio, legible sin gritar)
---   #000000 bg true black · paleta ANSI monocroma + 6 hues desaturados
+--   #d97757 cursor/accent (Claude orange · the ONLY warm color)
+--   #e4e4e4 neutral high-contrast fg over #000
+--   #6a6a6a comment (mid gray, legible without shouting)
+--   #000000 true black bg · monochrome ANSI palette + 6 desaturated hues
 --
--- Base tokyonight: variant `night`.
--- bg_statusline = #000000 deliberado: el statusline se funde con el
--- editor en true black, evita el "rectángulo flotante" cuando lualine
--- usa un bg distinto del Normal.
+-- tokyonight base: variant `night`.
+-- bg_statusline = #000000 is deliberate: the statusline blends into the
+-- editor in true black, avoiding the "floating rectangle" when lualine
+-- uses a bg different from Normal.
 
 local palette = {
   bg            = "#000000",       -- true black
-  bg_dark       = "#0a0a0a",       -- raised mínimo (sidebars)
-  bg_highlight  = "#2a2a2a",       -- selection bg (gris neutro)
+  bg_dark       = "#0a0a0a",       -- minimal raise (sidebars)
+  bg_highlight  = "#2a2a2a",       -- selection bg (neutral gray)
   bg_visual     = "#2a2a2a",
-  bg_float      = "#0d0d0d",       -- popups: apenas distinguibles del bg
+  bg_float      = "#0d0d0d",       -- popups: barely distinguishable from bg
   bg_popup      = "#0d0d0d",
-  bg_search     = "#3a3a3a",       -- search más claro que selection
+  bg_search     = "#3a3a3a",       -- search lighter than selection
   bg_sidebar    = "#0a0a0a",
-  bg_statusline = "#000000",       -- se funde con el editor en true black
+  bg_statusline = "#000000",       -- blends into the editor in true black
 
-  fg            = "#e4e4e4",       -- neutro alto contraste
+  fg            = "#e4e4e4",       -- neutral high contrast
   fg_dark       = "#a0a0a0",
-  fg_gutter     = "#3a3a3a",       -- line numbers sutiles pero legibles
+  fg_gutter     = "#3a3a3a",       -- subtle but legible line numbers
 
   black         = "#1c1c1c",       -- ansi0
   red           = "#e35f5f",       -- ansi1
@@ -49,10 +49,10 @@ local palette = {
   bright_cyan    = "#9fccc4",      -- ansi14
   bright_white   = "#ffffff",      -- ansi15
 
-  comment       = "#6a6a6a",       -- gris medio
+  comment       = "#6a6a6a",       -- mid gray
   border        = "#4a4a4a",       -- subtle
-  cursor        = "#d97757",       -- Claude orange (brand del theme)
-  accent        = "#d97757",       -- mismo orange (único cálido / focus)
+  cursor        = "#d97757",       -- Claude orange (the theme's brand)
+  accent        = "#d97757",       -- same orange (the only warm one / focus)
 }
 
 return {
@@ -97,7 +97,7 @@ return {
     c.magenta   = palette.magenta
     c.magenta2  = palette.bright_magenta
     c.purple    = palette.magenta
-    c.orange    = palette.accent          -- no hay orange en ANSI 16; el accent (Claude orange) es el único cálido
+    c.orange    = palette.accent          -- there's no orange in ANSI 16; the accent (Claude orange) is the only warm one
 
     c.git = {
       add    = palette.green,
@@ -108,7 +108,7 @@ return {
   end,
 
   on_highlights = function(hl, c)
-    hl.CursorLine   = { bg = "#0d0d0d" }       -- mínimo lift sobre #000
+    hl.CursorLine   = { bg = "#0d0d0d" }       -- minimal lift over #000
     hl.CursorLineNr = { fg = palette.accent, bold = true }
     hl.LineNr       = { fg = c.fg_gutter }
 
@@ -123,7 +123,7 @@ return {
     hl.GitSignsChange = { fg = c.yellow }
     hl.GitSignsDelete = { fg = c.red }
 
-    -- Inline code: bg apenas raised (ansi0) + verde desaturado.
+    -- Inline code: barely raised bg (ansi0) + desaturated green.
     local code_bg = "#1c1c1c"
     local code_fg = palette.green
     hl["@markup.raw"]                  = { bg = code_bg, fg = code_fg }
@@ -135,8 +135,8 @@ return {
     hl["@markup.raw.block"]            = { bg = code_bg }
     hl.markdownCodeBlock               = { bg = code_bg }
 
-    -- Headings: jerarquía orange (acento) → blue → green (de cálido a frío).
-    -- Solo h1 usa el acento — restraint minimalista, el resto baja a hues fríos.
+    -- Headings: orange (accent) → blue → green hierarchy (warm to cool).
+    -- Only h1 uses the accent — minimalist restraint, the rest drop to cool hues.
     hl["@markup.heading.1.markdown"]   = { fg = palette.accent, bold = true }
     hl["@markup.heading.2.markdown"]   = { fg = palette.blue,   bold = true }
     hl["@markup.heading.3.markdown"]   = { fg = palette.green,  bold = true }

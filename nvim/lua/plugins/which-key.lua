@@ -1,18 +1,18 @@
 -- ─── which-key.nvim ───────────────────────────────────────────
--- Popup que muestra los mappings disponibles tras un prefijo (e.g.
--- al presionar <leader>, espera `timeoutlen` y muestra el menú).
--- Lee los `desc` que define cada keymap → no requiere registrar
--- nombres aquí.
+-- Popup that shows the available mappings after a prefix (e.g.
+-- when you press <leader>, it waits `timeoutlen` and shows the menu).
+-- It reads the `desc` each keymap defines → no need to register
+-- names here.
 
 return {
   "folke/which-key.nvim",
   event = "VeryLazy",
   opts = {
     preset = "modern",
-    delay = 400,   -- alineado con vim.opt.timeoutlen
+    delay = 400,   -- aligned with vim.opt.timeoutlen
     spec = {
-      -- Grupos: nombres visibles para los prefijos. Los mappings
-      -- individuales (con sus desc) se descubren solos.
+      -- Groups: visible names for the prefixes. The individual
+      -- mappings (with their desc) are discovered on their own.
       { "<leader>b",  group = "buffer" },
       { "<leader>c",  group = "code (LSP / debug)" },
       { "<leader>cg", group = "go debug" },

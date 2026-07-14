@@ -1,54 +1,54 @@
 -- ─── theme: light-2026 ───────────────────────────────────────
--- Clon de "2026 Light", el nuevo theme claro por default de VS Code
--- (refresh "Focus" de 2026, mismo ciclo que trajo Dark 2026 como default
--- en 1.113). Hex sacados directo de
--- extensions/theme-defaults/themes/2026-light.json en microsoft/vscode
--- (colors + tokenColors) — no son un guess.
--- Espejo del theme Ghostty `light-2026` y tmux/themes/light-2026.conf.
--- Base tokyonight: variant `day` (la light del plugin).
+-- Clone of "2026 Light", VS Code's new default light theme
+-- (the 2026 "Focus" refresh, same cycle that made Dark 2026 the default
+-- in 1.113). Hex values taken straight from
+-- extensions/theme-defaults/themes/2026-light.json in microsoft/vscode
+-- (colors + tokenColors) — they're not a guess.
+-- Mirror of the Ghostty theme `light-2026` and tmux/themes/light-2026.conf.
+-- tokyonight base: variant `day` (the plugin's light one).
 --
--- Convención light theme del repo (ver paper/solarized-light): los
--- "bright" son MÁS saturados/oscuros que los normales — más contraste
--- sobre fondo blanco. VS Code no define ANSI de 16 colores (es un
--- formato UI-chrome + tokenColors, no terminal), así que ese mapeo acá
--- es una construcción razonada a partir de esos mismos hex.
+-- The repo's light theme convention (see paper/solarized-light): the
+-- "bright" colors are MORE saturated/darker than the normal ones — more contrast
+-- over a white background. VS Code doesn't define a 16-color ANSI set (it's a
+-- UI-chrome + tokenColors format, not a terminal one), so that mapping here
+-- is a reasoned construction from those same hex values.
 
 local palette = {
   bg          = "#ffffff",       -- editor.background
   bg_dark     = "#eaeaea",       -- textCodeBlock.background — ANSI 0 dimmed / code bg
   bg_highlight= "#eaeaea",       -- editor.lineHighlightBackground — cursorline/visual
-  bg_visual   = "#bfd9f2",       -- editor.selectionBackground (horneado sobre blanco)
+  bg_visual   = "#bfd9f2",       -- editor.selectionBackground (baked over white)
   bg_float    = "#fafafd",       -- editorWidget/menu background
   bg_popup    = "#fafafd",
-  bg_search   = "#fdf6e3",       -- inputValidation.warningBackground — cream cálido
+  bg_search   = "#fdf6e3",       -- inputValidation.warningBackground — warm cream
   bg_sidebar  = "#fafafd",       -- sideBar/activityBar background
   bg_statusline = "#fafafd",     -- statusBar background
 
   fg          = "#202020",       -- foreground
   fg_dark     = "#606060",       -- descriptionForeground
-  fg_gutter   = "#999999",       -- input.placeholderForeground — el más apagado
+  fg_gutter   = "#999999",       -- input.placeholderForeground — the most muted
 
-  black       = "#57606a",       -- brackethighlighter — gris neutro
+  black       = "#57606a",       -- brackethighlighter — neutral gray
   red         = "#cf222e",       -- keyword / storage
   green       = "#116329",       -- entity.name.tag
   yellow      = "#667309",       -- chart yellow / git modified
-  blue        = "#0069cc",       -- button.background / focusBorder — acento icónico
+  blue        = "#0069cc",       -- button.background / focusBorder — the iconic accent
   magenta     = "#8250df",       -- entity.name.function
-  cyan        = "#1b7c83",       -- derivado — el theme no define cyan explícito
+  cyan        = "#1b7c83",       -- derived — the theme doesn't define an explicit cyan
   white       = "#6e7781",       -- comment
 
-  bright_black   = "#1f2328",   -- variable.other — tinta casi negra
+  bright_black   = "#1f2328",   -- variable.other — near-black ink
   bright_red     = "#ad0707",   -- errorForeground
   bright_green   = "#587c0c",   -- gitDecoration.addedResourceForeground
-  bright_yellow  = "#b69500",   -- inputValidation.warningBorder — ámbar
-  bright_blue    = "#1a5cff",   -- charts.blue — azul vívido
+  bright_yellow  = "#b69500",   -- inputValidation.warningBorder — amber
+  bright_blue    = "#1a5cff",   -- charts.blue — vivid blue
   bright_magenta = "#652d90",   -- charts.purple
-  bright_cyan    = "#145e63",   -- derivado, más oscuro que cyan
-  bright_white   = "#202020",   -- foreground — la tinta más fuerte
+  bright_cyan    = "#145e63",   -- derived, darker than cyan
+  bright_white   = "#202020",   -- foreground — the strongest ink
 
   comment     = "#6e7781",       -- comment / punctuation.definition.comment
   border      = "#e4e5e6",       -- editorWidget.border / menu.border
-  cursor      = "#0069cc",       -- editorCursor.foreground + acento
+  cursor      = "#0069cc",       -- editorCursor.foreground + accent
   orange      = "#953800",       -- entity.name / meta.definition.variable
   accent      = "#0069cc",
 }
@@ -76,7 +76,7 @@ return {
 
     c.comment       = palette.comment
     c.border        = palette.border
-    c.border_highlight = palette.accent  -- azul acento para focus
+    c.border_highlight = palette.accent  -- blue accent for focus
 
     c.red       = palette.red
     c.red1      = palette.bright_red
@@ -95,7 +95,7 @@ return {
     c.magenta   = palette.magenta
     c.magenta2  = palette.bright_magenta
     c.purple    = palette.magenta
-    c.orange    = palette.orange          -- variables/números, fiel a entity.name
+    c.orange    = palette.orange          -- variables/numbers, faithful to entity.name
 
     c.git = {
       add    = palette.green,
@@ -121,8 +121,8 @@ return {
     hl.GitSignsChange = { fg = c.yellow }
     hl.GitSignsDelete = { fg = c.red }
 
-    -- Inline code: gris cream + azul de acento, igual que
-    -- textCodeBlock.background/textLink.foreground en el theme fuente.
+    -- Inline code: cream gray + the blue accent, same as
+    -- textCodeBlock.background/textLink.foreground in the source theme.
     local code_bg = palette.bg_dark
     local code_fg = palette.accent
     hl["@markup.raw"]                  = { bg = code_bg, fg = code_fg }

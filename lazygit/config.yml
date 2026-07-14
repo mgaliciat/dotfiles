@@ -1,22 +1,22 @@
 # ─── lazygit config ───────────────────────────────────────────
-# Versionado en dotfiles. Symlink: ~/.config/lazygit/config.yml.
-# Docs completos: https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
+# Versioned in dotfiles. Symlink: ~/.config/lazygit/config.yml.
+# Full docs: https://github.com/jesseduffield/lazygit/blob/master/docs/Config.md
 
 gui:
-  # Mouse off: en tmux popups el mouse a veces hace cosas raras
-  # (selección de Ghostty interfiere con clicks de lazygit).
+  # Mouse off: in tmux popups the mouse sometimes does weird things
+  # (Ghostty's selection interferes with lazygit's clicks).
   mouseEvents: false
-  # Tema con paleta blueprint (mismo espíritu que ghostty/nvim/tmux).
+  # Theme with the blueprint palette (same spirit as ghostty/nvim/tmux).
   theme:
     activeBorderColor:
-      - "#7dd3fc" # cyan — pane activo
+      - "#7dd3fc" # cyan — active pane
       - bold
     inactiveBorderColor:
-      - "#3b5675" # gris — bordes inactivos
+      - "#3b5675" # grey — inactive borders
     optionsTextColor:
       - "#5a9fff"
     selectedLineBgColor:
-      - "#1e4571" # bg highlight blueprint
+      - "#1e4571" # blueprint bg highlight
     cherryPickedCommitBgColor:
       - "#e8c468"
     cherryPickedCommitFgColor:
@@ -25,34 +25,34 @@ gui:
       - "#e87a7a"
     defaultFgColor:
       - "#cde3f5"
-  # showFileTree: muestra el cambio organizado tipo árbol (default true).
+  # showFileTree: shows the change organized as a tree (default true).
   showFileTree: true
-  showCommandLog: false # más espacio para los paneles principales
+  showCommandLog: false # more room for the main panels
   scrollHeight: 4 # smooth scroll
-  sidePanelWidth: 0.3333 # 1/3 para el panel izquierdo (files/branches/etc)
+  sidePanelWidth: 0.3333 # 1/3 for the left panel (files/branches/etc)
 git:
-  # Pull con rebase por default (evita merge commits ruidosos).
+  # Pull with rebase by default (avoids noisy merge commits).
   pull:
     mode: "rebase"
-  # Auto-fetch deshabilitado (no se cuelga si la red es lenta).
+  # Auto-fetch disabled (doesn't hang if the network is slow).
   autoFetch: false
-  # Paginate diffs con delta si está instalado (vos lo tenés via brew).
+  # Paginate diffs with delta if it's installed (you have it via brew).
   pagers:
     - colorArg: always
       pager: delta --paging=never --syntax-theme=base16-256
 # ─── custom commands ──────────────────────────────────────────
-# `?` dentro de lazygit muestra TODOS los atajos disponibles.
+# `?` inside lazygit shows ALL the available shortcuts.
 customCommands:
-  # `A` en cualquier pane → amend del último commit sin editar mensaje.
-  # Útil para "olvidé un archivo, lo agrego al commit anterior".
+  # `A` in any pane → amend the last commit without editing the message.
+  # Useful for "I forgot a file, let me add it to the previous commit".
   - key: "A"
     command: "git commit --amend --no-edit"
     context: "global"
-    description: "Amend último commit sin editar mensaje"
+    description: "Amend last commit without editing the message"
     loadingText: "Amending..."
-  # `T` en files → ver el tree del commit actual con stat.
+  # `T` in files → see the current commit's tree with stat.
   - key: "T"
     command: "git log -1 --stat"
     context: "files"
-    description: "Mostrar stat del último commit"
+    description: "Show stat of the last commit"
     output: terminal

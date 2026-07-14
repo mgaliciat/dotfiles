@@ -1,11 +1,11 @@
 -- ─── theme: solarized-light ──────────────────────────────────
--- Solarized Light canónico de Ethan Schoonover, espejo del theme
--- Ghostty `solarized-light` y tmux/themes/solarized-light.conf.
--- Base tokyonight: variant `day` (la light del plugin).
+-- Ethan Schoonover's canonical Solarized Light, mirror of the Ghostty
+-- theme `solarized-light` and tmux/themes/solarized-light.conf.
+-- tokyonight base: variant `day` (the plugin's light one).
 --
--- Convención light theme: los "bright" son los tonos base OSCUROS
--- (base03/base01/base00/base0) — sobre fondo claro dan más contraste.
--- Mapeo ANSI = esquema canónico Solarized (no la convención dark).
+-- Light theme convention: the "bright" colors are the DARK base tones
+-- (base03/base01/base00/base0) — over a light background they give more contrast.
+-- ANSI mapping = the canonical Solarized scheme (not the dark convention).
 
 local palette = {
   bg          = "#fdf6e3",       -- base3
@@ -14,7 +14,7 @@ local palette = {
   bg_visual   = "#eee8d5",
   bg_float    = "#eee8d5",
   bg_popup    = "#eee8d5",
-  bg_search   = "#e3c88f",       -- yellow apagado
+  bg_search   = "#e3c88f",       -- muted yellow
   bg_sidebar  = "#eee8d5",
   bg_statusline = "#eee8d5",
 
@@ -40,10 +40,10 @@ local palette = {
   bright_cyan    = "#93a1a1",   -- base1
   bright_white   = "#fdf6e3",   -- base3
 
-  comment     = "#93a1a1",       -- base1 — comentarios Solarized
+  comment     = "#93a1a1",       -- base1 — Solarized comments
   border      = "#93a1a1",
   cursor      = "#586e75",       -- base01
-  accent      = "#268bd2",       -- blue — acento icónico de Solarized
+  accent      = "#268bd2",       -- blue — Solarized's iconic accent
 }
 
 return {
@@ -69,7 +69,7 @@ return {
 
     c.comment       = palette.comment
     c.border        = palette.border
-    c.border_highlight = palette.accent  -- blue acento para focus
+    c.border_highlight = palette.accent  -- blue accent for focus
 
     c.red       = palette.red
     c.red1      = palette.bright_red
@@ -88,7 +88,7 @@ return {
     c.magenta   = palette.magenta
     c.magenta2  = palette.bright_magenta
     c.purple    = palette.bright_magenta  -- violet
-    c.orange    = palette.bright_red       -- orange semántico de Solarized
+    c.orange    = palette.bright_red       -- Solarized's semantic orange
 
     c.git = {
       add    = palette.green,
@@ -114,7 +114,7 @@ return {
     hl.GitSignsChange = { fg = c.yellow }
     hl.GitSignsDelete = { fg = c.red }
 
-    -- Inline code: base2 + naranja Solarized.
+    -- Inline code: base2 + Solarized orange.
     local code_bg = palette.bg_dark
     local code_fg = palette.bright_red
     hl["@markup.raw"]                  = { bg = code_bg, fg = code_fg }

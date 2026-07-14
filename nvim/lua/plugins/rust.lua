@@ -1,19 +1,19 @@
 -- ─── rustaceanvim ─────────────────────────────────────────────
--- Reemplaza la config lspconfig+rust_analyzer con un setup más rico:
--- inlay hints específicos de Rust, runnables (test individual con
--- <leader>rr), debug integrado, expand-macro.
+-- Replaces the lspconfig+rust_analyzer config with a richer setup:
+-- Rust-specific inlay hints, runnables (individual test with
+-- <leader>rr), integrated debug, expand-macro.
 --
--- NO se setea vía lspconfig — el plugin se autoregistra al cargar
--- un buffer .rs. Por eso queda fuera del loop en lsp.lua.
+-- It is NOT set up via lspconfig — the plugin registers itself when a
+-- .rs buffer loads. That's why it stays out of the loop in lsp.lua.
 --
--- Pre-requisito: rust-analyzer en el PATH. Opciones:
---   - rustup component add rust-analyzer  (recomendado — sigue tu toolchain)
+-- Prerequisite: rust-analyzer in the PATH. Options:
+--   - rustup component add rust-analyzer  (recommended — follows your toolchain)
 --   - mason: `:MasonInstall rust-analyzer`
 
 return {
   "mrcjkb/rustaceanvim",
   version = "^6",
-  lazy = false,                     -- el plugin se auto-activa por ft; "lazy = false" es por convención del autor
+  lazy = false,                     -- the plugin auto-activates by ft; "lazy = false" is the author's convention
   ft = { "rust" },
   config = function()
     vim.g.rustaceanvim = {

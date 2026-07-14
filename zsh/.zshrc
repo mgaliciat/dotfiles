@@ -1,38 +1,38 @@
 # ═══════════════════════════════════════════════════════════════
-#  ~/.zshrc — solo cargado en shells interactivas.
-#  Filosofía: startup <50ms. Sin Oh My Zsh. Sólo lo esencial.
+#  ~/.zshrc — only loaded in interactive shells.
+#  Philosophy: startup <50ms. No Oh My Zsh. Only the essentials.
 #
-#  Orden:
-#    0. auto-tmux                                    (exec → corta el resto en padre)
-#    1. history + opciones + completions + keybinds  (input/output)
+#  Order:
+#    0. auto-tmux                                    (exec → cuts the rest in the parent)
+#    1. history + options + completions + keybinds   (input/output)
 #    2. tool inits                                   (pyenv, zoxide, fzf)
 #    3. aliases
 #    4. plugins                                      (syntax-highlight LAST)
 #    5. prompt                                       (starship)
-#    6. overrides locales                            (~/.zshrc.local)
+#    6. local overrides                              (~/.zshrc.local)
 # ═══════════════════════════════════════════════════════════════
 
 # ─── auto-tmux ────────────────────────────────────────────────
-# Cada ventana/pestaña de Ghostty arranca dentro de tmux. Usamos
-# `exec` para que tmux REEMPLACE este zsh — cuando salgas con
-# `exit` (o cierres la última window), el proceso muere y Ghostty
-# cierra la ventana. Sin `exec` quedarías de vuelta en un zsh pelón.
+# Every Ghostty window/tab starts inside tmux. We use `exec` so that
+# tmux REPLACES this zsh — when you leave with `exit` (or close the
+# last window), the process dies and Ghostty closes the window.
+# Without `exec` you'd be back in a bare zsh.
 #
-# Guardas:
-#   $TMUX vacío        → previene recursión. Las panes hijas que
-#                        spawnea tmux tienen $TMUX seteado y siguen
-#                        el flujo normal del .zshrc.
-#   $- contiene 'i'    → solo shells interactivas. Scripts no.
-#   $TERM_PROGRAM     → terminal integrada de VS Code mantiene shell
-#                        pelón (su jump-to-error / cwd tracking se
-#                        rompe con tmux en el medio).
-#   $NO_AUTO_TMUX     → escape hatch manual: NO_AUTO_TMUX=1 ghostty
-#                        abre una shell sin tmux para casos one-off.
+# Guards:
+#   $TMUX empty        → prevents recursion. The child panes that tmux
+#                        spawns have $TMUX set and follow the normal
+#                        .zshrc flow.
+#   $- contains 'i'    → interactive shells only. Not scripts.
+#   $TERM_PROGRAM     → VS Code's integrated terminal keeps a bare
+#                        shell (its jump-to-error / cwd tracking breaks
+#                        with tmux in the middle).
+#   $NO_AUTO_TMUX     → manual escape hatch: NO_AUTO_TMUX=1 ghostty
+#                        opens a shell without tmux for one-off cases.
 #
-# `tmux new-session` (sin -s) crea una sesión efímera nueva por
-# ventana — Cmd+T NO clona contenido entre tabs. Las sesiones
-# nombradas (claude-*, claude-yolo-*) viven independientes en el
-# mismo server y persisten entre ventanas/reinicios de Ghostty.
+# `tmux new-session` (without -s) creates a new ephemeral session per
+# window — Cmd+T does NOT clone content between tabs. Named sessions
+# (claude-*, claude-yolo-*) live independently in the same server and
+# persist across Ghostty windows/restarts.
 if [[ -z "$TMUX" && $- == *i* && -z "$NO_AUTO_TMUX" \
       && "$TERM_PROGRAM" != "vscode" ]] \
    && command -v tmux >/dev/null 2>&1; then
@@ -43,58 +43,59 @@ fi
 HISTFILE=~/.zsh_history
 HISTSIZE=50000
 SAVEHIST=50000
-setopt SHARE_HISTORY           # historial compartido entre sesiones
-setopt HIST_IGNORE_ALL_DUPS    # dedupe agresivo
-setopt HIST_IGNORE_SPACE       # comandos que empiezan con espacio no se guardan
-setopt HIST_VERIFY             # confirma antes de ejecutar !! y similares
-setopt EXTENDED_HISTORY        # guarda timestamp
+setopt SHARE_HISTORY           # history shared across sessions
+setopt HIST_IGNORE_ALL_DUPS    # aggressive dedupe
+setopt HIST_IGNORE_SPACE       # commands starting with a space aren't saved
+setopt HIST_VERIFY             # confirm before running !! and friends
+setopt EXTENDED_HISTORY        # saves timestamp
 
-# ─── opciones útiles ──────────────────────────────────────────
-setopt AUTO_CD                 # `cd foo` opcional, basta `foo/`
-setopt AUTO_PUSHD              # cd guarda en stack
+# ─── useful options ───────────────────────────────────────────
+setopt AUTO_CD                 # `cd foo` optional, `foo/` is enough
+setopt AUTO_PUSHD              # cd pushes onto the stack
 setopt PUSHD_IGNORE_DUPS
-setopt INTERACTIVE_COMMENTS    # permite # comentarios en prompt
+setopt INTERACTIVE_COMMENTS    # allows # comments at the prompt
 
 # ─── completions ──────────────────────────────────────────────
-# Cargar compinit con cache de 24h (evita recompilación constante).
+# Load compinit with a 24h cache (avoids constant recompilation).
 autoload -Uz compinit
 if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
   compinit
 else
-  compinit -C   # skip security check (más rápido)
+  compinit -C   # skip security check (faster)
 fi
 
-# Menú nativo de zsh: primer Tab completa el prefijo común, segundo Tab
-# abre el menú navegable. (Antes vivía fzf-tab acá — se quitó porque la
-# lista interactiva de fzf no gustó; el menú clásico se siente más terminal.)
+# Native zsh menu: first Tab completes the common prefix, second Tab
+# opens the navigable menu. (fzf-tab used to live here — it was removed
+# because the interactive fzf list wasn't liked; the classic menu feels
+# more terminal-native.)
 zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' # case-insensitive
 
-# ─── key bindings (estilo emacs, default de zsh) ──────────────
+# ─── key bindings (emacs style, zsh default) ──────────────────
 bindkey -e
-bindkey '^[[A' history-substring-search-up    # ↑ por substring (requiere zsh-history-substring-search)
-bindkey '^[[B' history-substring-search-down  # ↓ por substring
+bindkey '^[[A' history-substring-search-up    # ↑ by substring (requires zsh-history-substring-search)
+bindkey '^[[B' history-substring-search-down  # ↓ by substring
 
-# ⌥←/⌥→ — mover por "palabra". Saco '/' del WORDCHARS default para que
-# en una ruta (/dev/user/foo/bar) frene en cada slash en vez de tragarse
-# la ruta entera como una sola palabra. ⌘←/⌘→ siguen yendo a inicio/fin
-# de línea (convención macOS, no se tocan).
+# ⌥←/⌥→ — move by "word". I take '/' out of the default WORDCHARS so that
+# in a path (/dev/user/foo/bar) it stops at every slash instead of eating
+# the whole path as a single word. ⌘←/⌘→ still go to start/end of the
+# line (macOS convention, left untouched).
 WORDCHARS='*?_-.[]~=&;!#$%^(){}<>'
-bindkey '^[[1;3D' backward-word    # ⌥← (escape que emite Ghostty con macos-option-as-alt)
+bindkey '^[[1;3D' backward-word    # ⌥← (escape that Ghostty emits with macos-option-as-alt)
 bindkey '^[[1;3C' forward-word     # ⌥→
 
-# Alt+e — abre el comando que estás tecleando en $EDITOR (nvim). Para
-# un one-liner largo y enredado: lo editás con el modal completo de
-# vim, guardás+salís y se ejecuta. Requiere macos-option-as-alt en
-# Ghostty (ya activo) para que ⌥ izquierdo emita ^[.
+# Alt+e — opens the command you're typing in $EDITOR (nvim). For a long,
+# tangled one-liner: you edit it with vim's full modal editing, save+quit
+# and it runs. Requires macos-option-as-alt in Ghostty (already on) so
+# that left ⌥ emits ^[.
 autoload -Uz edit-command-line
 zle -N edit-command-line
 bindkey '^[e' edit-command-line
 
-# Ctrl+Z inteligente — con el prompt vacío hace `fg` (volvés al job
-# suspendido); con texto a medio escribir lo empuja al stack para
-# recuperarlo después. Convierte Ctrl+Z en un toggle de un dedo entre
-# shell y nvim/lazygit: suspendés con ^Z, y ^Z de nuevo te devuelve.
+# Smart Ctrl+Z — with an empty prompt it does `fg` (back to the suspended
+# job); with half-written text it pushes it onto the stack so you can get
+# it back later. Turns Ctrl+Z into a one-finger toggle between shell and
+# nvim/lazygit: you suspend with ^Z, and ^Z again brings you back.
 fancy-ctrl-z() {
   if [[ $#BUFFER -eq 0 ]]; then
     BUFFER=' fg'
@@ -108,76 +109,76 @@ zle -N fancy-ctrl-z
 bindkey '^Z' fancy-ctrl-z
 
 # ─── tool inits ───────────────────────────────────────────────
-# pyenv lazy-load — se inicializa al primer uso de pyenv/python/pip.
-# Ahorra ~40ms al startup vs `eval "$(pyenv init -)"` eager.
+# pyenv lazy-load — initializes on the first use of pyenv/python/pip.
+# Saves ~40ms at startup vs an eager `eval "$(pyenv init -)"`.
 pyenv() {
   unfunction pyenv
   eval "$(command pyenv init -)"
   pyenv "$@"
 }
 
-# zoxide → cd inteligente. Aprende dirs visitados, salta con 'cd proyecto'.
-# command -v guard: si zoxide no está instalado (ej. WSL2 sin install completo)
-# evitamos "command not found" en cada shell start.
+# zoxide → smart cd. Learns visited dirs, jumps with 'cd project'.
+# command -v guard: if zoxide isn't installed (e.g. WSL2 without a full
+# install) we avoid a "command not found" on every shell start.
 command -v zoxide >/dev/null && eval "$(zoxide init zsh --cmd cd)"
 
-# fzf → fuzzy finder. Habilita Ctrl+R (history), Ctrl+T (files), Alt+C (cd).
-# command -v guard (mismo patrón que zoxide arriba): sin fzf instalado
-# evitamos el error en cada shell start, sin enmascararlo con 2>/dev/null.
+# fzf → fuzzy finder. Enables Ctrl+R (history), Ctrl+T (files), Alt+C (cd).
+# command -v guard (same pattern as zoxide above): without fzf installed
+# we avoid the error on every shell start, without masking it with 2>/dev/null.
 command -v fzf >/dev/null && source <(fzf --zsh)
 
-# ─── funciones helper ─────────────────────────────────────────
-# mkcd, port, server, gco, dex, dlogs, etc. (ver zsh/functions.zsh).
-# %x (prompt expansion) da el path real del archivo siendo sourced,
-# siguiendo el symlink ~/.zshrc → dotfiles/zsh/.zshrc.
+# ─── helper functions ─────────────────────────────────────────
+# mkcd, port, server, gco, dex, dlogs, etc. (see zsh/functions.zsh).
+# %x (prompt expansion) gives the real path of the file being sourced,
+# following the symlink ~/.zshrc → dotfiles/zsh/.zshrc.
 source "${${(%):-%x}:A:h}/functions.zsh" 2>/dev/null
 
 # ─── aliases ──────────────────────────────────────────────────
-# CLI tools modernos (reemplazos del default de macOS)
+# Modern CLI tools (replacements for the macOS defaults)
 alias ls='eza --group-directories-first'
 alias ll='eza -lah --git --group-directories-first'
 alias lt='eza --tree --level=2 --git-ignore'
-alias cat='bat --paging=never --style=plain'     # `cat` real disponible como \cat
-alias catp='bat'                                  # bat con paging + header completo
-# command -v guard: en apt el binario es `fdfind` (install-linux.sh
-# symlinkea fdfind → fd en ~/.local/bin); si ninguno existe, mejor el
-# `find` clásico que un alias roto.
+alias cat='bat --paging=never --style=plain'     # real `cat` available as \cat
+alias catp='bat'                                  # bat with paging + full header
+# command -v guard: on apt the binary is `fdfind` (install-linux.sh
+# symlinks fdfind → fd in ~/.local/bin); if neither exists, the classic
+# `find` is better than a broken alias.
 command -v fd >/dev/null && alias find='fd'
-# ripgrep ya se invoca como 'rg' — sin alias necesario
+# ripgrep is already invoked as 'rg' — no alias needed
 
-# borrado seguro: gomi manda a una papelera con restore interactivo
-# (`gomi` sin args lista lo borrado y deja recuperar con fzf). `rm`
-# real se deja intacto a propósito — scripts y `rm -rf` deliberado
-# no deben pasar por la papelera. command -v guard: gomi llega por
-# brew (mac); en Linux no lo instala nadie — sin guard, `gm` sería
-# un alias a un comando inexistente.
+# safe delete: gomi sends to a trash with interactive restore
+# (`gomi` with no args lists what was deleted and lets you recover with
+# fzf). The real `rm` is deliberately left intact — scripts and a
+# deliberate `rm -rf` shouldn't go through the trash. command -v guard:
+# gomi comes from brew (mac); on Linux nobody installs it — without the
+# guard, `gm` would be an alias to a nonexistent command.
 command -v gomi >/dev/null && alias gm='gomi'
 
-# git (los sub-aliases viven en .gitconfig)
+# git (the sub-aliases live in .gitconfig)
 alias g='git'
 alias gs='git st'
 alias gd='git d'
 alias gl='git lg'
 
-# navegación
+# navigation
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 
 # ─── plugins (cross-platform discovery, no Oh My Zsh) ─────────
-# Orden estricto requerido por los plugins:
-#   1. autosuggestions       (gris en historial, → acepta)
-#   2. syntax-highlighting   (verde/rojo según comando válido)
-#   3. history-substring-search   (↑/↓ por substring — habilita los bindkeys de arriba)
-# Si invertís el orden 2↔3, los matches de history-substring quedan
-# sin highlightear. Documentado en docs del plugin.
+# Strict order required by the plugins:
+#   1. autosuggestions       (grey from history, → accepts)
+#   2. syntax-highlighting   (green/red depending on whether the command is valid)
+#   3. history-substring-search   (↑/↓ by substring — enables the bindkeys above)
+# If you invert order 2↔3, the history-substring matches end up
+# unhighlighted. Documented in the plugin's docs.
 #
-# Discovery: probamos paths en orden — macOS brew → linuxbrew →
-# apt (/usr/share, Ubuntu/Debian) → manual clone en ~/.zsh/plugins.
-# Esto permite el mismo .zshrc en mac y Linux/WSL2 sin tocar nada.
+# Discovery: we probe paths in order — macOS brew → linuxbrew →
+# apt (/usr/share, Ubuntu/Debian) → manual clone in ~/.zsh/plugins.
+# This allows the same .zshrc on mac and Linux/WSL2 without touching anything.
 #
-# Naming: probamos `$name.zsh` (zsh-autosuggestions style) y luego
-# `$name.plugin.zsh` (fzf-tab style). Ambas convenciones existen.
+# Naming: we probe `$name.zsh` (zsh-autosuggestions style) and then
+# `$name.plugin.zsh` (fzf-tab style). Both conventions exist.
 _load_zsh_plugin() {
   local name="$1" dir file
   for dir in \
@@ -195,34 +196,34 @@ _load_zsh_plugin zsh-autosuggestions
 _load_zsh_plugin zsh-syntax-highlighting
 _load_zsh_plugin zsh-history-substring-search
 
-# ─── highlight: comandos válidos en verde oliva ───────────────
-# El default del plugin es `fg=green`, que cae en el ANSI green del
-# theme (#50fa7b láser). Lo bajamos al oliva de la paleta Anthropic
-# Warm — sigue leyéndose como "válido" sin el neón. DEBE ir después
-# de cargar el plugin, sino el array ZSH_HIGHLIGHT_STYLES no existe.
+# ─── highlight: valid commands in olive green ─────────────────
+# The plugin's default is `fg=green`, which lands on the theme's ANSI
+# green (#50fa7b laser). We tone it down to the olive of the Anthropic
+# Warm palette — it still reads as "valid" without the neon. It MUST come
+# after loading the plugin, otherwise the ZSH_HIGHLIGHT_STYLES array
+# doesn't exist.
 ZSH_HIGHLIGHT_STYLES[command]='fg=#87a96b'
 ZSH_HIGHLIGHT_STYLES[builtin]='fg=#87a96b'
 ZSH_HIGHLIGHT_STYLES[alias]='fg=#87a96b'
 ZSH_HIGHLIGHT_STYLES[function]='fg=#87a96b'
 
 # ─── prompt: Starship ─────────────────────────────────────────
-# command -v guard: si starship no está instalado evitamos error en startup.
-# Sin starship el prompt cae al default de zsh (`%~ $`) — funcional pero feo.
+# command -v guard: if starship isn't installed we avoid an error at startup.
+# Without starship the prompt falls back to zsh's default (`%~ $`) — functional but ugly.
 command -v starship >/dev/null && eval "$(starship init zsh)"
 
-# ─── título de la ventana + reporte de cwd ────────────────────
-# Dos cosas en cada prompt, ambas vía precmd:
+# ─── window title + cwd reporting ─────────────────────────────
+# Two things on every prompt, both via precmd:
 #
-# 1. Título (OSC 2): sin esto el título de Ghostty se queda pegado
-#    en el cwd de login (tmux usa set-titles-string "#T" = pane
-#    title, y nadie lo actualiza). %~ = path con ~ abreviado.
+# 1. Title (OSC 2): without this Ghostty's title stays stuck on the
+#    login cwd (tmux uses set-titles-string "#T" = pane title, and
+#    nobody updates it). %~ = path with ~ abbreviated.
 #
-# 2. cwd (OSC 7): le dice a Ghostty en qué dir estás para que Cmd+T
-#    herede el directorio. DENTRO de tmux el OSC 7 normal lo captura
-#    tmux y nunca llega a Ghostty → hay que envolverlo en el
-#    passthrough DCS de tmux (\ePtmux;…\e\\ con cada ESC duplicado;
-#    requiere `allow-passthrough on` en tmux.conf). Fuera de tmux se
-#    emite tal cual.
+# 2. cwd (OSC 7): tells Ghostty which dir you're in so that Cmd+T
+#    inherits the directory. INSIDE tmux the plain OSC 7 is captured by
+#    tmux and never reaches Ghostty → it has to be wrapped in tmux's DCS
+#    passthrough (\ePtmux;…\e\\ with every ESC doubled; requires
+#    `allow-passthrough on` in tmux.conf). Outside tmux it's emitted as-is.
 autoload -Uz add-zsh-hook
 
 _set_title() { print -Pn "\e]2;%~\a" }
@@ -237,7 +238,7 @@ _report_cwd() {
 }
 add-zsh-hook precmd _report_cwd
 
-# ─── overrides locales (no versionado) ────────────────────────
-# ~/.zshrc.local para aliases / funciones / overrides per-máquina.
-# Para env vars y secrets usar ~/.zshenv.local (cargado también en scripts).
+# ─── local overrides (not versioned) ──────────────────────────
+# ~/.zshrc.local for per-machine aliases / functions / overrides.
+# For env vars and secrets use ~/.zshenv.local (also loaded in scripts).
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local

@@ -1,55 +1,55 @@
 -- ─── theme: dark-2026 ────────────────────────────────────────
--- Clon de "Dark 2026", el nuevo theme oscuro por default de VS Code
--- (refresh "Focus" de 2026, default desde 1.113 del 25 de marzo de 2026).
--- Hex sacados directo de
--- extensions/theme-defaults/themes/2026-dark.json en microsoft/vscode
--- (colors + tokenColors) — no son un guess. Companion oscuro de
--- `light-2026` (mismo refresh, mismo criterio de extracción).
--- Espejo del theme Ghostty `dark-2026` y tmux/themes/dark-2026.conf.
--- Base tokyonight: variant `night`.
+-- Clone of "Dark 2026", VS Code's new default dark theme
+-- (the 2026 "Focus" refresh, default since 1.113 of March 25, 2026).
+-- Hex values taken straight from
+-- extensions/theme-defaults/themes/2026-dark.json in microsoft/vscode
+-- (colors + tokenColors) — they're not a guess. Dark companion of
+-- `light-2026` (same refresh, same extraction criteria).
+-- Mirror of the Ghostty theme `dark-2026` and tmux/themes/dark-2026.conf.
+-- tokyonight base: variant `night`.
 --
--- Convención dark theme del repo (ver carbon/xcode-oled): los "bright"
--- son más claros/vívidos que los normales — convención ANSI estándar,
--- sin invertir. VS Code no define ANSI de 16 colores (es un formato
--- UI-chrome + tokenColors, no terminal), así que ese mapeo acá es una
--- construcción razonada a partir de esos mismos hex.
+-- The repo's dark theme convention (see carbon/xcode-oled): the "bright"
+-- colors are lighter/more vivid than the normal ones — standard ANSI convention,
+-- not inverted. VS Code doesn't define a 16-color ANSI set (it's a
+-- UI-chrome + tokenColors format, not a terminal one), so that mapping here is a
+-- reasoned construction from those same hex values.
 
 local palette = {
   bg          = "#121314",       -- editor.background
   bg_dark     = "#191a1b",       -- sideBar/activityBar/statusBar background
   bg_highlight= "#242526",       -- textCodeBlock/hover background — cursorline/visual
-  bg_visual   = "#245c73",       -- editor.selectionBackground (horneado sobre el bg)
+  bg_visual   = "#245c73",       -- editor.selectionBackground (baked over the bg)
   bg_float    = "#202122",       -- menu/widget/quickInput background
   bg_popup    = "#202122",
-  bg_search   = "#352a05",       -- inputValidation.warningBackground — ámbar oscuro
+  bg_search   = "#352a05",       -- inputValidation.warningBackground — dark amber
   bg_sidebar  = "#191a1b",
   bg_statusline = "#191a1b",
 
   fg          = "#bbbebf",       -- editor.foreground
   fg_dark     = "#8c8c8c",       -- descriptionForeground
-  fg_gutter   = "#555555",       -- disabledForeground/placeholderForeground — el más apagado
+  fg_gutter   = "#555555",       -- disabledForeground/placeholderForeground — the most muted
 
-  black       = "#242526",       -- textCodeBlock/hover — gris oscuro (bg+1 nivel)
+  black       = "#242526",       -- textCodeBlock/hover — dark gray (bg+1 level)
   red         = "#ff7b72",       -- keyword / storage
   green       = "#7ee787",       -- entity.name.tag
   yellow      = "#e5ba7d",       -- gitDecoration.modifiedResourceForeground
   magenta     = "#d2a8ff",       -- entity.name.function
-  cyan        = "#48a0c7",       -- textLink.foreground — teal-azul
+  cyan        = "#48a0c7",       -- textLink.foreground — teal-blue
   white       = "#8b949e",       -- comment
-  blue        = "#79c0ff",       -- constant/support — azul de tokenColors
+  blue        = "#79c0ff",       -- constant/support — tokenColors blue
 
   bright_black   = "#555555",   -- disabledForeground
   bright_red     = "#ffa198",   -- invalid/error token
   bright_green   = "#86cf86",   -- charts.green
-  bright_yellow  = "#cca700",   -- notificationsWarningIcon — ámbar saturado
-  bright_blue    = "#57a3f8",   -- charts.blue — azul vívido
+  bright_yellow  = "#cca700",   -- notificationsWarningIcon — saturated amber
+  bright_blue    = "#57a3f8",   -- charts.blue — vivid blue
   bright_magenta = "#ad80d7",   -- charts.purple
   bright_cyan    = "#53a5ca",   -- textLink.activeForeground
   bright_white   = "#ffffff",   -- button.foreground / badge.foreground
 
   comment     = "#8b949e",       -- comment / punctuation.definition.comment
   border      = "#2a2b2c",       -- editorWidget.border / menu.border
-  cursor      = "#3994bc",       -- menu.selectionBorder — acento teal-azul icónico
+  cursor      = "#3994bc",       -- menu.selectionBorder — the iconic teal-blue accent
   orange      = "#ffa657",       -- entity.name / meta.definition.variable
   accent      = "#3994bc",
 }
@@ -77,7 +77,7 @@ return {
 
     c.comment       = palette.comment
     c.border        = palette.border
-    c.border_highlight = palette.accent  -- teal-azul acento para focus
+    c.border_highlight = palette.accent  -- teal-blue accent for focus
 
     c.red       = palette.red
     c.red1      = palette.bright_red
@@ -96,7 +96,7 @@ return {
     c.magenta   = palette.magenta
     c.magenta2  = palette.bright_magenta
     c.purple    = palette.magenta
-    c.orange    = palette.orange          -- variables/números, fiel a entity.name
+    c.orange    = palette.orange          -- variables/numbers, faithful to entity.name
 
     c.git = {
       add    = palette.green,
@@ -122,8 +122,8 @@ return {
     hl.GitSignsChange = { fg = c.yellow }
     hl.GitSignsDelete = { fg = c.red }
 
-    -- Inline code: gris oscuro (bg+1) + teal-azul de acento, igual que
-    -- textCodeBlock.background/textLink.foreground en el theme fuente.
+    -- Inline code: dark gray (bg+1) + the teal-blue accent, same as
+    -- textCodeBlock.background/textLink.foreground in the source theme.
     local code_bg = palette.bg_highlight
     local code_fg = palette.accent
     hl["@markup.raw"]                  = { bg = code_bg, fg = code_fg }
