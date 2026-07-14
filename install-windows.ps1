@@ -4,7 +4,7 @@
 # Intentionally narrow scope: zsh/tmux/nvim do not run natively on Windows, so
 # this script is NOT a port of the rest of the dotfiles — see CLAUDE.md, the
 # "per-machine split" section. It covers only:
-#   - symlinks for claude/statusline.sh and claude/CLAUDE.md
+#   - symlinks for claude/statusline.ps1 and claude/CLAUDE.md
 #   - statusLine + base permissions in settings.json (equivalent to the jq
 #     blocks in install.sh/install-linux.sh, here with native JSON)
 #   - rtk (no official installer for Windows — we download the release zip)
@@ -57,8 +57,12 @@ function Set-DotfileSymlink {
 }
 
 # ─── symlinks ──────────────────────────────────────────────────
-Set-DotfileSymlink (Join-Path $Dotfiles "claude\statusline.sh") (Join-Path $ClaudeDir "statusline.sh")
-Set-DotfileSymlink (Join-Path $Dotfiles "claude\CLAUDE.md")     (Join-Path $ClaudeDir "CLAUDE.md")
+# statusline.PS1, not the .sh: on native Windows there is no bash to run the
+# shell script (the only `bash` on PATH is WSL's) and no jq for it to call, so
+# the .sh is dead weight here. The .ps1 is a faithful port; mac/Linux still
+# symlink the .sh from their own installers.
+Set-DotfileSymlink (Join-Path $Dotfiles "claude\statusline.ps1") (Join-Path $ClaudeDir "statusline.ps1")
+Set-DotfileSymlink (Join-Path $Dotfiles "claude\CLAUDE.md")      (Join-Path $ClaudeDir "CLAUDE.md")
 
 # ─── settings.json: statusLine + base permissions ──────────────
 # Additive-only, same as install.sh/install-linux.sh: if the key already exists
@@ -73,11 +77,18 @@ $Settings = if (Test-Path $SettingsPath) {
 if ($Settings.PSObject.Properties.Name -contains "statusLine") {
     Write-Host "OK  statusLine already set in settings.json -- leaving it alone"
 } else {
+    # Invoke the .ps1 through powershell.exe (guaranteed present) with an ABSOLUTE
+    # path: unlike the mac/Linux `~/.claude/statusline.sh`, we cannot rely on `~`
+    # expanding here (powershell -File does not tilde-expand, and the caller may be
+    # cmd). settings.json is per-machine anyway, so baking $HOME\.claude is fine.
+    # -NoProfile keeps it fast on every render; -ExecutionPolicy Bypass runs the
+    # unsigned script regardless of the machine's policy.
+    $StatuslinePs1 = Join-Path $ClaudeDir "statusline.ps1"
     $Settings | Add-Member -NotePropertyName "statusLine" -NotePropertyValue ([PSCustomObject]@{
         type    = "command"
-        command = "~/.claude/statusline.sh"
+        command = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$StatuslinePs1`""
     })
-    Write-Host "OK  statusLine added to settings.json"
+    Write-Host "OK  statusLine added to settings.json (powershell -> statusline.ps1)"
 }
 
 if (-not ($Settings.PSObject.Properties.Name -contains "permissions")) {
