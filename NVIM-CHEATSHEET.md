@@ -4,7 +4,7 @@ Atajos más usados de mi config. `<leader>` = **espacio**. Salir de insert: **`j
 
 Para todo lo demás: **`<leader>fk`** abre el buscador de keymaps (telescope), y **`<leader>`** solo dispara which-key con el menú de continuaciones.
 
-> Referencia exhaustiva (todos los keymaps custom + plugins): `nvim/CHEATSHEET.md`.
+> Complemento: `nvim/CHEATSHEET.md` cubre más vim nativo y detalle de LSP/telescope/treesitter, pero está **incompleto en plugins** (le faltan oil, flash, dap, ufo y varios más, que sí están acá).
 
 ---
 
@@ -86,7 +86,7 @@ Para todo lo demás: **`<leader>fk`** abre el buscador de keymaps (telescope), y
 | `<leader>gd` | diff del archivo |
 | `<leader>gb` | toggle blame en la línea |
 
-> Lazygit completo: **`prefix + g`** en tmux (`prefix` = `C-t`).
+> Lazygit completo: **`Alt+g`** en tmux (popup, sin prefix). `prefix + g` es otra cosa: el layout IDE.
 
 ---
 
@@ -95,7 +95,7 @@ Para todo lo demás: **`<leader>fk`** abre el buscador de keymaps (telescope), y
 |-------|--------|
 | `<leader>cf` | formatear buffer / selección |
 
-> Go, Rust y Lua se formatean **solo al guardar**. Markdown / SQL / PHP: manual con `<leader>cf`.
+> Go, Rust, Lua y Python se formatean **solo al guardar**. Markdown / SQL / PHP: manual con `<leader>cf`.
 
 ---
 

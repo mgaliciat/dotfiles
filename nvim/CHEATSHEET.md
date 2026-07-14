@@ -1,8 +1,10 @@
 # nvim cheatsheet
 
-Comandos relevantes para **esta config específica**. Para referencia exhaustiva de vim, usá `:help` dentro de nvim. Este documento cubre: lo nativo más usado + todos los keymaps custom + plugins instalados.
+Comandos relevantes para **esta config específica**. Para referencia exhaustiva de vim, usá `:help` dentro de nvim.
 
-> Versión condensada (solo lo esencial para revisar diffs generados por IA): `../NVIM-CHEATSHEET.md` en la raíz del repo.
+> ⚠️ **Este archivo NO está completo.** Cubre lo nativo más usado + el núcleo de la config (LSP, telescope, gitsigns, conform, treesitter), pero le faltan varios plugins que llegaron después: oil, neo-tree, flash, snacks, dap, ufo, glance, blink.cmp, dropbar, mini.bracketed, todo-comments, surround, render-markdown.
+>
+> Mientras tanto, **`../NVIM-CHEATSHEET.md` (raíz del repo) es el más actualizado de los dos** — nació como versión condensada para revisar diffs de IA, pero hoy cubre más plugins que este. Empezá por ahí.
 
 `<leader>` = **barra espaciadora**. `<CR>` = Enter. `<C-x>` = Ctrl+x. `<A-x>` = Alt+x. `<S-x>` = Shift+x.
 
@@ -155,7 +157,7 @@ Todos están en `lua/config/keymaps.lua` con sus `desc` — los ves también con
 | `<` / `>` (visual) | Indentar manteniendo selección |
 | `p` (visual) | Paste sin perder el yank |
 
-### Diagnostics (sin LSP attach todavía)
+### Diagnostics
 
 | Atajo | Acción |
 |---|---|
@@ -181,7 +183,7 @@ Todos son **aceleradores dentro del modelo vim**, no muletas Mac. Diseñados par
 
 Si presionás `h j k l` **más de 10 veces en 2 segundos**, se bloquea y muestra `🤠 Hold it Cowboy!`. Te fuerza a aprender motions reales:
 
-- En vez de `jjjjjj` → usá `}` (próximo párrafo), `5j` (5 líneas), `/foo` (buscar), `Gg` (ir al final/inicio).
+- En vez de `jjjjjj` → usá `}` (próximo párrafo), `5j` (5 líneas), `/foo` (buscar), `G` / `gg` (ir al final / inicio).
 - En vez de `hhhhh` → usá `b` (palabra atrás), `0` (inicio de línea), `F<char>` (saltar a char).
 - En vez de `lllll` → usá `w` (palabra adelante), `$` (fin de línea), `f<char>` (saltar a char).
 - Si usás un count (ej: `15j`), **no cuenta como spam**.
@@ -227,16 +229,17 @@ Se setean automáticamente en cualquier buffer con LSP activo.
 
 | Atajo | Acción |
 |---|---|
-| `gd` | Goto definition |
-| `gD` | Goto declaration |
-| `gr` | Buscar referencias |
-| `gi` | Goto implementation |
-| `gt` | Goto type definition |
-| `K` | Hover docs (mostrar info del símbolo bajo cursor) |
-| `<leader>rn` | Renombrar símbolo (en todo el proyecto) |
+| `gd` | Goto definition — **peek de Glance** si hay varios resultados; salta directo si hay uno solo |
+| `gD` | Goto declaration (jump directo, LSP nativo) |
+| `gr` | Referencias — peek de Glance |
+| `gi` | Goto implementation — peek de Glance |
+| `gt` | Goto type definition — peek de Glance. **Ojo:** en cualquier buffer con LSP, `gt` NO es "próxima tab" (`gT` sí sigue andando) |
+| `K` | Si el cursor está sobre un fold cerrado, abre el peek de ufo; si no, hover docs |
+| `<leader>rn` | Renombrar símbolo con **IncRename** — preview en vivo de los call sites; la cmdline queda abierta para editar |
 | `<leader>ca` | Code action (quick fix, refactor) |
 | `<leader>cs` | Signature help |
-| `<leader>ch` | Toggle inlay hints |
+| `<leader>cl` | Code lens (ejecutar) |
+| `<leader>ch` | Toggle inlay hints (**vienen activos** por default) |
 
 ### Treesitter movement (en funciones / clases)
 
@@ -303,6 +306,7 @@ Signs en gutter:
 - Go (`goimports` + `gofumpt`)
 - Rust (`rustfmt`)
 - Lua (`stylua`)
+- Python (`ruff_organize_imports` + `ruff_format`)
 
 **Disponibles pero NO on-save** (corré manual con `<leader>cf`):
 - TS/JS/JSON/YAML/MD → `prettierd` / `prettier`
@@ -314,17 +318,21 @@ Mason instala los formatters al primer uso. Si falta uno: `:Mason` → buscalo �
 
 ---
 
-## 8. Folding (treesitter-based)
+## 8. Folding (nvim-ufo)
+
+Los folds los provee **nvim-ufo** (cadena treesitter → indent), no el folding nativo. `zR`/`zM`/`zr`/`zm` de abajo son funciones de ufo.
 
 | Atajo | Acción |
 |---|---|
 | `za` | Toggle fold actual |
 | `zM` | Cerrar todos los folds |
 | `zR` | Abrir todos los folds |
+| `zm` / `zr` | Cerrar / abrir un nivel de fold |
 | `zc` / `zo` | Cerrar / abrir fold |
 | `zj` / `zk` | Próximo / anterior fold |
+| `K` | Peek del fold cerrado bajo el cursor (si no hay fold, hover LSP) |
 
-Por default arrancás con **todo expandido** (`foldenable = false` en `options.lua`).
+Por default arrancás con **todo expandido**, por `foldlevel = 99` / `foldlevelstart = 99` en `options.lua`. Ojo: `foldenable` está en **`true`** — ufo lo necesita para renderear su virtual text.
 
 ---
 
@@ -363,7 +371,7 @@ Flags útiles: `c` confirmar, `i` case-insensitive, `I` case-sensitive.
 ### Tabs
 - `:tabnew` — nueva tab
 - `:tabclose` — cerrar tab
-- `gt` / `gT` — siguiente / anterior tab
+- `gT` — anterior tab. (`gt` y `<num>gt` **no** sirven para navegar tabs: en cualquier buffer con LSP, `gt` está pisado por Glance type-definition, y el count no evita el mapeo. Usá `:tabnext` / `:tabn N`.)
 - `<num>gt` — ir a tab N
 
 ---
@@ -403,7 +411,8 @@ Flags útiles: `c` confirmar, `i` case-insensitive, `I` case-sensitive.
 Si te olvidás un atajo, presioná solo `<leader>` y esperá ~400ms. Te aparece un popup con todos los grupos:
 
 - `<leader>b` → buffer
-- `<leader>c` → code (LSP)
+- `<leader>c` → code (LSP / debug)
+- `<leader>cg` → go debug
 - `<leader>f` → find (telescope)
 - `<leader>g` → git
 - `<leader>r` → rename

@@ -4,6 +4,8 @@ Comandos relevantes para **esta config**. `prefix` = `Ctrl+t`.
 
 Convención: `prefix x` = presionás `Ctrl+t`, soltás, después `x`.
 
+`prefix C-t` (o sea, `Ctrl+t` dos veces) manda un `Ctrl+t` **literal** al pane — el escape hatch para tmux anidado o apps que quieren esa tecla.
+
 ---
 
 ## ⭐ Lo más importante (los popups — chord único sin prefix)
@@ -92,7 +94,7 @@ Para matar una sesión específica: `tmux kill-session -t claude-<hash>`.
 | `prefix H/J/K/L` | Resize pane (via tmux-pain-control) |
 | `prefix z` | Zoom in/out al pane actual (toggle fullscreen) |
 | `prefix x` | Cerrar pane actual (con confirmación) |
-| `prefix e` | Cerrar TODOS los panes de la window (sin confirm — cuidado) |
+| `prefix e` | Cerrar todos los **demás** panes de la window — el actual sobrevive (`kill-pane -a`, sin confirm) |
 | `prefix {` / `prefix }` | Swap pane con anterior / siguiente |
 | `prefix q` | Mostrar números de pane (después `<num>` para ir) |
 | `prefix !` | Convertir pane actual en window propia |
@@ -125,7 +127,7 @@ Entrás con `prefix [`. Salís con `q`.
 |---|---|
 | `prefix r` | **Recargar config** (sin matar sesión) |
 | `prefix o` | Abrir `pane_current_path` en Finder |
-| `prefix g` | **Layout IDE** — arma 5 panes (principal + 2 columnas + terminal + sidebar); no lanza apps, solo el layout |
+| `prefix g` | **Layout IDE** — arma 4 panes (main + columna derecha, terminal 30% abajo, sidebar 20% a toda altura); no lanza apps, solo el layout |
 | `prefix ?` | Listar TODOS los keybindings (`q` para salir) |
 | `prefix t` | Reloj en pane fullscreen (estético) |
 

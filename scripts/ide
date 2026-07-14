@@ -2,18 +2,16 @@
 # ─── scripts/ide — layout tmux estilo IDE ─────────────────────
 # Adaptado de craftzdog/dotfiles-public/.scripts/ide.
 #
-# Layout que arma (vista desde arriba):
+# Layout que arma — 4 panes (vista desde arriba):
 #
-#   ┌──────────────────────────────────┬──────────┐
-#   │                                  │          │
-#   │           editor (top)           │          │
-#   │                                  │          │
-#   ├──────────────┬───────────────────┤ sidebar  │
-#   │              │                   │   20%    │
-#   │  pane left   │   pane right      │          │
+#   ┌──────────────┬───────────────────┬──────────┐
 #   │              │                   │          │
-#   ├──────────────┴───────────────────┤          │
-#   │           terminal (30%)         │          │
+#   │  main (top-  │   pane right      │ sidebar  │
+#   │  left, queda │                   │   20%    │
+#   │  activo)     │                   │          │
+#   ├──────────────┴───────────────────┤ (alto    │
+#   │                                  │  total)  │
+#   │         terminal (30%)           │          │
 #   └──────────────────────────────────┴──────────┘
 #
 # Uso: dentro de una sesión tmux, correr:

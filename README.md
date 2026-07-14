@@ -10,16 +10,16 @@ Personal config for macOS — Ghostty terminal, zsh, Starship prompt, Neovim, tm
 
 | Path | What |
 |---|---|
-| `zsh/.zshrc` | Interactive shell config (no Oh My Zsh — startup ~30ms) |
+| `zsh/.zshrc` | Interactive shell config (no Oh My Zsh — startup ~60ms) |
 | `zsh/.zshenv` | Env vars and PATH, loaded for all shells |
 | `starship/starship.toml` | Starship prompt config |
 | `ghostty/config.ghostty` | Ghostty terminal config — theme, fonts, keybinds |
 | `git/.gitignore_global` | Global gitignore — macOS noise, editor files, build dirs, **y también scratch de agentes IA** (`.claude/`, `.cursor/`, `.aider*`, `.covenant/`, etc.) que se excluye a propósito en todos los repos |
-| `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*`; el tema activo es `vim.g.theme` en `lua/config/options.lua` (hoy `solarized-osaka`, parte del tema cross-stack Ghostty+nvim+tmux). Cheatsheet completo en `nvim/CHEATSHEET.md`; versión condensada para revisar diffs de IA en `NVIM-CHEATSHEET.md` (raíz) |
+| `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*`; el tema activo es `vim.g.theme` en `lua/config/options.lua` (hoy `solarized-osaka`, parte del tema cross-stack Ghostty+nvim+tmux). Cheatsheets: `NVIM-CHEATSHEET.md` (raíz) es el más al día en cobertura de plugins; `nvim/CHEATSHEET.md` tiene más detalle de vim nativo/LSP pero le faltan plugins |
 | `tmux/` | tmux config — prefix `C-t`, popups Alt+c/C/y/u/d/g/Enter, modular (theme/statusline/utility). Cheatsheet en `tmux/CHEATSHEET.md` |
 | `lazygit/config.yml` | lazygit theme + custom commands |
-| `scripts/` | Helpers — `ide` (layout tmux de 5 panes estilo IDE, `prefix + g`) |
-| `claude/` | Config user-level de Claude Code — `CLAUDE.md` (→ `~/.claude/CLAUDE.md`, qué herramientas de este dotfiles usar) y `statusline.sh` |
+| `scripts/` | Helpers — `ide` (layout tmux de 4 panes estilo IDE, `prefix + g`) |
+| `claude/` | Config user-level de Claude Code — `CLAUDE.md` (→ `~/.claude/CLAUDE.md`, qué herramientas de este dotfiles usar) y `statusline.sh`. `settings.json`, `skills/` y `memory/` son **per-máquina**: ni versionados ni symlinkeados |
 | `install.sh` | Entry point macOS — symlinks + auto-install deps |
 | `install-linux.sh` | Portable subset para Ubuntu/Debian/WSL2 |
 | `install-windows.ps1` | Windows nativo (sin WSL2) — alcance angosto, solo piezas de Claude Code (ver comentario en el script) |
@@ -42,13 +42,18 @@ cd ~/dotfiles
 
 `install.sh` se encarga de:
 
-1. Symlinkear configs (`.zshrc`, `.zshenv`, `.gitignore_global`, ghostty, starship, nvim, tmux, lazygit, claude/skills si existe local)
+1. Symlinkear configs (`.zshrc`, `.zshenv`, `.gitignore_global`, ghostty, starship, nvim, tmux, lazygit, `claude/CLAUDE.md`, `claude/statusline.sh`)
 2. Auto-instalar dependencias faltantes vía Homebrew:
-   - **Formulae**: `starship`, `zsh-syntax-highlighting`, `zsh-autosuggestions`, `zsh-history-substring-search`, `eza`, `bat`, `fd`, `ripgrep`, `gomi`, `zoxide`, `fzf`, `jq`, `git-delta`, `pyenv`, `neovim`, `tree-sitter-cli`, `tmux`, `lazygit`
+   - **Formulae**: `starship`, `zsh-syntax-highlighting`, `zsh-autosuggestions`, `zsh-history-substring-search`, `eza`, `bat`, `fd`, `ripgrep`, `gomi`, `zoxide`, `fzf`, `jq`, `git-delta`, `pyenv`, `neovim`, `tree-sitter-cli`, `tmux`, `lazygit`, `rtk`
    - **Casks**: `ghostty`, `font-plemol-jp-nf`, `font-ia-writer-mono`, `font-monaspace`
-3. Clonar tpm (Tmux Plugin Manager) si falta
-4. Recargar tmux config si hay un server corriendo
-5. Registrar VS Code como app por defecto para `.ghostty` (si VS Code está instalado)
+3. Configurar Claude Code (todo idempotente, y **additive-only**: si ya armaste algo a mano en esa máquina, no se pisa):
+   - `statusLine` + `permissions` base en el `settings.json` real (que NO se versiona)
+   - [`rtk`](https://github.com/rtk-ai/rtk) — proxy CLI que reescribe comandos Bash a su equivalente comprimido para ahorrar tokens. Transparente vía hook `PreToolUse`
+   - [`codebase-memory-mcp`](https://github.com/DeusData/codebase-memory-mcp) — MCP server que indexa el código en un grafo consultable
+   - Plugins [`ponytail`](https://github.com/DietrichGebert/ponytail) (lazy senior dev) y [`andrej-karpathy-skills`](https://github.com/multica-ai/andrej-karpathy-skills) (guidelines) — solo en macOS por ahora
+4. Clonar tpm (Tmux Plugin Manager) si falta
+5. Recargar tmux config si hay un server corriendo
+6. Registrar VS Code como app por defecto para `.ghostty` (si VS Code está instalado)
 
 **`~/.gitconfig` NO se versiona ni symlinkea** — cada máquina mantiene el suyo 100% propio (credenciales, 1Password vaults, signing keys son per-máquina). Cuando configures una Mac nueva, copiá tu `.gitconfig` desde donde lo tengas backupeado.
 
@@ -85,3 +90,5 @@ export REDASH_API_KEY="..."
 ```
 
 `.zshenv` automatically sources `.zshenv.local` if present.
+
+- **`~/.claude/settings.json`**, **`~/.claude/skills/`**, **`~/.claude/projects/*/memory/`** — estado de Claude Code. Ni versionado ni symlinkeado: los permisos/UI divergen por host, y las skills y memorias las escriben Claude Code y sus binarios en runtime. `install.sh` solo hace merges puntuales y additive-only sobre `settings.json` (statusLine, permisos base, hooks de rtk/codebase-memory) — nunca lo pisa entero.
