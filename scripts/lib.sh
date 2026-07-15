@@ -30,6 +30,26 @@ bootstrap_tmux() {
     echo "✓ tpm installed. Inside tmux: prefix + I to install plugins"
   fi
 
+  # tmux-claude-session-manager is pinned here (not left to `prefix + I`) so
+  # every machine runs the exact same picker/launcher. tpm would otherwise
+  # clone whatever HEAD was on the day of the first `prefix + I`, drifting per
+  # host — the symptom being an old Alt+U window on a mac installed later. We
+  # own the clone (full, not --depth 1, so an arbitrary SHA is checkoutable);
+  # tpm then sees the dir exists and leaves it alone. Convergent: re-running the
+  # installer fetches + checks out the pin, realigning a stale clone.
+  local csm_dir="$HOME/.config/tmux/plugins/tmux-claude-session-manager"
+  local csm_pin="45d593f7e17d34fd5bad5330f825d430e817938e"
+  if [[ ! -d "$csm_dir/.git" ]]; then
+    echo "→ Cloning tmux-claude-session-manager into $csm_dir"
+    git clone https://github.com/craftzdog/tmux-claude-session-manager "$csm_dir"
+  fi
+  if [[ -d "$csm_dir/.git" ]] && \
+     [[ "$(git -C "$csm_dir" rev-parse HEAD 2>/dev/null)" != "$csm_pin" ]]; then
+    git -C "$csm_dir" fetch --quiet origin && \
+      git -C "$csm_dir" checkout --quiet "$csm_pin" && \
+      echo "✓ tmux-claude-session-manager pinned to ${csm_pin:0:7}"
+  fi
+
   # If a tmux server is running, reload the config so active sessions pick up
   # the changes without having to attach and do it by hand. No server (typical
   # on a fresh WSL2 login) → skip; the next session reads the config anyway.
