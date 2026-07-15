@@ -36,13 +36,15 @@ The defining decision in this repo. Some things are versioned (shared across mac
 
 **`~/.claude/skills/` and `~/.claude/projects/*/memory/` are both unlinked, for *different* reasons** — don't collapse them into one rule. `skills/`: the symlink *worked* (that really is where Claude Code reads user skills), but it pointed at the repo while the content — the `learned` skill Claude writes, the `codebase-memory` one the binary rewrites on every install — is 100% per-machine and was never versioned. Zero benefit, and one loosened `.gitignore` away from leaking personal state into a public repo. `memory/`: Claude Code derives the project id from the *real* directory path, so a symlink from the repo pointed at the wrong path and was silently ignored.
 
+**The exception is a *per-item* skill we author** (currently `bitacora`, in `claude/skills/`). What was rejected above is symlinking the *whole* `skills/` dir — a single hand-authored skill we version is additive: we control its content, `settings.sh` symlinks just `~/.claude/skills/<name>` beside the per-machine ones (`learned`, `codebase-memory`) without touching them, and there's no leak because the repo folder only ever holds what we put there. Same shape as the per-item `statusline.sh` / `CLAUDE.md` symlinks. Windows lags (the skill's Obsidian MCP is mac/Linux-only anyway).
+
 ## Claude Code config: `claude/install/`
 
 Everything this repo does to `~/.claude/` lives in `claude/install/`, split by **who writes to `settings.json`** — not by what gets installed. That's the line that matters, because it determines who owns idempotency and where to look when something breaks.
 
 | | File | Who writes `settings.json` | Idempotency | Currently |
 |---|---|---|---|---|
-| **1** | `settings.sh` | **We do**, with `jq` | Our guard (only if the key is absent) | `statusLine`, `permissions.*`, stale-hook cleanup, symlinks for `statusline.sh` + `CLAUDE.md` |
+| **1** | `settings.sh` | **We do**, with `jq` | Our guard (only if the key is absent) | `statusLine`, `permissions.*`, stale-hook cleanup, symlinks for `statusline.sh` + `CLAUDE.md` + the `bitacora` skill |
 | **2** | `binaries.sh` | The **external binary**, in its own setup command | The binary handles it | `rtk`, `codebase-memory-mcp`, `context7` (endpoint-only, key from env) |
 | **3** | `plugins.sh` | The **CLI** (`claude plugin`) | The CLI handles it | `ponytail`, `andrej-karpathy-skills` |
 

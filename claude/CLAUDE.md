@@ -47,6 +47,10 @@ MCP server for a **local, per-machine Obsidian vault** — the "Local REST API" 
 
 **Requires Obsidian OPEN** with the plugin + its MCP server enabled — that is the cost of the real-Obsidian path (Dataview, atomic patch by heading) over plain `Read`/`Write` on the markdown. If Obsidian is closed, the tools fail; fall back to reading the vault files directly on disk.
 
+## Daily log (bitácora) in Obsidian
+
+The full how-to lives in the versioned **`bitacora` skill** (`claude/skills/bitacora/`, symlinked into `~/.claude/skills/` by the installer) — it self-activates on "bitácora" / "guarda resumen" and holds the format, path, and tagging. Off the always-loaded budget on purpose. The one thing a skill *can't* do is fire on a git event, so the trigger that belongs here: **after you land a `git commit` or open a PR, invoke the bitacora skill** to log what changed and why into that day's note.
+
 ## 🤖 IA & TOKEN OPTIMIZATION PROTOCOL
 
 To minimize token consumption, maximize inference speed, and maintain strict reliability against our Spec-Driven Development (SDD) goals, you MUST follow these communication rules:

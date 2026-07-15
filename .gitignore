@@ -4,17 +4,19 @@
 .zcompdump*
 *.backup.*
 
-# Claude — all per-machine, never versioned. settings.json is 100% each machine's
-# own (NOT symlinked, like ~/.gitconfig): permissions/UI config diverges per host
-# and was dragging personal state into a public repo. skills/ and memory/ aren't
-# even symlinked anymore (see install.sh). *.backup.* is already covered by the
-# rule above.
+# Claude — mostly per-machine, never versioned. settings.json is 100% each
+# machine's own (NOT symlinked, like ~/.gitconfig): permissions/UI config diverges
+# per host and was dragging personal state into a public repo. memory/ isn't even
+# symlinked anymore (see install.sh). *.backup.* is already covered above.
 #
-# The three entries stay here defensively anyway: if someone recreates the dir in
-# the repo out of habit, git won't pick it up.
+# skills/ is per-machine EXCEPT the skills we hand-author and version — those are
+# symlinked per-item into ~/.claude/skills/ (settings.sh) and must be tracked here.
+# So: ignore everything under skills/, then whitelist ours by name. Anything not
+# listed (`learned`, `codebase-memory`, …) stays per-machine.
 claude/settings.json
 claude/memory/
-claude/skills/
+claude/skills/*
+!claude/skills/bitacora/
 
 # Git config — per-machine (each Mac has its own credentials, 1Password vaults,
 # signing keys). Only .gitignore_global is versioned.

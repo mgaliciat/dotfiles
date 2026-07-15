@@ -22,6 +22,14 @@ PERMISSIONS="$DOTFILES/claude/install/permissions.json"
 link "$DOTFILES/claude/statusline.sh" "$HOME/.claude/statusline.sh"
 link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 
+# Per-ITEM skill symlink — NOT the whole ~/.claude/skills/ dir. Symlinking the
+# whole dir was rejected (see project CLAUDE.md: per-machine content, .gitignore
+# leak risk). A single hand-authored skill we DO version is the additive
+# exception: we control its content, it sits beside the per-machine skills
+# (`learned`, `codebase-memory`) without touching them. `bitacora` = daily work
+# log into Obsidian; depends on the obsidian MCP, so it's mac/Linux like context7.
+link "$DOTFILES/claude/skills/bitacora" "$HOME/.claude/skills/bitacora"
+
 # settings.json itself is NOT symlinked: it's 100% per-machine (like
 # ~/.gitconfig). Permissions and UI prefs diverge per host, and symlinking it
 # into a PUBLIC repo dragged personal state along (enabledPlugins, marketplaces).
