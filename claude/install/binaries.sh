@@ -124,6 +124,49 @@ elif [[ -z "$CONTEXT7_API_KEY" ]]; then
   echo "→ context7: skipped (no CONTEXT7_API_KEY — add it to ~/.zshenv.local)"
 fi
 
+# ─── obsidian (Local REST API MCP — cross-repo markdown notes) ─
+# Same shape as context7: a hosted-style HTTP endpoint we only register — no
+# binary, nothing to install here. The server is not ours: it is the "Local REST
+# API" Obsidian community plugin, which since 2026 ships its OWN MCP server at
+# /mcp/ (no external Python/uvx process). The vault is a per-machine local dir
+# (deliberately NOT versioned — same reasoning as ~/.claude/skills/); this block
+# only wires Claude Code to it so notes written in one repo are readable from any
+# other. Doc: https://github.com/coddingtonbear/obsidian-local-rest-api
+#
+# HTTP (27123), not HTTPS (27124): the plugin's default is HTTPS with a
+# SELF-SIGNED cert, which Node/Claude Code rejects unless you trust the cert by
+# hand. On loopback the non-encrypted port loses nothing and dodges that entirely
+# — but it must be enabled in the plugin ("Enable Non-encrypted (HTTP) Server").
+#
+# The key is per-machine and read from the ENVIRONMENT (~/.zshenv.local,
+# gitignored) — never the repo (PUBLIC). Same guard/scope logic as context7:
+#  - no key → skip cleanly (install.sh must not fail on a machine without it);
+#  - `--scope user` = all projects (CLI default `local` would bind it to the
+#    dotfiles dir and be invisible elsewhere — the whole point is cross-repo);
+#  - idempotence is ours (`claude mcp add` errors if the name exists), so a
+#    ROTATED key needs `claude mcp remove obsidian -s user` before a re-run.
+#
+# Registration is decoupled from Obsidian being up: this only stores a URL, so it
+# succeeds even with Obsidian closed. But the tools only WORK when Obsidian is
+# open with the plugin + its MCP server enabled — that is the runtime cost of the
+# "real Obsidian" path (Dataview, atomic patch by heading) vs plain filesystem.
+if command -v claude >/dev/null 2>&1 && [[ -n "$OBSIDIAN_API_KEY" ]]; then
+  # Strip a leading "Bearer " if present: the plugin's "copy" button hands you
+  # `Bearer <hex>`, and pasting that verbatim into the env var yields a doubled
+  # `Authorization: Bearer Bearer <hex>` → silent 401. The key is the bare hex.
+  OBSIDIAN_KEY="${OBSIDIAN_API_KEY#Bearer }"
+  if claude mcp get obsidian >/dev/null 2>&1; then
+    echo "✓ obsidian: already registered"
+  elif claude mcp add --transport http obsidian http://127.0.0.1:27123/mcp/ \
+      --scope user --header "Authorization: Bearer $OBSIDIAN_KEY" >/dev/null 2>&1 </dev/null; then
+    echo "✓ obsidian: MCP server registered (user scope)"
+  else
+    echo "⚠️  obsidian registration failed — check by hand (claude mcp add ...)"
+  fi
+elif [[ -z "$OBSIDIAN_API_KEY" ]]; then
+  echo "→ obsidian: skipped (no OBSIDIAN_API_KEY — add it to ~/.zshenv.local)"
+fi
+
 # ── convergent cleanup: the line the binary puts in ~/.zshrc ──
 # The binary (src/cli/cli.c, cbm_detect_shell_rc) does its own
 # fopen(~/.zshrc, "a") and appends `export PATH=...` if it does not find an exact

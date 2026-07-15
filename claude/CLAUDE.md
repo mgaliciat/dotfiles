@@ -39,6 +39,14 @@ Two tools, used in order:
 
 **Not** a general-purpose search: for the stable core of a mature language, or for anything not a library (configs, your own code, prose), it just costs a round-trip. Well-known and stable → answer directly.
 
+### obsidian — github.com/coddingtonbear/obsidian-local-rest-api
+
+MCP server for a **local, per-machine Obsidian vault** — the "Local REST API" community plugin ships its own MCP at `/mcp/`. `binaries.sh` only registers the HTTP endpoint (`127.0.0.1:27123`); the vault itself is never versioned (per-machine, like `~/.claude/skills/`), and the key comes from `~/.zshenv.local`. Registered on mac/Linux only (same Windows lag as context7).
+
+**Use it for cross-repo notes**: durable knowledge that has to outlive a single repo — most relevant here, *which service touches which and why* across a set of shared services. Write a note from one repo, read it from another. This is the "why" layer; `codebase-memory-mcp` is the "what/when" layer (mechanical call graph, `trace_path cross_service`). They complement — graph for the code, vault for the rationale.
+
+**Requires Obsidian OPEN** with the plugin + its MCP server enabled — that is the cost of the real-Obsidian path (Dataview, atomic patch by heading) over plain `Read`/`Write` on the markdown. If Obsidian is closed, the tools fail; fall back to reading the vault files directly on disk.
+
 ## 🤖 IA & TOKEN OPTIMIZATION PROTOCOL
 
 To minimize token consumption, maximize inference speed, and maintain strict reliability against our Spec-Driven Development (SDD) goals, you MUST follow these communication rules:
