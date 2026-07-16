@@ -1,0 +1,55 @@
+# naysayer — Jonathan Blow's editor colors (Emacs, later his own 4coder-derived one).
+# Cross-stack mirror: the same palette baked into nvim/lua/themes/naysayer.lua
+# and tmux/themes/naysayer.conf.
+#
+# Source of truth: his editor's own colour slots (Background, Default, Comment,
+# Str_Constant, Int_Constant, Preproc, Cursor, Highlight, Bar, Margin, …), as
+# reverse-engineered from his streams — https://vegard.wiki/w/Jon_Blow_emacs_colorscheme
+# He never published a theme; the VS Code / nvim ports all descend from that table
+# and each takes its own liberties. We mirror the table, not a port.
+#
+# The look: a deep teal bg (#052329) — not gray, not blue — with warm sand text
+# and a green/teal syntax family. Comments are the BRIGHTEST thing on screen
+# (#40C040), the inverse of every other theme's convention: he reads them.
+# No bold, no italics anywhere.
+#
+# The palette moves on a visible 0x40/0x80/0xB0/0xC0/0xF0 grid. ANSI slots he has
+# no colour for (red, blue, magenta) are derived ON that grid — see below.
+
+# background and text
+background = #052329
+foreground = #d0c0a0
+
+# cursor — his Cursor slot. Desaturated green, reads as "warm" over the teal bg.
+cursor-color = #90c090
+cursor-text  = #052329
+
+# selection — his Highlight slot is literal #0010ff (pure blue). It is loud and
+# it is authentic: keep it. White fg, since sand-on-blue is unreadable.
+selection-background = #0010ff
+selection-foreground = #ffffff
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# normals (0-7). Where he has a slot, it's used verbatim; the three he has no
+# colour for are derived by mirroring the grid (e.g. red #c04040 = the channel
+# swap of comment green #40c040) rather than importing hexes from another theme.
+palette = 0=#183848
+palette = 1=#c04040
+palette = 2=#40c040
+palette = 3=#ffbb00
+palette = 4=#4080c0
+palette = 5=#c040c0
+palette = 6=#40b0a0
+palette = 7=#d0c0a0
+
+# brights (8-15). bright_black is his Ghost_Character (#46494d) — already the
+# slot for "present but inert" text, so it does the same job the shell asks of
+# ANSI 8. bright_green/bright_cyan are Preproc and Int_Constant verbatim.
+palette = 8=#46494d
+palette = 9=#f08080
+palette = 10=#b0ffb0
+palette = 11=#ffd040
+palette = 12=#80b0f0
+palette = 13=#f080f0
+palette = 14=#80f0e0
+palette = 15=#f0e8d0

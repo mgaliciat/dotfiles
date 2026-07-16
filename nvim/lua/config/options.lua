@@ -12,6 +12,7 @@
 --   "carbon"           minimal true-black, high contrast, Claude orange accent
 --   "solarized-osaka"  craftzdog deep-ocean ← separate plugin
 --   "xcode-oled"       true black OLED + Xcode "Default (Dark)" syntax
+--   "naysayer"         Jonathan Blow's editor: deep teal bg, sand fg, loud comments
 --   "anthropic-dark"   dark Claude.ai (brown-black + Claude orange)
 --   "anthropic-warm"   warm dark sepia/terracotta
 --   "prism-night"      midnight blue + prism arc
@@ -19,7 +20,7 @@
 --   "solarized-light"  canonical Solarized Light
 -- (The solarized-osaka-{day,moon,storm} variants and "obsidian" are still
 --  valid themes here, but outside the matrix.)
-vim.g.theme = "solarized-osaka"
+vim.g.theme = "naysayer"
 
 -- ─── vim.opt ──────────────────────────────────────────────────
 -- Good defaults. Follows the spirit of the dotfiles: comment the WHY,

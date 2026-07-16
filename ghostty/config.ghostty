@@ -20,7 +20,7 @@
 # the file is versioned, a `git pull` propagates the theme to the other
 # machines. To change the look: edit this line (and the equivalent lines
 # in nvim and tmux — they share the id) and commit. There's no switcher and no pointer.
-theme = solarized-osaka
+theme = naysayer
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -38,6 +38,9 @@ theme = solarized-osaka
 #   · xcode-oled — Xcode "Default (Dark)" syntax (real hex from Apple's
 #     plist) over true black (#000). Made for OLED: the background's
 #     pixels are switched off. It replaced oled-neon (Dracula) in the family.
+#   · naysayer — Jonathan Blow's editor colours: deep teal (#052329), warm
+#     sand text, and comments as the brightest thing on screen. Source is his
+#     editor's own colour-slot table, not the community ports.
 #   · anthropic-dark — Claude.ai dark (brown-black + Claude orange).
 #   · anthropic-warm — warm charcoal + the Claude palette (terracotta, olive,
 #     amber, orange). Made for display-p3 + transparency, long sessions
@@ -47,12 +50,16 @@ theme = solarized-osaka
 #     Sampled from the macOS "prism" wallpaper.
 #   · paper — light cream + sepia ink.
 #   · solarized-light — Ethan Schoonover's canonical Solarized Light.
-# craftzdog-style canvas override: his Ghostty uses the built-in
-# "Solarized Dark - Patched" but overrides the background with #031219 (deep ocean,
-# near-black blue, a touch lighter than the plugin's base04 #001419).
-# This override wins over the theme's background — it's WHAT you see
-# behind the blur. Comment it out to go back to the active theme's literal bg.
-background = #031219
+# Canvas override — BELONGS TO solarized-osaka, not to the stack in general.
+# craftzdog's Ghostty uses the built-in "Solarized Dark - Patched" but overrides
+# the background with #031219 (deep ocean, near-black blue, a touch lighter than
+# the plugin's base04 #001419).
+#
+# A `background =` here WINS over the theme's, regardless of order — so with any
+# other theme active this line silently pins osaka's canvas and the new theme
+# looks like it never applied (only its ANSI/cursor change). Re-enable it only
+# together with `theme = solarized-osaka`; leave it commented for everything else.
+# background = #031219
 
 # Display P3 wide-gamut — orange and cream saturate more on
 # M-chip / Retina screens. No downside on non-P3 machines.
@@ -73,11 +80,7 @@ window-colorspace = display-p3
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
-# PlemolJP Console NF — bilingual JP/EN font, craftzdog style.
-# IBM Plex Mono base + Japanese glyphs + integrated Nerd Font (starship/devicons
-# icons with no fallback). "Console" = 5:6 ratio (more compact
-# than standard PlemolJP's 1:2 ratio), ideal for dense terminals.
-font-family             = PlemolJP Console NF
+# No font-family = Ghostty's default (bundled JetBrains Mono NF).
 font-size = 15
 
 # Standard ligatures — iA Writer isn't texture-healing but it supports
