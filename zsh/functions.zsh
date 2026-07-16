@@ -141,3 +141,40 @@ if [[ -o interactive ]]; then
   zle -N _fzf_cd_widget
   bindkey '^F' _fzf_cd_widget
 fi
+
+# ─── claude-rappi ─────────────────────────────────────────────
+# Toggle the `env` block of ~/.claude/settings.json on/off.
+#   claude-rappi off → stash `.env` to a sidecar file, then strip it.
+#   claude-rappi on  → restore `.env` from the sidecar, verbatim.
+# `off` only stashes when an env block is actually present, so running it
+# twice never clobbers the stash with an empty one — credentials survive a
+# double-off. settings.json is a real file (never symlinked), so mv is safe
+# here (unlike ~/.zshrc). Requires jq (installed by the dotfiles installers).
+claude-rappi() {
+  local settings="$HOME/.claude/settings.json" stash="$HOME/.claude/.env-rappi.json"
+  case "$1" in
+    off)
+      if [[ "$(jq 'has("env")' "$settings")" == "true" ]]; then
+        jq '.env' "$settings" > "$stash"
+        jq 'del(.env)' "$settings" > "$settings.tmp" && mv "$settings.tmp" "$settings"
+        echo "claude-rappi: env block removed (stashed → $stash)"
+      else
+        echo "claude-rappi: already off (no env block)"
+      fi
+      ;;
+    on)
+      if [[ -f "$stash" ]]; then
+        jq --slurpfile e "$stash" '.env = $e[0]' "$settings" > "$settings.tmp" \
+          && mv "$settings.tmp" "$settings"
+        echo "claude-rappi: env block restored"
+      else
+        echo "claude-rappi: nothing to restore ($stash missing)" >&2
+        return 1
+      fi
+      ;;
+    *)
+      echo "usage: claude-rappi on|off" >&2
+      return 1
+      ;;
+  esac
+}
