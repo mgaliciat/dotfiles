@@ -272,36 +272,20 @@ keybind = cmd+eight=goto_tab:8
 keybind = cmd+nine=goto_tab:9
 
 # ═══════════════════════════════════════════════════════════════
-#  PACKAGE 5 — light-2026-style dock icon (baked in, doesn't follow the theme)
+#  PACKAGE 5 — dock icon: the official one, untouched
 # ═══════════════════════════════════════════════════════════════
 
-# custom-style: aluminum frame (mac-native) + light-2026 white screen
-# (#ffffff, the theme's own bg) + blue accent ghost.
-# Built-in variants (mutually exclusive with custom-style — they do NOT
-# accept color overrides): official, blueprint, chalkboard,
-# microchip, glass, holographic, paper, retro, xray.
-macos-icon = custom-style
-
-# Frame: aluminum (mac hardware gray). Alternatives:
-# beige (warm paper-ish), plastic (off-white), chrome (sleek).
-macos-icon-frame = aluminum
-
-# Blue accent ghost (#0069cc) — THE light-2026 accent (button.background
-# / focusBorder in VS Code's source JSON), the same one as the cursor in
-# Ghostty/nvim/tmux. It ties the icon to the theme's identity. Variants:
-# #ffffff neutral white (max contrast, brand-agnostic) · #d97757 Claude orange.
-macos-icon-ghost-color = #0069cc
-
-# Screen: flat light-2026 white, no accent band. Ghostty only
-# supports LINEAR VERTICAL gradients (first color = bottom, last =
-# top); here it's a subtle gradient from the theme's bg (#ffffff) to its elevated
-# surface (#fafafd — sideBar/activityBar bg in the source JSON), just a
-# lift upwards to give depth without noise.
+# `official` is also Ghostty's default — the line is here to say the choice is
+# deliberate, not an omission. The icon never followed `theme =` anyway (Ghostty
+# has no such binding), so a custom one is a second palette to keep in sync by
+# hand for a 128px square you glance at. Not worth it.
 #
-# Baked to light-2026 on purpose (it does NOT follow the `theme =` above): if
-# you change the theme, the icon stays light-2026. To re-sync it with
-# another theme, use its `background` + a lift towards its elevated surface.
-macos-icon-screen-color = #ffffff,#fafafd
+# Other built-in styles: blueprint, chalkboard, microchip, glass, holographic,
+# paper, retro, xray. And `custom-style`, the only one that takes colors — it
+# then REQUIRES macos-icon-frame (aluminum|beige|plastic|chrome),
+# macos-icon-ghost-color and macos-icon-screen-color (a linear vertical
+# gradient, first color = bottom). `macos-custom-icon` takes a PNG/ICNS path.
+macos-icon = official
 
 # ═══════════════════════════════════════════════════════════════
 #  PACKAGE 6 — Fullscreen pro (macOS)
