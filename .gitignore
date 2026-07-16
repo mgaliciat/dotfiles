@@ -17,6 +17,7 @@ claude/settings.json
 claude/memory/
 claude/skills/*
 !claude/skills/bitacora/
+!claude/skills/wiki/
 
 # Git config — per-machine (each Mac has its own credentials, 1Password vaults,
 # signing keys). Only .gitignore_global is versioned.

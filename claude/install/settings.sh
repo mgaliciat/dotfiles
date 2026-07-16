@@ -29,6 +29,11 @@ link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 # (`learned`, `codebase-memory`) without touching them. `bitacora` = daily work
 # log into Obsidian; depends on the obsidian MCP, so it's mac/Linux like context7.
 link "$DOTFILES/claude/skills/bitacora" "$HOME/.claude/skills/bitacora"
+# `wiki` = synthesis layer OVER the bitácora: ingests Bitacora/ into cross-linked
+# Wiki/ pages, queries them, lints for rot. Same obsidian-MCP dependency, so same
+# mac/Linux reach. The per-vault taxonomy lives in the vault's Wiki/CLAUDE.md
+# (per-machine, not versioned) — the skill is the engine, that file is the config.
+link "$DOTFILES/claude/skills/wiki" "$HOME/.claude/skills/wiki"
 
 # settings.json itself is NOT symlinked: it's 100% per-machine (like
 # ~/.gitconfig). Permissions and UI prefs diverge per host, and symlinking it
