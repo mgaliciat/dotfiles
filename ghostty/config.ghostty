@@ -79,13 +79,6 @@ window-colorspace = display-p3
 # theme. If you switch to a light theme from the family, raise it to 3.0.
 minimum-contrast = 1.1
 
-# ─── custom shader ────────────────────────────────────────────
-# GPU post-processing over the whole terminal. Lives in ghostty/shaders/
-# (symlinked to ~/.config/ghostty/shaders/ by install.sh — same XDG dir as
-# themes). Comment out to disable; Ghostty reloads on save. bettercrt =
-# CRT curvature + scanlines, no colour tint (rides on the active theme).
-custom-shader = ~/.config/ghostty/shaders/bettercrt.glsl
-
 # ─── typography ───────────────────────────────────────────────
 # No font-family = Ghostty's default (bundled JetBrains Mono NF).
 font-size = 15
