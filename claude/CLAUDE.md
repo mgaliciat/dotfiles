@@ -47,6 +47,12 @@ MCP server for a **local, per-machine Obsidian vault** — the "Local REST API" 
 
 **Requires Obsidian OPEN** with the plugin + its MCP server enabled — that is the cost of the real-Obsidian path (Dataview, atomic patch by heading) over plain `Read`/`Write` on the markdown. If Obsidian is closed, the tools fail; fall back to reading the vault files directly on disk.
 
+### postman — @postman/postman-mcp-server
+
+MCP server for the **Postman API** (collections, environments, mocks, monitors, specs, workspaces), registered in `--full` mode — the whole API surface, not the default minimal tool set. Unlike context7/obsidian this one is **stdio**: Claude Code spawns it via `npx` per session, nothing is installed or listening. The key comes from `POSTMAN_API_KEY` in `~/.zshenv.local`, so a machine without it simply won't have these tools. Registered on mac/Linux only (same Windows lag as context7/obsidian).
+
+**Use it when the work touches the Postman workspace itself** — read a collection to see what a request actually sends, sync a spec, inspect an environment's variables. It talks to the *remote* Postman workspace, not to local files: an exported `.postman_collection.json` sitting in a repo is a plain file, read it with `Read`.
+
 ## Daily log (bitácora) in Obsidian
 
 The full how-to lives in the versioned **`bitacora` skill** (`claude/skills/bitacora/`, symlinked into `~/.claude/skills/` by the installer) — it self-activates on "bitácora" / "guarda resumen" and holds the format, path, and tagging. Off the always-loaded budget on purpose. The one thing a skill *can't* do is fire on a git event, so the trigger that belongs here: **after you land a `git commit` or open a PR, invoke the bitacora skill** to log what changed and why into that day's note.

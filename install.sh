@@ -102,6 +102,8 @@ if command -v brew >/dev/null 2>&1; then
     tmux
     lazygit
     rtk                   # token-reducing proxy CLI for Claude Code — see the rtk section below
+    node                  # base toolchain, not a lang runtime for projects (those live in Dockerfiles):
+                          # npm hosts Claude Code itself, and npx spawns the postman MCP server
   )
   REQUIRED_CASKS=(
     ghostty

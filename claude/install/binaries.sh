@@ -167,6 +167,50 @@ elif [[ -z "$OBSIDIAN_API_KEY" ]]; then
   echo "→ obsidian: skipped (no OBSIDIAN_API_KEY — add it to ~/.zshenv.local)"
 fi
 
+# ─── postman (Postman API MCP — collections, envs, specs) ─────
+# Same env-gated shape as context7/obsidian, but STDIO, not HTTP: there is no
+# endpoint to point at — Claude Code spawns `npx @postman/postman-mcp-server` per
+# session and talks to it over stdin/stdout. Nothing is installed here; npx
+# resolves the package on first run and caches it.
+# Doc: https://learning.postman.com/docs/reference/postman-api/postman-mcp-server/postman-mcp-local-server
+#
+# `--full` (vs the default minimal, or the intermediate `--code`) is the explicit
+# ask: the whole Postman API surface, not just the core tools.
+#
+# `-y` on npx is load-bearing for the same reason as `</dev/null` elsewhere: the
+# first run on a machine prompts "Ok to proceed? (y)" and an MCP server that
+# blocks on stdin never completes its handshake — it fails as a mute server, not
+# as an error. The prompt fires at CALL time (inside Claude Code), not here, so
+# no amount of stdin juggling in the installer would catch it.
+#
+# The key is per-machine, read from the ENVIRONMENT (~/.zshenv.local, gitignored)
+# — never the repo (PUBLIC). Guard/scope/idempotence logic identical to the two
+# blocks above: no key → clean skip; `--scope user` = all projects; a ROTATED key
+# needs `claude mcp remove postman -s user` before a re-run.
+#
+# --env bakes the key into ~/.claude.json (per-machine, not versioned) rather
+# than inheriting it from the shell: MCP servers are spawned by Claude Code,
+# which does not necessarily have ~/.zshenv.local's exports (GUI launch, IDE
+# extension). Same reason the two HTTP blocks store the key in the header.
+#
+# The `npx` guard is not redundant with `claude`: Claude Code also ships as a
+# native binary, so a machine can have the CLI and no node. Without it we would
+# register a server that only fails when INVOKED — the same "broken header"
+# failure mode the context7 comment warns about, just via a missing runtime.
+if command -v claude >/dev/null 2>&1 && command -v npx >/dev/null 2>&1 \
+    && [[ -n "$POSTMAN_API_KEY" ]]; then
+  if claude mcp get postman >/dev/null 2>&1; then
+    echo "✓ postman: already registered"
+  elif claude mcp add postman --scope user --env "POSTMAN_API_KEY=$POSTMAN_API_KEY" \
+      -- npx -y @postman/postman-mcp-server --full >/dev/null 2>&1 </dev/null; then
+    echo "✓ postman: MCP server registered (user scope, --full)"
+  else
+    echo "⚠️  postman registration failed — check by hand (claude mcp add ...)"
+  fi
+elif [[ -z "$POSTMAN_API_KEY" ]]; then
+  echo "→ postman: skipped (no POSTMAN_API_KEY — add it to ~/.zshenv.local)"
+fi
+
 # ── convergent cleanup: the line the binary puts in ~/.zshrc ──
 # The binary (src/cli/cli.c, cbm_detect_shell_rc) does its own
 # fopen(~/.zshrc, "a") and appends `export PATH=...` if it does not find an exact
