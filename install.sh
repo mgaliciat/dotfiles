@@ -34,6 +34,13 @@ if [[ -d "$DOTFILES/ghostty/themes" ]]; then
   mkdir -p "$HOME/.config/ghostty"
   link "$DOTFILES/ghostty/themes"       "$HOME/.config/ghostty/themes"
 fi
+# Custom shaders (custom-shader in config.ghostty). Same XDG-dir gotcha as
+# themes: Ghostty resolves the shader path against ~/.config/ghostty, not
+# Application Support. Symlink the whole dir so new .glsl files ride along.
+if [[ -d "$DOTFILES/ghostty/shaders" ]]; then
+  mkdir -p "$HOME/.config/ghostty"
+  link "$DOTFILES/ghostty/shaders"      "$HOME/.config/ghostty/shaders"
+fi
 link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
 link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
 link "$DOTFILES/tmux"                   "$HOME/.config/tmux"

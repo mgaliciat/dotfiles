@@ -20,7 +20,7 @@
 # the file is versioned, a `git pull` propagates the theme to the other
 # machines. To change the look: edit this line (and the equivalent lines
 # in nvim and tmux — they share the id) and commit. There's no switcher and no pointer.
-theme = gray
+theme = naysayer
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -77,7 +77,14 @@ window-colorspace = display-p3
 # At 1.1 because the active theme (solarized-osaka) is dark with
 # intentionally muted grays (solarized base01/base00) — full fidelity to the
 # theme. If you switch to a light theme from the family, raise it to 3.0.
-minimum-contrast = 3.0
+minimum-contrast = 1.1
+
+# ─── custom shader ────────────────────────────────────────────
+# GPU post-processing over the whole terminal. Lives in ghostty/shaders/
+# (symlinked to ~/.config/ghostty/shaders/ by install.sh — same XDG dir as
+# themes). Comment out to disable; Ghostty reloads on save. bettercrt =
+# CRT curvature + scanlines, no colour tint (rides on the active theme).
+custom-shader = ~/.config/ghostty/shaders/bettercrt.glsl
 
 # ─── typography ───────────────────────────────────────────────
 # No font-family = Ghostty's default (bundled JetBrains Mono NF).
