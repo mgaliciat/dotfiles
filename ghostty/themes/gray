@@ -1,0 +1,40 @@
+# gray — neutral gray bg + near-black ink. Mirror of nvim/lua/themes/gray.lua
+# and tmux/themes/gray.conf.
+# Light convention: the "brights" (8-15) are DARKER than the normals
+# (more saturation = more contrast over the gray background).
+#
+# WATCH OUT: on a gray/light bg consider raising `minimum-contrast` to 3.0 in
+# config.ghostty (rescues grays without distorting the brand coral).
+
+# background and text
+background = #b5b5b5
+foreground = #0e0e0e
+
+# cursor — Claude coral, high visibility over gray
+cursor-color = #d97757
+cursor-text  = #b5b5b5
+
+# selection — darker gray, black text stays readable
+selection-background = #969696
+selection-foreground = #0e0e0e
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# normals (0-7)
+palette = 0=#1a1a1a
+palette = 1=#a03028
+palette = 2=#3f6f2f
+palette = 3=#8a6a10
+palette = 4=#2f5a80
+palette = 5=#7a3f6a
+palette = 6=#2f6f6a
+palette = 7=#0e0e0e
+
+# brights (8-15): DARKER (light/gray theme)
+palette = 8=#4a4a4a
+palette = 9=#802015
+palette = 10=#2f5a20
+palette = 11=#6a5008
+palette = 12=#204560
+palette = 13=#5a2f50
+palette = 14=#1f5550
+palette = 15=#000000
