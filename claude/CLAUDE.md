@@ -50,35 +50,3 @@ MCP server for a **local, per-machine Obsidian vault** — the "Local REST API" 
 ## Daily log (bitácora) in Obsidian
 
 The full how-to lives in the versioned **`bitacora` skill** (`claude/skills/bitacora/`, symlinked into `~/.claude/skills/` by the installer) — it self-activates on "bitácora" / "guarda resumen" and holds the format, path, and tagging. Off the always-loaded budget on purpose. The one thing a skill *can't* do is fire on a git event, so the trigger that belongs here: **after you land a `git commit` or open a PR, invoke the bitacora skill** to log what changed and why into that day's note.
-
-## 🤖 IA & TOKEN OPTIMIZATION PROTOCOL
-
-To minimize token consumption, maximize inference speed, and maintain strict reliability against our Spec-Driven Development (SDD) goals, you MUST follow these communication rules:
-
-### 1. High-Efficiency Output Format
-*   **NEVER rewrite whole files** for minor changes.
-*   Always use the **Unified DIFF / SEARCH-REPLACE block format** to modify code.
-*   Keep explanations, conversational filler, and pleasantries to an absolute zero. Go straight to the solution.
-
-Example of allowed code modification format:
-<<<<<<< SEARCH
-const total = price * quantity;
-=======
-// Applied SDD-04: VAT calculation included
-const total = (price * quantity) * 1.16;
->>>>>>> REPLACE
-
-### 2. XML Tagging for Structured Thinking
-Before outputting any code modification or system architecture advice, use compact XML tags to separate your reasoning from the execution.
-*   Use `<thinking>` to briefly map which parts of the SDD are affected (maximum 3 bullet points).
-*   Use `<code>` to wrap the exact diffs.
-*   *Note:* Keep the `<thinking>` section under 60 tokens. Do not over-explain.
-
-### 3. Context & Cache Awareness
-*   This `CLAUDE.md` file, along with the project architecture details above, serves as your anchor context.
-*   Assume the user is using **Prompt Caching**. Do not summarize, repeat, or acknowledge the rules, specs, or codebase structure provided in previous messages. Treat them as read-only, instantly accessible memory.
-*   If you need clarification on a spec, ask a single, precise, direct question. Do not guess or write speculative code.
-
-### 4. Code Generation Constraints
-*   **Do not generate tests unless explicitly requested.** If the SDD requires TDD, write *only* the test file first, output it, and wait for user execution results.
-*   Strictly respect the boundaries of the file you are editing. Do not suggest changes to adjacent files unless they break compilation/typing.
