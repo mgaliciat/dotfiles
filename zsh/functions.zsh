@@ -142,38 +142,43 @@ if [[ -o interactive ]]; then
   bindkey '^F' _fzf_cd_widget
 fi
 
-# ─── claude-rappi ─────────────────────────────────────────────
-# Toggle the `env` block of ~/.claude/settings.json on/off.
-#   claude-rappi off → stash `.env` to a sidecar file, then strip it.
-#   claude-rappi on  → restore `.env` from the sidecar, verbatim.
-# `off` only stashes when an env block is actually present, so running it
-# twice never clobbers the stash with an empty one — credentials survive a
-# double-off. settings.json is a real file (never symlinked), so mv is safe
-# here (unlike ~/.zshrc). Requires jq (installed by the dotfiles installers).
-claude-rappi() {
-  local settings="$HOME/.claude/settings.json" stash="$HOME/.claude/.env-rappi.json"
-  case "$1" in
-    off)
-      if [[ "$(jq 'has("env")' "$settings")" == "true" ]]; then
-        jq '.env' "$settings" > "$stash"
-        jq 'del(.env)' "$settings" > "$settings.tmp" && mv "$settings.tmp" "$settings"
-        echo "claude-rappi: env block removed (stashed → $stash)"
+# ─── claude-config ─────────────────────────────────────────────
+# Stash/restore a top-level block of ~/.claude/settings.json by name.
+#   claude-config remove <block>  → stash `.<block>` to a sidecar, then strip it.
+#   claude-config restore <block> → restore `.<block>` from the sidecar, verbatim.
+# `remove` only stashes when the block is actually present, so running it twice
+# never clobbers the stash with an empty one — the block survives a double-remove.
+# settings.json is a real file (never symlinked), so mv is safe here (unlike
+# ~/.zshrc). Requires jq (installed by the dotfiles installers).
+claude-config() {
+  local settings="$HOME/.claude/settings.json" action="$1" block="$2"
+  if [[ -z "$block" ]]; then
+    echo "usage: claude-config remove|restore <block>" >&2
+    return 1
+  fi
+  local stash="$HOME/.claude/.${block}-stash.json"
+  case "$action" in
+    remove)
+      if [[ "$(jq --arg b "$block" 'has($b)' "$settings")" == "true" ]]; then
+        jq --arg b "$block" '.[$b]' "$settings" > "$stash"
+        jq --arg b "$block" 'del(.[$b])' "$settings" > "$settings.tmp" && mv "$settings.tmp" "$settings"
+        echo "claude-config: $block block removed (stashed → $stash)"
       else
-        echo "claude-rappi: already off (no env block)"
+        echo "claude-config: already removed (no $block block)"
       fi
       ;;
-    on)
+    restore)
       if [[ -f "$stash" ]]; then
-        jq --slurpfile e "$stash" '.env = $e[0]' "$settings" > "$settings.tmp" \
+        jq --arg b "$block" --slurpfile e "$stash" '.[$b] = $e[0]' "$settings" > "$settings.tmp" \
           && mv "$settings.tmp" "$settings"
-        echo "claude-rappi: env block restored"
+        echo "claude-config: $block block restored"
       else
-        echo "claude-rappi: nothing to restore ($stash missing)" >&2
+        echo "claude-config: nothing to restore ($stash missing)" >&2
         return 1
       fi
       ;;
     *)
-      echo "usage: claude-rappi on|off" >&2
+      echo "usage: claude-config remove|restore <block>" >&2
       return 1
       ;;
   esac
