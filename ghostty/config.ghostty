@@ -102,12 +102,11 @@ adjust-cell-height = 3%
 # tab bar) · native (standard macOS look) · hidden (no titlebar).
 macos-titlebar-style = tabs
 
-# craftzdog's "glass" look: the same values as his dotfiles-public
-# (background-opacity 0.9 + blur radius 20) — the wallpaper shows up
-# blurred behind the deep ocean. To go back to solid mode
-# (100% readable background): opacity 1.0 + blur 0.
-background-opacity = 0.9
-background-blur = 20
+# Solid, opaque background — no wallpaper bleed-through. craftzdog's "glass"
+# look was opacity 0.9 + blur 20 (the wallpaper showing blurred behind the
+# deep ocean); to bring it back, set those two values.
+background-opacity = 1.0
+background-blur = 0
 
 # breathe sideways — generous padding so that Claude Code's dense
 # output (tool calls, diffs, trees) doesn't feel cramped.
