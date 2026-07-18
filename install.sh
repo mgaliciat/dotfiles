@@ -108,12 +108,14 @@ if command -v brew >/dev/null 2>&1; then
     # Fonts referenced by ghostty/config.ghostty.
     # Maple Mono NF = primary (rounded, ligatures, cursive italics, icons
     # built in) — the one set as font-family. PlemolJP Console NF (bilingual
-    # JP/EN), iA Writer Mono and Monaspace stay installed as glyph-coverage
+    # JP/EN), Monaspace NF and iA Writer Mono stay installed as glyph-coverage
     # fallback (Ghostty falls back to them + bundled JBM NF automatically).
+    # Monaspace is the `-nf` (Nerd Font) build, not the plain cask, so it
+    # ships its own icons instead of leaning on the JBM NF fallback.
     font-maple-mono-nf
     font-plemol-jp-nf
+    font-monaspace-nf
     font-ia-writer-mono
-    font-monaspace
   )
 
   MISSING_FORMULAE=()
