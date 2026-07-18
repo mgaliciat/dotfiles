@@ -106,9 +106,11 @@ if command -v brew >/dev/null 2>&1; then
   REQUIRED_CASKS=(
     ghostty
     # Fonts referenced by ghostty/config.ghostty.
-    # PlemolJP Console NF = primary (craftzdog style, bilingual JP/EN with
-    # Nerd Font built in). iA Writer Mono and Monaspace stay as the fallback
-    # chain. Ioskeley was dropped because PlemolJP NF already ships icons.
+    # Maple Mono NF = primary (rounded, ligatures, cursive italics, icons
+    # built in) — the one set as font-family. PlemolJP Console NF (bilingual
+    # JP/EN), iA Writer Mono and Monaspace stay installed as glyph-coverage
+    # fallback (Ghostty falls back to them + bundled JBM NF automatically).
+    font-maple-mono-nf
     font-plemol-jp-nf
     font-ia-writer-mono
     font-monaspace

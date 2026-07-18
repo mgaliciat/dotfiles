@@ -33,6 +33,12 @@ export PYENV_ROOT="$HOME/.pyenv"
 # bat — uses the terminal's colors (Anthropic Warm) instead of its own theme.
 export BAT_THEME="ansi"
 
+# man pages through bat — syntax-highlighted, line numbers off. `col -bx`
+# strips the backspace-overstrike bold/underline that groff emits (bat would
+# render it as literal ^H garbage otherwise). command -v guard: on a box
+# without bat (e.g. WSL2 without a full install) we leave man's default pager.
+command -v bat >/dev/null && export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+
 # Default editor — nvim for everything that respects $EDITOR/$VISUAL:
 # `edit-command-line` (Alt+e at the prompt), `crontab -e`, `less` (v key).
 # git uses its own core.editor, so this does NOT override it.
