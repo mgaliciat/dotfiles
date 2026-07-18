@@ -6,13 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Personal dotfiles, primarily for macOS (Ghostty + Homebrew), with a portable subset that works on Linux/WSL2 (zsh, Starship, nvim, tmux, lazygit, git). The repo holds the **portable / shared layer**; anything per-machine (identity, secrets, settings that diverge across machines) is intentionally not versioned. Understand this split before suggesting changes — the wrong "improvement" can leak personal state into a public repo.
 
-Native Windows (no WSL2 — `install-linux.sh` already covers that) has a fourth entry point, `install-windows.ps1`, with **deliberately narrow scope**: zsh/tmux/nvim don't run natively there, so it is NOT a port of the rest of the stack — it only covers the Claude Code pieces. Don't expect feature parity with `install.sh` / `install-linux.sh`.
+Native Windows (no WSL2 — `install-linux.sh` already covers that) has a fourth entry point, `install-windows.ps1`, with **deliberately narrow scope**: zsh/tmux/nvim don't run natively there, so it is NOT a port of the rest of the stack — it covers the Claude Code pieces plus **Nerd Fonts** (the one stack layer that *does* exist on Windows: Windows Terminal). Don't expect feature parity with `install.sh` / `install-linux.sh`.
 
 ## Commands
 
 - `./install.sh` — macOS entry point. Idempotent: backs up existing files (`.backup.<timestamp>`) before symlinking. Re-run after `git pull`. Auto-installs Homebrew deps + casks (fonts included), registers VS Code as the default app for `.ghostty` files.
 - `./install-linux.sh` — Ubuntu/Debian/WSL2 entry point. Same symlinks (portable subset — skips ghostty and its themes) + apt for what it has + cargo for what it doesn't (starship, zoxide, delta, tree-sitter, eza). Detects WSL2 and prints specific hints.
-- `./install-windows.ps1` — native Windows entry point. Narrow scope: only the Claude Code pieces. Needs Developer Mode enabled for symlinks (falls back to copying the file).
+- `./install-windows.ps1` — native Windows entry point. Narrow scope: the Claude Code pieces + Nerd Fonts for Windows Terminal (Maple + Monaspace via scoop, PlemolJP by direct download). Needs Developer Mode enabled for symlinks (falls back to copying the file).
 - `exec zsh` — reload the shell after editing `zsh/` files. Ghostty reloads its own config on save; Starship reads `~/.config/starship.toml` on every prompt render.
 
 There is no test suite, lint, or build. Changes are validated by running them.
