@@ -10,6 +10,9 @@
 #   - rtk (no official installer for Windows — we download the release zip)
 #   - codebase-memory-mcp (official install.ps1 installer)
 #   - marketplace plugins (ponytail, andrej-karpathy-skills)
+#   - Nerd Fonts via scoop (the ONE stack layer that DOES exist on Windows:
+#     Windows Terminal, unlike zsh/tmux/nvim — so the fonts install.sh puts on
+#     the Mac are useful here too. Best-effort, guarded on scoop being present.)
 #
 # Those four bullets are the three mechanisms of claude/install/ (settings.sh /
 # binaries.sh / plugins.sh) replicated by hand: PowerShell cannot source the bash
@@ -243,8 +246,38 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
     Write-Host "i   claude not detected in PATH -- skipping plugins"
 }
 
+# ─── Nerd Fonts via scoop ───────────────────────────────────────
+# The subset of install.sh's REQUIRED_CASKS that (a) is an actual Nerd Font and
+# (b) exists in scoop's `nerd-fonts` bucket: Maple Mono NF (the primary, the one
+# ghostty sets as font-family) and Monaspace NF. Skipped from the Mac list:
+# PlemolJP NF (not in the bucket) and iA Writer Mono (not a Nerd Font). Manifest
+# names verified against the bucket, not guessed — a typo would 404, not silently
+# fall back.
+#
+# Guarded on scoop, NOT auto-installed: scoop's own installer refuses to run
+# under an elevated shell, and this script may be running as Administrator (for
+# the symlinks). Installing it here would break exactly when symlinks needed
+# admin. If scoop is missing we print the one-liner and skip — best-effort, same
+# tone as the rest of the script. scoop itself is idempotent (re-runs say
+# "already installed"), so no guard around the install call.
+if (Get-Command scoop -ErrorAction SilentlyContinue) {
+    Write-Host ""
+    Write-Host "-> Installing Nerd Fonts via scoop"
+    scoop bucket add nerd-fonts 2>&1 | Out-Null   # idempotent: "already added" if present
+    scoop install nerd-fonts/Maple-Mono-NF nerd-fonts/Monaspace-NF
+    Write-Host "OK  Nerd Fonts installed (or already there)"
+    Write-Host "    Set one in Windows Terminal: Settings > profile > Appearance > Font face"
+    Write-Host "    Family names: 'Maple Mono NF', 'Monaspace ... NF' (check the exact"
+    Write-Host "    name in the font viewer -- Nerd Fonts sometimes rename, e.g. MonaspiceNe)"
+} else {
+    Write-Host "i   scoop not found -- skipping Nerd Fonts. To get them, install scoop"
+    Write-Host "    (https://scoop.sh) in a NON-admin shell, then re-run this script:"
+    Write-Host "      Set-ExecutionPolicy -Scope CurrentUser RemoteSigned; irm get.scoop.sh | iex"
+}
+
 Write-Host ""
 Write-Host "Done. Next steps:"
 Write-Host "  1. Restart the terminal so the new PATH takes effect."
 Write-Host "  2. Restart Claude Code."
 Write-Host "  3. If the symlinks failed: enable Developer Mode and re-run this script."
+Write-Host "  4. Fonts: set 'Maple Mono NF' in Windows Terminal (Appearance > Font face)."
