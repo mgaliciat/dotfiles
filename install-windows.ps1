@@ -10,9 +10,10 @@
 #   - rtk (no official installer for Windows — we download the release zip)
 #   - codebase-memory-mcp (official install.ps1 installer)
 #   - marketplace plugins (ponytail, andrej-karpathy-skills)
-#   - Nerd Fonts via scoop (the ONE stack layer that DOES exist on Windows:
-#     Windows Terminal, unlike zsh/tmux/nvim — so the fonts install.sh puts on
-#     the Mac are useful here too. Best-effort, guarded on scoop being present.)
+#   - Nerd Fonts (the ONE stack layer that DOES exist on Windows: Windows
+#     Terminal, unlike zsh/tmux/nvim — so the fonts install.sh puts on the Mac
+#     are useful here too). Maple + Monaspace via scoop; PlemolJP by direct
+#     download (not in any scoop bucket). Best-effort, both guarded/try-catch.
 #
 # Those four bullets are the three mechanisms of claude/install/ (settings.sh /
 # binaries.sh / plugins.sh) replicated by hand: PowerShell cannot source the bash
@@ -249,10 +250,11 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
 # ─── Nerd Fonts via scoop ───────────────────────────────────────
 # The subset of install.sh's REQUIRED_CASKS that (a) is an actual Nerd Font and
 # (b) exists in scoop's `nerd-fonts` bucket: Maple Mono NF (the primary, the one
-# ghostty sets as font-family) and Monaspace NF. Skipped from the Mac list:
-# PlemolJP NF (not in the bucket) and iA Writer Mono (not a Nerd Font). Manifest
-# names verified against the bucket, not guessed — a typo would 404, not silently
-# fall back.
+# ghostty sets as font-family) and Monaspace NF. Manifest names verified against
+# the bucket, not guessed — a typo would 404, not silently fall back. PlemolJP NF
+# is NOT in the bucket (it self-patches, it is not one of ryanoasis's fonts), so
+# it is installed separately below by direct download. iA Writer Mono is dropped
+# entirely — it is not a Nerd Font.
 #
 # Guarded on scoop, NOT auto-installed: scoop's own installer refuses to run
 # under an elevated shell, and this script may be running as Administrator (for
@@ -275,9 +277,52 @@ if (Get-Command scoop -ErrorAction SilentlyContinue) {
     Write-Host "      Set-ExecutionPolicy -Scope CurrentUser RemoteSigned; irm get.scoop.sh | iex"
 }
 
+# ─── PlemolJP NF (font, not in scoop) ───────────────────────────
+# PlemolJP self-patches its Nerd Font build, so it is absent from scoop's
+# nerd-fonts bucket. We install it the rtk way: download the official release
+# zip and register the .ttf per-user under %LOCALAPPDATA% (no admin needed,
+# unlike copying into the system Fonts dir). Independent of scoop — runs either
+# way. Best-effort: on any failure we print the manual link and continue.
+#
+# The asset name embeds the version (PlemolJP_NF_vX.Y.Z.zip), so — unlike rtk's
+# fixed asset name — we cannot use latest/download/<fixed-name>; we ask the API
+# for the latest asset matching the pattern. The registry VALUE name is just a
+# label; the family name Windows Terminal shows comes from the font's own name
+# table, so the file basename as label is fine.
+$PlemolZip = $null; $PlemolDst = $null
+try {
+    Write-Host ""
+    Write-Host "-> Installing PlemolJP NF font (direct download)"
+    $rel = Invoke-RestMethod "https://api.github.com/repos/yuru7/PlemolJP/releases/latest" -Headers @{ "User-Agent" = "dotfiles" }
+    $asset = $rel.assets | Where-Object { $_.name -match '^PlemolJP_NF_.*\.zip$' } | Select-Object -First 1
+    if (-not $asset) { throw "no PlemolJP_NF asset in the latest release" }
+    $PlemolZip = Join-Path $env:TEMP $asset.name
+    $PlemolDst = Join-Path $env:TEMP "PlemolJP_NF"
+    Invoke-WebRequest $asset.browser_download_url -OutFile $PlemolZip
+    Expand-Archive $PlemolZip -DestinationPath $PlemolDst -Force
+
+    $FontsDir = Join-Path $env:LOCALAPPDATA "Microsoft\Windows\Fonts"
+    New-Item -ItemType Directory -Path $FontsDir -Force | Out-Null
+    $RegKey = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Fonts"
+    Get-ChildItem $PlemolDst -Recurse -Include *.ttf, *.otf | ForEach-Object {
+        $target = Join-Path $FontsDir $_.Name
+        Copy-Item $_.FullName $target -Force
+        $title = [System.IO.Path]::GetFileNameWithoutExtension($_.Name)
+        New-ItemProperty -Path $RegKey -Name "$title (TrueType)" -Value $target -PropertyType String -Force | Out-Null
+    }
+    Write-Host "OK  PlemolJP NF installed per-user ($FontsDir)"
+} catch {
+    Write-Host "!!  PlemolJP NF install failed: $_" -ForegroundColor Yellow
+    Write-Host "    Get it by hand: https://github.com/yuru7/PlemolJP/releases" -ForegroundColor Yellow
+} finally {
+    if ($PlemolZip) { Remove-Item $PlemolZip -Force -ErrorAction SilentlyContinue }
+    if ($PlemolDst) { Remove-Item $PlemolDst -Recurse -Force -ErrorAction SilentlyContinue }
+}
+
 Write-Host ""
 Write-Host "Done. Next steps:"
 Write-Host "  1. Restart the terminal so the new PATH takes effect."
 Write-Host "  2. Restart Claude Code."
 Write-Host "  3. If the symlinks failed: enable Developer Mode and re-run this script."
 Write-Host "  4. Fonts: set 'Maple Mono NF' in Windows Terminal (Appearance > Font face)."
+Write-Host "     PlemolJP appears as 'PlemolJP Console NF' / 'PlemolJP NF'."
