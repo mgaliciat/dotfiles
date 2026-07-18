@@ -183,3 +183,28 @@ claude-config() {
       ;;
   esac
 }
+
+# ─── refresh: reload tmux config + the shell env ──────────────
+# One command for "I edited a dotfile and want it live now" without
+# remembering which layer to poke. Two independent reloads:
+#   1. tmux config (only if inside tmux) — `source-file` re-reads
+#      tmux.conf so new binds / options apply. Reopening Ghostty does
+#      NOT do this: the tmux server survives the emulator, keeping the
+#      old config loaded. This is the reload people forget.
+#   2. the shell — `exec zsh` replaces the process with a fresh one
+#      that re-sources .zshenv (PATH, env vars like MANPAGER) AND
+#      .zshrc (aliases, functions, plugins) from scratch. Cleaner than
+#      `source ~/.zshrc`, which skips .zshenv and duplicates PATH.
+# tmux reload runs FIRST because `exec` never returns (it replaces the
+# shell, so anything after it would never run).
+# Caveat: this reloads CONFIG, not already-running processes. A stale
+# `caffeinate`/daemon launched before the change still needs its own
+# restart — a shell refresh won't touch it.
+refresh() {
+  if [ -n "$TMUX" ]; then
+    tmux source-file "${XDG_CONFIG_HOME:-$HOME/.config}/tmux/tmux.conf" \
+      && echo "tmux config reloaded"
+  fi
+  echo "reloading shell…"
+  exec zsh
+}
