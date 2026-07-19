@@ -111,7 +111,7 @@ fi
 # Idempotence is ours: `claude mcp add` errors out if the name already exists.
 # Guarding on absence also means a ROTATED key is not picked up by a re-run —
 # for that, `claude mcp remove context7 -s user` first, then re-run install.sh.
-if command -v claude >/dev/null 2>&1 && [[ -n "$CONTEXT7_API_KEY" ]]; then
+if command -v claude >/dev/null 2>&1 && [[ -n "${CONTEXT7_API_KEY:-}" ]]; then
   if claude mcp get context7 >/dev/null 2>&1; then
     echo "✓ context7: already registered"
   elif claude mcp add --transport http context7 https://mcp.context7.com/mcp \
@@ -120,7 +120,7 @@ if command -v claude >/dev/null 2>&1 && [[ -n "$CONTEXT7_API_KEY" ]]; then
   else
     echo "⚠️  context7 registration failed — check by hand (claude mcp add ...)"
   fi
-elif [[ -z "$CONTEXT7_API_KEY" ]]; then
+elif [[ -z "${CONTEXT7_API_KEY:-}" ]]; then
   echo "→ context7: skipped (no CONTEXT7_API_KEY — add it to ~/.zshenv.local)"
 fi
 
@@ -150,7 +150,7 @@ fi
 # succeeds even with Obsidian closed. But the tools only WORK when Obsidian is
 # open with the plugin + its MCP server enabled — that is the runtime cost of the
 # "real Obsidian" path (Dataview, atomic patch by heading) vs plain filesystem.
-if command -v claude >/dev/null 2>&1 && [[ -n "$OBSIDIAN_API_KEY" ]]; then
+if command -v claude >/dev/null 2>&1 && [[ -n "${OBSIDIAN_API_KEY:-}" ]]; then
   # Strip a leading "Bearer " if present: the plugin's "copy" button hands you
   # `Bearer <hex>`, and pasting that verbatim into the env var yields a doubled
   # `Authorization: Bearer Bearer <hex>` → silent 401. The key is the bare hex.
@@ -163,7 +163,7 @@ if command -v claude >/dev/null 2>&1 && [[ -n "$OBSIDIAN_API_KEY" ]]; then
   else
     echo "⚠️  obsidian registration failed — check by hand (claude mcp add ...)"
   fi
-elif [[ -z "$OBSIDIAN_API_KEY" ]]; then
+elif [[ -z "${OBSIDIAN_API_KEY:-}" ]]; then
   echo "→ obsidian: skipped (no OBSIDIAN_API_KEY — add it to ~/.zshenv.local)"
 fi
 
