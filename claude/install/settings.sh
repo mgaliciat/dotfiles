@@ -32,7 +32,22 @@ link "$DOTFILES/claude/skills/bitacora" "$HOME/.claude/skills/bitacora"
 # `wiki` = synthesis layer OVER the bitácora: ingests Bitacora/ into cross-linked
 # Wiki/ pages, queries them, lints for rot. Same obsidian-MCP dependency, so same
 # mac/Linux reach. The per-vault taxonomy lives in the vault's Wiki/CLAUDE.md
-# (per-machine, not versioned) — the skill is the engine, that file is the config.
+# (per-machine, not versioned) — the plugin is the engine, that file is the config.
+#
+# NOTE: `wiki` is a skills-dir PLUGIN, not a plain skill — the dir holds a
+# `.claude-plugin/plugin.json` (skills: ./skills/) so Claude Code auto-loads it as
+# `wiki@skills-dir`, bundling three sub-skills that invoke as `/wiki-ingest`,
+# `/wiki-query`, `/wiki-lint`. The grouping prefix is baked into each SKILL's
+# `name:` (wiki-ingest, …), NOT a colon — slash commands invoke by the skill's own
+# name, so `/wiki-ingest` (exactly how ponytail exposes `/ponytail-audit`). The
+# `wiki:` you see in listings is only a display label, not the invocation.
+# It still installs by THIS symlink alone — a skills-dir plugin is referenced in
+# place, so a `git pull` propagates edits with no marketplace and no copy into
+# ~/.claude/plugins/cache (unlike mechanism 3 in plugins.sh). That's why nothing
+# here changed vs when it was a plain skill, and why plugins.sh has no `wiki`
+# entry. The plugin's value now is packaging: one dir, one symlink, and the three
+# skills share one ENGINE.md at the root (each SKILL.md reads it first) to keep the
+# OKF spec single-source. `bitacora` stays a plain skill (no plugin.json) beside it.
 link "$DOTFILES/claude/skills/wiki" "$HOME/.claude/skills/wiki"
 
 # settings.json itself is NOT symlinked: it's 100% per-machine (like
