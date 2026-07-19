@@ -105,6 +105,7 @@ if command -v brew >/dev/null 2>&1; then
   )
   REQUIRED_CASKS=(
     ghostty
+    1password-cli         # `op` — a cask on Homebrew, not a formula (lives in Caskroom)
     # Fonts referenced by ghostty/config.ghostty.
     # Maple Mono NF = primary (rounded, ligatures, cursive italics, icons
     # built in) — the one set as font-family. PlemolJP Console NF (bilingual
