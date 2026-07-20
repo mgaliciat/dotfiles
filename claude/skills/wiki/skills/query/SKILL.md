@@ -1,6 +1,6 @@
 ---
-name: wiki-query
-description: Answer a question from the Obsidian wiki without re-deriving from scratch, filing any new knowledge worth keeping. Use when the user says "query wiki", "pregunta a la wiki", "/wiki-query", or asks a question meant to be answered from the wiki.
+name: query
+description: Answer a question from the Obsidian wiki without re-deriving from scratch, filing any new knowledge worth keeping. Use when the user says "query wiki", "pregunta a la wiki", "/wiki:query", or asks a question meant to be answered from the wiki.
 ---
 
 # wiki · query

@@ -1,6 +1,6 @@
 ---
-name: wiki-lint
-description: Health-check the Obsidian wiki for rot — missing frontmatter, contradictions, orphans, stale claims, missing cross-refs, gaps. Report, don't fix without confirming. Use when the user says "lint wiki", "/wiki-lint", or asks to check the wiki for rot.
+name: lint
+description: Health-check the Obsidian wiki for rot — missing frontmatter, contradictions, orphans, stale claims, missing cross-refs, gaps. Report, don't fix without confirming. Use when the user says "lint wiki", "/wiki:lint", or asks to check the wiki for rot.
 ---
 
 # wiki · lint

@@ -36,11 +36,12 @@ link "$DOTFILES/claude/skills/bitacora" "$HOME/.claude/skills/bitacora"
 #
 # NOTE: `wiki` is a skills-dir PLUGIN, not a plain skill — the dir holds a
 # `.claude-plugin/plugin.json` (skills: ./skills/) so Claude Code auto-loads it as
-# `wiki@skills-dir`, bundling three sub-skills that invoke as `/wiki-ingest`,
-# `/wiki-query`, `/wiki-lint`. The grouping prefix is baked into each SKILL's
-# `name:` (wiki-ingest, …), NOT a colon — slash commands invoke by the skill's own
-# name, so `/wiki-ingest` (exactly how ponytail exposes `/ponytail-audit`). The
-# `wiki:` you see in listings is only a display label, not the invocation.
+# `wiki@skills-dir`, bundling three sub-skills that invoke as `/wiki:ingest`,
+# `/wiki:query`, `/wiki:lint`. Plugin skills are ALWAYS namespaced with a colon:
+# invocation is `/<plugin>:<folder>` (folder = skill name, `wiki` = plugin `name:`
+# from plugin.json). So the folders are the bare verbs (ingest, …) and you type
+# the real colon form `/wiki:lint` — the `:` is a typeable invocation, not just a
+# display label. Naming the folder `wiki-lint` is what made it `/wiki:wiki-lint`.
 # It still installs by THIS symlink alone — a skills-dir plugin is referenced in
 # place, so a `git pull` propagates edits with no marketplace and no copy into
 # ~/.claude/plugins/cache (unlike mechanism 3 in plugins.sh). That's why nothing

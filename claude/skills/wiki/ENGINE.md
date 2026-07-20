@@ -1,12 +1,12 @@
 # LLM wiki (Obsidian) — engine
 
-Shared spec for the `wiki` plugin's three skills (`/wiki-ingest`, `/wiki-query`,
-`/wiki-lint`). **Each of those skills reads this file first**, then runs its
+Shared spec for the `wiki` plugin's three skills (`/wiki:ingest`, `/wiki:query`,
+`/wiki:lint`). **Each of those skills reads this file first**, then runs its
 workflow. Everything common — the layers, the OKF frontmatter, the link rule, the
 `log.md` format, the bootstrap — lives here once; the skills hold only their own
 steps.
 
-The `bitacora` skill captures work as immutable daily notes, but capture is
+The `bitacora` skill captures work as immutable per-invocation notes, but capture is
 write-only: notes pile up, they never come back synthesized. This plugin is the
 read/synthesis layer on top. Raw stays messy on purpose; the wiki is the ordered
 layer, and the agent — not the human — keeps it ordered.
@@ -23,7 +23,7 @@ files following their structure. Everything else is soft guidance.
 
 ## The three layers
 
-- **Raw (`Bitacora/*`)** — immutable. The daily notes `bitacora` writes. Read, never edit or move.
+- **Raw (`Bitacora/*`)** — immutable. The per-invocation notes `bitacora` writes (one file per invocation, `YYYY-MM-DD-HHMM-<repo>.md`). Read, never edit or move.
 - **Wiki (`Wiki/<topic>.md`)** — synthesized "concept" pages (OKF term): one per service, concept, decision, entity. Each carries OKF frontmatter (below). The agent writes here.
 - **Schema (`Wiki/CLAUDE.md`)** — this vault's conventions and taxonomy. **Read it first** every run; it governs naming, categories, and tag rules. If it's missing, bootstrap it (see below) before doing anything else.
 
@@ -78,7 +78,7 @@ label, so they're conformant.
 # Directory Update Log
 
 ## 2026-07-19
-* **Ingest**: Bitacora 2026-07-10..07-18 -> updated [[servicio-pagos]], created [[gateway-x]]
+* **Ingest**: Bitacora 2026-07-10-0900..2026-07-18-1720 -> updated [[servicio-pagos]], created [[gateway-x]]
 * **Lint**: 1 orphan ([[foo]]), 2 missing cross-refs
 
 ## 2026-07-11
@@ -87,8 +87,14 @@ label, so they're conformant.
 
 The **Ingest** bullet's source range is **load-bearing**: it's the processed
 watermark (replaces Karpathy's `/raw/processed` move, keeping the bitácora
-immutable). "Since the last ingest" = find the most recent `**Ingest**` bullet's
-range. Order-agnostic, but newest-first (§7) puts it at the top.
+immutable). "Since the last ingest" = every `Bitacora/` note whose timestamp is
+**≥** the most recent `**Ingest**` bullet's end (inclusive boundary). Because each
+note is one immutable file per invocation (`YYYY-MM-DD-HHMM-<repo>`, sorts
+chronologically), a note that appears after an ingest is always a *new* file with a
+later timestamp — never an edit to one already read — so nothing falls in the crack
+the old one-file-per-day model had (a late append to an already-processed day).
+Re-reading the boundary minute is a safe no-op: page writes integrate facts, never
+duplicate. Order-agnostic, but newest-first (§7) puts it at the top.
 
 ## Language
 
@@ -113,7 +119,7 @@ Every page starts with YAML frontmatter. `type` is required (open set below);
 
 ## Conventions
 - One page = one concept. Kebab-case filenames: `Wiki/servicio-pagos.md`.
-- Cross-link with `[[wikilinks]]` — NOT OKF's `/path.md` links (would break Obsidian backlinks/Dataview/MCP). Also link `[[YYYY-MM-DD]]` back to the source daily note.
+- Cross-link with `[[wikilinks]]` — NOT OKF's `/path.md` links (would break Obsidian backlinks/Dataview/MCP). Also link `[[YYYY-MM-DD-HHMM-<repo>]]` back to the source per-invocation note(s).
 - External sources go under a `# Citations` section; keep the `#repo/<name>` tag (and mirror it into frontmatter `tags`).
 - Dense and short: a 500-word synthesized page beats dumping the raw note. Synthesize the *why*.
 
