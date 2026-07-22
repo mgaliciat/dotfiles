@@ -108,10 +108,10 @@ adjust-cell-height = 3%
 # tab bar) · native (standard macOS look) · hidden (no titlebar).
 macos-titlebar-style = tabs
 
-# craftzdog's "glass" look — the wallpaper shows blurred behind the deep
-# ocean. Set opacity to 1.0 + blur 0 for a solid, opaque background.
-background-opacity = 0.9
-background-blur = 20
+# Solid, opaque background. For craftzdog's "glass" look (wallpaper blurred
+# behind the deep ocean) set opacity 0.9 + blur 20.
+background-opacity = 1.0
+background-blur = 0
 
 # breathe sideways — generous padding so that Claude Code's dense
 # output (tool calls, diffs, trees) doesn't feel cramped.
