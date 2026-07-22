@@ -80,14 +80,14 @@ window-colorspace = display-p3
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
-# PlemolJP Console NF — primary (JP-friendly, ligatures, icons built in).
-# Exact CoreText family name, verified with the font's name table — a typo
-# here falls back silently to the bundled JetBrains Mono NF. Ghostty
-# auto-falls back to the bundled JBM NF and system fonts for any glyph
-# PlemolJP lacks, so Maple / iA Writer / Monaspace stay installed as
-# coverage without needing an explicit chain here.
-font-family = "PlemolJP Console NF"
-font-size = 15
+# Maple Mono NF — primary (rounded, ligatures, cursive italics, icons built
+# in). Exact CoreText family name, verified with the font's name table — a
+# typo here falls back silently to the bundled JetBrains Mono NF (the drift
+# this line fixes). Ghostty auto-falls back to the bundled JBM NF and system
+# fonts for any glyph Maple lacks, so PlemolJP / iA Writer / Monaspace stay
+# installed as coverage without needing an explicit chain here.
+font-family = "Maple Mono NF"
+font-size = 13
 
 # Standard ligatures — iA Writer isn't texture-healing but it supports
 # +liga for the common operators (=>, !=, >=, etc.).
