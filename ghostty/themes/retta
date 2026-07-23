@@ -1,0 +1,52 @@
+# retta — high contrast, port of the Eclipse "Retta" color theme (by Eric,
+# eclipsecolorthemes.org id=1004; site is dead, hex recovered from the
+# eclipse-color-theme mirror on GitHub: themes/retta.xml).
+# Philosophy: "pumpkin spice" — true black #000 + a tight warm spectrum
+# (cream fg, pumpkin/orange keywords, sand yellow strings). The only cool
+# colors are the muted green (#527D5D) and the blue-gray (#A4B0C0) Retta used
+# for interfaces/methods. No neon, no invented hex outside the source XML
+# except the derived brights/cyan (Retta has no cyan; derived on-palette).
+#
+# Ghostty-ONLY for now — outside the cross-stack matrix (like `obsidian` in
+# nvim). To promote it to the family, mirror this palette into
+# nvim/lua/themes/retta.lua + tmux/themes/retta.conf first.
+
+# background and text — Retta's editor bg/fg verbatim. Cream over true black
+# is the high-contrast core of the theme (~15:1).
+background = #000000
+foreground = #f8e1aa
+
+# cursor — Retta's keyword orange, the loudest color in the source palette.
+cursor-color = #e79e3c
+cursor-text  = #000000
+
+# selection — verbatim from the XML (selectionBackground/selectionForeground).
+selection-background = #527d5d
+selection-foreground = #f8e1aa
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# normals (0-7): straight from the XML where a slot exists.
+#   0 = currentLine gray, 1 = class/field red-orange, 2 = interface/enum green,
+#   3 = keyword pumpkin, 4 = method blue-gray, 5 = typeArgument rose,
+#   6 = derived teal (green↔blue-gray midpoint), 7 = foreground cream.
+palette = 0=#2a2a2a
+palette = 1=#de6546
+palette = 2=#527d5d
+palette = 3=#e79e3c
+palette = 4=#a4b0c0
+palette = 5=#bfa4a4
+palette = 6=#6f9e94
+palette = 7=#f8e1aa
+
+# brights (8-15): 8 is Retta's comment gray #83786e — readable over #000 and
+# exactly what bright-black is used for (comments, ls dimming). 11 is the
+# string/number yellow #d6c248 (lighter than the pumpkin normal, so the
+# normal→bright lift stays monotonic). The rest are +luminance lifts.
+palette = 8=#83786e
+palette = 9=#e8836b
+palette = 10=#6ea27e
+palette = 11=#d6c248
+palette = 12=#c2cbd8
+palette = 13=#d8c0c0
+palette = 14=#8fbcb2
+palette = 15=#fff6dc
