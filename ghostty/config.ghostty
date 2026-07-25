@@ -87,7 +87,7 @@ minimum-contrast = 1.1
 # fonts for any glyph Maple lacks, so PlemolJP / iA Writer / Monaspace stay
 # installed as coverage without needing an explicit chain here.
 font-family = "Maple Mono NF"
-font-size = 13
+font-size = 14
 
 # Standard ligatures — iA Writer isn't texture-healing but it supports
 # +liga for the common operators (=>, !=, >=, etc.).
