@@ -16,7 +16,7 @@ Personal config for macOS — Ghostty terminal, zsh, Starship prompt, Neovim, tm
 | `ghostty/config.ghostty` | Ghostty terminal config — theme, fonts, keybinds |
 | `git/.gitignore_global` | Global gitignore — macOS noise, editor files, build dirs, **and AI-agent scratch** (`.claude/`, `.cursor/`, `.aider*`, `.covenant/`, etc.), deliberately excluded in every repo |
 | `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*`; the active theme is `vim.g.theme` in `lua/config/options.lua` (currently `solarized-osaka`, part of the cross-stack Ghostty+nvim+tmux theme). Cheatsheets: `NVIM-CHEATSHEET.md` (root) has the most up-to-date plugin coverage; `nvim/CHEATSHEET.md` goes deeper on native vim/LSP but is missing plugins |
-| `tmux/` | tmux config — prefix `C-t`, popups Alt+c/C/y/u/d/g/Enter, modular (theme/statusline/utility). Cheatsheet in `tmux/CHEATSHEET.md` |
+| `tmux/` | tmux config — prefix `C-t`, single-chord overlays Alt+c/C/y/u/d/g/Enter, modular (theme/statusline/utility). Cheatsheet in `tmux/CHEATSHEET.md` |
 | `lazygit/config.yml` | lazygit theme + custom commands |
 | `scripts/` | Helpers — `ide` (4-pane IDE-style tmux layout, `prefix + g`), `lib.sh` (shared by both bash installers) |
 | `claude/` | User-level Claude Code config — `CLAUDE.md` (→ `~/.claude/CLAUDE.md`), `statusline.sh`, and `install/` (everything the installers do to `~/.claude/`, split by mechanism — see its README). `settings.json`, `skills/` and `memory/` are **per-machine**: neither versioned nor symlinked |

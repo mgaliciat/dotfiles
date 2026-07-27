@@ -12,11 +12,11 @@ Convention: `prefix x` = you press `Ctrl+t`, release, then `x`.
 
 | Shortcut | Action |
 |---|---|
-| `Alt+c` | **Claude Code in a 90% popup** — persistent "default" session per project |
+| `Alt+c` | **Claude Code in the current terminal** — persistent "default" session per project (switches session, no popup) |
 | `Alt+C` | **Claude YOLO** — same as `Alt+c` but with `--dangerously-skip-permissions` (separate session) ⚠️ |
 | `Alt+u` | **Central picker of Claude sessions** (session-manager plugin) — ALL sessions, live working/waiting/idle state + preview |
 | `Alt+y` | **Claude launcher per directory** (session-manager plugin) |
-| `Alt+d` | **Close the Claude popup** (safe detach — only if you're inside a `claude*` session) |
+| `Alt+d` | **Leave Claude, back to the previous session** (only if you're inside a `claude*` session) |
 | `Alt+g` | **lazygit in a 90% popup** — floating git UI in the cwd |
 | `Alt+Enter` | Quick shell in a 90% popup — for one-off commands without taking up a pane |
 | `prefix b` | **Toggle the statusline** on/off (default: OFF, no distraction) |
@@ -29,11 +29,11 @@ Convention: `prefix x` = you press `Ctrl+t`, release, then `x`.
 **When to use `Alt+u`/`Alt+y` (plugin) vs `Alt+c`/`Alt+C`:**
 - `Alt+c`/`Alt+C` → they give you the project's "default" session. Just one.
 - `Alt+u` → central picker: it lists ALL of the server's Claude sessions (from every project) with live state (working/waiting/idle, via `claude agents --json`) and preview. It replaced the old `Alt+s` selector.
-- `Alt+y` → the plugin's per-directory launcher. For the same dir it resolves to the **same** `claude-<hash>` session as `Alt+c` (same md5 algorithm) — they're shared, not duplicated.
+- `Alt+y` → the plugin's per-directory launcher. For the same dir it resolves to the **same** `claude-<hash>` session as `Alt+c` (same md5 algorithm) — they're shared, not duplicated. It's the one thing here that still opens a **popup**: that code is vendored (pinned commit), not ours.
 
-**How the Claude popup works:**
-1. `cd ~/projects/foo` → `Alt+c` → a `claude-<md5>` session is created with Claude running.
-2. You close the popup with `Alt+d` (detach) → Claude stays alive in the background.
+**How the Claude session works:**
+1. `cd ~/projects/foo` → `Alt+c` → a `claude-<md5>` session is created with Claude running, and your terminal switches to it (no popup, no nesting).
+2. You leave with `Alt+d` (back to the previous session) → Claude stays alive in the background.
 3. You come back later to `~/projects/foo` → `Alt+c` → you reattach to the **same** session with all its context.
 4. You switch to `~/projects/bar` → `Alt+c` → a DIFFERENT session (different md5).
 5. Lost track of which Claude is running where? → `Alt+u` → picker with the live state of all of them.
