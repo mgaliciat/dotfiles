@@ -20,7 +20,7 @@
 # the file is versioned, a `git pull` propagates the theme to the other
 # machines. To change the look: edit this line (and the equivalent lines
 # in nvim and tmux — they share the id) and commit. There's no switcher and no pointer.
-theme = retta
+theme = solarized-osaka
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -59,7 +59,10 @@ theme = retta
 # other theme active this line silently pins osaka's canvas and the new theme
 # looks like it never applied (only its ANSI/cursor change). Re-enable it only
 # together with `theme = solarized-osaka`; leave it commented for everything else.
-# background = #031219
+#
+# ACTIVE (2026-07-28) — osaka IS the current theme, so this line belongs on.
+# Comment it back out the same commit `theme =` moves to anything else.
+background = #031219
 
 # Display P3 wide-gamut — orange and cream saturate more on
 # M-chip / Retina screens. No downside on non-P3 machines.
