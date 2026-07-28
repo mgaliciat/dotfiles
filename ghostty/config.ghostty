@@ -80,13 +80,19 @@ window-colorspace = display-p3
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
-# Maple Mono NF — primary (rounded, ligatures, cursive italics, icons built
-# in). Exact CoreText family name, verified with the font's name table — a
-# typo here falls back silently to the bundled JetBrains Mono NF (the drift
-# this line fixes). Ghostty auto-falls back to the bundled JBM NF and system
-# fonts for any glyph Maple lacks, so PlemolJP / iA Writer / Monaspace stay
-# installed as coverage without needing an explicit chain here.
-font-family = "Maple Mono NF"
+# 0xProto Nerd Font — on trial (2026-07-28). Wider, squarer counters than
+# Maple; its thing is disambiguating look-alikes (0/O, 1/l/I) rather than
+# Maple's rounded corners. To go back: font-family = "Maple Mono NF".
+# It MUST be the "Mono" variant: the cask ships three families and `ghostty
+# +list-fonts` only exposes "0xProto Nerd Font Mono" — the base "0xProto Nerd
+# Font" has double-width icons, isn't reported as monospace, and would fall
+# back silently to the bundled JetBrains Mono NF (the drift this line
+# originally fixed). Maple needs no such suffix: its NF is already mono-width.
+# Name read from the font's name table with mdls, then cross-checked against
+# +list-fonts — +validate-config does NOT catch a missing family. Ghostty
+# auto-falls back for any glyph it lacks, so Maple / PlemolJP / iA Writer /
+# Monaspace stay installed as coverage without an explicit chain here.
+font-family = "0xProto Nerd Font Mono"
 font-size = 14
 
 # Standard ligatures — iA Writer isn't texture-healing but it supports
