@@ -8,7 +8,11 @@ Preferences that apply to **every** project, not just this dotfiles repo — unl
 
 ### rtk — github.com/rtk-ai/rtk
 
-A proxy CLI that rewrites common Bash commands (`git status`, `cargo test`, `npm test`, etc.) to their `rtk` equivalent, with filtered/compressed output to save context tokens. **No action needed on your side** — the `PreToolUse` hook (`rtk hook claude`) makes it transparent on every Bash call. Meta-command reference in `@RTK.md` (above) — e.g. `rtk gain` to see the accumulated savings.
+A proxy CLI that rewrites common Bash commands (`git status`, `cargo test`, `npm test`, etc.) to their `rtk` equivalent, with filtered/compressed output. **No action needed on your side** — the `PreToolUse` hook (`rtk hook claude`) makes it transparent on every Bash call. Meta-command reference in `@RTK.md` (above).
+
+**Do not quote `rtk gain` as money or tokens saved.** It reports a *counterfactual* — the raw output rtk believes it prevented — not a delta on the bill, and it counts output Claude Code would have truncated anyway. The only independent measurement ([JetBrains, jul-2026](https://blog.jetbrains.com/ai/2026/07/rtk-claude-code-token-savings/), rtk 0.43.0 + sonnet-5) found **no savings on real agent work**: +7.6% cost at low reasoning effort (p=0.004, via +13.8% turns and +14.3% cache reads) and +0.1% at high effort. Structural reason: the hook only sees Bash, while native `Read`/`Grep` bypass it — ~33% of Bash calls, ~20% of tool-result chars, a ceiling near **3% of input tokens** — and the bulk of context cost is cached re-reads billed at a tenth. Task quality was statistically unchanged, so this is a wash, not a hazard.
+
+**Where it does earn its place:** compact, readable output (`git status`, test failures) and, since truncation is what makes it risky, a config tuned against that. Ours is versioned at `claude/install/rtk-config.toml` (raised caps, `tee = "always"` so every truncation leaves a recoverable log, `diff`/`curl` excluded). When output looks cut, the inline `[see remaining: tail -n +N <log>]` marker is real — read that log instead of re-running the command. To bypass filtering entirely for one call: `rtk proxy <cmd>`.
 
 ### codebase-memory-mcp — github.com/DeusData/codebase-memory-mcp
 
