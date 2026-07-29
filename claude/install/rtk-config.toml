@@ -1,0 +1,88 @@
+# rtk config — SOURCE OF TRUTH, copied (not symlinked) by claude/install/binaries.sh
+# to the per-OS path. Read the block there before editing this: rtk REWRITES the
+# installed copy, so these comments exist only here and the copy is expected to
+# come back stripped. Changing a value here + `git pull` + `./install.sh`
+# propagates it to every machine.
+#
+# Bias of this file: rtk still compresses hard, but the *hard caps* stop firing on
+# ordinary work. A cap that fires mid-task is the expensive failure — the agent
+# acts on a partial diff or a partial grep and doesn't know it. Tokens saved are
+# cheap; a decision made on truncated output isn't.
+
+[tracking]
+enabled = true
+history_days = 90
+
+[display]
+colors = true
+emoji = true
+# Default 120. This is the per-LINE truncation width — the one loss vector with no
+# per-line recovery marker (you get a mid-line "..." and that's it; the full text
+# survives only in the tee log). Lines over 120 chars are rare, so the token cost
+# is near zero and it buys back the lossiest cut rtk makes.
+max_width = 200
+
+[filters]
+ignore_dirs = [
+    ".git",
+    "node_modules",
+    "target",
+    "__pycache__",
+    ".venv",
+    "vendor",
+]
+ignore_files = [
+    "*.lock",
+    "*.min.js",
+    "*.min.css",
+]
+
+[tee]
+enabled = true
+# Default "failures". tee is what makes truncation RECOVERABLE: filtered output
+# prints "[see remaining: tail -n +N <log>]" and the agent reads the rest without
+# re-running the command. On "failures" that log only exists when the command
+# FAILED, which is backwards — a successful grep that silently dropped 267 files
+# is exactly the case that needs one. This is the setting that answers the
+# "silent information loss" complaint (rtk-ai/rtk#827, #1313).
+mode = "always"
+# Default 20. "always" writes far more files, and rotation at 20 evicts the log
+# that a marker in the agent's context is still pointing at.
+max_files = 100
+# Default 1MB. The recovery log must not itself be truncated, or the escape hatch
+# leaks at exactly the size where you need it.
+max_file_size = 4194304
+
+# rtk OWNS this section: it appends consent_given/consent_date (a per-machine
+# timestamp) the first time anything touches telemetry. Those fields are
+# deliberately absent here — the copy resets them, rtk regenerates them, and
+# telemetry stays off. That injected timestamp is also why this file is copied
+# and not symlinked; see binaries.sh.
+[telemetry]
+enabled = false
+
+[hooks]
+# Commands where fidelity beats tokens, so the hook leaves them alone entirely.
+#   diff  — the P0 in rtk-ai/rtk#827: capped at 50 changes and ~70 chars/line with
+#           no marker, and someone shipped irreversible edits off a partial diff.
+#           Fixed upstream, but a raw diff costs little and this is the one output
+#           where being wrong is unrecoverable. `git diff` is NOT affected by this
+#           — that routes through `rtk git`, a separate and mature filter.
+#   curl  — response bodies are data, not logs. Also rtk-ai/rtk#1282: rtk doesn't
+#           check isatty, so filtered output piped into another tool gets
+#           corrupted, and curl is the command most likely to be left of a pipe.
+exclude_commands = ["diff", "curl"]
+transparent_prefixes = []
+
+[limits]
+# Every value here is a hard cap that drops content. Raised 2-4x: still a real
+# ceiling, but above the size of ordinary work, so hitting the marker/tee path
+# becomes the exception instead of the norm.
+grep_max_results = 500        # default 200
+grep_max_per_file = 60        # default 25 — measured: 98 matches in a file showed
+                              # 60 with a recovery marker; at 25 you lose 73 lines
+status_max_files = 50         # default 15 — below a normal feature branch's count
+status_max_untracked = 30     # default 10
+passthrough_max_chars = 8000  # default 2000 — applies to every command WITHOUT a
+                              # dedicated filter, i.e. the long tail nobody audited.
+                              # The widest blind spot in the shipped defaults.

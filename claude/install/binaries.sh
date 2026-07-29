@@ -41,6 +41,46 @@ if command -v rtk >/dev/null 2>&1; then
   else
     echo "⚠️  rtk init --global failed — check by hand (rtk init --global -v)"
   fi
+
+  # ── rtk config.toml: COPIED, not symlinked ──
+  # The only copy-instead-of-link in this repo, and the exception is earned. rtk
+  # does a load → mutate → serialize round-trip on its config: `rtk telemetry
+  # disable` alone rewrote the file, dropped every comment, and appended
+  # `consent_date = "<ISO timestamp>"`. Through a symlink that lands in a PUBLIC
+  # repo — the exact failure that keeps ~/.claude/settings.json unversioned. So
+  # the repo file is the source of truth and this pushes it out; the installed
+  # copy is disposable and expected to come back comment-stripped.
+  #
+  # Unconditional on every run (convergent): a `git pull` + ./install.sh realigns
+  # a machine whose copy rtk has since rewritten. Losing rtk's consent fields is
+  # deliberate and free — telemetry stays off, rtk regenerates them on demand,
+  # and trusted-projects state lives in history.db, not here.
+  #
+  # WHY the values (raised caps, tee=always, diff/curl excluded): all of it is
+  # commented in claude/install/rtk-config.toml. Short version — rtk's defaults
+  # truncate hard, and truncation the agent can't see is worse than the tokens it
+  # saves. Upstream: rtk-ai/rtk#827 (silent diff truncation, P0), #1313
+  # (lossless mode, still open), #1282 (no isatty check → corrupts pipes).
+  #
+  # The path is the one OS branch in this file: rtk follows the platform
+  # convention (macOS Application Support, XDG on Linux) and there is no env var
+  # to flatten it. `rtk config` prints the resolved path if this ever drifts.
+  if [[ "$OSTYPE" == darwin* ]]; then
+    RTK_CFG="$HOME/Library/Application Support/rtk/config.toml"
+  else
+    RTK_CFG="${XDG_CONFIG_HOME:-$HOME/.config}/rtk/config.toml"
+  fi
+  # Back up only a copy that actually diverges, matching link()'s contract: a
+  # hand-tuned config on a fresh machine is not silently thrown away, but the
+  # steady state (our file, possibly comment-stripped by rtk) does not spawn a
+  # backup on every single run.
+  if [[ -f "$RTK_CFG" ]] && ! cmp -s "$DOTFILES/claude/install/rtk-config.toml" "$RTK_CFG"; then
+    cp "$RTK_CFG" "$RTK_CFG.backup.$TS"
+    echo "→ backing up diverged $RTK_CFG to $RTK_CFG.backup.$TS"
+  fi
+  mkdir -p "$(dirname "$RTK_CFG")"
+  cp "$DOTFILES/claude/install/rtk-config.toml" "$RTK_CFG"
+  echo "✓ rtk config.toml installed (copy — rtk rewrites it, cannot be a symlink)"
 fi
 
 # ─── codebase-memory-mcp (code graph MCP server) ──────────────
