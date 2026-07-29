@@ -158,7 +158,13 @@ Enabled by default. You can:
 - **Click** on a window (statusline) → selects it
 - **Drag** on a pane border → resize
 - **Scroll wheel** → enters copy mode and you scroll
-- **Drag** over text → visual selection (release = copy)
+- **Drag** over text → copies on release, but the highlight disappears
+- **Shift + drag** over text → selection that *stays* (and also copies)
+
+The vanishing highlight is not a bug: plain drag is tmux, and its default
+`MouseDragEnd1Pane` binding cancels copy mode on mouse-up. The text does reach
+the macOS clipboard — you just don't see the selection. `Shift` keeps the drag
+away from tmux entirely, so Ghostty selects it natively and it persists.
 
 If it bugs you: in `tmux.conf` change `set-option -g mouse on` → `off`.
 
