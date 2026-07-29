@@ -107,16 +107,20 @@ if command -v brew >/dev/null 2>&1; then
     ghostty
     1password-cli         # `op` — a cask on Homebrew, not a formula (lives in Caskroom)
     # Fonts referenced by ghostty/config.ghostty.
-    # 0xProto Nerd Font = primary on trial — the one set as font-family (note
-    # it resolves as the "Mono" family; see the typography block there). Maple
-    # Mono NF was the previous primary and is one line away from returning, so
-    # it stays. PlemolJP Console NF (bilingual JP/EN), Monaspace NF and iA
-    # Writer Mono stay installed as glyph-coverage fallback (Ghostty falls back
-    # to them + bundled JBM NF automatically). Every font named here must be
-    # installed by this list: a font-family pointing at a missing family falls
-    # back silently, which is the exact drift 0430d08 fixed.
+    # Google Sans Code = primary on trial — the one set as font-family. It is
+    # NOT a Nerd Font, so the rest of this list stops being optional coverage
+    # and becomes load-bearing: Ghostty pulls every powerline/devicon glyph
+    # from the NF families below. Don't prune them while it's the primary.
+    # 0xProto NF and Maple Mono NF are both former primaries, each one line
+    # away from returning (0xProto resolves as its "Mono" family; see the
+    # typography block there). PlemolJP Console NF (bilingual JP/EN),
+    # Monaspace NF and iA Writer Mono round out the fallback chain (Ghostty
+    # falls back to them + bundled JBM NF automatically). Every font named in
+    # the config must be installed by this list: a font-family pointing at a
+    # missing family falls back silently, the exact drift 0430d08 fixed.
     # Monaspace is the `-nf` (Nerd Font) build, not the plain cask, so it
     # ships its own icons instead of leaning on the JBM NF fallback.
+    font-google-sans-code
     font-0xproto-nerd-font
     font-maple-mono-nf
     font-plemol-jp-nf

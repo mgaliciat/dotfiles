@@ -83,20 +83,23 @@ window-colorspace = display-p3
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
-# 0xProto Nerd Font — on trial (2026-07-28). Wider, squarer counters than
-# Maple; its thing is disambiguating look-alikes (0/O, 1/l/I) rather than
-# Maple's rounded corners. To go back: font-family = "Maple Mono NF".
-# It MUST be the "Mono" variant: the cask ships three families and `ghostty
-# +list-fonts` only exposes "0xProto Nerd Font Mono" — the base "0xProto Nerd
-# Font" has double-width icons, isn't reported as monospace, and would fall
-# back silently to the bundled JetBrains Mono NF (the drift this line
-# originally fixed). Maple needs no such suffix: its NF is already mono-width.
-# Name read from the font's name table with mdls, then cross-checked against
-# +list-fonts — +validate-config does NOT catch a missing family. Ghostty
-# auto-falls back for any glyph it lacks, so Maple / PlemolJP / iA Writer /
-# Monaspace stay installed as coverage without an explicit chain here.
-font-family = "0xProto Nerd Font Mono"
-font-size = 14
+# Google Sans Code — on trial (2026-07-29), replacing 0xProto (one-day trial,
+# 2026-07-28). Same geometric skeleton as the Google logo (it descends from
+# Product Sans / Google Sans) but drawn monospace for code, and OFL — Product
+# Sans itself is proprietary and proportional, so it can never go here.
+# To go back: font-family = "0xProto Nerd Font Mono" or "Maple Mono NF".
+# NOT a Nerd Font: nerd-fonts hasn't patched it (ryanoasis issue #1905, open
+# since aug-2025) and the community patch is an unvetted third-party binary.
+# That's survivable here and nowhere else: Ghostty auto-falls back per glyph,
+# so the starship/tmux icons come from the NF families this repo already
+# installs (0xProto / Maple / PlemolJP / Monaspace). Keep them installed —
+# drop them and the powerline segments turn into tofu.
+# The variable-weight ttf is one family with no "Mono" suffix to get wrong
+# (unlike 0xProto, whose cask ships three families and only the "…Mono" one
+# is reported as monospace). Name cross-checked against `ghostty +list-fonts`
+# — +validate-config does NOT catch a missing family, it falls back silently.
+font-family = "Google Sans Code"
+font-size = 15
 
 # Standard ligatures — iA Writer isn't texture-healing but it supports
 # +liga for the common operators (=>, !=, >=, etc.).
