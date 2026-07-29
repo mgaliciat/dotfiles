@@ -133,7 +133,3 @@ For everything else: **`<leader>fk`** opens the keymap search (telescope), and *
 | `<leader>Z` | zen zoom (window only) |
 | `:Lazy` | manage plugins |
 | `:Mason` | manage LSPs / formatters |
-
----
-
-> 🤠 **Cowboy mode**: if you hammer `hjkl` more than 10 times in 2s, it stops you. Use real motions (`w`, `b`, `f{char}`, `s` from flash, `5j`).

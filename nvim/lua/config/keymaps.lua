@@ -83,9 +83,3 @@ map("n", "x", '"_x', { desc = "Delete char (no yank)" })
 -- for "open parent dir" (its keys={} wins because lazy registers after
 -- this file) — for decrement use <C-x> directly (see dial.lua).
 map("n", "+", "<C-a>", { desc = "Increment (dial)", remap = true })
-
--- 🤠 Cowboy mode: stops you if you hammer hjkl more than 10 times in
--- 2 sec. Educational — pushes you to learn real motions. It deliberately
--- doesn't cover +/<C-a>/<C-x> (see dial.lua: mashing increment is
--- legitimate use).
-require("config.cowboy").setup()

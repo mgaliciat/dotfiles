@@ -179,15 +179,6 @@ All of them are **accelerators within the vim model**, not Mac crutches. Designe
 | `+` | Increment the number under the cursor (= `<C-a>`, smart via dial) |
 | `<C-x>` | Decrement (smart via dial). `-` is not mapped: oil.nvim uses it for "parent dir" |
 
-### 🤠 Cowboy mode
-
-If you press `h j k l` **more than 10 times in 2 seconds**, it blocks and shows `🤠 Hold it Cowboy!`. It forces you to learn real motions:
-
-- Instead of `jjjjjj` → use `}` (next paragraph), `5j` (5 lines), `/foo` (search), `G` / `gg` (go to end / start).
-- Instead of `hhhhh` → use `b` (word back), `0` (start of line), `F<char>` (jump to char).
-- Instead of `lllll` → use `w` (word forward), `$` (end of line), `f<char>` (jump to char).
-- If you use a count (e.g. `15j`), it **doesn't count as spam**.
-
 ---
 
 ## 4. LSP — installed stack

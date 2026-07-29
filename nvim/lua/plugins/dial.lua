@@ -12,10 +12,6 @@
 --   +                same via remap (keymaps.lua `+` → <C-a>)
 --   -                ⚠️ NOT available: oil.nvim grabs `-` for
 --                    "open parent dir". Use <C-x> for decrement.
---
--- Cowboy mode (`config/cowboy.lua`) does NOT cover +/- — they stay free
--- for heavy increment use (mashing 10 times to bump 10
--- version lines, etc.).
 
 return {
   "monaqa/dial.nvim",
