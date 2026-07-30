@@ -92,6 +92,19 @@ _settings_set_if_absent '.statusLine' \
   '.statusLine = {"type": "command", "command": "~/.claude/statusline.sh"}' \
   'statusLine'
 
+# Keyed on the nested field, NOT on `.statusLine`: the guard above is satisfied
+# by any pre-existing statusLine, so a machine that already had one would never
+# see this. Runs second so it lands on the object the previous call may have
+# just created.
+#
+# Without it the status line re-runs on EVENTS only, and our `↻` countdown to
+# the 5h rate-limit reset freezes while the session is idle — which is exactly
+# when you're looking at it. 60s because the countdown is rendered in minutes;
+# anything faster just burns a subprocess to redraw the same string.
+_settings_set_if_absent '.statusLine.refreshInterval' \
+  '.statusLine.refreshInterval = 60' \
+  'statusLine.refreshInterval'
+
 # ── permissions.allow / deny ──
 # The lists live in claude/install/permissions.json — single source of truth
 # shared with install-windows.ps1, which reads the same file with
