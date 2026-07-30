@@ -5,6 +5,7 @@
 # if it's ever wanted back, but on a subscription it's a number you can't act on.
 # JSON session data arrives on stdin (see: https://code.claude.com/docs/en/statusline).
 input=$(cat)
+shopt -s extglob   # needed by vis() to match an ANSI escape; see below
 
 MODEL=$(echo "$input" | jq -r '.model.id')
 DIR=$(echo "$input" | jq -r '.workspace.current_dir')
@@ -38,17 +39,20 @@ EFFORT=$(echo "$input" | jq -r '.effort.level // empty')
 # Colours are plain ANSI (not hex) on purpose: the active stack theme remaps
 # them, so the statusline follows whatever Ghostty/tmux/nvim are wearing.
 
-GREEN='\033[32m'; YELLOW='\033[33m'; RED='\033[31m'; RESET='\033[0m'
+# $'…' (ANSI-C quoting), NOT '\033[…m': these have to be REAL escape characters,
+# not a backslash-0-3-3 string that only becomes an escape inside `echo -e`. The
+# literal form cost 7 invisible-but-counted characters per reset in vis() below,
+# which silently ate 28 columns of the right-alignment. One representation only.
+GREEN=$'\033[32m'; YELLOW=$'\033[33m'; RED=$'\033[31m'; RESET=$'\033[0m'
 CHIP=$'' # nf-fa-microchip
 
 # One ladder for every gauge on the line (ctx, 5h, 7d) so a colour means the
 # same thing wherever it appears — there used to be a copy of this `if` per
-# gauge, which is how they drift apart. `%b` expands the \033 literals into real
-# escapes, so callers can interpolate the result straight into a string.
+# gauge, which is how they drift apart.
 hue() {
-  if   [ "$1" -ge 90 ]; then printf '%b' "$RED"
-  elif [ "$1" -ge 70 ]; then printf '%b' "$YELLOW"
-  else printf '%b' "$GREEN"; fi
+  if   [ "$1" -ge 90 ]; then printf '%s' "$RED"
+  elif [ "$1" -ge 70 ]; then printf '%s' "$YELLOW"
+  else printf '%s' "$GREEN"; fi
 }
 
 # The number is absolute (121k/1M), not a percentage: on a 1M window "12%" is
@@ -96,8 +100,8 @@ if [ -n "$FIVE_H" ]; then
   LIMIT=" | $(hue "$FIVE_H")5h ${FIVE_H}%"
   if [ -n "$RESETS_AT" ]; then
     MINS=$(((RESETS_AT - $(date +%s)) / 60))
-    [ "$MINS" -ge 60 ] && LEFT="$((MINS / 60))h$((MINS % 60))m" || LEFT="${MINS}m"
-    [ "$MINS" -gt 0 ] && LIMIT="${LIMIT} ↻${LEFT}"
+    [ "$MINS" -ge 60 ] && REMAIN="$((MINS / 60))h$((MINS % 60))m" || REMAIN="${MINS}m"
+    [ "$MINS" -gt 0 ] && LIMIT="${LIMIT} ↻${REMAIN}"
   fi
   LIMIT="${LIMIT}${RESET}"
 fi
@@ -119,5 +123,49 @@ CTX_NUM="$(fmt "$USED")"
 MODEL_SEG="${CHIP} ${MODEL}"
 [ -n "$EFFORT" ] && MODEL_SEG="${MODEL_SEG} ${EFFORT}"
 
-echo -e "${NUM_COLOR}${MODEL_SEG}${RESET} | ${DIR_FMT}${BRANCH} | ctx ${NUM_COLOR}${CTX_NUM}${RESET}${LIMIT}"
+# ─── layout: quota flushed right ──────────────────────────────
+# What you're working ON stays left; the quota windows get pushed to the far
+# edge, because they're a budget you glance at rather than something you read in
+# sequence with the rest. The empty gap IS the separator — that's why the
+# leading ` | ` comes back off the block below.
+#
+# COLUMNS is the only way to know the width: Claude Code captures our stdout
+# instead of wiring it to the tty, so `tput cols` is blind from in here (docs:
+# COLUMNS/LINES are exported for us, Claude Code >= 2.1.153). If it's ever
+# missing — older build, or anything else piping into this script — we fall
+# straight back to the inline ` | ` join instead of guessing a width.
+#
+# Two columns are held back from the right edge. Claude Code adds its own
+# built-in spacing around this row (that's what the `padding` setting adds *to*),
+# and its width isn't on stdin, so landing exactly on COLUMNS risks a wrap.
+# A wrapped status line looks broken; sitting two columns shy of the edge
+# doesn't — cheap insurance in the only direction that matters.
+LEFT="${NUM_COLOR}${MODEL_SEG}${RESET} | ${DIR_FMT}${BRANCH} | ctx ${NUM_COLOR}${CTX_NUM}${RESET}"
+OUT="${LEFT}${LIMIT}"
+
+# Visible width: the colour escapes are zero-width and have to come out before
+# counting, or the block would jump ~5 columns left the moment a gauge turns
+# yellow. This is the reason the colours above are real escapes — one form to
+# strip, and anything it misses is counted as if it were printable.
+#
+# `${#s}` counts CHARACTERS rather than bytes only under a UTF-8 locale. Claude
+# Code runs us with LANG=en_US.UTF-8 (verified), which is what keeps ⎇ / ↻ /
+# and any non-ASCII cwd from counting 3:1 and dragging the block leftward.
+vis() { local s=${1//$'\033'\[*([0-9;])m/}; printf '%d' "${#s}"; }
+
+if [ -n "$LIMIT" ] && [ -n "$COLUMNS" ]; then
+  RIGHT="${LIMIT# | }"
+  GAP=$((COLUMNS - 2 - $(vis "$LEFT") - $(vis "$RIGHT")))
+  # Under 3 columns of gap it stops reading as separation and starts reading as
+  # a typo, so a narrow terminal keeps the inline join. This doubles as the
+  # no-wrap guard: a negative gap can never reach printf.
+  if [ "$GAP" -ge 3 ]; then
+    printf -v PAD '%*s' "$GAP" ''
+    OUT="${LEFT}${PAD}${RIGHT}"
+  fi
+fi
+
+# Plain `echo`, no -e: every escape in $OUT is already a real one, so -e would
+# only add a way for a backslash in a cwd or branch name to get interpreted.
+echo "$OUT"
 echo
