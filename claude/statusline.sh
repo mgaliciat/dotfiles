@@ -1,6 +1,6 @@
 #!/bin/bash
 # Claude Code status line: model, reasoning effort, cwd, git branch, context
-# usage, rate-limit windows.
+# usage, session quota.
 # Session cost was dropped (jul-2026): `.cost.total_cost_usd` is still on stdin
 # if it's ever wanted back, but on a subscription it's a number you can't act on.
 # JSON session data arrives on stdin (see: https://code.claude.com/docs/en/statusline).
@@ -46,9 +46,9 @@ EFFORT=$(echo "$input" | jq -r '.effort.level // empty')
 GREEN=$'\033[32m'; YELLOW=$'\033[33m'; RED=$'\033[31m'; RESET=$'\033[0m'
 CHIP=$'' # nf-fa-microchip
 
-# One ladder for every gauge on the line (ctx, 5h, 7d) so a colour means the
-# same thing wherever it appears — there used to be a copy of this `if` per
-# gauge, which is how they drift apart.
+# One ladder for every gauge on the line (ctx, quota) so a colour means the same
+# thing wherever it appears — there used to be a copy of this `if` per gauge,
+# which is how they drift apart.
 hue() {
   if   [ "$1" -ge 90 ]; then printf '%s' "$RED"
   elif [ "$1" -ge 70 ]; then printf '%s' "$YELLOW"
@@ -66,38 +66,39 @@ fmt() {
   else printf '%d' "$1"; fi
 }
 
-# ─── rate-limit windows ───────────────────────────────────────
-# The subscription's rolling windows (Pro/Max): 5-hour and weekly, on the same
-# green/yellow/red ladder as ctx so one glance covers every budget.
+# ─── session quota ────────────────────────────────────────────
+# The subscription's rolling 5-hour window (Pro/Max), on the same
+# green/yellow/red ladder as ctx.
 #
-# BOTH are here on purpose. The 5h can sit in green all afternoon while the
-# weekly is the one that actually runs out on you — either number alone tells
-# half the story.
+# Rendered UNLABELLED — `37% ↻2h15m`, not `5h 37% ↻2h15m`. The countdown
+# already says how much of the window is left, which is the only thing the "5h"
+# was there to imply, and ↻ is what tells it apart from the ctx number.
 #
-# ⚠️ Only a PERCENTAGE is on stdin — there is NO token count for either window,
-# and it is not derivable: the limit weights models and output differently, so
+# The weekly window (`.rate_limits.seven_day`, same two fields) was here and was
+# dropped: it isn't a budget this user acts on. Add it back only if that
+# changes — it is NOT missing by oversight.
+#
+# ⚠️ Only a PERCENTAGE is on stdin — there is NO token count for the window, and
+# it is not derivable: the limit weights models and output differently, so
 # summing the transcript's tokens (what ccusage does) yields a different number
 # wearing the same label. The % *is* the quantity here; `resets_at` is what
 # makes it actionable.
 #
-# Everything is optional: `rate_limits` is absent for API-key users and until
-# the first API response of the session, and each window can be absent on its
-# own — hence `// empty` everywhere and one guard per window, not one for both.
+# Optional throughout: `rate_limits` is absent for API-key users and until the
+# first API response of the session, and `resets_at` can be absent on its own —
+# hence `// empty` on both and a guard each, so the % still renders without it.
 #
-# Only the 5h carries a countdown. `resets_at` exists for the weekly too, but
-# "↻4d3h" is not a thing you act on and costs the same columns as the one that
-# is. Epoch seconds rendered as time-REMAINING is pure arithmetic, so there's no
-# `date -r` (BSD) vs `date -d @` (GNU) branch on a file both OSes symlink.
+# `resets_at` is epoch seconds rendered as time-REMAINING: pure arithmetic, so
+# no `date -r` (BSD) vs `date -d @` (GNU) branch on a file both OSes symlink.
 #
 # ⚠️ The countdown only stays honest because `statusLine.refreshInterval` is set
 # in claude/install/settings.sh — without it the status line re-runs on EVENTS
 # only, so ↻ freezes exactly while you sit idle watching it.
 LIMIT=""
 FIVE_H=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty' | cut -d. -f1)
-WEEK=$(echo "$input" | jq -r '.rate_limits.seven_day.used_percentage // empty' | cut -d. -f1)
 RESETS_AT=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty')
 if [ -n "$FIVE_H" ]; then
-  LIMIT=" | $(hue "$FIVE_H")5h ${FIVE_H}%"
+  LIMIT=" | $(hue "$FIVE_H")${FIVE_H}%"
   if [ -n "$RESETS_AT" ]; then
     MINS=$(((RESETS_AT - $(date +%s)) / 60))
     [ "$MINS" -ge 60 ] && REMAIN="$((MINS / 60))h$((MINS % 60))m" || REMAIN="${MINS}m"
@@ -105,7 +106,6 @@ if [ -n "$FIVE_H" ]; then
   fi
   LIMIT="${LIMIT}${RESET}"
 fi
-[ -n "$WEEK" ] && LIMIT="${LIMIT} | $(hue "$WEEK")7d ${WEEK}%${RESET}"
 
 BRANCH=""
 git rev-parse --git-dir > /dev/null 2>&1 && BRANCH=" | ⎇ $(git branch --show-current 2>/dev/null)"
@@ -124,10 +124,10 @@ MODEL_SEG="${CHIP} ${MODEL}"
 [ -n "$EFFORT" ] && MODEL_SEG="${MODEL_SEG} ${EFFORT}"
 
 # ─── layout: quota flushed right ──────────────────────────────
-# What you're working ON stays left; the quota windows get pushed to the far
-# edge, because they're a budget you glance at rather than something you read in
-# sequence with the rest. The empty gap IS the separator — that's why the
-# leading ` | ` comes back off the block below.
+# What you're working ON stays left; the quota gets pushed to the far edge,
+# because it's a budget you glance at rather than something you read in sequence
+# with the rest. The empty gap IS the separator — that's why the leading ` | `
+# comes back off the block below.
 #
 # COLUMNS is the only way to know the width: Claude Code captures our stdout
 # instead of wiring it to the tty, so `tput cols` is blind from in here (docs:
