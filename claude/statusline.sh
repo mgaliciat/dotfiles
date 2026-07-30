@@ -135,11 +135,23 @@ MODEL_SEG="${CHIP} ${MODEL}"
 # missing — older build, or anything else piping into this script — we fall
 # straight back to the inline ` | ` join instead of guessing a width.
 #
-# Two columns are held back from the right edge. Claude Code adds its own
-# built-in spacing around this row (that's what the `padding` setting adds *to*),
-# and its width isn't on stdin, so landing exactly on COLUMNS risks a wrap.
-# A wrapped status line looks broken; sitting two columns shy of the edge
-# doesn't — cheap insurance in the only direction that matters.
+# ⚠️ EDGE_RESERVE is EMPIRICAL — tune this number, not the arithmetic, if the
+# line ever clips again. It started at 2 and Claude Code truncated the tail to
+# `↻3h…`, because two separate widths are invisible from in here and they stack:
+#
+#   1. COLUMNS is the whole terminal, not this row. The status line renders
+#      inside a bordered box with its own border and padding (what the `padding`
+#      setting adds *to*), and that chrome's width is not on stdin.
+#   2. Nerd Font glyphs count 1 CHARACTER but can render 2 CELLS.  / ⎇ / ↻ are
+#      one codepoint each to `${#s}` and there is no way to ask the terminal how
+#      wide the font drew them — the same ambiguous-width trap that killed the
+#      ■/◼/⬛ cubes in an earlier version of this file.
+#
+# So the true usable width is COLUMNS minus an unknown, and the only safe move
+# is to under-fill it. Overshooting costs a truncated tail with an ellipsis —
+# visibly broken. Undershooting costs a slightly wider gap on a 164-column
+# terminal — nobody can see it. Bias hard toward undershooting.
+EDGE_RESERVE=8
 LEFT="${NUM_COLOR}${MODEL_SEG}${RESET} | ${DIR_FMT}${BRANCH} | ctx ${NUM_COLOR}${CTX_NUM}${RESET}"
 OUT="${LEFT}${LIMIT}"
 
@@ -155,7 +167,7 @@ vis() { local s=${1//$'\033'\[*([0-9;])m/}; printf '%d' "${#s}"; }
 
 if [ -n "$LIMIT" ] && [ -n "$COLUMNS" ]; then
   RIGHT="${LIMIT# | }"
-  GAP=$((COLUMNS - 2 - $(vis "$LEFT") - $(vis "$RIGHT")))
+  GAP=$((COLUMNS - EDGE_RESERVE - $(vis "$LEFT") - $(vis "$RIGHT")))
   # Under 3 columns of gap it stops reading as separation and starts reading as
   # a typo, so a narrow terminal keeps the inline join. This doubles as the
   # no-wrap guard: a negative gap can never reach printf.
