@@ -83,23 +83,28 @@ window-colorspace = display-p3
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
-# Google Sans Code — on trial (2026-07-29), replacing 0xProto (one-day trial,
-# 2026-07-28). Same geometric skeleton as the Google logo (it descends from
-# Product Sans / Google Sans) but drawn monospace for code, and OFL — Product
-# Sans itself is proprietary and proportional, so it can never go here.
-# To go back: font-family = "0xProto Nerd Font Mono" or "Maple Mono NF".
-# NOT a Nerd Font: nerd-fonts hasn't patched it (ryanoasis issue #1905, open
-# since aug-2025) and the community patch is an unvetted third-party binary.
-# That's survivable here and nowhere else: Ghostty auto-falls back per glyph,
-# so the starship/tmux icons come from the NF families this repo already
-# installs (0xProto / Maple / PlemolJP / Monaspace). Keep them installed —
-# drop them and the powerline segments turn into tofu.
+# Paper Mono — on trial (2026-07-30), replacing Google Sans Code (one-day
+# trial, 2026-07-29), which replaced 0xProto (2026-07-28). By Paper (the
+# design tool), OFL, drawn from scratch as a mono for UI/code.
+# To go back: font-family = "Google Sans Code", "0xProto Nerd Font Mono" or
+# "Maple Mono NF".
+# NOT a Nerd Font, same as Google Sans Code before it — and nobody has patched
+# it either (the repo is weeks old). Survivable for the same reason: Ghostty
+# auto-falls back per glyph, so the starship/tmux icons come from the NF
+# families this repo already installs (0xProto / Maple / PlemolJP /
+# Monaspace). Keep them installed — drop them and the powerline segments turn
+# into tofu.
+# NO italic file exists (the family ships one wght axis, no slant, no separate
+# italic ttf), so italics are synthesized — an oblique slant, not real italic
+# letterforms. Visible in comments if your theme italicizes them.
 # The variable-weight ttf is one family with no "Mono" suffix to get wrong
 # (unlike 0xProto, whose cask ships three families and only the "…Mono" one
 # is reported as monospace). Name cross-checked against `ghostty +list-fonts`
 # — +validate-config does NOT catch a missing family, it falls back silently.
-font-family = "Google Sans Code"
-font-size = 15
+font-family = "Paper Mono"
+# 16, one up from the 15 the last few primaries ran at — Paper Mono has a
+# small x-height for its em, so it reads a size smaller than it measures.
+font-size = 16
 
 # Standard ligatures — iA Writer isn't texture-healing but it supports
 # +liga for the common operators (=>, !=, >=, etc.).
