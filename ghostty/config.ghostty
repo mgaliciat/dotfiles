@@ -20,7 +20,7 @@
 # the file is versioned, a `git pull` propagates the theme to the other
 # machines. To change the look: edit this line (and the equivalent lines
 # in nvim and tmux — they share the id) and commit. There's no switcher and no pointer.
-theme = retta
+theme = solarized-osaka
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -60,9 +60,9 @@ theme = retta
 # looks like it never applied (only its ANSI/cursor change). Re-enable it only
 # together with `theme = solarized-osaka`; leave it commented for everything else.
 #
-# INACTIVE (2026-08-03) — retta is the current theme, so this stays commented;
-# retta's own true-black background applies. Re-enable it only if osaka returns.
-# background = #031219
+# ACTIVE (2026-07-28) — osaka IS the current theme, so this line belongs on.
+# Comment it back out the same commit `theme =` moves to anything else.
+background = #031219
 
 # Display P3 wide-gamut — orange and cream saturate more on
 # M-chip / Retina screens. No downside on non-P3 machines.
@@ -77,9 +77,9 @@ window-colorspace = display-p3
 #         paper, solarized-light).
 #   4.5 = WCAG AA body text. Rescues every gray but DISTORTS brand
 #         colors: Claude orange ends up nearly black. Not recommended.
-# At 1.1 because the active theme (retta) is dark with an intentionally tight
-# warm spectrum — full fidelity to the theme. If you switch to a light theme
-# from the family, raise it to 3.0.
+# At 1.1 because the active theme (solarized-osaka) is dark with
+# intentionally muted grays (solarized base01/base00) — full fidelity to the
+# theme. If you switch to a light theme from the family, raise it to 3.0.
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
@@ -94,7 +94,7 @@ minimum-contrast = 1.1
 # Name cross-checked against `ghostty +list-fonts` — +validate-config does
 # NOT catch a missing family, it falls back silently.
 font-family = "PlemolJP Console NF"
-font-size = 15
+font-size = 17
 
 # Standard ligatures — PlemolJP (IBM Plex based) ships no coding ligatures,
 # so this is a no-op today; kept so a future font with +liga just works.
