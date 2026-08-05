@@ -37,8 +37,9 @@ note**; each invocation is its own file.
 - Write via the obsidian MCP (`vault_write`). Create the file; never touch another.
 - Date and time are in your context — don't guess them. `HHMM` (no colon — it's a
   filename), so the name sorts chronologically.
-- **Obsidian closed → the MCP fails.** Say so and write the file on disk instead;
-  never silently skip the note.
+- **Obsidian closed → the MCP fails.** Say so and stop. Never work around it:
+  no writing the file to disk, no curl against the endpoint. The user reconnects
+  with `/mcp`, and then the note gets written.
 
 ## Note format
 
