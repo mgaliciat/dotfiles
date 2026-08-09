@@ -135,7 +135,7 @@ The terminal look is **one theme spanning three layers** (Ghostty + nvim + tmux)
 
 - **Comments explain WHY, not WHAT.** The existing files carry many comments documenting non-obvious decisions: lazy-load rationale, plugin-ordering footguns, why `~/.gitconfig` isn't symlinked, macOS UTI quirks. Match that density when editing — terse, comment-free code is *less* in-style here than well-commented code.
 - **Section headers** use box-drawing: `# ─── name ──────────────────────` in zsh/toml; `; ─── name ─────` in `.gitconfig`. Keep them.
-- **English only** (as of jul-2026). Comments and prose used to be mostly Spanish; the repo is public and was translated wholesale. Don't reintroduce Spanish — including in new files.
+- **English only** (as of jul-2026). Comments and prose used to be mostly Spanish; the repo is public and was translated wholesale. Don't reintroduce Spanish — including in new files. This covers **code and everything documenting it**: identifiers (variables, functions, files), comments, commit messages, and any prose that ships inside the repo — regardless of the language the session is being conducted in. Chat replies still follow the user's language; the rule is about what lands on disk. Same rule as the user-level `claude/CLAUDE.md` ("Code is written in English"), restated here because this repo is public and it's the one place the two could drift.
 - **Commit messages** are lowercase, prefixed with one of: `add:`, `feat:`, `fix:`, `chore:`, `refactor:`, `tweak:`. Short (<70 chars).
 - **Colour palette** ("Anthropic Warm"): `#d97757` Claude orange, `#c8553d` terracotta, `#87a96b` olive, `#b08968` earth, `#d9a441` amber. Used consistently in Starship and Ghostty. Reuse these instead of inventing new hex codes.
 
