@@ -1,8 +1,12 @@
 #!/bin/bash
-# Claude Code status line: model, reasoning effort, cwd, git branch, context
-# usage, session quota.
-# Session cost was dropped (jul-2026): `.cost.total_cost_usd` is still on stdin
-# if it's ever wanted back, but on a subscription it's a number you can't act on.
+# Claude Code status line, in two zones:
+#   left  — WHERE you are:    model + effort, cwd, git branch
+#   right — WHAT you've spent: ctx, session cost, 5h quota
+# The split is the whole layout decision (ago-2026). Everything on the right is
+# a meter that only grows; everything on the left changes when you move. Reading
+# order follows that: you scan left to orient, right to check the budget, and
+# the two never interleave (ctx used to sit on the left, between branch and the
+# quota — a gauge stranded in the identity half).
 # JSON session data arrives on stdin (see: https://code.claude.com/docs/en/statusline).
 input=$(cat)
 shopt -s extglob   # needed by vis() to match an ANSI escape; see below
@@ -98,7 +102,7 @@ LIMIT=""
 FIVE_H=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty' | cut -d. -f1)
 RESETS_AT=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty')
 if [ -n "$FIVE_H" ]; then
-  LIMIT=" | $(hue "$FIVE_H")${FIVE_H}%"
+  LIMIT="$(hue "$FIVE_H")${FIVE_H}%"
   if [ -n "$RESETS_AT" ]; then
     MINS=$(((RESETS_AT - $(date +%s)) / 60))
     [ "$MINS" -ge 60 ] && REMAIN="$((MINS / 60))h$((MINS % 60))m" || REMAIN="${MINS}m"
@@ -106,6 +110,24 @@ if [ -n "$FIVE_H" ]; then
   fi
   LIMIT="${LIMIT}${RESET}"
 fi
+
+# ─── session cost ─────────────────────────────────────────────
+# Back on the line (ago-2026) after being dropped in jul-2026 for "a number you
+# can't act on on a subscription". That reasoning was about *acting*, and the
+# number is worth having anyway: it's the only absolute figure on the line — the
+# 5h quota is a percentage of an opaque, model-weighted limit, so `$` is what
+# makes two sessions comparable to each other, and what tells you whether this
+# session was cheap or expensive independently of how full the window happens
+# to be right now.
+#
+# NOT colour-coded: hue() means "how close to a ceiling", and cost has no
+# ceiling to be close to. Tinting it would fake a threshold that doesn't exist.
+#
+# Hidden below a cent rather than shown as `$0.00`: a rounded-to-zero figure is
+# noise. The string compare is deliberate — no float arithmetic in bash.
+COST=$(printf '%.2f' "$(echo "$input" | jq -r '.cost.total_cost_usd // 0')")
+COST_SEG=""
+[ "$COST" != "0.00" ] && COST_SEG="\$${COST}"
 
 BRANCH=""
 git rev-parse --git-dir > /dev/null 2>&1 && BRANCH=" | ⎇ $(git branch --show-current 2>/dev/null)"
@@ -120,14 +142,20 @@ CTX_NUM="$(fmt "$USED")"
 # Effort rides inside the model segment rather than getting its own `| … |`:
 # it IS a model parameter, and the level names (low/medium/high/xhigh/max) can't
 # be mistaken for part of the id.
-MODEL_SEG="${CHIP} ${MODEL}"
+#
+# The context hue rides on the CHIP GLYPH ALONE, not on the model name. The
+# whole segment used to be tinted, which read as "the model is red" — a colour
+# saying something about a value that isn't in that segment. As a single leading
+# dot it's ambient: peripheral pressure at the start of the line, with the exact
+# figure over on the right where the meters live.
+MODEL_SEG="${NUM_COLOR}${CHIP}${RESET} ${MODEL}"
 [ -n "$EFFORT" ] && MODEL_SEG="${MODEL_SEG} ${EFFORT}"
 
-# ─── layout: quota flushed right ──────────────────────────────
-# What you're working ON stays left; the quota gets pushed to the far edge,
-# because it's a budget you glance at rather than something you read in sequence
-# with the rest. The empty gap IS the separator — that's why the leading ` | `
-# comes back off the block below.
+# ─── layout: meters flushed right ─────────────────────────────
+# What you're working ON stays left; every meter gets pushed to the far edge as
+# one block, because they're a budget you glance at rather than something you
+# read in sequence with the rest. The empty gap IS the separator between the two
+# zones — that's why the ` | ` join below is only a fallback.
 #
 # COLUMNS is the only way to know the width: Claude Code captures our stdout
 # instead of wiring it to the tty, so `tput cols` is blind from in here (docs:
@@ -152,8 +180,16 @@ MODEL_SEG="${CHIP} ${MODEL}"
 # visibly broken. Undershooting costs a slightly wider gap on a 164-column
 # terminal — nobody can see it. Bias hard toward undershooting.
 EDGE_RESERVE=8
-LEFT="${NUM_COLOR}${MODEL_SEG}${RESET} | ${DIR_FMT}${BRANCH} | ctx ${NUM_COLOR}${CTX_NUM}${RESET}"
-OUT="${LEFT}${LIMIT}"
+LEFT="${MODEL_SEG} | ${DIR_FMT}${BRANCH}"
+
+# Meters ordered by scope, narrowest first: this turn's window (ctx), this
+# session ($), the rolling 5h window (%↻). Only ctx is guaranteed to be there,
+# so it anchors the block and the other two append.
+RIGHT="ctx ${NUM_COLOR}${CTX_NUM}${RESET}"
+[ -n "$COST_SEG" ] && RIGHT="${RIGHT} | ${COST_SEG}"
+[ -n "$LIMIT" ]    && RIGHT="${RIGHT} | ${LIMIT}"
+
+OUT="${LEFT} | ${RIGHT}"
 
 # Visible width: the colour escapes are zero-width and have to come out before
 # counting, or the block would jump ~5 columns left the moment a gauge turns
@@ -165,8 +201,7 @@ OUT="${LEFT}${LIMIT}"
 # and any non-ASCII cwd from counting 3:1 and dragging the block leftward.
 vis() { local s=${1//$'\033'\[*([0-9;])m/}; printf '%d' "${#s}"; }
 
-if [ -n "$LIMIT" ] && [ -n "$COLUMNS" ]; then
-  RIGHT="${LIMIT# | }"
+if [ -n "$COLUMNS" ]; then
   GAP=$((COLUMNS - EDGE_RESERVE - $(vis "$LEFT") - $(vis "$RIGHT")))
   # Under 3 columns of gap it stops reading as separation and starts reading as
   # a typo, so a narrow terminal keeps the inline join. This doubles as the
