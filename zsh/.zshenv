@@ -50,6 +50,9 @@ export VISUAL="nvim"
 # starting a session and keeps the conversation in the native scrollback.
 export CLAUDE_CODE_NO_FLICKER=1
 
+# Claude Code — disable CFC (context-free composition) mode.
+export CLAUDE_CODE_ENABLE_CFC=false
+
 # ─── local overrides (not versioned) ──────────────────────────
 # ~/.zshenv.local for per-machine secrets/tokens/env vars.
 # Loaded at the end so it can prepend to PATH and override defaults.
