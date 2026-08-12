@@ -18,6 +18,35 @@ link() {
   echo "✓ $dst → $src"
 }
 
+# gh-stack (github/gh-stack) — stacked branches/PRs as a `gh` extension.
+# It is NOT a formula or an apt package: `gh extension install` is the only
+# supported install, so it cannot ride along in the deps block like everything
+# else. Hence a bootstrap here, shared by both installers.
+#
+# Guarded on the extension already being listed — `gh extension install` errors
+# out on a re-run. Deliberately NOT convergent (no `gh extension upgrade`):
+# bumping the version is the user's call, unlike the tmux plugin above, which is
+# pinned precisely so every machine runs the same bytes.
+#
+# `gh` missing is a skip, not a failure: on Linux the apt package only exists on
+# Ubuntu 23.10+/Debian 13, and the installer must not die on an older box.
+bootstrap_gh_stack() {
+  if ! command -v gh >/dev/null 2>&1; then
+    echo "→ gh-stack: skipped (no gh on PATH — install the GitHub CLI first)"
+    return
+  fi
+  if gh extension list 2>/dev/null | grep -q 'github/gh-stack'; then
+    echo "✓ gh-stack extension already installed"
+    return
+  fi
+  echo "→ Installing gh extension github/gh-stack"
+  if gh extension install github/gh-stack </dev/null; then
+    echo "✓ gh-stack installed (gh stack --help)"
+  else
+    echo "⚠️  gh extension install github/gh-stack failed"
+  fi
+}
+
 # tpm (Tmux Plugin Manager) + reload. tpm lives in the installer, not in
 # tmux.conf: cloning it is a one-time bootstrap, not per-launch work. Plugins
 # listed in tmux.conf are installed from inside tmux with `prefix + I` the first

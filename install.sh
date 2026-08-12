@@ -95,6 +95,7 @@ if command -v brew >/dev/null 2>&1; then
     zoxide
     fzf
     jq                    # required by tmux-claude-session-manager (parses `claude agents --json`)
+    gh                    # GitHub CLI — host for the gh-stack extension (bootstrap_gh_stack below)
     git-delta
     pyenv
     neovim
@@ -211,6 +212,7 @@ source "$DOTFILES/claude/install/binaries.sh"
 source "$DOTFILES/claude/install/plugins.sh"
 
 bootstrap_tmux
+bootstrap_gh_stack
 
 # macOS file associations — open config.ghostty in VS Code (not TextEdit).
 # .ghostty has no registered UTI, so macOS falls back to TextEdit by default.

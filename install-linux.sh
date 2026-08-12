@@ -61,6 +61,7 @@ if command -v apt-get >/dev/null 2>&1; then
     bat                           # on Ubuntu 20.04 it was 'batcat'; 22.04+ it is 'bat'
     fzf
     jq                            # required by tmux-claude-session-manager (parses `claude agents --json`)
+    gh                            # GitHub CLI — universe on Ubuntu 23.10+/Debian 13; older releases fail here and bootstrap_gh_stack skips itself
     eza                           # apt 23.10+; on older versions it fails → GH release fallback below
     zsh-syntax-highlighting
     zsh-autosuggestions
@@ -118,6 +119,7 @@ source "$DOTFILES/claude/install/binaries.sh"
 source "$DOTFILES/claude/install/plugins.sh"
 
 bootstrap_tmux
+bootstrap_gh_stack
 
 # ─── zsh-history-substring-search (not in apt) ────────────────
 # The manual plugin goes to ~/.zsh/plugins/, which the .zshrc discovery probes

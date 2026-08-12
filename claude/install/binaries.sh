@@ -207,6 +207,40 @@ elif [[ -z "${OBSIDIAN_API_KEY:-}" ]]; then
   echo "→ obsidian: skipped (no OBSIDIAN_API_KEY — add it to ~/.zshenv.local)"
 fi
 
+# ─── gh-stack skill (stacked PRs) ─────────────────────────────
+# Mechanism 2 with a twist: the external tool here is not a binary we install but
+# `npx skills` (skills.sh / vercel-labs), which resolves the skill from a repo and
+# writes it into ~/.claude/skills/ — same contract, it owns the file layout.
+#
+# The skill lives INSIDE github/gh-stack (skills/gh-stack/, + references/): it
+# teaches the agent the stacked model and the `gh stack` commands. The extension
+# itself is a separate install — `bootstrap_gh_stack` in scripts/lib.sh. Skill
+# without extension is useless, so keep both or drop both.
+#
+# Every flag is load-bearing:
+#   -g              global (~/.claude/skills) — a workflow tool for every repo,
+#                   not a skill of the project the installer happens to run in
+#                   (the CLI's default scope is the CURRENT project: the same
+#                   `--scope user` trap as the MCP registrations above)
+#   -a claude-code  only Claude Code; without it the CLI prompts per detected agent
+#   -s gh-stack     the repo ships one skill, but naming it skips the picker
+#   -y + npx -y     no prompts, and `</dev/null` on top: an installer that blocks
+#                   on invisible stdin is the exact rtk footgun documented above
+#
+# Idempotence is OURS (the CLI re-downloads and re-copies on every `add`), so this
+# guards on the destination dir. That also means it never updates: for that,
+# `npx skills update gh-stack -g`.
+if command -v npx >/dev/null 2>&1 && [[ ! -e "$HOME/.claude/skills/gh-stack" ]]; then
+  echo ""
+  echo "→ Installing the gh-stack skill (npx skills)"
+  if npx -y skills@latest add https://github.com/github/gh-stack \
+       -s gh-stack -a claude-code -g -y >/dev/null 2>&1 </dev/null; then
+    echo "✓ gh-stack skill installed (~/.claude/skills/gh-stack)"
+  else
+    echo "⚠️  gh-stack skill failed — by hand: npx skills add https://github.com/github/gh-stack -s gh-stack -a claude-code -g -y"
+  fi
+fi
+
 # ── convergent cleanup: the line the binary puts in ~/.zshrc ──
 # The binary (src/cli/cli.c, cbm_detect_shell_rc) does its own
 # fopen(~/.zshrc, "a") and appends `export PATH=...` if it does not find an exact
