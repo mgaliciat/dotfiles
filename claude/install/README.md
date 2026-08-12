@@ -16,10 +16,17 @@ installed (the installers run their deps block first).
 | **2** | `binaries.sh` | The **external binary**, in its setup command | Handled by the binary |
 | **3** | `plugins.sh` | The **Claude Code CLI** (`claude plugin`) | Handled by the CLI |
 
-**1 — `settings.sh`.** The only thing we write by hand: `statusLine`, `permissions.allow/deny`,
-and the convergent cleanup of the obsolete `tmux-claude-session-manager` hooks. Additive-only,
-with a guard: if the key already exists on that machine, it is not touched. It also symlinks the
-two versioned pieces of `claude/` (`statusline.sh`, the user-level `CLAUDE.md`).
+**1 — `settings.sh`.** The only thing we write by hand: `statusLine` (+ `refreshInterval`),
+`permissions.allow/deny`, `attribution.commit/pr`, and the convergent cleanup of the obsolete
+`tmux-claude-session-manager` hooks. Additive-only, with a guard: if the key already exists on that
+machine, it is not touched. It also symlinks the two versioned pieces of `claude/`
+(`statusline.sh`, the user-level `CLAUDE.md`).
+
+Note the guards on the nested keys (`statusLine.refreshInterval`, `attribution.commit`,
+`attribution.pr`) key on the **field**, not on its parent object: guarding on the parent means a
+machine that already has one field never receives the others. `attribution.*` is set to the empty
+string on purpose — that is the CLI's documented sentinel for "no trailer at all", and it is what
+suppresses `Co-Authored-By` on commits and PRs (it supersedes the deprecated `includeCoAuthoredBy`).
 
 The permission lists themselves live in **`permissions.json`** — single source of truth, read here
 with `jq --slurpfile` and by `install-windows.ps1` with `ConvertFrom-Json`. Adding a permission in

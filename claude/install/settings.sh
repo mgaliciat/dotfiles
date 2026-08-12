@@ -119,6 +119,37 @@ _settings_set_if_absent '.permissions.deny' \
   '.permissions //= {} | .permissions.deny = $perms[0].deny' \
   'permissions.deny'
 
+# ── attribution: no Co-Authored-By trailer ──
+# `attribution.commit` / `.pr` override the text Claude Code appends to commit
+# messages and PR bodies. An EMPTY STRING is the documented sentinel for "hide it
+# entirely" ("Empty string hides attribution" in the CLI's own settings schema) —
+# it is not a no-op, and it is not the same as leaving the key out, which means
+# "use the default trailer". It supersedes `includeCoAuthoredBy`, which the CLI
+# now marks deprecated: don't add that one back alongside it.
+#
+# Keyed per FIELD rather than on `.attribution`, for the same reason as
+# refreshInterval above: a machine where /config or a hand edit already created
+# the object for ONE field would never get the other. The empty string survives
+# the guard correctly — `jq -e` only fails on `false` and `null`, so `""` reads
+# as present and a re-run leaves it alone instead of rewriting it.
+#
+# There is a third field in the schema, `attribution.sessionUrl` (bool, appends
+# the claude.ai session link on commits/PRs from web or Remote Control sessions).
+# Deliberately not set: it is a different trailer with a different purpose, and
+# it only ever fires on sessions we don't run from here.
+#
+# The user-level claude/CLAUDE.md carries the same rule in prose. Both on purpose:
+# this setting stops the harness INJECTING the trailer instruction, the prose
+# stops one being written by hand into a PR body or a commit made via another
+# tool — and covers machines whose settings.json predates this block.
+_settings_set_if_absent '.attribution.commit' \
+  '.attribution //= {} | .attribution.commit = ""' \
+  'attribution.commit (no Co-Authored-By)'
+
+_settings_set_if_absent '.attribution.pr' \
+  '.attribution //= {} | .attribution.pr = ""' \
+  'attribution.pr (no Co-Authored-By)'
+
 # ── convergent cleanup: stale tmux-claude-session-manager hooks ──
 # Until jul-2026 the plugin read state through 4 hooks (UserPromptSubmit /
 # Notification / PreToolUse / Stop → scripts/state.sh) that these installers

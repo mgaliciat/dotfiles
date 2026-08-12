@@ -10,6 +10,19 @@ Preferences that apply to **every** project, not just this dotfiles repo — unl
 
 Why: code outlives the conversation that produced it, gets read by people (and tools) who never saw that conversation, and a codebase with mixed-language identifiers is the worst of both. When an existing project is already written in another language, match that project — consistency inside one repo beats this default.
 
+## No attribution trailers in commits or PRs
+
+**Never add a `Co-Authored-By: Claude …` trailer** — or any other authorship footer, "generated with" line, or tool-attribution link — to a git commit message or a pull request description. This holds for every route that writes on the user's behalf: `git commit`, `gh pr create`, the GitHub web UI, a git GUI, or any app/MCP that opens a PR.
+
+Why: the commit is the user's. The trailer adds a line of noise to every entry in a history that is read far more often than it is written, and it names a co-author nobody can actually ask about the change.
+
+Enforced in **two** places on purpose, because either alone leaves a hole:
+
+- `attribution: {"commit": "", "pr": ""}` in `~/.claude/settings.json` (written by `claude/install/settings.sh` — an empty string is the documented "hide it" sentinel, not a no-op). This stops the harness from *injecting* the trailer instruction in the first place. It supersedes `includeCoAuthoredBy`, which Claude Code now marks deprecated — don't reach for that one.
+- This rule, which covers what the setting doesn't: a PR body composed by hand, a commit made through another tool, or a machine whose `settings.json` predates the change.
+
+If a repo's own convention *requires* a trailer, that repo wins — same precedence as the English-only rule above.
+
 ## Tools installed by this dotfiles repo
 
 **A down MCP is never worked around.** If a server's tools aren't available in the session, reaching that service by any other route is **forbidden** — no `curl` against its endpoint, no hand-rolled JSON-RPC handshakes, no touching the files behind it. Say the MCP isn't active and stop; the user reconnects it with `/mcp`. Note that `claude mcp list` can report "Connected" while the tools were never registered in the session — the real test is whether `ToolSearch` finds them.

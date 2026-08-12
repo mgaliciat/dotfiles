@@ -213,6 +213,35 @@ if ($Settings.permissions.PSObject.Properties.Name -contains "deny") {
     Write-Host "OK  permissions.deny added to settings.json"
 }
 
+# ─── attribution: no Co-Authored-By trailer (mirror of settings.sh) ───
+# `attribution.commit` / `.pr` override the text Claude Code appends to commit
+# messages and PR bodies; an EMPTY STRING is the documented sentinel for "hide it
+# entirely", not a no-op and not the same as omitting the key (which means "use
+# the default trailer"). Supersedes `includeCoAuthoredBy`, now deprecated in the
+# CLI -- don't add that one back beside it. The prose half of this rule lives in
+# claude/CLAUDE.md, symlinked above; both are needed (setting stops the harness
+# injecting the trailer, prose stops it being written by hand).
+#
+# Per-FIELD guard for the same reason as refreshInterval: a settings.json that
+# already has the object for one field would otherwise never get the other. The
+# type check guards a hand-edited file where `attribution` is not an object --
+# Add-Member would throw and, under $ErrorActionPreference='Stop', kill the run.
+if (-not ($Settings.PSObject.Properties.Name -contains "attribution")) {
+    $Settings | Add-Member -NotePropertyName "attribution" -NotePropertyValue ([PSCustomObject]@{})
+}
+if ($Settings.attribution -isnot [PSCustomObject]) {
+    Write-Host "i   attribution is not an object in settings.json -- leaving it alone"
+} else {
+    foreach ($AttrField in @("commit", "pr")) {
+        if ($Settings.attribution.PSObject.Properties.Name -contains $AttrField) {
+            Write-Host "OK  attribution.$AttrField already set in settings.json -- leaving it alone"
+        } else {
+            $Settings.attribution | Add-Member -NotePropertyName $AttrField -NotePropertyValue ""
+            Write-Host "OK  attribution.$AttrField added to settings.json (empty = no trailer)"
+        }
+    }
+}
+
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
 [System.IO.File]::WriteAllText($SettingsPath, ($Settings | ConvertTo-Json -Depth 10), $Utf8NoBom)
 
