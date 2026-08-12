@@ -230,7 +230,12 @@ fi
 # Idempotence is OURS (the CLI re-downloads and re-copies on every `add`), so this
 # guards on the destination dir. That also means it never updates: for that,
 # `npx skills update gh-stack -g`.
-if command -v npx >/dev/null 2>&1 && [[ ! -e "$HOME/.claude/skills/gh-stack" ]]; then
+if ! command -v npx >/dev/null 2>&1; then
+  # An explicit skip, not a silent one: node is not in any of our package lists,
+  # so on a fresh Linux box this is the common path and a mute installer would
+  # look like it installed the skill.
+  echo "→ gh-stack skill: skipped (no npx — install Node.js and re-run)"
+elif [[ ! -e "$HOME/.claude/skills/gh-stack" ]]; then
   echo ""
   echo "→ Installing the gh-stack skill (npx skills)"
   if npx -y skills@latest add https://github.com/github/gh-stack \

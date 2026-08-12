@@ -100,6 +100,17 @@ if ! command -v fd >/dev/null 2>&1 && command -v fdfind >/dev/null 2>&1; then
   echo "✓ symlink fd → fdfind in ~/.local/bin"
 fi
 
+# bat: same clash, same shim. On Ubuntu 20.04 the apt package installs `batcat`
+# (the name `bat` was taken by bacula-console-qt). This is NOT cosmetic parity
+# with mac: `alias cat='bat …'` in .zshrc is UNGUARDED (unlike the MANPAGER
+# export in .zshenv, which does check), so on a box that only has `batcat`
+# every `cat` in the shell is a broken alias.
+if ! command -v bat >/dev/null 2>&1 && command -v batcat >/dev/null 2>&1; then
+  mkdir -p "$HOME/.local/bin"
+  ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
+  echo "✓ symlink bat → batcat in ~/.local/bin"
+fi
+
 # ─── Claude Code ──────────────────────────────────────────────
 # Same scripts as install.sh (mac) — the Claude Code logic does not diverge
 # between platforms, so it lives once in claude/install/. Three mechanisms split
@@ -149,29 +160,15 @@ if ! command -v zoxide >/dev/null 2>&1; then
     || echo "⚠️  zoxide install failed — the .zshrc will skip smart cd"
 fi
 
-# ─── cargo packages (only what really needs the Rust toolchain) ───
-# delta and tree-sitter have no convenient official curl installer.
-# If cargo is missing we skip them with a clear message (they are not critical).
-if command -v cargo >/dev/null 2>&1; then
-  declare -A CARGO_PACKAGES=(
-    [git-delta]=delta             # the "git-delta" crate installs the "delta" binary
-    [tree-sitter-cli]=tree-sitter
-  )
-
-  for crate in "${!CARGO_PACKAGES[@]}"; do
-    binary="${CARGO_PACKAGES[$crate]}"
-    if ! command -v "$binary" >/dev/null 2>&1; then
-      echo "→ cargo install $crate"
-      cargo install --locked "$crate" || echo "⚠️  $crate failed"
-    fi
-  done
-else
-  echo ""
-  echo "ℹ️  cargo (Rust toolchain) not detected — tree-sitter-cli skipped."
-  echo "   (delta is installed via GH release below, it does not require cargo)."
-  echo "   For tree-sitter: install rustup and re-run this script."
-  echo "     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
-fi
+# ─── no cargo block (deliberately removed) ─────────────────────
+# There used to be a `cargo install` step here for git-delta and tree-sitter-cli,
+# the two mac formulae apt has no equivalent for. It is gone: both now come from
+# a GitHub release below, which needs no Rust toolchain. That closed a real parity
+# gap — tree-sitter was silently skipped on any box without rustup, so
+# nvim-treesitter's `main` branch (which shells out to it to build parsers) was
+# broken on Linux while it worked on mac. Don't reintroduce it: a ~400MB toolchain
+# to compile two binaries that ship prebuilt is the definition of a worse install.
+# The cargo PATH block in .zshenv stays — that is for tools you install by hand.
 
 # ─── GitHub release binaries (what apt lacks or has outdated) ───────
 # Small helpers: arch detection + fetching the latest tag from the GH API.
@@ -257,6 +254,41 @@ if ! command -v eza >/dev/null 2>&1; then
     curl -fsSL "https://github.com/eza-community/eza/releases/download/v${EZA_VER}/eza_${EZA_ARCH}.tar.gz" \
       | tar -xz -C /tmp ./eza && install /tmp/eza "$HOME/.local/bin/" && rm /tmp/eza \
       || echo "⚠️  eza install failed"
+  fi
+fi
+
+# gomi — `rm` with a trash + interactive restore, behind the `gm` alias. A brew
+# formula on mac with no apt equivalent, so without this Linux silently loses the
+# alias: .zshrc guards it with `command -v gomi`, which is exactly why the gap was
+# invisible. goreleaser tarball with the binary at the root, same as lazygit.
+if ! command -v gomi >/dev/null 2>&1; then
+  echo ""
+  echo "→ Installing gomi (GH release)"
+  GOMI_VER=$(_gh_latest_tag babarot/gomi)
+  GOMI_ARCH=$(_arch_x86_arm x86_64 arm64)
+  if [[ -n "$GOMI_VER" && -n "$GOMI_ARCH" ]]; then
+    curl -fsSL "https://github.com/babarot/gomi/releases/download/v${GOMI_VER}/gomi_Linux_${GOMI_ARCH}.tar.gz" \
+      | tar -xz -C /tmp gomi && install /tmp/gomi "$HOME/.local/bin/" && rm /tmp/gomi \
+      || echo "⚠️  gomi install failed"
+  else
+    echo "⚠️  Could not resolve gomi version/arch (GOMI_VER=$GOMI_VER GOMI_ARCH=$GOMI_ARCH)"
+  fi
+fi
+
+# tree-sitter-cli — nvim-treesitter's `main` branch shells out to it to generate
+# parsers, so nvim is degraded without it. This replaces the old `cargo install`
+# (see the tombstone above). The asset is a gzipped BARE BINARY, not a tarball:
+# `gunzip`, not `tar`. Its name carries no version, so the stable
+# latest/download/ URL works and no API call for the tag is needed here.
+if ! command -v tree-sitter >/dev/null 2>&1; then
+  echo ""
+  echo "→ Installing tree-sitter-cli (GH release)"
+  TS_ARCH=$(_arch_x86_arm x64 arm64)
+  if [[ -n "$TS_ARCH" ]]; then
+    curl -fsSL "https://github.com/tree-sitter/tree-sitter/releases/latest/download/tree-sitter-linux-${TS_ARCH}.gz" -o /tmp/tree-sitter.gz \
+      && gunzip -f /tmp/tree-sitter.gz \
+      && install /tmp/tree-sitter "$HOME/.local/bin/" && rm /tmp/tree-sitter \
+      || echo "⚠️  tree-sitter-cli install failed"
   fi
 fi
 

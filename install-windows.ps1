@@ -4,22 +4,31 @@
 # Intentionally narrow scope: zsh/tmux/nvim do not run natively on Windows, so
 # this script is NOT a port of the rest of the dotfiles — see CLAUDE.md, the
 # "per-machine split" section. It covers only:
-#   - symlinks for claude/statusline.ps1, claude/CLAUDE.md, and the per-item
-#     skills we author (bitacora, wiki)
-#   - statusLine + base permissions in settings.json (equivalent to the jq
-#     blocks in install.sh/install-linux.sh, here with native JSON)
-#   - rtk (no official installer for Windows — we download the release zip)
+#   - symlinks for claude/statusline.ps1, claude/CLAUDE.md, the per-item skills
+#     we author (bitacora, wiki), and git/.gitignore_global
+#   - statusLine (+ refreshInterval) and base permissions in settings.json
+#     (equivalent to the jq blocks in install.sh/install-linux.sh, native JSON here)
+#   - rtk (no official installer for Windows — we download the release zip) and
+#     its versioned config.toml, COPIED like on mac/Linux
 #   - codebase-memory-mcp (official install.ps1 installer)
 #   - marketplace plugins (ponytail, andrej-karpathy-skills)
 #   - HTTP-endpoint MCPs (context7, obsidian) — mechanism 2, key from env vars
+#   - gh-stack: the `gh` extension + its skill (npx skills) — mirror of
+#     bootstrap_gh_stack in scripts/lib.sh and the block in binaries.sh
 #   - Nerd Fonts (the ONE stack layer that DOES exist on Windows: Windows
 #     Terminal, unlike zsh/tmux/nvim — so the fonts install.sh puts on the Mac
 #     are useful here too). Maple + Monaspace via scoop; PlemolJP by direct
 #     download (not in any scoop bucket). Best-effort, both guarded/try-catch.
 #
-# Those four bullets are the three mechanisms of claude/install/ (settings.sh /
+# Those bullets are the three mechanisms of claude/install/ (settings.sh /
 # binaries.sh / plugins.sh) replicated by hand: PowerShell cannot source the bash
 # scripts. If you touch something over there, check whether it applies here.
+#
+# What is still deliberately ABSENT vs install.sh, and why: zsh/tmux/nvim/ghostty
+# and their symlinks (do not run natively), the shell tools behind their aliases
+# (eza/bat/fd/gomi/zoxide/fzf/starship — no zsh to alias them from), 1password-cli
+# (nothing in this repo references `op`), and Paper Mono (the ghostty font-family;
+# no ghostty here, and the NF families below are what Windows Terminal needs).
 #
 # Usage: open PowerShell (5.1 or pwsh 7+) in this folder and run
 #   ./install-windows.ps1
@@ -126,6 +135,13 @@ New-Item -ItemType Directory -Path $SkillsDir -Force | Out-Null
 Set-DotfileSymlink (Join-Path $Dotfiles "claude\skills\bitacora") (Join-Path $SkillsDir "bitacora")
 Set-DotfileSymlink (Join-Path $Dotfiles "claude\skills\wiki")     (Join-Path $SkillsDir "wiki")
 
+# The one NON-Claude symlink from install.sh that is portable here: git runs
+# natively on Windows, unlike zsh/tmux/nvim/ghostty. Inert on its own -- it only
+# takes effect once ~/.gitconfig points at it (`[core] excludesfile`), which is
+# per-machine and NOT versioned, exactly as on mac. Linking it anyway means that
+# when you do write that gitconfig, the file is already there and tracks the repo.
+Set-DotfileSymlink (Join-Path $Dotfiles "git\.gitignore_global") (Join-Path $HOME ".gitignore_global")
+
 # ─── settings.json: statusLine + base permissions ──────────────
 # Additive-only, same as install.sh/install-linux.sh: if the key already exists
 # (you built your own config by hand on this machine) it is not touched.
@@ -151,6 +167,27 @@ if ($Settings.PSObject.Properties.Name -contains "statusLine") {
         command = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$StatuslinePs1`""
     })
     Write-Host "OK  statusLine added to settings.json (powershell -> statusline.ps1)"
+}
+
+# Keyed on the NESTED field, not on `.statusLine` -- mirror of settings.sh. The
+# guard above is satisfied by ANY pre-existing statusLine, so a machine that
+# already had one would otherwise never get the interval. Runs second so it lands
+# on the object the block above may have just created.
+#
+# Without it the status line re-renders on EVENTS only, and the `↻` countdown to
+# the 5h rate-limit reset freezes while the session is idle -- which is exactly
+# when you are looking at it. 60s because the countdown is rendered in minutes.
+#
+# The type check is not paranoia about our own write: it guards a hand-edited
+# settings.json where statusLine is a bare string. Add-Member on a string throws,
+# and with $ErrorActionPreference='Stop' that kills the whole installer.
+if ($Settings.statusLine -isnot [PSCustomObject]) {
+    Write-Host "i   statusLine is not an object in settings.json -- skipping refreshInterval"
+} elseif ($Settings.statusLine.PSObject.Properties.Name -contains "refreshInterval") {
+    Write-Host "OK  statusLine.refreshInterval already set in settings.json -- leaving it alone"
+} else {
+    $Settings.statusLine | Add-Member -NotePropertyName "refreshInterval" -NotePropertyValue 60
+    Write-Host "OK  statusLine.refreshInterval added to settings.json (60s)"
 }
 
 if (-not ($Settings.PSObject.Properties.Name -contains "permissions")) {
@@ -218,6 +255,46 @@ if (Test-Path $RtkExe) {
         Write-Host "OK  rtk Claude Code hook configured (or already there)"
     } catch {
         Write-Host "!!  rtk init --global failed -- check by hand ($RtkExe init --global -v)" -ForegroundColor Yellow
+    }
+
+    # ── rtk config.toml: COPIED, not symlinked (port of binaries.sh) ──
+    # The only copy-instead-of-link in the repo, and the exception is earned: rtk
+    # does a load -> mutate -> serialize round-trip on its config (`rtk telemetry
+    # disable` alone drops every comment and appends a consent_date timestamp), so
+    # through a symlink that per-machine state lands in this PUBLIC repo -- the
+    # same failure that keeps settings.json unversioned. Repo file = source of
+    # truth, installed copy = disposable. WHY the values (raised caps, tee=always,
+    # diff/curl excluded) is commented in claude/install/rtk-config.toml itself.
+    #
+    # The path is NOT hardcoded. binaries.sh can afford an OS branch because it
+    # only has two arms (Application Support / XDG), but rtk's README documents no
+    # Windows location -- so we ask rtk itself: `rtk config` prints "Config: <path>"
+    # as its first line. Self-correcting if the convention ever changes, and a
+    # clean skip if the output shape does.
+    #
+    # Unconditional copy (convergent): a `git pull` + re-run realigns a machine
+    # whose copy rtk has since rewritten. Only a DIVERGED copy is backed up first,
+    # matching link()'s contract on the bash side -- the steady state (our file,
+    # comment-stripped by rtk) must not spawn a backup on every run.
+    $RtkCfgSrc = Join-Path $Dotfiles "claude\install\rtk-config.toml"
+    $RtkCfg = $null
+    $prevEap = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try { $RtkCfgOut = @(& $RtkExe config 2>&1) } finally { $ErrorActionPreference = $prevEap }
+    foreach ($ln in $RtkCfgOut) {
+        if ("$ln" -match '^\s*Config:\s*(.+?)\s*$') { $RtkCfg = $Matches[1]; break }
+    }
+    if ($RtkCfg) {
+        if ((Test-Path $RtkCfg) -and -not (Test-SameContent $RtkCfg $RtkCfgSrc)) {
+            $RtkCfgBackup = "$RtkCfg.backup.$(Get-Date -Format 'yyyyMMdd_HHmmss')"
+            Copy-Item $RtkCfg $RtkCfgBackup -Force
+            Write-Host "-> backing up diverged $RtkCfg to $RtkCfgBackup"
+        }
+        New-Item -ItemType Directory -Path (Split-Path $RtkCfg -Parent) -Force | Out-Null
+        Copy-Item $RtkCfgSrc $RtkCfg -Force
+        Write-Host "OK  rtk config.toml installed (copy -- rtk rewrites it, cannot be a symlink)"
+    } else {
+        Write-Host "!!  could not resolve rtk's config path from 'rtk config' -- config.toml not installed" -ForegroundColor Yellow
     }
 } else {
     Write-Host "!!  rtk could not be installed -- check by hand (https://github.com/rtk-ai/rtk)" -ForegroundColor Yellow
@@ -346,6 +423,74 @@ if (Get-Command claude -ErrorAction SilentlyContinue) {
     Install-ClaudePlugin "https://github.com/multica-ai/andrej-karpathy-skills" "andrej-karpathy-skills@karpathy-skills" "andrej-karpathy-skills"
 } else {
     Write-Host "i   claude not detected in PATH -- skipping plugins"
+}
+
+# ─── gh-stack: the `gh` extension ───────────────────────────────
+# Port of bootstrap_gh_stack (scripts/lib.sh). gh-stack is stacked branches/PRs as
+# a `gh` extension -- `gh extension install` is its only supported install, which
+# is why it cannot ride along in a package list like everything else.
+#
+# `gh` is NOT auto-installed, same call as scoop below: pulling in winget here
+# would run a package manager inside a script that may be elevated for the
+# symlinks. Missing gh is a skip with a hint, never a failure.
+#
+# Guarded on the extension already being listed -- `gh extension install` errors
+# out on a re-run. Deliberately NOT convergent (no `gh extension upgrade`):
+# bumping the version is the user's call, unlike the tmux plugin on the bash side,
+# which is SHA-pinned precisely so every machine runs the same bytes.
+if (Get-Command gh -ErrorAction SilentlyContinue) {
+    # Needs the OUTPUT, so Invoke-Native (which swallows it) is no use here --
+    # same EAP dance by hand so a stderr write cannot kill the script.
+    $prevEap = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try { $GhExts = @(gh extension list 2>&1) } finally { $ErrorActionPreference = $prevEap }
+
+    if ($GhExts -match 'github/gh-stack') {
+        Write-Host "OK  gh-stack extension already installed"
+    } elseif ((Invoke-Native { $null | gh extension install github/gh-stack }) -eq 0) {
+        Write-Host "OK  gh-stack installed (gh stack --help)"
+    } else {
+        Write-Host "!!  gh extension install github/gh-stack failed" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "i   gh-stack: skipped (no gh on PATH). Get the GitHub CLI with:"
+    Write-Host "      winget install --id GitHub.cli"
+}
+
+# ─── gh-stack skill (mechanism 2 — twin of binaries.sh) ─────────
+# The skill lives INSIDE github/gh-stack (skills/gh-stack/ + references/): it
+# teaches the agent the stacked model and the `gh stack` commands. The external
+# tool here is not a binary but `npx skills` (skills.sh), which resolves the skill
+# from the repo and writes it into ~/.claude/skills/ -- same mechanism-2 contract,
+# it owns the file layout. Skill without extension is useless, so keep both or
+# drop both.
+#
+# Every flag is load-bearing:
+#   -g              global (~/.claude/skills) -- a workflow tool for every repo,
+#                   not a skill of the project the installer happens to run in
+#                   (the CLI's default scope is the CURRENT project: the same
+#                   `--scope user` trap as the MCP registrations above)
+#   -a claude-code  only Claude Code; without it the CLI prompts per detected agent
+#   -s gh-stack     the repo ships one skill, but naming it skips the picker
+#   -y + npx -y     no prompts, and `$null |` on top to close stdin: an installer
+#                   that blocks on invisible stdin is the rtk footgun all over again
+#
+# Idempotence is OURS (the CLI re-downloads and re-copies on every `add`), so the
+# guard is the destination dir. That also means it never updates: for that,
+# `npx skills update gh-stack -g`.
+$GhStackSkill = Join-Path $SkillsDir "gh-stack"
+if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
+    Write-Host "i   gh-stack skill: skipped (no npx on PATH -- install Node.js)"
+} elseif (Test-Path $GhStackSkill) {
+    Write-Host "OK  gh-stack skill already installed"
+} else {
+    Write-Host ""
+    Write-Host "-> Installing the gh-stack skill (npx skills)"
+    if ((Invoke-Native { $null | npx -y skills@latest add https://github.com/github/gh-stack -s gh-stack -a claude-code -g -y }) -eq 0) {
+        Write-Host "OK  gh-stack skill installed ($GhStackSkill)"
+    } else {
+        Write-Host "!!  gh-stack skill failed -- by hand: npx skills add https://github.com/github/gh-stack -s gh-stack -a claude-code -g -y" -ForegroundColor Yellow
+    }
 }
 
 # ─── Nerd Fonts via scoop ───────────────────────────────────────
