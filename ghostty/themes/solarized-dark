@@ -1,0 +1,45 @@
+# solarized-dark — Ethan Schoonover's canonical Solarized Dark.
+# Mirror of nvim/lua/themes/solarized-dark.lua and tmux/themes/solarized-dark.conf.
+#
+# The original, NOT the osaka fork: base03 (#002b36) canvas instead of
+# craftzdog's deep-ocean #031219, and no re-tuned accents — the hex below is
+# Solarized's published palette, unmodified.
+#
+# The ANSI 16 mapping is identical to solarized-light's (the canonical scheme
+# is shared; only background/foreground flip). So the "brights" (8-15) are the
+# base tones base03/base01/base00/base0 — over THIS background they read as
+# low-contrast UI grays, which is the intent: Solarized reserves the accents
+# for content.
+
+# background and text
+background = #002b36
+foreground = #839496
+
+# cursor — base1 (emphasized ink), high visibility over base03
+cursor-color = #93a1a1
+cursor-text  = #002b36
+
+# selection — base02, base1 text stays readable
+selection-background = #073642
+selection-foreground = #93a1a1
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# Canonical Solarized scheme. normals (0-7)
+palette = 0=#073642
+palette = 1=#dc322f
+palette = 2=#859900
+palette = 3=#b58900
+palette = 4=#268bd2
+palette = 5=#d33682
+palette = 6=#2aa198
+palette = 7=#eee8d5
+
+# brights (8-15): base tones + orange/violet
+palette = 8=#002b36
+palette = 9=#cb4b16
+palette = 10=#586e75
+palette = 11=#657b83
+palette = 12=#839496
+palette = 13=#6c71c4
+palette = 14=#93a1a1
+palette = 15=#fdf6e3

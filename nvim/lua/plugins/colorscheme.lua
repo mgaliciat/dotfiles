@@ -20,6 +20,7 @@
 --   prism-night      deep night-blue + spectrum accents
 --   paper            light cream + sepia ink
 --   solarized-light  canonical Solarized Light
+--   solarized-dark   canonical Solarized Dark (the original, not the osaka fork)
 --   retta            Eclipse "Retta" port (true black + pumpkin/cream, high contrast)
 --   obsidian         high-contrast dark, cyan accent (nvim only + fallback)
 --

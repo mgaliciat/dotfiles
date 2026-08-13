@@ -20,7 +20,7 @@
 # the file is versioned, a `git pull` propagates the theme to the other
 # machines. To change the look: edit this line (and the equivalent lines
 # in nvim and tmux — they share the id) and commit. There's no switcher and no pointer.
-theme = solarized-osaka
+theme = solarized-dark
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -50,6 +50,8 @@ theme = solarized-osaka
 #     Sampled from the macOS "prism" wallpaper.
 #   · paper — light cream + sepia ink.
 #   · solarized-light — Ethan Schoonover's canonical Solarized Light.
+#   · solarized-dark — its dark companion, the canonical one (base03 canvas,
+#     published accents) — the original, not the osaka fork above.
 # Canvas override — BELONGS TO solarized-osaka, not to the stack in general.
 # craftzdog's Ghostty uses the built-in "Solarized Dark - Patched" but overrides
 # the background with #031219 (deep ocean, near-black blue, a touch lighter than
@@ -60,9 +62,9 @@ theme = solarized-osaka
 # looks like it never applied (only its ANSI/cursor change). Re-enable it only
 # together with `theme = solarized-osaka`; leave it commented for everything else.
 #
-# ACTIVE (2026-07-28) — osaka IS the current theme, so this line belongs on.
-# Comment it back out the same commit `theme =` moves to anything else.
-background = #031219
+# OFF (2026-08-12) — the active theme is solarized-dark, whose own canvas is
+# base03 (#002b36). Left commented; re-enable it only with `theme = solarized-osaka`.
+# background = #031219
 
 # Display P3 wide-gamut — orange and cream saturate more on
 # M-chip / Retina screens. No downside on non-P3 machines.
@@ -77,7 +79,7 @@ window-colorspace = display-p3
 #         paper, solarized-light).
 #   4.5 = WCAG AA body text. Rescues every gray but DISTORTS brand
 #         colors: Claude orange ends up nearly black. Not recommended.
-# At 1.1 because the active theme (solarized-osaka) is dark with
+# At 1.1 because the active theme (solarized-dark) is dark with
 # intentionally muted grays (solarized base01/base00) — full fidelity to the
 # theme. If you switch to a light theme from the family, raise it to 3.0.
 minimum-contrast = 1.1
