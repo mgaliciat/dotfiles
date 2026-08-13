@@ -85,21 +85,25 @@ window-colorspace = display-p3
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
-# PlemolJP Console NF — on trial (2026-08-03), replacing Paper Mono
-# (2026-07-30), which replaced Google Sans Code (2026-07-29), which replaced
-# 0xProto (2026-07-28). IBM Plex Mono + IBM Plex Sans JP composite; the
-# "Console NF" variant is the Nerd Font build with half-width icons, so
-# starship/tmux glyphs come from the family itself — no per-glyph fallback.
-# Real italics ship (separate Italic files, not synthesized).
-# To go back: font-family = "Paper Mono", "Google Sans Code",
+# Google Sans Code — back as primary (2026-08-13) after the PlemolJP Console NF
+# trial (2026-08-03), which replaced Paper Mono (2026-07-30), which replaced
+# this same Google Sans Code (2026-07-29), which replaced 0xProto (2026-07-28).
+# Variable ttf (Light→ExtraBold) + a separate variable Italic file, so italics
+# are real, not synthesized.
+# NOT a Nerd Font: every powerline/devicon glyph comes from the NF families in
+# install.sh's cask list (PlemolJP NF, Maple NF, 0xProto NF, Monaspace NF) via
+# Ghostty's automatic fallback. Don't prune them while this is the primary —
+# same dependency Paper Mono had.
+# To go back: font-family = "PlemolJP Console NF", "Paper Mono",
 # "0xProto Nerd Font Mono" or "Maple Mono NF".
 # Name cross-checked against `ghostty +list-fonts` — +validate-config does
 # NOT catch a missing family, it falls back silently.
-font-family = "PlemolJP Console NF"
+font-family = "Google Sans Code"
 font-size = 16
 
-# Standard ligatures — PlemolJP (IBM Plex based) ships no coding ligatures,
-# so this is a no-op today; kept so a future font with +liga just works.
+# Standard ligatures — Google Sans Code ships no `liga` feature either (its
+# GSUB has only aalt/ccmp/locl/ss01), so this stays a no-op; kept so a future
+# font with +liga just works.
 font-feature = +liga
 
 font-thicken = true
