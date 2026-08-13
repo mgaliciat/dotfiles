@@ -79,10 +79,15 @@ window-colorspace = display-p3
 #         paper, solarized-light).
 #   4.5 = WCAG AA body text. Rescues every gray but DISTORTS brand
 #         colors: Claude orange ends up nearly black. Not recommended.
-# At 1.1 because the active theme (solarized-dark) is dark with
-# intentionally muted grays (solarized base01/base00) — full fidelity to the
-# theme. If you switch to a light theme from the family, raise it to 3.0.
-minimum-contrast = 1.1
+# At 3.0 (2026-08-13) even though solarized-dark is a DARK theme — the usual
+# reason to raise it is a light one. Measured over base03 (#002b36), exactly
+# ONE tone is below the floor: base01 #586e75 at 2.79:1 (comments, borders,
+# inactive UI) — that's the one this lifts. Everything else already clears it
+# and passes through untouched: base00 3.37, base0 (fg) 4.75, and every accent
+# from red/orange/magenta ~3.3 up to blue 4.08 and base1 5.61.
+# So the trade is narrow and deliberate: Schoonover's dimmed comments in
+# exchange for legibility. Back to 1.1 if that dimming was the point.
+minimum-contrast = 3.0
 
 # ─── typography ───────────────────────────────────────────────
 # Google Sans Code — back as primary (2026-08-13) after the PlemolJP Console NF
