@@ -11,7 +11,7 @@
 #   $HOME/.local/bin → Homebrew (mac or linux) → $HOME/.cargo/bin → rest of the PATH
 # ~/.zshenv.local can prepend afterwards and win priority.
 
-# Cargo (Rust tools on Linux/WSL: starship, zoxide, delta, etc.)
+# Cargo (Rust tools on Linux/WSL: zoxide, delta, etc.)
 [[ -d "$HOME/.cargo/bin" ]] && export PATH="$HOME/.cargo/bin:$PATH"
 
 # Linuxbrew (rare, but supported for completeness)

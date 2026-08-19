@@ -8,7 +8,7 @@
 #    2. tool inits                                   (pyenv, zoxide, fzf)
 #    3. aliases
 #    4. plugins                                      (syntax-highlight LAST)
-#    5. prompt                                       (starship)
+#    5. prompt
 #    6. local overrides                              (~/.zshrc.local)
 # ═══════════════════════════════════════════════════════════════
 
@@ -207,10 +207,11 @@ ZSH_HIGHLIGHT_STYLES[builtin]='fg=#87a96b'
 ZSH_HIGHLIGHT_STYLES[alias]='fg=#87a96b'
 ZSH_HIGHLIGHT_STYLES[function]='fg=#87a96b'
 
-# ─── prompt: Starship ─────────────────────────────────────────
-# command -v guard: if starship isn't installed we avoid an error at startup.
-# Without starship the prompt falls back to zsh's default (`%~ $`) — functional but ugly.
-command -v starship >/dev/null && eval "$(starship init zsh)"
+# ─── prompt ───────────────────────────────────────────────────
+# The system default (macOS /etc/zshrc uses `%n@%m %1~ %#`), with `$` as the
+# sigil instead of `%`. Starship was removed (aug-2026): the terminal's width
+# belongs to the command, and git state is one `git status` away.
+PROMPT='%n@%m %1~ $ '
 
 # ─── window title + cwd reporting ─────────────────────────────
 # Two things on every prompt, both via precmd:

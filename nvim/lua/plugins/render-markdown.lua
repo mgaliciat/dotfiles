@@ -6,7 +6,7 @@
 -- Dependencies: nvim-treesitter with the `markdown` + `markdown_inline` parsers
 -- (already installed in plugins/treesitter.lua).
 --
--- Glyphs use a nerd font (your Ghostty already has it — Starship requires it).
+-- Glyphs use a nerd font (your Ghostty already has it).
 --
 -- Why this plugin and not `peek.nvim` / `markdown-preview.nvim` /
 -- `leaf -w` in a split: in-place render avoids the context-switch. You edit in

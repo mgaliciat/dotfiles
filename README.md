@@ -4,7 +4,7 @@
 
 <h1 align="center">dotfiles</h1>
 
-Personal config for macOS — Ghostty terminal, zsh, Starship prompt, Neovim, tmux, lazygit.
+Personal config for macOS — Ghostty terminal, zsh, Neovim, tmux, lazygit.
 
 ## What's here
 
@@ -12,7 +12,6 @@ Personal config for macOS — Ghostty terminal, zsh, Starship prompt, Neovim, tm
 |---|---|
 | `zsh/.zshrc` | Interactive shell config (no Oh My Zsh — startup ~60ms) |
 | `zsh/.zshenv` | Env vars and PATH, loaded for all shells |
-| `starship/starship.toml` | Starship prompt config |
 | `ghostty/config.ghostty` | Ghostty terminal config — theme, fonts, keybinds |
 | `git/.gitignore_global` | Global gitignore — macOS noise, editor files, build dirs, **and AI-agent scratch** (`.claude/`, `.cursor/`, `.aider*`, `.covenant/`, etc.), deliberately excluded in every repo |
 | `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*`; the active theme is `vim.g.theme` in `lua/config/options.lua` (currently `solarized-dark`, part of the cross-stack Ghostty+nvim+tmux theme). Cheatsheets: `NVIM-CHEATSHEET.md` (root) has the most up-to-date plugin coverage; `nvim/CHEATSHEET.md` goes deeper on native vim/LSP but is missing plugins |
@@ -42,9 +41,9 @@ cd ~/dotfiles
 
 `install.sh` takes care of:
 
-1. Symlinking configs (`.zshrc`, `.zshenv`, `.gitignore_global`, ghostty, starship, nvim, tmux, lazygit, `claude/CLAUDE.md`, `claude/statusline.sh`)
+1. Symlinking configs (`.zshrc`, `.zshenv`, `.gitignore_global`, ghostty, nvim, tmux, lazygit, `claude/CLAUDE.md`, `claude/statusline.sh`)
 2. Auto-installing missing dependencies via Homebrew:
-   - **Formulae**: `starship`, `zsh-syntax-highlighting`, `zsh-autosuggestions`, `zsh-history-substring-search`, `eza`, `bat`, `fd`, `ripgrep`, `gomi`, `zoxide`, `fzf`, `jq`, `git-delta`, `pyenv`, `neovim`, `tree-sitter-cli`, `tmux`, `lazygit`, `rtk`
+   - **Formulae**: `zsh-syntax-highlighting`, `zsh-autosuggestions`, `zsh-history-substring-search`, `eza`, `bat`, `fd`, `ripgrep`, `gomi`, `zoxide`, `fzf`, `jq`, `git-delta`, `pyenv`, `neovim`, `tree-sitter-cli`, `tmux`, `lazygit`, `rtk`
    - **Casks**: `ghostty`, `font-plemol-jp-nf`, `font-ia-writer-mono`, `font-monaspace`
 3. Configuring Claude Code (all idempotent and **additive-only**: anything you set up by hand on that machine is never clobbered):
    - `statusLine` + base `permissions` in the real `settings.json` (which is NOT versioned)
@@ -66,7 +65,6 @@ After a `git pull` on an already-configured Mac, the files are up to date throug
 | Changed tool | How to apply |
 |---|---|
 | `zsh/*` | `exec zsh` in every open terminal |
-| `starship/*` | Automatic — re-read on every prompt |
 | `ghostty/*` | `Cmd+Shift+R` reloads most settings. **For new `keybind`s: full quit (`Cmd+Q`) + relaunch** — the reload doesn't always pick them up |
 | `tmux/*` | `./install.sh` already does it; or manually: `tmux source ~/.config/tmux/tmux.conf` |
 | `nvim/*` | Restart nvim (or `:Lazy reload <plugin>` for a single plugin) |

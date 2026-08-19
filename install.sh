@@ -12,7 +12,6 @@ source "$DOTFILES/scripts/lib.sh"
 
 link "$DOTFILES/zsh/.zshrc"             "$HOME/.zshrc"
 link "$DOTFILES/zsh/.zshenv"            "$HOME/.zshenv"
-link "$DOTFILES/starship/starship.toml" "$HOME/.config/starship.toml"
 # A stale orphaned `config` (no extension) wins over our symlink and loads its
 # own inline content, ignoring the dotfiles theme. Defensive backup before
 # linking config.ghostty.
@@ -83,7 +82,6 @@ link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
 # on the second run.
 if command -v brew >/dev/null 2>&1; then
   REQUIRED_FORMULAE=(
-    starship
     zsh-syntax-highlighting
     zsh-autosuggestions
     zsh-history-substring-search

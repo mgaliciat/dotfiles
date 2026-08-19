@@ -4,16 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Purpose
 
-Personal dotfiles, primarily for macOS (Ghostty + Homebrew), with a portable subset that works on Linux/WSL2 (zsh, Starship, nvim, tmux, lazygit, git). The repo holds the **portable / shared layer**; anything per-machine (identity, secrets, settings that diverge across machines) is intentionally not versioned. Understand this split before suggesting changes — the wrong "improvement" can leak personal state into a public repo.
+Personal dotfiles, primarily for macOS (Ghostty + Homebrew), with a portable subset that works on Linux/WSL2 (zsh, nvim, tmux, lazygit, git). The repo holds the **portable / shared layer**; anything per-machine (identity, secrets, settings that diverge across machines) is intentionally not versioned. Understand this split before suggesting changes — the wrong "improvement" can leak personal state into a public repo.
 
 Native Windows (no WSL2 — `install-linux.sh` already covers that) has a fourth entry point, `install-windows.ps1`, with **deliberately narrow scope**: zsh/tmux/nvim don't run natively there, so it is NOT a port of the rest of the stack — it covers the Claude Code pieces plus **Nerd Fonts** (the one stack layer that *does* exist on Windows: Windows Terminal). Don't expect feature parity with `install.sh` / `install-linux.sh`.
 
 ## Commands
 
 - `./install.sh` — macOS entry point. Idempotent: backs up existing files (`.backup.<timestamp>`) before symlinking. Re-run after `git pull`. Auto-installs Homebrew deps + casks (fonts included), registers VS Code as the default app for `.ghostty` files.
-- `./install-linux.sh` — Ubuntu/Debian/WSL2 entry point. Same symlinks (portable subset — skips ghostty and its themes) + apt for what it has + official curl installers (starship, zoxide, pyenv) and **GitHub release binaries** for what it doesn't (lazygit, nvim 0.10+, delta, eza, gomi, tree-sitter-cli). Detects WSL2 and prints specific hints. **There is no `cargo install` step** — it was removed (jul-2026) once delta and tree-sitter both had a release fallback; a ~400MB Rust toolchain to compile two binaries that ship prebuilt is a worse install, and gating tree-sitter on rustup silently broke nvim-treesitter's `main` branch on every box without it. Don't reintroduce it.
+- `./install-linux.sh` — Ubuntu/Debian/WSL2 entry point. Same symlinks (portable subset — skips ghostty and its themes) + apt for what it has + official curl installers (zoxide, pyenv) and **GitHub release binaries** for what it doesn't (lazygit, nvim 0.10+, delta, eza, gomi, tree-sitter-cli). Detects WSL2 and prints specific hints. **There is no `cargo install` step** — it was removed (jul-2026) once delta and tree-sitter both had a release fallback; a ~400MB Rust toolchain to compile two binaries that ship prebuilt is a worse install, and gating tree-sitter on rustup silently broke nvim-treesitter's `main` branch on every box without it. Don't reintroduce it.
 - `./install-windows.ps1` — native Windows entry point. Narrow scope: the Claude Code pieces (all three mechanisms, incl. `rtk-config.toml` and the gh-stack extension + skill) + `git/.gitignore_global` + Nerd Fonts for Windows Terminal (Maple + Monaspace via scoop, PlemolJP by direct download). Needs Developer Mode enabled for symlinks (falls back to copying the file).
-- `exec zsh` — reload the shell after editing `zsh/` files. Ghostty reloads its own config on save; Starship reads `~/.config/starship.toml` on every prompt render.
+- `exec zsh` — reload the shell after editing `zsh/` files. Ghostty reloads its own config on save.
 
 There is no test suite, lint, or build. Changes are validated by running them.
 
@@ -26,7 +26,7 @@ The defining decision in this repo. Some things are versioned (shared across mac
 | `zsh/.zshrc`                | `~/.zshrc.local` (sourced at end)            |
 | `zsh/.zshenv`               | `~/.zshenv.local` (sourced at end — secrets) |
 | `git/.gitignore_global`     | `~/.gitconfig` itself (not symlinked at all) |
-| `starship/starship.toml`    | `~/.gitconfig.local` (`[include]` at end → wins on conflicts) |
+| `ghostty/themes/*`          | `~/.gitconfig.local` (`[include]` at end → wins on conflicts) |
 | `ghostty/config.ghostty`    | `~/.claude/settings.json` (never versioned, never symlinked) |
 | `claude/statusline.sh`      | `~/.claude/skills/` (real dir, per-machine)  |
 | `claude/CLAUDE.md` (user-level, → `~/.claude/CLAUDE.md`) | `~/.claude/projects/*/memory/` (Claude Code owns it) |
@@ -80,7 +80,7 @@ Preferences that apply to ALL projects, not just this repo — distinct from the
 
 ## The stack theme
 
-The terminal look is **one theme spanning three layers** (Ghostty + nvim + tmux); starship adapts on its own via ANSI names. One canonical id means the same thing in all three. Selection is a **direct, versioned value in each config** — no switcher, no pointer. You change the look by editing **three lines** and committing; a `git pull` propagates it to the other machines.
+The terminal look is **one theme spanning three layers** (Ghostty + nvim + tmux). One canonical id means the same thing in all three. Selection is a **direct, versioned value in each config** — no switcher, no pointer. You change the look by editing **three lines** and committing; a `git pull` propagates it to the other machines.
 
 - **The three selection lines** (source of truth, all versioned): Ghostty `theme = <id>` in `ghostty/config.ghostty`; nvim `vim.g.theme = "<id>"` in `nvim/lua/config/options.lua`; tmux `source ~/.config/tmux/themes/<id>.conf` in `tmux/tmux.conf`. All three must point at the **same id** or the layers desync. No fallback, no override-at-end: what the line says is what you get.
 - **Why direct and not via a script.** There was a `scripts/theme <id>` that wrote three pointers. It was **deleted**: once selection became versioned, the pointer was redundant with the config's own `theme =` and added indirection for nothing. If you find `scripts/theme` in the history, that's what it was — don't revive it.
@@ -97,7 +97,7 @@ The terminal look is **one theme spanning three layers** (Ghostty + nvim + tmux)
 - **`pyenv` is lazy-loaded** via a shim function that self-replaces on first call. Eager `pyenv init` adds ~40ms. Other tools (`zoxide`, `fzf`) are eager because they're cheap.
 - **`.zshenv` vs `.zshrc`**: env vars and `PATH` that subprocesses (Docker, Claude Code, scripts) need go in `.zshenv`. Aliases, prompt, plugins, UI go in `.zshrc`. Don't move PATH setup into `.zshrc` — non-interactive shells won't see it.
 - **Plugin loading is cross-platform via dynamic discovery.** `_load_zsh_plugin` in `.zshrc` probes several paths in order (macOS brew → linuxbrew → apt `/usr/share` → manual `~/.zsh/plugins`). That's what lets the same `.zshrc` be symlinked on both mac and Linux/WSL2. Do NOT hardcode `/opt/homebrew/share/...` back in, however much cleaner it looks — it breaks Linux.
-- **PATH in `.zshenv` is conditional.** Each block (brew mac, linuxbrew, cargo) is prepended only if the dir exists. Cargo paths only show up on Linux/WSL2, where the Rust tools (starship, eza, zoxide, delta) are usually installed that way.
+- **PATH in `.zshenv` is conditional.** Each block (brew mac, linuxbrew, cargo) is prepended only if the dir exists. Cargo paths only show up on Linux/WSL2, where the Rust tools (eza, zoxide, delta) are usually installed that way.
 
 ## tmux design constraints
 
@@ -124,7 +124,6 @@ The terminal look is **one theme spanning three layers** (Ghostty + nvim + tmux)
 ## Tool-specific gotchas
 
 - **Ghostty config does NOT allow inline comments** on the same line as a value (`key = val  # comment` breaks). Comments go on their own line. (`audible-bell` is also not a valid key — use `bell-features`.)
-- **Starship `$` is a variable sigil.** A literal `$` in a format string needs `\$` (in TOML double-quoted, write `\\$`). Same for `[` and `]` → `\\[`, `\\]`.
 - **`.ghostty` files have no macOS UTI**, so without intervention `⌘,` opens them in TextEdit. `install.sh` registers VS Code via `defaults write` on `LaunchServices`; the block is idempotent.
 - **`bat` is aliased to `cat`** — `\cat` invokes the real one when you need to bypass the alias (e.g. piping into tools that choke on bat output).
 - **nvim `init.lua` order is load-bearing**: `options` → `keymaps` (sets `<leader>`) → `lazy` (reads `mapleader` when registering `keys`) → `autocmds`. Don't reorder.
@@ -137,7 +136,7 @@ The terminal look is **one theme spanning three layers** (Ghostty + nvim + tmux)
 - **Section headers** use box-drawing: `# ─── name ──────────────────────` in zsh/toml; `; ─── name ─────` in `.gitconfig`. Keep them.
 - **English only** (as of jul-2026). Comments and prose used to be mostly Spanish; the repo is public and was translated wholesale. Don't reintroduce Spanish — including in new files. This covers **code and everything documenting it**: identifiers (variables, functions, files), comments, commit messages, and any prose that ships inside the repo — regardless of the language the session is being conducted in. Chat replies still follow the user's language; the rule is about what lands on disk. Same rule as the user-level `claude/CLAUDE.md` ("Code is written in English"), restated here because this repo is public and it's the one place the two could drift.
 - **Commit messages** are lowercase, prefixed with one of: `add:`, `feat:`, `fix:`, `chore:`, `refactor:`, `tweak:`. Short (<70 chars).
-- **Colour palette** ("Anthropic Warm"): `#d97757` Claude orange, `#c8553d` terracotta, `#87a96b` olive, `#b08968` earth, `#d9a441` amber. Used consistently in Starship and Ghostty. Reuse these instead of inventing new hex codes.
+- **Colour palette** ("Anthropic Warm"): `#d97757` Claude orange, `#c8553d` terracotta, `#87a96b` olive, `#b08968` earth, `#d9a441` amber. Used consistently in Ghostty. Reuse these instead of inventing new hex codes.
 
 ## Cross-references to other Claude state
 

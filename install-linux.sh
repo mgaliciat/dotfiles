@@ -19,7 +19,6 @@ source "$DOTFILES/scripts/lib.sh"
 # the portable subset and is linked exactly like on mac.
 link "$DOTFILES/zsh/.zshrc"             "$HOME/.zshrc"
 link "$DOTFILES/zsh/.zshenv"            "$HOME/.zshenv"
-link "$DOTFILES/starship/starship.toml" "$HOME/.config/starship.toml"
 link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
 link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
 link "$DOTFILES/tmux"                   "$HOME/.config/tmux"
@@ -141,17 +140,9 @@ if [[ ! -d "$HSS_DIR" ]]; then
   git clone --depth 1 https://github.com/zsh-users/zsh-history-substring-search "$HSS_DIR"
 fi
 
-# ─── starship + zoxide (official curl installers) ──────────────
-# These do NOT require cargo — they download the precompiled binary to ~/.local/bin.
-# Critical because the .zshrc invokes them (eval starship/zoxide init).
-
-if ! command -v starship >/dev/null 2>&1; then
-  echo ""
-  echo "→ Installing starship (official curl installer)"
-  # -y: install without prompt; -b ~/.local/bin: does not require sudo
-  curl -sS https://starship.rs/install.sh | sh -s -- --yes --bin-dir "$HOME/.local/bin" \
-    || echo "⚠️  starship install failed — the .zshrc will skip the prompt"
-fi
+# ─── zoxide (official curl installer) ──────────────────────────
+# Does NOT require cargo — it downloads the precompiled binary to ~/.local/bin.
+# Critical because the .zshrc invokes it (eval zoxide init).
 
 if ! command -v zoxide >/dev/null 2>&1; then
   echo ""

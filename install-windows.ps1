@@ -26,7 +26,7 @@
 #
 # What is still deliberately ABSENT vs install.sh, and why: zsh/tmux/nvim/ghostty
 # and their symlinks (do not run natively), the shell tools behind their aliases
-# (eza/bat/fd/gomi/zoxide/fzf/starship — no zsh to alias them from), 1password-cli
+# (eza/bat/fd/gomi/zoxide/fzf — no zsh to alias them from), 1password-cli
 # (nothing in this repo references `op`), and Paper Mono (the ghostty font-family;
 # no ghostty here, and the NF families below are what Windows Terminal needs).
 #
