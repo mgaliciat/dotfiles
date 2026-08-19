@@ -1,0 +1,74 @@
+# neon-noir — true black (#000) noir canvas + a neon spectrum on top.
+# Cross-stack mirror: the same palette baked into nvim/lua/themes/neon-noir.lua
+# and tmux/themes/neon-noir.conf.
+#
+# PROVENANCE — read this before "fixing" a hex against some reference:
+# this is a DERIVED palette, NOT a port. It takes its name and its intent from
+# the "Neon Noir" preset Xcode 27 ships (WWDC26 rebuilt the theme system: every
+# editor colour is generated from a base palette plus two sliders — text-color
+# intensity and background intensity). Apple publishes no hex for those presets,
+# and Xcode was not installed on the machine this was authored on, so nothing
+# here is Apple's literal value. Same rule the deleted `xcode-oled` header carried,
+# applied honestly in reverse: a VS Code port or a screenshot guess is NOT a
+# faithful source, so this file doesn't pretend to be one.
+#
+# If Xcode 27 ever lands on a machine here, the real values are in
+# /Applications/Xcode.app/Contents/SharedFrameworks/DVTUserInterfaceKit.framework/
+#   Versions/A/Resources/FontAndColorThemes/*.xccolortheme
+# Re-extract, and at that point this becomes a port and the header changes.
+#
+# The construction: noir = the canvas is switched off (true black, OLED);
+# neon = every accent is saturated and cool-biased (blue/cyan/magenta carry the
+# theme, amber is the single warm counterpoint so numbers don't read as strings).
+
+# background and text
+background = #000000
+foreground = #dbe6f4
+
+# cursor — neon magenta, the signature of the palette. Over #000 it's the
+# highest-chroma thing on screen, so focus is never ambiguous; unlike carbon
+# (which reserves its accent) a neon theme wants the accent ON the caret.
+cursor-color = #ff4d9d
+cursor-text  = #000000
+
+# selection — deep blue band rather than a neutral gray: over true black a
+# tinted band still reads as "noir". Same hue/saturation as the first pass
+# (214°, 0.48) lifted until it clears 3:1 over #000 — measured 3.03:1, so the
+# band is actually visible; at the original #203a5c it was 1.82:1 and a
+# selection over true black was easy to miss. White on it: 6.9:1.
+selection-background = #325b90
+selection-foreground = #ffffff
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# normals (0-7): the neon set. Cool-biased on purpose — blue, cyan and magenta
+# do the work; green is a mint (not a leaf green) and yellow is an amber, the
+# only warm slot, so it can't be confused with the string mint.
+#   0 black   = #10151d  lifted noir black (a bg for inline code, not #000)
+#   1 red     = neon coral
+#   2 green   = neon mint (strings)
+#   3 yellow  = amber (numbers · the one warm hue)
+#   4 blue    = electric blue (functions)
+#   5 magenta = neon magenta (keywords · the accent)
+#   6 cyan    = neon cyan (types)
+#   7 white   = cool light gray (softened fg)
+palette = 0=#10151d
+palette = 1=#ff5f6d
+palette = 2=#4fd6a8
+palette = 3=#ffb454
+palette = 4=#5aa9ff
+palette = 5=#ff4d9d
+palette = 6=#6fd3ff
+palette = 7=#c3cddb
+
+# brights (8-15): the repo's dark convention (see carbon) — lifted +luminance,
+# hue and saturation untouched, never inverted.
+# bright_black is the comment slate: 4.6:1 over #000, so dim text stays readable
+# instead of evaporating into the canvas.
+palette = 8=#62788f
+palette = 9=#ff8a93
+palette = 10=#7ee9c4
+palette = 11=#ffcb7d
+palette = 12=#86c2ff
+palette = 13=#ff7fba
+palette = 14=#9ce3ff
+palette = 15=#ffffff

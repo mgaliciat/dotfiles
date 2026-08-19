@@ -14,7 +14,7 @@
 --   dark-2026        clone of VS Code's default "Dark 2026" (near-black + teal)
 --   light-2026       clone of "2026 Light" (pure white + blue #0069CC)
 --   carbon           minimal true-black, high contrast, Claude orange accent
---   xcode-oled       true black OLED + Xcode Default (Dark) syntax
+--   neon-noir        true black noir canvas + neon magenta/cyan/blue (derived)
 --   anthropic-dark   dark Claude.ai (brown-black + Claude orange)
 --   anthropic-warm   warm charcoal + Claude palette (terracotta, olive, amber)
 --   prism-night      deep night-blue + spectrum accents

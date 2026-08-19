@@ -8,7 +8,7 @@
 -- Mirror of the Ghostty theme `dark-2026` and tmux/themes/dark-2026.conf.
 -- tokyonight base: variant `night`.
 --
--- The repo's dark theme convention (see carbon/xcode-oled): the "bright"
+-- The repo's dark theme convention (see carbon/neon-noir): the "bright"
 -- colors are lighter/more vivid than the normal ones — standard ANSI convention,
 -- not inverted. VS Code doesn't define a 16-color ANSI set (it's a
 -- UI-chrome + tokenColors format, not a terminal one), so that mapping here is a

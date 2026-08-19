@@ -11,7 +11,8 @@
 --   "light-2026"       clone of "2026 Light", its light companion
 --   "carbon"           minimal true-black, high contrast, Claude orange accent
 --   "solarized-osaka"  craftzdog deep-ocean ← separate plugin
---   "xcode-oled"       true black OLED + Xcode "Default (Dark)" syntax
+--   "neon-noir"        true black noir canvas + neon spectrum (derived from
+--                       Xcode 27's "Neon Noir" preset — not a literal port)
 --   "naysayer"         Jonathan Blow's editor: deep teal bg, sand fg, loud comments
 --   "anthropic-dark"   dark Claude.ai (brown-black + Claude orange)
 --   "anthropic-warm"   warm dark sepia/terracotta
@@ -20,7 +21,7 @@
 --   "solarized-light"  canonical Solarized Light
 -- (The solarized-osaka-{day,moon,storm} variants and "obsidian" are still
 --  valid themes here, but outside the matrix.)
-vim.g.theme = "solarized-dark"
+vim.g.theme = "neon-noir"
 
 -- ─── vim.opt ──────────────────────────────────────────────────
 -- Good defaults. Follows the spirit of the dotfiles: comment the WHY,
