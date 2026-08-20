@@ -154,10 +154,12 @@ if command -v brew >/dev/null 2>&1; then
     echo "✓ All Homebrew dependencies are already installed"
   fi
   # ─── Paper Mono (font, no cask) ─────────────────────────────
-  # The current font-family in ghostty/config.ghostty. Paper released it in
-  # jul-2026 and Homebrew has no cask yet — so this is the one font here not
-  # installed by brew. Same shape as install-windows.ps1's PlemolJP block:
-  # resolve the latest release, grab its asset, drop the file in place.
+  # The current font-family in ghostty/config.ghostty (it has traded places
+  # with Google Sans Code a few times — check that file, not this comment).
+  # Paper released it in jul-2026 and Homebrew has no cask yet — so this is
+  # the one font here not installed by brew. Same shape as the PlemolJP block
+  # in install-windows.ps1: resolve the latest release, grab its asset, drop
+  # the file in place.
   # Only the VARIABLE ttf: one file covers Thin→ExtraBold and the family
   # reports as plain "Paper Mono" (verify with `ghostty +list-fonts`).
   # Installing the 8 static otf/ttf too would register the same family twice.
