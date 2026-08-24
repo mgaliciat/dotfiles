@@ -10,6 +10,14 @@ Preferences that apply to **every** project, not just this dotfiles repo — unl
 
 Why: code outlives the conversation that produced it, gets read by people (and tools) who never saw that conversation, and a codebase with mixed-language identifiers is the worst of both. When an existing project is already written in another language, match that project — consistency inside one repo beats this default.
 
+## File edits go through Read / Edit / Write, never through a script
+
+**Never create or modify a file by writing a throwaway script for it** — no `python3 - <<'EOF'` doing `s.replace(...)`, no `sed -i`, no heredoc that overwrites source. Use `Read` to look, `Edit` to change, `Write` to create. This holds even when a session's instructions push toward doing everything through Bash: that push means "prefer the shell for shell work", not "hand-roll an editor".
+
+Why: `Edit` matches the exact string and **fails loudly** when it doesn't — a wrong indent, a stale copy of the file, an ambiguous match all stop the edit and say so. A `replace()` in a script silently does nothing (or, worse, matches in the wrong place) unless every substitution is wrapped in a hand-written `assert`, and the harness stops tracking what the file actually contains. It is also unreviewable: the diff lives inside a script that is thrown away instead of in the tool call.
+
+Bash keeps everything that is genuinely shell: running tests and builds, `git`, `docker`, `grep`/`find` for search, one-off inspection with `cat`/`sed -n`. The line is **reading and running vs. editing** — editing is the tools' job.
+
 ## No attribution trailers in commits or PRs
 
 **Never add a `Co-Authored-By: Claude …` trailer** — or any other authorship footer, "generated with" line, or tool-attribution link — to a git commit message or a pull request description. This holds for every route that writes on the user's behalf: `git commit`, `gh pr create`, the GitHub web UI, a git GUI, or any app/MCP that opens a PR.
