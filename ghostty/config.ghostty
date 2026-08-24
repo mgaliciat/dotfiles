@@ -90,30 +90,30 @@ window-colorspace = display-p3
 minimum-contrast = 3.0
 
 # ─── typography ───────────────────────────────────────────────
-# Paper Mono — back as primary (2026-08-19) after Google Sans Code (2026-08-13),
-# the PlemolJP Console NF trial (2026-08-03), Paper Mono itself (2026-07-30),
-# Google Sans Code (2026-07-29) and 0xProto (2026-07-28).
-# ONE variable ttf on a single `wght` axis (Thin→ExtraBold) and no Italic file,
-# so unlike Google Sans Code the italics here ARE synthesized (obliqued). It is
-# not installed by brew — install.sh downloads it from the GitHub release.
+# Google Sans Code — back as primary (2026-08-22) after Paper Mono (2026-08-19),
+# Google Sans Code itself (2026-08-13), the PlemolJP Console NF trial
+# (2026-08-03), Paper Mono (2026-07-30), Google Sans Code (2026-07-29) and
+# 0xProto (2026-07-28).
+# Two variable ttfs on a `wght` axis (Light→ExtraBold), Roman + Italic, so the
+# italics are REAL here (Paper Mono ships no italic file and gets obliqued).
+# Not installed by brew — install.sh downloads it from the GitHub release.
 # NOT a Nerd Font: every powerline/devicon glyph comes from the NF families in
 # install.sh's cask list (PlemolJP NF, Maple NF, 0xProto NF, Monaspace NF) via
-# Ghostty's automatic fallback. Don't prune them while this is the primary —
-# same dependency Google Sans Code had.
-# To go back: font-family = "Google Sans Code", "PlemolJP Console NF",
+# Ghostty's automatic fallback. Don't prune them while this is the primary.
+# To go back: font-family = "Paper Mono", "PlemolJP Console NF",
 # "0xProto Nerd Font Mono" or "Maple Mono NF".
 # Name cross-checked against `ghostty +list-fonts` — the family reports as
-# plain "Paper Mono" (the styles read "Paper Mono Regular <weight>", that is
-# the style name, not the family). +validate-config does NOT catch a missing
-# family, it falls back silently.
-font-family = "Paper Mono"
+# plain "Google Sans Code" (the styles read "Google Sans Code Regular <weight>"
+# / "Google Sans Code Italic <weight> Italic", those are style names, not
+# families). +validate-config does NOT catch a missing family, it falls back
+# silently.
+font-family = "Google Sans Code"
 font-size = 16
 
-# Standard ligatures — Paper Mono ships no `liga` feature either (its GSUB is
-# aalt/case/ccmp/frac/locl/num*/ord/rvrn/s*/ss01/ss02/ss07/zero), so this stays
-# a no-op; kept so a future font with +liga just works.
-# It DOES have `zero` (slashed zero) and three stylistic sets — add
-# `font-feature = zero` if you want the slash.
+# Standard ligatures — Google Sans Code ships no `liga` feature either (its
+# GSUB is aalt/ccmp/locl/ss01), so this stays a no-op; kept so a future font
+# with +liga just works. No `zero` here, unlike Paper Mono: `font-feature =
+# zero` would be dead. `ss01` is the one stylistic set it does have.
 font-feature = +liga
 
 font-thicken = true
