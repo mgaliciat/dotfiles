@@ -22,6 +22,9 @@
 #   - the stack theme on that same layer: a Windows Terminal colour scheme
 #     GENERATED from ghostty/themes/<id> (its `schemes` are the same 16 ANSI +
 #     bg/fg/cursor/selection), with its own versioned selection line, $WtTheme.
+#   - Windows Terminal keybindings for Claude (ctrl+shift+l / ctrl+shift+y), the
+#     moral equivalent of tmux's M-c / M-C on the one layer this box shares.
+#     ctrl+shift+ is the ONLY safe family in a terminal — see $WtBinds.
 #
 # Those bullets are the three mechanisms of claude/install/ (settings.sh /
 # binaries.sh / plugins.sh) replicated by hand: PowerShell cannot source the bash
@@ -712,6 +715,43 @@ $WtTheme = "solarized-osaka"
 $WtFont  = "Google Sans Code Monospace"
 $WtFonts = @("Google Sans Code Monospace", "Google Sans Code", "Maple Mono NF", "PlemolJP Console NF", "PlemolJP35 Console NF", "Monaspace Neon", "MonaspiceNe NF")
 
+# Claude launchers -- the moral equivalent of tmux's `M-c` / `M-C`
+# (utility.conf), on the one layer this box shares with the rest of the stack.
+# NOT the same chords, and the reason is a hard rule about terminal keys:
+#
+#   - `ctrl+<letter>` is free as far as WT is concerned (its defaults.json
+#     reserves ZERO of them) and is still the wrong place to bind. That chord IS
+#     a control character: binding it in WT eats it before the shell, and every
+#     app inside loses a key -- PSReadLine's ctrl+r, nvim's ctrl+w, Claude
+#     Code's own ctrl+r / ctrl+b / ctrl+o. ctrl+c is only the loudest example.
+#   - `ctrl+shift+<letter>` cannot be encoded as a control character at all, so
+#     no app inside the terminal ever receives one. Nothing is stolen. That is
+#     why WT's own shortcuts live there, and why ours do too.
+#   - `ctrl+alt+<letter>` is AltGr on an ISO-LA keyboard (this box). Taking it
+#     costs you a character you type daily -- ctrl+alt+q IS `@`. Never.
+#
+# So the with/without-Shift pair the tmux binds use cannot exist here (its
+# no-Shift half would be a control char) and yolo gets its own letter instead.
+# Occupied by WT 1.24: a c d f k m n p t v w. Enumerated, not guessed --
+# `(Get-AppxPackage Microsoft.WindowsTerminal).InstallLocation\defaults.json`
+# is readable, and it is JSONC, so regex it rather than ConvertFrom-Json.
+#
+# `sendInput` TYPES at the prompt, it does not spawn: no popup, no dedicated
+# session, no md5-of-path reuse like the tmux binds -- WT has no equivalent of
+# any of that. Press it mid-command and you inject text into that command's
+# stdin, which is the whole (small) cost of doing this with 2 lines of config.
+#
+# Two arrays, not one: since WT 1.19 an `actions` entry DEFINES a command under
+# an `id` and `keybindings` maps a chord to that id. The old shape (inline
+# `keys` inside `actions`) still parses, but WT rewrites it into the split one
+# the next time it saves settings itself -- at which point an upsert keyed on
+# `keys` no longer recognises its own entry and appends a duplicate on every
+# re-run. Keyed on the id instead, both halves survive that migration.
+$WtBinds = @(
+    @{ id = "User.claude";     keys = "ctrl+shift+l"; input = "claude`r" },
+    @{ id = "User.claudeYolo"; keys = "ctrl+shift+y"; input = "claude --dangerously-skip-permissions`r" }
+)
+
 $ThemesDir    = Join-Path $Dotfiles "ghostty\themes"
 $GhosttyTheme = Join-Path $ThemesDir $WtTheme
 
@@ -830,6 +870,32 @@ if (-not (Test-Path $GhosttyTheme)) {
             } else {
                 $Wt.profiles.defaults.font | Add-Member -NotePropertyName "face" -NotePropertyValue $WtFont
             }
+        }
+
+        # Keybindings. Upsert by id in BOTH arrays -- same by-name rule as
+        # `schemes`, for the same reason: editing $WtBinds above has to actually
+        # propagate on re-run instead of appending a second entry.
+        # Bounded clobber, again: a chord already bound to someone else's id is
+        # reported and left alone, never stolen. WT resolves a duplicate chord to
+        # the last entry, so appending blindly would silently win that fight.
+        foreach ($Arr in @("actions", "keybindings")) {
+            if (-not ($Wt.PSObject.Properties.Name -contains $Arr)) {
+                $Wt | Add-Member -NotePropertyName $Arr -NotePropertyValue @()
+            }
+        }
+        foreach ($Bind in $WtBinds) {
+            $Clash = @($Wt.keybindings | Where-Object { $_.keys -eq $Bind.keys -and $_.id -ne $Bind.id })[0]
+            if ($Clash) {
+                Write-Host "i   $WtPath binds $($Bind.keys) to '$($Clash.id)' -- not applied"
+                continue
+            }
+            $Wt.actions = @(@($Wt.actions | Where-Object { $_.id -ne $Bind.id }) +
+                [PSCustomObject]@{
+                    id      = $Bind.id
+                    command = [PSCustomObject]@{ action = "sendInput"; input = $Bind.input }
+                })
+            $Wt.keybindings = @(@($Wt.keybindings | Where-Object { $_.id -ne $Bind.id }) +
+                [PSCustomObject]@{ id = $Bind.id; keys = $Bind.keys })
         }
 
         [System.IO.File]::WriteAllText($WtPath, ($Wt | ConvertTo-Json -Depth 100), $Utf8NoBom)
