@@ -577,49 +577,103 @@ if (Get-Command scoop -ErrorAction SilentlyContinue) {
     Write-Host "      Set-ExecutionPolicy -Scope CurrentUser RemoteSigned; irm get.scoop.sh | iex"
 }
 
-# ─── PlemolJP NF (font, not in scoop) ───────────────────────────
-# PlemolJP self-patches its Nerd Font build, so it is absent from scoop's
-# nerd-fonts bucket. We install it the rtk way: download the official release
-# zip and register the .ttf per-user under %LOCALAPPDATA% (no admin needed,
-# unlike copying into the system Fonts dir). Independent of scoop — runs either
-# way. Best-effort: on any failure we print the manual link and continue.
+# ─── fonts by direct download (not in scoop) ────────────────────
+# Two fonts this repo wants are absent from scoop's nerd-fonts bucket, for
+# opposite reasons: PlemolJP self-patches its own Nerd Font build (it is not one
+# of ryanoasis's), and Google Sans Code is not a Nerd Font at all. Both install
+# the rtk way: download the official release zip and register the .ttf per-user
+# under %LOCALAPPDATA% (no admin needed, unlike the system Fonts dir).
+# Independent of scoop — runs either way. Best-effort: on failure, print the
+# manual link and continue.
 #
-# The asset name embeds the version (PlemolJP_NF_vX.Y.Z.zip), so — unlike rtk's
-# fixed asset name — we cannot use latest/download/<fixed-name>; we ask the API
-# for the latest asset matching the pattern. The registry VALUE name is just a
-# label; the family name Windows Terminal shows comes from the font's own name
-# table, so the file basename as label is fine.
-$PlemolZip = $null; $PlemolDst = $null
-try {
-    Write-Host ""
-    Write-Host "-> Installing PlemolJP NF font (direct download)"
-    $rel = Invoke-RestMethod "https://api.github.com/repos/yuru7/PlemolJP/releases/latest" -Headers @{ "User-Agent" = "dotfiles" }
-    $asset = $rel.assets | Where-Object { $_.name -match '^PlemolJP_NF_.*\.zip$' } | Select-Object -First 1
-    if (-not $asset) { throw "no PlemolJP_NF asset in the latest release" }
-    $PlemolZip = Join-Path $env:TEMP $asset.name
-    $PlemolDst = Join-Path $env:TEMP "PlemolJP_NF"
-    Invoke-WebRequest $asset.browser_download_url -OutFile $PlemolZip
-    Expand-Archive $PlemolZip -DestinationPath $PlemolDst -Force
+# Both asset names embed the version, so — unlike rtk's fixed asset name — we
+# cannot use latest/download/<fixed-name>; we ask the API for the latest asset
+# matching a pattern. The registry VALUE name is just a label; the family name
+# Windows Terminal shows comes from the font's own name table, so the file
+# basename as label is fine.
+#
+# ⚠️ Re-running while the font is IN USE (the terminal you are typing in is
+# rendering with it) fails on Copy-Item with "being used by another process".
+# That is benign — the file on disk is already the one we would copy — and it is
+# why this is best-effort rather than a hard failure.
+function Install-FontFromRelease {
+    param(
+        [string]$Repo,          # owner/name on GitHub
+        [string]$AssetPattern,  # regex matched against the release asset names
+        [string]$Label          # human name for the log lines
+    )
+    $Zip = $null; $Dst = $null
+    try {
+        Write-Host ""
+        Write-Host "-> Installing $Label font (direct download)"
+        $rel = Invoke-RestMethod "https://api.github.com/repos/$Repo/releases/latest" -Headers @{ "User-Agent" = "dotfiles" }
+        $asset = $rel.assets | Where-Object { $_.name -match $AssetPattern } | Select-Object -First 1
+        if (-not $asset) { throw "no asset matching $AssetPattern in the latest release" }
+        $Zip = Join-Path $env:TEMP $asset.name
+        $Dst = Join-Path $env:TEMP ([System.IO.Path]::GetFileNameWithoutExtension($asset.name))
+        Invoke-WebRequest $asset.browser_download_url -OutFile $Zip
+        Expand-Archive $Zip -DestinationPath $Dst -Force
 
-    $FontsDir = Join-Path $env:LOCALAPPDATA "Microsoft\Windows\Fonts"
-    New-Item -ItemType Directory -Path $FontsDir -Force | Out-Null
-    $RegKey = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Fonts"
-    Get-ChildItem $PlemolDst -Recurse -Include *.ttf, *.otf | ForEach-Object {
-        $target = Join-Path $FontsDir $_.Name
-        Copy-Item $_.FullName $target -Force
-        $title = [System.IO.Path]::GetFileNameWithoutExtension($_.Name)
-        New-ItemProperty -Path $RegKey -Name "$title (TrueType)" -Value $target -PropertyType String -Force | Out-Null
+        $FontsDir = Join-Path $env:LOCALAPPDATA "Microsoft\Windows\Fonts"
+        New-Item -ItemType Directory -Path $FontsDir -Force | Out-Null
+        $RegKey = "HKCU:\Software\Microsoft\Windows NT\CurrentVersion\Fonts"
+        # foreach, NOT ForEach-Object: `$Installed +=` inside a pipeline block
+        # assigns to a block-scoped copy and the list comes out empty.
+        $Installed = @()
+        foreach ($FontFile in (Get-ChildItem $Dst -Recurse -Include *.ttf, *.otf)) {
+            $target = Join-Path $FontsDir $FontFile.Name
+            # -LiteralPath is NOT optional here, and the failure is SILENT: a
+            # variable font ships as `GoogleSansCode[MONO,wght].ttf`, and `[...]`
+            # is a WILDCARD character class to PowerShell's -Path. The pattern
+            # matches nothing, a wildcard matching zero items is not an error,
+            # so Copy-Item copies nothing and returns clean -- while the
+            # New-ItemProperty below still registers a path to a file that was
+            # never written. Symptom: the font is in the registry, absent from
+            # disk, and invisible to every app. PlemolJP never hit this because
+            # its filenames have no brackets.
+            Copy-Item -LiteralPath $FontFile.FullName -Destination $target -Force
+            $title = [System.IO.Path]::GetFileNameWithoutExtension($FontFile.Name)
+            New-ItemProperty -Path $RegKey -Name "$title (TrueType)" -Value $target -PropertyType String -Force | Out-Null
+            $Installed += $target
+        }
+        # The HKCU entry above makes the font permanent, but ONLY from the next
+        # logon: nothing running now knows the font table changed. AddFontResourceW
+        # loads each face into the session and the WM_FONTCHANGE broadcast tells
+        # every open app to re-read, which is what makes the font usable in the
+        # terminal you are typing in RIGHT NOW instead of after a logout. Verified:
+        # before the broadcast a fresh process enumerated zero of these families,
+        # after it, all of them.
+        if (-not ('W32.Fonts' -as [type])) {
+            Add-Type -Name Fonts -Namespace W32 -MemberDefinition @'
+[DllImport("gdi32.dll", CharSet=CharSet.Unicode)] public static extern int AddFontResourceW(string f);
+[DllImport("user32.dll", CharSet=CharSet.Auto)] public static extern IntPtr SendMessageTimeout(IntPtr h, uint m, IntPtr w, IntPtr l, uint fl, uint t, out IntPtr r);
+'@
+        }
+        foreach ($f in $Installed) { [void][W32.Fonts]::AddFontResourceW($f) }
+        $BroadcastResult = [IntPtr]::Zero
+        [void][W32.Fonts]::SendMessageTimeout([IntPtr]0xffff, 0x001D, [IntPtr]::Zero, [IntPtr]::Zero, 2, 1000, [ref]$BroadcastResult)
+
+        Write-Host "OK  $Label installed per-user ($FontsDir)"
+    } catch {
+        Write-Host "!!  $Label install failed: $_" -ForegroundColor Yellow
+        Write-Host "    Get it by hand: https://github.com/$Repo/releases" -ForegroundColor Yellow
+    } finally {
+        if ($Zip) { Remove-Item $Zip -Force -ErrorAction SilentlyContinue }
+        if ($Dst) { Remove-Item $Dst -Recurse -Force -ErrorAction SilentlyContinue }
     }
-    Write-Host "OK  PlemolJP NF installed per-user ($FontsDir)"
-} catch {
-    Write-Host "!!  PlemolJP NF install failed: $_" -ForegroundColor Yellow
-    Write-Host "    Get it by hand: https://github.com/yuru7/PlemolJP/releases" -ForegroundColor Yellow
-} finally {
-    if ($PlemolZip) { Remove-Item $PlemolZip -Force -ErrorAction SilentlyContinue }
-    if ($PlemolDst) { Remove-Item $PlemolDst -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
-# ─── Windows Terminal colour scheme (stack theme, 4th layer) ────
+Install-FontFromRelease -Repo "yuru7/PlemolJP" -AssetPattern '^PlemolJP_NF_.*\.zip$' -Label "PlemolJP NF"
+
+# The mac primary since `250235e`, and the reason this box gets it too: it is
+# what $WtFont below points at. NOT a Nerd Font — the powerline/devicon glyphs
+# (and the statusline's nf-fa-microchip) come from DirectWrite falling back to
+# the NF families above, exactly as ghostty falls back on the Mac. That is why
+# the PlemolJP/Maple/Monaspace installs stay even when nothing selects them.
+# The desktop zip, NOT the -Android one, which ships a different name table.
+Install-FontFromRelease -Repo "googlefonts/googlesans-code" -AssetPattern '^GoogleSansCode-v[\d.]+\.zip$' -Label "Google Sans Code"
+
+# ─── Windows Terminal: colour scheme + font (stack theme, 4th layer) ────
 # The stack theme is normally 3 layers (ghostty + nvim + tmux), NONE of which
 # runs natively on Windows. Windows Terminal is the one layer that does exist
 # here, and its `schemes` are the same data as a ghostty theme: 16 ANSI +
@@ -637,11 +691,32 @@ try {
 # look by editing this line and re-running -- no switcher, no pointer.
 $WtTheme = "solarized-osaka"
 
+# $WtFont is the font half of the same idea, and it DOES track the Mac: it is
+# ghostty's `font-family` (`250235e`). Kept as its own line rather than parsed
+# out of config.ghostty because the two boxes have different font inventories --
+# a family the Mac has via brew may simply not exist here, and a `font-family`
+# WT cannot resolve falls back SILENTLY (same trap as ghostty's, which is why
+# the repo's rule is to verify the family name, never to trust the config).
+# $WtFonts is what we are allowed to overwrite: the families this installer
+# itself puts on the box. Anything else in that field was chosen by hand.
+# ⚠️ NOT "Google Sans Code" — that family does not exist on Windows, and asking
+# for it renders the fallback with no error at all. The GitHub release ships ONE
+# variable font with a `MONO` axis, and DirectWrite splits its named instances
+# into TWO families: `Google Sans Code Monospace` and `... Proportional`. The Mac
+# gets away with the bare name because brew's cask is a different build. Enumerated,
+# not guessed: `[System.Windows.Media.Fonts]::SystemFontFamilies` is the DirectWrite
+# view, i.e. what WT actually resolves against — GDI+ (System.Drawing) reports a
+# third set of names ("Google Sans Code ExtraBold Mono") and is the wrong oracle here.
+# Naming the Monospace instance also settles the mono/proportional choice explicitly,
+# which is not something to leave to a fallback in a terminal.
+$WtFont  = "Google Sans Code Monospace"
+$WtFonts = @("Google Sans Code Monospace", "Google Sans Code", "Maple Mono NF", "PlemolJP Console NF", "PlemolJP35 Console NF", "Monaspace Neon", "MonaspiceNe NF")
+
 $ThemesDir    = Join-Path $Dotfiles "ghostty\themes"
 $GhosttyTheme = Join-Path $ThemesDir $WtTheme
 
 Write-Host ""
-Write-Host "-> Windows Terminal colour scheme ($WtTheme)"
+Write-Host "-> Windows Terminal: scheme $WtTheme, font $WtFont"
 
 # Anchored on the key NAMES, so a `#`-comment line can never match: every line
 # of prose in those files starts with `#`, and `#001419` only ever appears after
@@ -735,6 +810,28 @@ if (-not (Test-Path $GhosttyTheme)) {
             $Wt.profiles.defaults | Add-Member -NotePropertyName "colorScheme" -NotePropertyValue $WtTheme
         }
 
+        # Font. Same bounded-clobber rule as colorScheme, against $WtFonts.
+        # `font` is an OBJECT in the modern schema (`font.face`); the flat
+        # `fontFace` string is the deprecated one. We only write the modern
+        # shape, and if a hand-edited file still carries the legacy key we say
+        # so instead of writing both -- two keys for one setting is how a
+        # config starts lying about what is actually rendering.
+        if ($Wt.profiles.defaults.PSObject.Properties.Name -contains "fontFace") {
+            Write-Host "i   $WtPath uses the deprecated 'fontFace' -- leaving the font alone"
+        } else {
+            if (-not ($Wt.profiles.defaults.PSObject.Properties.Name -contains "font")) {
+                $Wt.profiles.defaults | Add-Member -NotePropertyName "font" -NotePropertyValue ([PSCustomObject]@{})
+            }
+            $CurrentFace = $Wt.profiles.defaults.font.face
+            if ($CurrentFace -and ($WtFonts -notcontains $CurrentFace)) {
+                Write-Host "i   $WtPath keeps its own font ('$CurrentFace') -- not applied"
+            } elseif ($Wt.profiles.defaults.font.PSObject.Properties.Name -contains "face") {
+                $Wt.profiles.defaults.font.face = $WtFont
+            } else {
+                $Wt.profiles.defaults.font | Add-Member -NotePropertyName "face" -NotePropertyValue $WtFont
+            }
+        }
+
         [System.IO.File]::WriteAllText($WtPath, ($Wt | ConvertTo-Json -Depth 100), $Utf8NoBom)
         Write-Host "OK  $WtTheme applied to $WtPath"
     }
@@ -745,5 +842,6 @@ Write-Host "Done. Next steps:"
 Write-Host "  1. Restart the terminal so the new PATH takes effect."
 Write-Host "  2. Restart Claude Code."
 Write-Host "  3. If the symlinks failed: enable Developer Mode and re-run this script."
-Write-Host "  4. Fonts: set 'Maple Mono NF' in Windows Terminal (Appearance > Font face)."
-Write-Host "     PlemolJP appears as 'PlemolJP Console NF' / 'PlemolJP NF'."
+Write-Host "  4. Windows Terminal already has the scheme and the font applied. If the"
+Write-Host "     text looks unchanged, the family name did not resolve and WT fell back"
+Write-Host "     SILENTLY -- check Appearance > Font face for what it really picked."
