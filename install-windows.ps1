@@ -19,6 +19,9 @@
 #     Terminal, unlike zsh/tmux/nvim — so the fonts install.sh puts on the Mac
 #     are useful here too). Maple + Monaspace via scoop; PlemolJP by direct
 #     download (not in any scoop bucket). Best-effort, both guarded/try-catch.
+#   - the stack theme on that same layer: a Windows Terminal colour scheme
+#     GENERATED from ghostty/themes/<id> (its `schemes` are the same 16 ANSI +
+#     bg/fg/cursor/selection), with its own versioned selection line, $WtTheme.
 #
 # Those bullets are the three mechanisms of claude/install/ (settings.sh /
 # binaries.sh / plugins.sh) replicated by hand: PowerShell cannot source the bash
@@ -29,6 +32,8 @@
 # (eza/bat/fd/gomi/zoxide/fzf — no zsh to alias them from), 1password-cli
 # (nothing in this repo references `op`), and Paper Mono (the ghostty font-family;
 # no ghostty here, and the NF families below are what Windows Terminal needs).
+# Note the theme block reads ghostty/themes/ anyway — that dir is just where the
+# palettes are versioned, and needing them here is not the same as running ghostty.
 #
 # Usage: open PowerShell (5.1 or pwsh 7+) in this folder and run
 #   ./install-windows.ps1
@@ -612,6 +617,127 @@ try {
 } finally {
     if ($PlemolZip) { Remove-Item $PlemolZip -Force -ErrorAction SilentlyContinue }
     if ($PlemolDst) { Remove-Item $PlemolDst -Recurse -Force -ErrorAction SilentlyContinue }
+}
+
+# ─── Windows Terminal colour scheme (stack theme, 4th layer) ────
+# The stack theme is normally 3 layers (ghostty + nvim + tmux), NONE of which
+# runs natively on Windows. Windows Terminal is the one layer that does exist
+# here, and its `schemes` are the same data as a ghostty theme: 16 ANSI +
+# bg/fg/cursor/selection. So the family reaches this machine after all.
+#
+# GENERATED from ghostty/themes/<id>, never a second copy of the palette in the
+# repo. That is the whole point: the repo's rule for this theme is that the
+# craftzdog plugin is the source of truth and the ghostty file is its hand-baked
+# mirror -- a third hand-maintained copy is exactly how mirrors drift. Parsing
+# 20 lines of `key = #hex` is cheaper than keeping a .json in sync forever.
+#
+# $WtTheme IS the selection line for Windows, versioned and direct, same shape
+# as ghostty's `theme =` / tmux's `source themes/<id>.conf`. It does NOT read
+# ghostty's line: mac runs neon-noir today and this box wants osaka. Change the
+# look by editing this line and re-running -- no switcher, no pointer.
+$WtTheme = "solarized-osaka"
+
+$ThemesDir    = Join-Path $Dotfiles "ghostty\themes"
+$GhosttyTheme = Join-Path $ThemesDir $WtTheme
+
+Write-Host ""
+Write-Host "-> Windows Terminal colour scheme ($WtTheme)"
+
+# Anchored on the key NAMES, so a `#`-comment line can never match: every line
+# of prose in those files starts with `#`, and `#001419` only ever appears after
+# a `key =`. cursor-text and selection-foreground are parsed by nobody -- WT has
+# no equivalent for either, and that is the only loss in the port.
+$Pal = @{}
+if (Test-Path $GhosttyTheme) {
+    foreach ($ThemeLine in (Get-Content $GhosttyTheme)) {
+        if ($ThemeLine -match '^\s*palette\s*=\s*(\d+)\s*=\s*(#[0-9a-fA-F]{6})') {
+            $Pal[[int]$Matches[1]] = $Matches[2]
+        } elseif ($ThemeLine -match '^\s*(background|foreground|cursor-color|selection-background)\s*=\s*(#[0-9a-fA-F]{6})') {
+            $Pal[$Matches[1]] = $Matches[2]
+        }
+    }
+}
+
+# WT's own order for the 16: index 5 is `purple`, not magenta.
+$AnsiNames = @("black", "red", "green", "yellow", "blue", "purple", "cyan", "white",
+               "brightBlack", "brightRed", "brightGreen", "brightYellow",
+               "brightBlue", "brightPurple", "brightCyan", "brightWhite")
+
+$Missing = @(0..15 | Where-Object { -not $Pal.ContainsKey($_) }) +
+           @("background", "foreground", "cursor-color", "selection-background" | Where-Object { -not $Pal.ContainsKey($_) })
+
+if (-not (Test-Path $GhosttyTheme)) {
+    Write-Host "!!  no such theme: ghostty\themes\$WtTheme -- skipping" -ForegroundColor Yellow
+} elseif ($Missing.Count -gt 0) {
+    Write-Host "!!  $WtTheme is missing $($Missing -join ', ') -- skipping" -ForegroundColor Yellow
+} else {
+    $Scheme = [ordered]@{ name = $WtTheme }
+    for ($i = 0; $i -lt 16; $i++) { $Scheme[$AnsiNames[$i]] = $Pal[$i] }
+    $Scheme["background"]          = $Pal["background"]
+    $Scheme["foreground"]          = $Pal["foreground"]
+    $Scheme["cursorColor"]         = $Pal["cursor-color"]
+    $Scheme["selectionBackground"] = $Pal["selection-background"]
+
+    # Every WT install on the box: Store, Preview, and unpackaged all keep their
+    # own settings.json and none of them is authoritative.
+    $WtPaths = @(
+        (Join-Path $env:LOCALAPPDATA "Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"),
+        (Join-Path $env:LOCALAPPDATA "Packages\Microsoft.WindowsTerminalPreview_8wekyb3d8bbwe\LocalState\settings.json"),
+        (Join-Path $env:LOCALAPPDATA "Microsoft\Windows Terminal\settings.json")
+    ) | Where-Object { Test-Path $_ }
+
+    if (-not $WtPaths) {
+        Write-Host "i   Windows Terminal settings.json not found -- skipping (WT not installed?)"
+    }
+
+    foreach ($WtPath in $WtPaths) {
+        # WT's settings.json is JSONC and ships with `//` comments; ConvertFrom-Json
+        # rejects those. NOT stripped with a regex -- `"https://aka.ms/..."` is a
+        # `//` inside a string and a naive strip would corrupt the user's file. Once
+        # WT saves the file itself (any UI change) the comments are gone and this
+        # works; until then we say so and touch nothing.
+        try {
+            $Wt = Get-Content $WtPath -Raw | ConvertFrom-Json
+        } catch {
+            Write-Host "!!  could not parse $WtPath (JSON comments?) -- skipping" -ForegroundColor Yellow
+            Write-Host "    change any setting from the WT UI once, then re-run" -ForegroundColor Yellow
+            continue
+        }
+
+        # Upsert by name, NOT append: this is our own named scheme, so a palette
+        # edit upstream has to propagate on re-run. Anything else in the array is
+        # the user's and is carried over untouched.
+        if (-not ($Wt.PSObject.Properties.Name -contains "schemes")) {
+            $Wt | Add-Member -NotePropertyName "schemes" -NotePropertyValue @()
+        }
+        $Wt.schemes = @(@($Wt.schemes | Where-Object { $_.name -ne $WtTheme }) + [PSCustomObject]$Scheme)
+
+        # profiles.defaults so it covers every profile, present and future.
+        if (-not ($Wt.PSObject.Properties.Name -contains "profiles")) {
+            $Wt | Add-Member -NotePropertyName "profiles" -NotePropertyValue ([PSCustomObject]@{})
+        }
+        if (-not ($Wt.profiles.PSObject.Properties.Name -contains "defaults")) {
+            $Wt.profiles | Add-Member -NotePropertyName "defaults" -NotePropertyValue ([PSCustomObject]@{})
+        }
+
+        # The one write here that is NOT additive-only, and deliberately so: the
+        # selection line above is useless if a re-run cannot switch the theme. It
+        # is bounded to values WE could have written -- any id in ghostty/themes/
+        # -- so a scheme you picked by hand ("Campbell", a downloaded one) is left
+        # alone and reported instead of being clobbered.
+        $Family  = @(Get-ChildItem $ThemesDir -File | Select-Object -ExpandProperty Name)
+        $Current = $Wt.profiles.defaults.colorScheme
+        if ($Current -and ($Family -notcontains $Current)) {
+            Write-Host "i   $WtPath keeps its own colorScheme ('$Current') -- scheme installed, not applied"
+        } elseif ($Wt.profiles.defaults.PSObject.Properties.Name -contains "colorScheme") {
+            $Wt.profiles.defaults.colorScheme = $WtTheme
+        } else {
+            $Wt.profiles.defaults | Add-Member -NotePropertyName "colorScheme" -NotePropertyValue $WtTheme
+        }
+
+        [System.IO.File]::WriteAllText($WtPath, ($Wt | ConvertTo-Json -Depth 100), $Utf8NoBom)
+        Write-Host "OK  $WtTheme applied to $WtPath"
+    }
 }
 
 Write-Host ""
