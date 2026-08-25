@@ -75,8 +75,12 @@ function Set-DotfileSymlink {
             $existing.Delete()
         } elseif (Test-SameContent $Destination $Source) {
             # Our own prior copy, unchanged (no Developer Mode -> we copy, not link).
-            Write-Host "OK  $Destination already up to date (copy -- enable Developer Mode for a real symlink)"
-            return
+            # DELETE rather than return: enabling Developer Mode later has to be able to
+            # UPGRADE that copy into a real symlink, and an early return froze it as a
+            # copy forever (the re-run kept reporting "already up to date"). No backup --
+            # the content is identical to the repo by definition, and if the symlink
+            # below still fails, the catch copies it straight back.
+            Remove-Item $Destination -Recurse -Force
         } else {
             # Back up into ~/.claude/backups/, NOT next to $Destination: a `.backup`
             # sitting beside a symlinked skill dir would itself be loaded as a skill.
@@ -88,11 +92,27 @@ function Set-DotfileSymlink {
         }
     }
 
-    try {
-        New-Item -ItemType SymbolicLink -Path $Destination -Target $Source -Force -ErrorAction Stop | Out-Null
+    # `mklink`, NOT `New-Item -ItemType SymbolicLink`: Windows PowerShell 5.1 (the
+    # only PowerShell guaranteed present) predates the unprivileged-symlink flag, so
+    # New-Item demands Administrator even with Developer Mode ON -- which is the whole
+    # point of turning it on. cmd's mklink does pass SYMBOLIC_LINK_FLAG_ALLOW_
+    # UNPRIVILEGED_CREATE, so it is the only way a normal user gets a real link here.
+    # /D for a directory target (the bitacora/wiki skills).
+    $mkArgs = @()
+    if (Test-Path $Source -PathType Container) { $mkArgs += "/D" }
+    $mkArgs += @($Destination, $Source)
+
+    # mklink reports failure on stderr, which this script's $ErrorActionPreference
+    # ='Stop' would turn into a terminating NativeCommandError (see Invoke-Native).
+    $prevEap = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    cmd /c mklink @mkArgs 2>&1 | Out-Null
+    $ErrorActionPreference = $prevEap
+
+    if ($LASTEXITCODE -eq 0) {
         Write-Host "OK  $Destination -> $Source"
-    } catch {
-        Write-Host "!!  could not symlink $Destination (enable Developer Mode or run as Administrator)" -ForegroundColor Yellow
+    } else {
+        Write-Host "!!  could not symlink $Destination (enable Developer Mode: Settings > System > For developers)" -ForegroundColor Yellow
         Write-Host "    copying instead -- future 'git pull's will not propagate until you re-run this script" -ForegroundColor Yellow
         # -Recurse so a directory target (the bitacora/wiki skills) copies its contents,
         # not just an empty dir. Harmless/ignored for a single-file target.
