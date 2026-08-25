@@ -690,8 +690,11 @@ Install-FontFromRelease -Repo "googlefonts/googlesans-code" -AssetPattern '^Goog
 #
 # $WtTheme IS the selection line for Windows, versioned and direct, same shape
 # as ghostty's `theme =` / tmux's `source themes/<id>.conf`. It does NOT read
-# ghostty's line: mac runs neon-noir today and this box wants osaka. Change the
-# look by editing this line and re-running -- no switcher, no pointer.
+# ghostty's line. That both happen to say `solarized-osaka` today is a
+# coincidence, not a coupling: a native-Windows box shares NONE of the other
+# three layers, so following ghostty would mean a mac theme change silently
+# repainting a machine that has no ghostty installed. Change the look by editing
+# this line and re-running -- no switcher, no pointer.
 $WtTheme = "solarized-osaka"
 
 # $WtFont is the font half of the same idea, and it DOES track the Mac: it is

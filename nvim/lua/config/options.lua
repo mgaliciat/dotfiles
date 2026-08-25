@@ -21,7 +21,7 @@
 --   "solarized-light"  canonical Solarized Light
 -- (The solarized-osaka-{day,moon,storm} variants and "obsidian" are still
 --  valid themes here, but outside the matrix.)
-vim.g.theme = "neon-noir"
+vim.g.theme = "solarized-osaka"
 
 -- ─── vim.opt ──────────────────────────────────────────────────
 -- Good defaults. Follows the spirit of the dotfiles: comment the WHY,

@@ -20,7 +20,7 @@
 # the file is versioned, a `git pull` propagates the theme to the other
 # machines. To change the look: edit this line (and the equivalent lines
 # in nvim and tmux — they share the id) and commit. There's no switcher and no pointer.
-theme = neon-noir
+theme = solarized-osaka
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
