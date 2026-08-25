@@ -18,6 +18,12 @@ Why: `Edit` matches the exact string and **fails loudly** when it doesn't — a 
 
 Bash keeps everything that is genuinely shell: running tests and builds, `git`, `docker`, `grep`/`find` for search, one-off inspection with `cat`/`sed -n`. The line is **reading and running vs. editing** — editing is the tools' job.
 
+## A feature, a plan or a spec is tracked as Tasks
+
+**Whenever the work is a feature, an implementation plan, or a spec, create Tasks for it with Claude Code's own task tools before writing any code** — one Task per step that produces something, exactly one in progress at a time, closed the moment that step is really done (not when it is "mostly" done). When a plan was approved in plan mode, the Tasks ARE that plan, transcribed step by step. A one-line fix, a question, or a single edit needs none of this.
+
+Why: the task list is the part of a plan that outlives the conversation. It is what says where things stand without scrolling the transcript, what survives a context summary, and what keeps a six-step feature from quietly ending at step three — the failure mode is never a wrong step, it is a forgotten one. Writing the steps down before starting is also the cheapest moment to notice the one that was never thought through.
+
 ## No attribution trailers in commits or PRs
 
 **Never add a `Co-Authored-By: Claude …` trailer** — or any other authorship footer, "generated with" line, or tool-attribution link — to a git commit message or a pull request description. This holds for every route that writes on the user's behalf: `git commit`, `gh pr create`, the GitHub web UI, a git GUI, or any app/MCP that opens a PR.
