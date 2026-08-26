@@ -46,37 +46,10 @@ if ! command -v claude >/dev/null 2>&1; then
   return 0 2>/dev/null || exit 0
 fi
 
-# ── ponytail — "lazy senior dev" ──
-# A single `install` brings the plugin AND its 6 bundled skills (ponytail,
-# ponytail-review, ponytail-audit, ponytail-debt, ponytail-gain, ponytail-help)
-# — there is no separate step for the skills. It stays active in ALL sessions
-# (ruleset always injected): `/ponytail off` turns it off per session,
-# PONYTAIL_DEFAULT_MODE=off by default. ~983 always-on tokens.
-# Doc: https://github.com/DietrichGebert/ponytail
-if ! command -v node >/dev/null 2>&1; then
-  # The plugin's hooks are Node.js. Without node it still installs, but automatic
-  # activation goes mute instead of erroring on every prompt (behavior documented
-  # by the project). We do not force it as a hard dependency.
-  echo "ℹ️  node not detected — ponytail installs anyway, but its automatic activation hooks will stay mute until node is in PATH"
-fi
-_claude_plugin_install \
-  "https://github.com/DietrichGebert/ponytail" \
-  "ponytail@ponytail" \
-  "ponytail"
-
-# ── andrej-karpathy-skills — behavior guidelines ──
-# Think before coding, simplicity, surgical changes, goal-driven execution with
-# tests. Lighter than ponytail: 1 skill, no hooks, no node (~103 tokens).
-# Intentional overlap with ponytail on "do not over-build" — different emphasis
-# (process/communication vs. concrete lines of code) and the extra cost of having
-# both active is marginal.
-#
-# The marketplace/plugin names come from the repo's .claude-plugin/marketplace.json,
-# NOT from the README: the README still points at forrestchang/andrej-karpathy-skills,
-# the name from before it was transferred to multica-ai (GitHub redirects, but we use
-# the current one).
-# Doc: https://github.com/multica-ai/andrej-karpathy-skills
-_claude_plugin_install \
-  "https://github.com/multica-ai/andrej-karpathy-skills" \
-  "andrej-karpathy-skills@karpathy-skills" \
-  "andrej-karpathy-skills"
+# ── no plugins installed right now ──
+# `ponytail` and `andrej-karpathy-skills` lived here until aug-2026; both were
+# always-on rulesets ("be lazy", "don't over-build") injected into every session,
+# and they were dropped. The mechanism stays — adding one back is a single
+# _claude_plugin_install call with the full https:// marketplace URL, the
+# `plugin@marketplace` id from the repo's .claude-plugin/marketplace.json (NOT
+# from its README, which often lags a transfer), and a label.

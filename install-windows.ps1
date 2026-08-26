@@ -11,7 +11,6 @@
 #   - rtk (no official installer for Windows — we download the release zip) and
 #     its versioned config.toml, COPIED like on mac/Linux
 #   - codebase-memory-mcp (official install.ps1 installer)
-#   - marketplace plugins (ponytail, andrej-karpathy-skills)
 #   - HTTP-endpoint MCPs (context7, obsidian) — mechanism 2, key from env vars
 #   - gh-stack: the `gh` extension + its skill (npx skills) — mirror of
 #     bootstrap_gh_stack in scripts/lib.sh and the block in binaries.sh
@@ -466,21 +465,9 @@ if ((Get-Command claude -ErrorAction SilentlyContinue) -and $env:OBSIDIAN_API_KE
     Write-Host "i   obsidian: skipped (no OBSIDIAN_API_KEY env var -- setx OBSIDIAN_API_KEY <hex>)"
 }
 
-if (Get-Command claude -ErrorAction SilentlyContinue) {
-    # ponytail: 1 install brings the plugin AND its 6 bundled skills. Its hooks are
-    # Node.js -- without node it still installs, but automatic activation goes mute.
-    if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
-        Write-Host "i   node not detected -- ponytail installs anyway, but its automatic activation hooks will stay mute until node is in PATH"
-    }
-    Install-ClaudePlugin "https://github.com/DietrichGebert/ponytail" "ponytail@ponytail" "ponytail"
-
-    # andrej-karpathy-skills: 1 skill, no hooks, no node. Names taken from the
-    # repo's .claude-plugin/marketplace.json, not from the README (which still has
-    # the old name, from before it was transferred to multica-ai).
-    Install-ClaudePlugin "https://github.com/multica-ai/andrej-karpathy-skills" "andrej-karpathy-skills@karpathy-skills" "andrej-karpathy-skills"
-} else {
-    Write-Host "i   claude not detected in PATH -- skipping plugins"
-}
+# No plugins installed right now: ponytail and andrej-karpathy-skills lived here
+# until aug-2026 and were dropped. Install-ClaudePlugin stays for the next one --
+# same reasoning as the bash side (claude/install/plugins.sh).
 
 # ─── gh-stack: the `gh` extension ───────────────────────────────
 # Port of bootstrap_gh_stack (scripts/lib.sh). gh-stack is stacked branches/PRs as

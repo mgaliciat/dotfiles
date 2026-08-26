@@ -44,7 +44,8 @@ guard is ours (the destination dir).
 
 **3 — `plugins.sh`.** One `marketplace add` + one `install` and the CLI does the rest (including
 writing `extraKnownMarketplaces` / `enabledPlugins`). It is the cheapest way to add new skills or
-hooks. Today: `ponytail` (6 bundled skills) and `andrej-karpathy-skills`.
+hooks. Today: nothing — `ponytail` and `andrej-karpathy-skills` were dropped in aug-2026 and the
+file keeps only the helper.
 Careful in the Windows port: the plugins block has to go **after** the script writes its
 `settings.json`, or you clobber what the CLI just put there.
 

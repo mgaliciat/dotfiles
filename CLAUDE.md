@@ -48,7 +48,7 @@ Everything this repo does to `~/.claude/` lives in `claude/install/`, split by *
 |---|---|---|---|---|
 | **1** | `settings.sh` | **We do**, with `jq` | Our guard (only if the key is absent) | `statusLine`, `permissions.*`, `attribution.*`, stale-hook cleanup, symlinks for `statusline.sh` + `CLAUDE.md` + the `bitacora` skill |
 | **2** | `binaries.sh` | The **external binary**, in its own setup command | The binary handles it | `rtk`, `codebase-memory-mcp`, `context7` (endpoint-only, key from env), the `gh-stack` skill (via `npx skills`, guard is ours) |
-| **3** | `plugins.sh` | The **CLI** (`claude plugin`) | The CLI handles it | `ponytail`, `andrej-karpathy-skills` |
+| **3** | `plugins.sh` | The **CLI** (`claude plugin`) | The CLI handles it | *(nothing — `ponytail` and `andrej-karpathy-skills` were dropped in aug-2026; the helper stays)* |
 
 `install.sh` and `install-linux.sh` source all three. `install-windows.ps1` **replicates them by hand** (PowerShell can't source bash) — it's the only copy left and nothing keeps it in sync automatically.
 

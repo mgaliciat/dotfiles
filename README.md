@@ -49,7 +49,6 @@ cd ~/dotfiles
    - `statusLine` + base `permissions` in the real `settings.json` (which is NOT versioned)
    - [`rtk`](https://github.com/rtk-ai/rtk) — proxy CLI that rewrites Bash commands into a compressed equivalent to save tokens. Transparent, via a `PreToolUse` hook
    - [`codebase-memory-mcp`](https://github.com/DeusData/codebase-memory-mcp) — MCP server that indexes the code into a queryable graph
-   - Plugins [`ponytail`](https://github.com/DietrichGebert/ponytail) (lazy senior dev) and [`andrej-karpathy-skills`](https://github.com/multica-ai/andrej-karpathy-skills) (guidelines)
 4. Cloning tpm (Tmux Plugin Manager) if missing
 5. Reloading the tmux config if a server is running
 6. Registering VS Code as the default app for `.ghostty` (if VS Code is installed)
@@ -89,4 +88,4 @@ export REDASH_API_KEY="..."
 
 `.zshenv` automatically sources `.zshenv.local` if present.
 
-- **`~/.claude/settings.json`**, **`~/.claude/skills/`**, **`~/.claude/projects/*/memory/`** — Claude Code state. Neither versioned nor symlinked: permissions/UI diverge per host, and the skills and memories are written by Claude Code and its binaries at runtime. `install.sh` only does targeted, additive-only merges into `settings.json` (statusLine, base permissions, rtk/codebase-memory hooks) — it never overwrites the whole file. If you delete `~/.claude` entirely, re-running `./install.sh` rebuilds what the binaries and plugins install (MCP config + hooks + the `codebase-memory` skill, ponytail's skills); what does NOT come back are your permissions and memories — those don't live in the repo.
+- **`~/.claude/settings.json`**, **`~/.claude/skills/`**, **`~/.claude/projects/*/memory/`** — Claude Code state. Neither versioned nor symlinked: permissions/UI diverge per host, and the skills and memories are written by Claude Code and its binaries at runtime. `install.sh` only does targeted, additive-only merges into `settings.json` (statusLine, base permissions, rtk/codebase-memory hooks) — it never overwrites the whole file. If you delete `~/.claude` entirely, re-running `./install.sh` rebuilds what the binaries install (MCP config + hooks + the `codebase-memory` skill); what does NOT come back are your permissions and memories — those don't live in the repo.
