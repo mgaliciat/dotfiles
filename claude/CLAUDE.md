@@ -36,11 +36,20 @@ Why: `Edit` matches the exact string and **fails loudly** when it doesn't — a 
 
 Bash keeps everything that is genuinely shell: running tests and builds, `git`, `docker`, `grep`/`find` for search, one-off inspection with `cat`/`sed -n`. The line is **reading and running vs. editing** — editing is the tools' job.
 
-## A feature, a plan or a spec is tracked as Tasks
+## What a finished plan or spec turns into is tracked as Tasks
 
-**Whenever the work is a feature, an implementation plan, or a spec, create Tasks for it with Claude Code's own task tools before writing any code** — one Task per step that produces something, exactly one in progress at a time, closed the moment that step is really done (not when it is "mostly" done). When a plan was approved in plan mode, the Tasks ARE that plan, transcribed step by step. A one-line fix, a question, or a single edit needs none of this.
+**A plan or a spec is not itself a Task list — it is the document that produces one.** While planning is still open, the plan stays prose: the outcome, the scope, the trade-offs. The moment it is finalized and implementation begins, the activities that follow from it are created as Tasks with Claude Code's own task tools, before any code is written — one Task per step that produces something. Don't transcribe the plan's sections; transcribe the work it says to execute.
 
-Why: the task list is the part of a plan that outlives the conversation. It is what says where things stand without scrolling the transcript, what survives a context summary, and what keeps a six-step feature from quietly ending at step three — the failure mode is never a wrong step, it is a forgotten one. Writing the steps down before starting is also the cheapest moment to notice the one that was never thought through.
+How the list is kept, because a stale one is worse than none:
+
+- **Exactly one Task `in_progress` at a time.** Open the next only after closing the current one.
+- **Close each the moment that step is really done**, not when it is "mostly" done, and never in a batch at the end. The list is a live view, not a report.
+- **A step that failed, got blocked, or landed half-done stays open** — say what blocked it. Marking it complete to tidy the list hides exactly the thing worth surfacing.
+- **Work discovered mid-implementation gets appended** rather than done silently off-list.
+
+A one-line fix, a question, or a single edit needs none of this.
+
+Why: the plan answers *what we decided and why*, and belongs in something that outlives it — a spec, a goal file, the bitácora. The Task list answers *where the execution stands*, a different question with a different lifetime: it is what survives a context summary, what says where things are without scrolling the transcript, and what keeps a six-step implementation from quietly ending at step three. The failure mode is never a wrong step, it is a forgotten one. Collapsing the two costs both — the plan rots as the work moves, and the execution goes untracked.
 
 ## No attribution trailers in commits or PRs
 
