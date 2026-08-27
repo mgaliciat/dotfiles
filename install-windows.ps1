@@ -6,7 +6,8 @@
 # "per-machine split" section. It covers only:
 #   - symlinks for claude/statusline.ps1, claude/CLAUDE.md, the per-item skills
 #     we author (bitacora, wiki), and git/.gitignore_global
-#   - statusLine (+ refreshInterval) and base permissions in settings.json
+#   - statusLine (+ refreshInterval), base permissions, attribution and
+#     outputStyle in settings.json
 #     (equivalent to the jq blocks in install.sh/install-linux.sh, native JSON here)
 #   - rtk (no official installer for Windows — we download the release zip) and
 #     its versioned config.toml, COPIED like on mac/Linux
@@ -267,6 +268,28 @@ if ($Settings.attribution -isnot [PSCustomObject]) {
             Write-Host "OK  attribution.$AttrField added to settings.json (empty = no trailer)"
         }
     }
+}
+
+# ─── outputStyle: Concise (mirror of settings.sh) ───
+# The one lever that edits Claude Code's SYSTEM PROMPT rather than appending to
+# it. `Concise` is built-in: result first, no preamble, no narration -- same
+# engineering work, full detail when asked for it, and errors / security warnings
+# / destructive-action confirmations are never shortened.
+#
+# Not a custom style in ~/.claude/output-styles/ on purpose: a custom one DROPS
+# the built-in software-engineering instructions unless `keep-coding-instructions:
+# true`, which is a bad trade for a tone tweak. Rules about how code gets written
+# go in claude/CLAUDE.md (symlinked above) -- that's the documented split.
+#
+# Needs Claude Code >= 2.1.237; on an older CLI an unknown style falls back to
+# Default, so no version gate is needed. Guarded like the rest, and `/config`
+# writes the user's pick to the project-local settings.local.json, which outranks
+# this file anyway.
+if ($Settings.PSObject.Properties.Name -contains "outputStyle") {
+    Write-Host "OK  outputStyle already set in settings.json -- leaving it alone"
+} else {
+    $Settings | Add-Member -NotePropertyName "outputStyle" -NotePropertyValue "Concise"
+    Write-Host "OK  outputStyle added to settings.json (Concise)"
 }
 
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false

@@ -150,6 +150,31 @@ _settings_set_if_absent '.attribution.pr' \
   '.attribution //= {} | .attribution.pr = ""' \
   'attribution.pr (no Co-Authored-By)'
 
+# ── outputStyle: Concise ──
+# Output styles are the only lever that edits Claude Code's SYSTEM PROMPT (as
+# opposed to CLAUDE.md, which is appended as a user message after it). `Concise`
+# is a built-in: lead with the result, no preamble, no narration of what's about
+# to happen — while doing the same engineering work, answering in full when you
+# actually ask for detail, and never truncating errors, security warnings or
+# destructive-action confirmations.
+#
+# Set HERE and not as a custom style in ~/.claude/output-styles/ on purpose: a
+# custom style DROPS Claude Code's built-in software-engineering instructions
+# (how to scope a change, how to verify work) unless `keep-coding-instructions:
+# true` — all-or-nothing for a tone tweak. Anything about how code should be
+# written belongs in claude/CLAUDE.md instead; that's the documented split.
+#
+# Needs Claude Code >= 2.1.237 (`Concise` didn't exist before). On an older CLI
+# the key is simply an unknown style and the Default prompt is used — degrades
+# to a no-op, which is why there's no version gate here.
+#
+# Guarded like the rest: `/config` writes the user's pick to the PROJECT-local
+# .claude/settings.local.json, which outranks this file, so a per-project choice
+# still wins and a hand-set value here is never rewritten.
+_settings_set_if_absent '.outputStyle' \
+  '.outputStyle = "Concise"' \
+  'outputStyle (Concise)'
+
 # ── convergent cleanup: stale tmux-claude-session-manager hooks ──
 # Until jul-2026 the plugin read state through 4 hooks (UserPromptSubmit /
 # Notification / PreToolUse / Stop → scripts/state.sh) that these installers
