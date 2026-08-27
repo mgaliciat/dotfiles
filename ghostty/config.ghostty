@@ -158,13 +158,17 @@ window-padding-color = extend
 window-save-state = always
 
 # ─── cursor ───────────────────────────────────────────────────
-# Block — "classic terminal" look with character. The color comes from the
-# active theme (cursor-color + cursor-text). Other options: bar,
+# Bar — the thin vertical caret, same shape as any text field. Note this is
+# NOT Ghostty's own default: that is `block`, which is what used to be here.
+# The color still comes from the active theme (cursor-color + cursor-text);
+# under osaka that is the magenta #d23681, and `cursor-text` stops mattering
+# with a bar since it no longer covers the glyph. Other options: block,
 # block_hollow, underline.
-cursor-style = block
+cursor-style = bar
 
-# no blinking — a steady cursor, more sober and less distracting. The
-# solid orange block is already visible enough without animating.
+# no blinking — a steady cursor, more sober and less distracting. Matters
+# more with a bar than it did with a block: a thin caret that also blinks is
+# the most attention-grabbing combination of the two axes.
 cursor-style-blink = false
 
 # ─── selection and copying ────────────────────────────────────
