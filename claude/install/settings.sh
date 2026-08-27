@@ -175,6 +175,58 @@ _settings_set_if_absent '.outputStyle' \
   '.outputStyle = "Concise"' \
   'outputStyle (Concise)'
 
+# ── fallbackModel ──
+# Which model takes over when the primary is overloaded or unavailable. Without
+# it an overloaded opus just makes you wait; with it the turn continues on
+# sonnet. The schema wants an ARRAY even for a single entry (tried in order) —
+# a bare string is silently ignored, which is the failure mode this comment
+# exists to prevent. Aliases resolve at runtime, so "sonnet" keeps meaning the
+# current sonnet without a version to bump here.
+#
+# `model` itself is deliberately NOT set by this installer: it is the one choice
+# that legitimately differs per machine and per session (/model writes it), and
+# a guard that pinned it would fight the picker.
+_settings_set_if_absent '.fallbackModel' \
+  '.fallbackModel = ["sonnet"]' \
+  'fallbackModel (sonnet)'
+
+# ── autoContinueAtUsageLimit ──
+# On hitting a claude.ai usage limit, hold the session open and resume the task
+# by itself when the window resets, instead of stopping at a dialog that has to
+# be answered by hand. The wait is offered either way — this only picks the
+# answer up front. Worth it here because sessions routinely run unattended in
+# background tmux popups, where nobody is watching to click through.
+_settings_set_if_absent '.autoContinueAtUsageLimit' \
+  '.autoContinueAtUsageLimit = true' \
+  'autoContinueAtUsageLimit'
+
+# ── terminalTitleFromRename ──
+# Stop `/rename` and `--name` from rewriting the terminal tab title. tmux
+# already owns the window name (and the statusline renders it), so letting
+# Claude Code write there means two things fighting over one string.
+_settings_set_if_absent '.terminalTitleFromRename' \
+  '.terminalTitleFromRename = false' \
+  'terminalTitleFromRename (leave the tab title to tmux)'
+
+# ── preferredNotifChannel ──
+# How the OS notification is delivered when a turn finishes or input is needed.
+# The enum is auto | iterm2 | terminal_bell | iterm2_with_bell | kitty |
+# ghostty | notifications_disabled (from the CLI's own schema — a value outside
+# it is accepted by the file and then ignored at runtime, so don't guess).
+#
+# `terminal_bell` and NOT `ghostty`, even though ghostty is the terminal on the
+# mac: this file is sourced by install-linux.sh too, where Ghostty is not part
+# of the portable subset, and a hardcoded `ghostty` there would resolve to
+# nothing with no error. The bell is the one channel every terminal here has,
+# and on the mac it lands in Ghostty's own `bell-features` handling anyway.
+#
+# `auto` (the default) would be the obvious third option, but it detects the
+# terminal from the environment, and inside a tmux popup that environment says
+# tmux — which is exactly where these sessions run.
+_settings_set_if_absent '.preferredNotifChannel' \
+  '.preferredNotifChannel = "terminal_bell"' \
+  'preferredNotifChannel (terminal_bell)'
+
 # ── convergent cleanup: stale tmux-claude-session-manager hooks ──
 # Until jul-2026 the plugin read state through 4 hooks (UserPromptSubmit /
 # Notification / PreToolUse / Stop → scripts/state.sh) that these installers
