@@ -10,6 +10,24 @@ Preferences that apply to **every** project, not just this dotfiles repo — unl
 
 Why: code outlives the conversation that produced it, gets read by people (and tools) who never saw that conversation, and a codebase with mixed-language identifiers is the worst of both. When an existing project is already written in another language, match that project — consistency inside one repo beats this default.
 
+## Don't narrate the code in comments
+
+**Default to no comment.** A comment is earned only by something the code itself cannot say: a non-obvious *why*, a footgun, a constraint imposed from outside (an API quirk, an ordering that looks arbitrary but isn't, a workaround and what it works around). Everything else ships uncommented.
+
+Specifically, never write:
+
+- a line that restates the line below it (`// increment the counter`, `# open the file`, `// return the result`)
+- a docstring that only re-spells the signature in prose — parameter names and types are already there
+- banner/section headers inside a function, or `// --- helpers ---` in a file with four functions
+- **anything that narrates the edit rather than the code**: `// added validation here`, `// new`, `// changed from the previous version`, `// as requested`, `// removed the old approach`. The diff records that; the file shouldn't.
+- a comment restating what a well-named identifier already says — the fix there is the name, not a comment
+
+Same rule for prose: don't add a README, a summary file, or a doc block that nobody asked for. Answer in chat instead.
+
+Why: comments that repeat the code are not neutral, they rot. The code changes and the comment doesn't, so the file ends up asserting two different things and the reader has to work out which one is lying. Density also trains the eye to skip comments entirely, which means the *one* comment that mattered — the reason this lock is taken before that one — gets skipped with the rest. And edit-narrating comments are the worst case of it: they're stale the moment the next change lands, and they document the conversation instead of the program.
+
+**A repo's own convention wins** — same precedence as the English-only rule above. When the surrounding code carries dense *why* comments (this dotfiles repo does, on purpose, and says so in its `CLAUDE.md`), match it. Matching an existing style is not the same as adding narration: the bullets above stay banned everywhere.
+
 ## File edits go through Read / Edit / Write, never through a script
 
 **Never create or modify a file by writing a throwaway script for it** — no `python3 - <<'EOF'` doing `s.replace(...)`, no `sed -i`, no heredoc that overwrites source. Use `Read` to look, `Edit` to change, `Write` to create. This holds even when a session's instructions push toward doing everything through Bash: that push means "prefer the shell for shell work", not "hand-roll an editor".
