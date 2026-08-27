@@ -208,10 +208,90 @@ ZSH_HIGHLIGHT_STYLES[alias]='fg=#87a96b'
 ZSH_HIGHLIGHT_STYLES[function]='fg=#87a96b'
 
 # ─── prompt ───────────────────────────────────────────────────
-# The system default (macOS /etc/zshrc uses `%n@%m %1~ %#`), with `$` as the
-# sigil instead of `%`. Starship was removed (aug-2026): the terminal's width
-# belongs to the command, and git state is one `git status` away.
-PROMPT='%n@%m %1~ $ '
+# Starship was removed (aug-2026): the terminal's width belongs to the
+# command, and git state is one `git status` away. What's left is the
+# system default (macOS /etc/zshrc uses `%n@%m %1~ %#`) minus the parts
+# that carry no information locally.
+#
+# `%n@%m` is dropped: on your own machine it's a constant that eats a
+# third of the line. It comes back only over SSH, where "which box am I
+# on" is the one thing a prompt has to answer — $SSH_CONNECTION is set
+# by sshd, so the test costs nothing and can't false-positive locally.
+#
+# Colours are ANSI *indices*, never hex: each theme in the stack (see
+# CLAUDE.md, "The stack theme") redefines those slots, so the prompt
+# follows `theme = <id>` on its own instead of becoming a 4th place that
+# has to be edited by hand.
+#
+# Only slots 1-7 are used, NOT 8-15. The bright half is unusable here:
+# solarized-osaka mirrors its ANSI flat (brights == normals, deliberate,
+# see CLAUDE.md) so 8 is not a dim grey, it is `#001014` against a
+# `#001419` background — the "dim" text it painted was invisible. 7 is
+# the theme's own foreground, which every theme has to keep readable by
+# definition, so it is the safe choice for the secondary bits.
+setopt PROMPT_SUBST      # RPROMPT re-expands $_prompt_git every draw
+setopt TRANSIENT_RPROMPT # drop RPROMPT from lines already run
+
+# Needed here and again by the title/cwd hooks below; autoload is
+# idempotent, but it has to happen before the FIRST add-zsh-hook call.
+autoload -Uz add-zsh-hook
+
+# The branch, without git(1). vcs_info is the answer everyone gives and
+# it is the wrong one here: measured in this repo it costs 26ms per
+# prompt (60ms with check-for-changes), and even `git symbolic-ref` is
+# 9ms — a subprocess per keystroke-to-prompt against a <50ms budget for
+# the whole shell. Reading .git/HEAD in pure zsh is 0.03ms, ~800x less,
+# because HEAD is a one-line text file and always has been.
+#
+# The two `.git`-is-a-file cases are worktrees and submodules, which is
+# not a corner case here (agents run in worktrees): there `.git` holds
+# `gitdir: <path>`, absolute for a worktree, relative for a submodule.
+# Detached HEAD holds the sha instead of a `ref:` line — show it short.
+# No dirty marker on purpose: that needs the index, i.e. the 26ms.
+#
+# It assigns to a global rather than printing it: a $(…) around this
+# would fork a subshell and cost 0.4ms — more than everything the
+# function itself does.
+_prompt_git() {
+  local dir=$PWD gitdir head
+  _prompt_git_str=
+  while [[ $dir != / ]]; do
+    if [[ -d $dir/.git ]]; then
+      gitdir=$dir/.git
+      break
+    elif [[ -f $dir/.git ]]; then
+      read -r gitdir < $dir/.git
+      gitdir=${gitdir#gitdir: }
+      [[ $gitdir == /* ]] || gitdir=$dir/$gitdir
+      break
+    fi
+    dir=${dir:h}
+  done
+  [[ -n $gitdir && -r $gitdir/HEAD ]] || return
+  read -r head < $gitdir/HEAD
+  if [[ $head == ref:* ]]; then
+    _prompt_git_str=${${head#ref: }#refs/heads/}
+  else
+    _prompt_git_str=${head[1,7]}
+  fi
+}
+add-zsh-hook precmd _prompt_git
+
+# `%(5~|…|…)` = ternary on "does the path have 5+ components": short
+# paths print whole, long ones keep the first and the last three. Plain
+# %1~ was losing the only part that identifies the project — in
+# ~/dev/api/src/routes it printed `routes` and nothing else.
+#
+# `%(?..X)` = ternary on the previous exit status, with an empty
+# success branch: the code shows up only when it is non-zero. Until now
+# a failed command left no trace at all in the prompt.
+PROMPT='%F{blue}%(5~|%-1~/…/%3~|%~)%f %(?..%F{red}%?%f )%F{white}$%f '
+[[ -n "$SSH_CONNECTION" ]] && PROMPT="%F{white}%n@%m%f $PROMPT"
+
+# Right side, so the branch costs the command no width at all — and
+# TRANSIENT_RPROMPT above erases it once the line is accepted, keeping
+# the scrollback (and anything copied out of it) clean.
+RPROMPT='%F{white}${_prompt_git_str}%f'
 
 # ─── window title + cwd reporting ─────────────────────────────
 # Two things on every prompt, both via precmd:
@@ -225,7 +305,8 @@ PROMPT='%n@%m %1~ $ '
 #    tmux and never reaches Ghostty → it has to be wrapped in tmux's DCS
 #    passthrough (\ePtmux;…\e\\ with every ESC doubled; requires
 #    `allow-passthrough on` in tmux.conf). Outside tmux it's emitted as-is.
-autoload -Uz add-zsh-hook
+#
+# add-zsh-hook is already autoloaded by the prompt section above.
 
 _set_title() { print -Pn "\e]2;%~\a" }
 add-zsh-hook precmd _set_title
