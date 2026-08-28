@@ -6,8 +6,8 @@
 # "per-machine split" section. It covers only:
 #   - symlinks for claude/statusline.ps1, claude/CLAUDE.md, the per-item skills
 #     we author (bitacora, wiki), and git/.gitignore_global
-#   - statusLine (+ refreshInterval), base permissions, attribution and
-#     outputStyle in settings.json
+#   - statusLine (+ refreshInterval), base permissions, attribution,
+#     outputStyle and the PowerShell-tool env var in settings.json
 #     (equivalent to the jq blocks in install.sh/install-linux.sh, native JSON here)
 #   - rtk (no official installer for Windows — we download the release zip) and
 #     its versioned config.toml, COPIED like on mac/Linux
@@ -290,6 +290,40 @@ if ($Settings.PSObject.Properties.Name -contains "outputStyle") {
 } else {
     $Settings | Add-Member -NotePropertyName "outputStyle" -NotePropertyValue "Concise"
     Write-Host "OK  outputStyle added to settings.json (Concise)"
+}
+
+# ─── env.CLAUDE_CODE_USE_POWERSHELL_TOOL: native PowerShell tool ───
+# Windows-only, so there is no counterpart in settings.sh. Turns on Claude Code's
+# PowerShell tool, which runs commands in pwsh directly instead of routing them
+# through Git Bash -- the only way to reach Registry paths (HKLM:\...), services
+# and the WMI/CIM cmdlets, none of which Bash can touch.
+#
+# Written into settings.json's `env` rather than as a user environment variable,
+# even though `[Environment]::SetEnvironmentVariable(...,'User')` also works. Two
+# reasons: the scope is right (Claude Code only, not every process on the box),
+# and it needs no new terminal to take effect. settings.json also WINS over the
+# shell value -- the docs are explicit that `env` replaces the inherited one at
+# startup -- so a stale user variable on a machine can't quietly contradict this.
+#
+# The value is the STRING "1", not the integer: `env` is documented as string
+# pairs. "0" turns the tool off, which is the reason to set it explicitly at all
+# on claude.ai/Console accounts, where the docs say it's already on by default.
+#
+# FOOTGUN: with the tool enabled PowerShell becomes the PRIMARY shell, ahead of
+# Git Bash. The rtk hook in binaries.sh is matched on `Bash`, so anything Claude
+# runs through PowerShell bypasses rtk's filtering entirely. That's a loss of
+# output compression, not a correctness problem -- but don't debug "rtk stopped
+# working" without remembering this flipped the default shell.
+if (-not ($Settings.PSObject.Properties.Name -contains "env")) {
+    $Settings | Add-Member -NotePropertyName "env" -NotePropertyValue ([PSCustomObject]@{})
+}
+if ($Settings.env -isnot [PSCustomObject]) {
+    Write-Host "i   env is not an object in settings.json -- leaving it alone"
+} elseif ($Settings.env.PSObject.Properties.Name -contains "CLAUDE_CODE_USE_POWERSHELL_TOOL") {
+    Write-Host "OK  env.CLAUDE_CODE_USE_POWERSHELL_TOOL already set -- leaving it alone"
+} else {
+    $Settings.env | Add-Member -NotePropertyName "CLAUDE_CODE_USE_POWERSHELL_TOOL" -NotePropertyValue "1"
+    Write-Host "OK  env.CLAUDE_CODE_USE_POWERSHELL_TOOL added to settings.json (1)"
 }
 
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
