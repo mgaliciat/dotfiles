@@ -11,7 +11,8 @@
 #     (equivalent to the jq blocks in install.sh/install-linux.sh, native JSON here)
 #   - rtk (no official installer for Windows — we download the release zip) and
 #     its versioned config.toml, COPIED like on mac/Linux
-#   - codebase-memory-mcp (official install.ps1 installer)
+#   - codebase-memory-mcp — the `-ui-` release asset, NOT the official
+#     install.ps1 (which hardcodes the headless build; see that block)
 #   - HTTP-endpoint MCPs (context7, obsidian) — mechanism 2, key from env vars
 #   - gh-stack: the `gh` extension + its skill (npx skills) — mirror of
 #     bootstrap_gh_stack in scripts/lib.sh and the block in binaries.sh
@@ -419,36 +420,100 @@ if (Test-Path $RtkExe) {
 }
 
 # ─── codebase-memory-mcp (code graph MCP server) ────────────────
-# Official installer (install.ps1): downloads the binary, runs `install -y` on
-# its own (configures Claude Code + adds its own dir to the user PATH), in the
-# variant without --ui (headless, the default). It only runs if the binary is
-# not already present.
-if (-not (Get-Command codebase-memory-mcp -ErrorAction SilentlyContinue)) {
+# The official installer (install.ps1) is NOT used here, and that is the whole
+# point of this block. Upstream ships TWO binaries per release and its
+# installer hardcodes the wrong one:
+#
+#     $Archive = "codebase-memory-mcp-windows-$Arch.zip"   # <- no UI assets
+#
+# The README claims "the graph UI is built into every release binary". It is
+# not. That build answers `--ui=true` with "this binary was built without the
+# embedded UI, so the HTTP server will not start" and silently keeps running
+# headless. The 3D graph viewer only exists in the parallel `-ui-` asset, so we
+# fetch that one ourselves and let `install -y` (below) do the PATH + agent
+# registration the official script would have done.
+#
+# ~/.local/bin is not our choice: it is where upstream puts the binary and what
+# its `install -y` appends to the user PATH. Keeping it means an existing
+# install is upgraded in place and every ~/.claude/*.json pointing at that path
+# stays valid.
+$CbmDir = Join-Path $env:USERPROFILE ".local\bin"
+$CbmExe = Join-Path $CbmDir "codebase-memory-mcp.exe"
+# Stamp recording which VARIANT+VERSION we last put there. Without it there is
+# no way to tell the two builds apart from the outside (same name, same
+# `--version`), and `codebase-memory-mcp update` self-updates to the HEADLESS
+# build — silently undoing this block. Version mismatch against the stamp is
+# what catches that on the next run.
+$CbmStamp = Join-Path $CbmDir ".codebase-memory-mcp-ui"
+
+$CbmCmd = Get-Command codebase-memory-mcp -ErrorAction SilentlyContinue
+$CbmHave = if ($CbmCmd) { (& $CbmCmd.Source --version) -replace '^\S+\s+', '' } else { $null }
+$CbmStamped = if (Test-Path $CbmStamp) { (Get-Content $CbmStamp -Raw).Trim() } else { $null }
+
+if (-not $CbmCmd -or $CbmStamped -ne $CbmHave) {
     Write-Host ""
-    Write-Host "-> Installing codebase-memory-mcp"
-    $TmpPs1 = Join-Path $env:TEMP "cbm-install.ps1"
+    Write-Host "-> Installing codebase-memory-mcp (UI build)"
+    $Arch = if ($env:PROCESSOR_ARCHITECTURE -eq "ARM64") { "arm64" } else { "amd64" }
+    $CbmAsset = "codebase-memory-mcp-ui-windows-$Arch.zip"
+    $TmpZip = Join-Path $env:TEMP $CbmAsset
+    $TmpDir = Join-Path $env:TEMP "cbm-ui"
     try {
-        Invoke-WebRequest -Uri "https://raw.githubusercontent.com/DeusData/codebase-memory-mcp/main/install.ps1" -OutFile $TmpPs1
-        Unblock-File $TmpPs1
-        & $TmpPs1
+        # latest/download/<asset> resolves without an API call (same trick as
+        # the rtk block above). checksums.txt covers the -ui- assets too, and we
+        # verify because nobody upstream is verifying for us any more.
+        $Base = "https://github.com/DeusData/codebase-memory-mcp/releases/latest/download"
+        Invoke-WebRequest -Uri "$Base/$CbmAsset" -OutFile $TmpZip
+        $Sums = (Invoke-WebRequest -Uri "$Base/checksums.txt").Content
+        $Want = ($Sums -split "`n" | Where-Object { $_ -match [regex]::Escape($CbmAsset) }) -replace '\s.*$', ''
+        $Got = (Get-FileHash $TmpZip -Algorithm SHA256).Hash.ToLower()
+        if (-not $Want) { throw "$CbmAsset missing from checksums.txt" }
+        if ($Got -ne $Want.Trim().ToLower()) { throw "sha256 mismatch for $CbmAsset" }
+
+        Remove-Item $TmpDir -Recurse -Force -ErrorAction SilentlyContinue
+        Expand-Archive -Path $TmpZip -DestinationPath $TmpDir -Force
+
+        # A running MCP server (or the shared daemon) holds an open handle on
+        # the .exe: Windows refuses to overwrite it but allows a RENAME. Stop
+        # first, then move the old one aside so the copy cannot fail half-way.
+        Get-Process -Name "codebase-memory-mcp" -ErrorAction SilentlyContinue | Stop-Process -Force
+        New-Item -ItemType Directory -Path $CbmDir -Force | Out-Null
+        if (Test-Path $CbmExe) { Move-Item $CbmExe "$CbmExe.old" -Force }
+        Copy-Item (Join-Path $TmpDir "codebase-memory-mcp.exe") $CbmExe -Force
+        Remove-Item "$CbmExe.old" -Force -ErrorAction SilentlyContinue
+
+        ((& $CbmExe --version) -replace '^\S+\s+', '') | Set-Content $CbmStamp -Encoding utf8
+        Write-Host "OK  codebase-memory-mcp: UI build installed"
     } catch {
         Write-Host "!!  codebase-memory-mcp install failed: $_" -ForegroundColor Yellow
     } finally {
-        Remove-Item $TmpPs1 -Force -ErrorAction SilentlyContinue
+        Remove-Item $TmpZip -Force -ErrorAction SilentlyContinue
+        Remove-Item $TmpDir -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
 
 # `install -y` runs ALWAYS (mirror of install.sh): it is what registers the MCP
-# server + hooks + the `codebase-memory` skill in ~/.claude/. If it lived only
-# inside the official install.ps1 above, a ~/.claude deleted by hand would never
-# be rebuilt (binary present -> guard false -> zero reinstall).
-# Idempotent.
-$Cbm = Get-Command codebase-memory-mcp -ErrorAction SilentlyContinue
+# server + hooks + the `codebase-memory` skill in ~/.claude/, and what appends
+# ~/.local/bin to the user PATH. If it were gated on the block above, a
+# ~/.claude deleted by hand would never be rebuilt (binary present -> guard
+# false -> zero reinstall). Idempotent.
+#
+# Resolved by path, not by Get-Command: on a fresh machine the PATH entry it is
+# about to create does not exist in THIS process yet, so the lookup would miss
+# the binary we just wrote.
+$Cbm = if (Test-Path $CbmExe) { $CbmExe } else { (Get-Command codebase-memory-mcp -ErrorAction SilentlyContinue).Source }
 if ($Cbm) {
-    & $Cbm.Source install -y | Out-Null
+    & $Cbm install -y | Out-Null
     Write-Host "OK  codebase-memory-mcp: MCP server + hooks + skill registered"
-    & $Cbm.Source config set auto_index true | Out-Null
+    & $Cbm config set auto_index true | Out-Null
     Write-Host "OK  codebase-memory-mcp: auto_index=true"
+    # 3D graph viewer on http://localhost:9749, served by the binary itself
+    # (owned by the shared daemon, so parallel agent sessions do not each spawn
+    # an HTTP server). `config set`, NOT the documented `--ui=true --port=N`:
+    # those flags persist the same two keys but then BLOCK running the server,
+    # which would hang the installer.
+    & $Cbm config set ui_enabled true | Out-Null
+    & $Cbm config set ui_port 9749 | Out-Null
+    Write-Host "OK  codebase-memory-mcp: UI on http://localhost:9749"
 }
 
 # ─── marketplace plugins (mechanism 3) ──────────────────────────
