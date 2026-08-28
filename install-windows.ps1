@@ -804,12 +804,12 @@ Install-FontFromRelease -Repo "googlefonts/googlesans-code" -AssetPattern '^Goog
 #
 # $WtTheme IS the selection line for Windows, versioned and direct, same shape
 # as ghostty's `theme =` / tmux's `source themes/<id>.conf`. It does NOT read
-# ghostty's line, and today the two deliberately DISAGREE (ghostty is on
-# solarized-osaka): a native-Windows box shares NONE of the other three layers,
-# so following ghostty would mean a mac theme change silently repainting a
+# ghostty's line: it may agree with it (it does today) or disagree, and either
+# is a normal state, because a native-Windows box shares NONE of the other three
+# layers -- following ghostty would mean a mac theme change silently repainting a
 # machine that has no ghostty installed. Change the look by editing this line
 # and re-running -- no switcher, no pointer.
-$WtTheme = "anthropic-warm"
+$WtTheme = "solarized-osaka"
 
 # $WtFont is the font half of the same idea, and it DOES track the Mac: it is
 # ghostty's `font-family` (`250235e`). Kept as its own line rather than parsed
