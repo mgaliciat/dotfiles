@@ -1,0 +1,84 @@
+# anthropic-brand — the SEVEN official Anthropic brand colours, verbatim.
+# Mirror of nvim/lua/themes/anthropic-brand.lua and tmux/themes/anthropic-brand.conf.
+#
+# Source of truth: skills/brand-guidelines/SKILL.md in github.com/anthropics/skills
+# (Anthropic's own, live on main — re-read it before touching these values; it is
+# the only place they are published as a normative list). The whole palette is:
+#
+#   Main    Dark #141413 · Light #faf9f5 · Mid Gray #b0aea5 · Light Gray #e8e6dc
+#   Accent  Orange #d97757 (primary) · Blue #6a9bcc (secondary) · Green #788c5d (tertiary)
+#
+# That is SEVEN colours for SIXTEEN ANSI slots, which is the whole design problem
+# here. The rule applied: every brand colour lands LITERALLY in a real slot, and
+# the four hues the brand simply does not have (red, yellow, magenta, cyan) are
+# derived on the brand's own H/S/L grid rather than borrowed from another palette.
+#
+# Why this exists next to anthropic-dark, which claims the same source: that one
+# was ported from a VS Code theme and its blue (#61aaf2) and green (#9aca86) are
+# NOT the brand's — they are a third party's reading of it. Both anchors it does
+# share (#141413, #d97757) are still current as of aug-2026, so anthropic-dark is
+# not stale, just not literal. This theme is the literal one; that one is the
+# softer interpretation. Neither supersedes the other.
+
+# ─── background and text ─────────────────────────────────────
+# Dark and Light Gray, both literal. Light (#faf9f5) is held back for bright
+# white instead of fg: at 17.5:1 it is a harsher canvas than the 14.7:1 of Light
+# Gray, and spending the brightest brand value on plain body text leaves nothing
+# above it for the slot that is supposed to read as emphasis.
+background = #141413
+foreground = #e8e6dc
+
+# cursor — Orange, the primary accent, on brand ink
+cursor-color = #d97757
+cursor-text  = #141413
+
+# selection — Orange pulled deep and desaturated (H 15, S 32, L 21) so the
+# highlight reads as the same warm family, not as a generic gray box.
+selection-background = #472d24
+selection-foreground = #faf9f5
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# Contrast on #141413 in brackets. Everything a program prints as content clears
+# 5:1; the two that do not are deliberate (0 is a near-bg slot, 8 is dim on
+# purpose — it is what comments and line numbers land on).
+#
+# normals (0-7)
+palette = 0=#1e1d1a
+palette = 1=#d96257
+palette = 2=#788c5d
+palette = 3=#d2b470
+palette = 4=#6a9bcc
+palette = 5=#c77591
+palette = 6=#6bb6bd
+palette = 7=#b0aea5
+
+# 0  derived — bg lifted to L 11 on the brand neutral hue [1.09]
+# 1  derived — Orange's S/L, hue rotated -10 deg. Red and Orange are
+#    near-neighbours here because the brand is warm and has no true red;
+#    the separation is carried by 9 below, not by hue distance [5.12]
+# 2  BRAND Green, literal. L 45.7 makes it the dimmest slot of the set,
+#    and it is the reason `git diff` additions read calm rather than loud [5.01]
+# 3  derived — bridges Orange and Green in both hue (42) and saturation [9.22]
+# 4  BRAND Blue, literal [6.30]
+# 5  derived — Blue's saturation moved to a rose hue (340). Nothing in the
+#    brand is magenta; a cold violet here would be the one off-key note [5.60]
+# 6  derived — the hue midpoint between Blue and Green (185) [7.95]
+# 7  BRAND Mid Gray, literal — "secondary elements" upstream, which is
+#    exactly what normal white is asked to be in a terminal [8.29]
+
+# brights (8-15): same hues lifted in luminance.
+palette = 8=#727064
+palette = 9=#d97757
+palette = 10=#96ae75
+palette = 11=#e2cc8d
+palette = 12=#92b8dd
+palette = 13=#db94ac
+palette = 14=#91cfd4
+palette = 15=#faf9f5
+
+# 8  derived — the midpoint between Dark and Mid Gray. Dim by design [3.70]
+# 9  BRAND Orange, literal. Bright red is the honest home for it: it is the
+#    primary accent, it must be the loudest thing on screen, and this is the
+#    slot programs reach for when they want to be seen. Same trick as
+#    anthropic-warm, which puts it here for the same reason [5.90]
+# 15 BRAND Light, literal — the top of the ramp, as upstream intends [17.50]
