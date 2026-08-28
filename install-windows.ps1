@@ -174,8 +174,13 @@ Set-DotfileSymlink (Join-Path $Dotfiles "git\.gitignore_global") (Join-Path $HOM
 # Additive-only, same as install.sh/install-linux.sh: if the key already exists
 # (you built your own config by hand on this machine) it is not touched.
 $SettingsPath = Join-Path $ClaudeDir "settings.json"
+#
+# ReadAllText(..., UTF8), not `Get-Content -Raw` -- same reason as the Windows
+# Terminal block far below: PS 5.1 reads a BOM-less file as CP-1252, and the
+# WriteAllText at the end of this block writes UTF-8, so the pair corrupts every
+# non-ASCII byte a little more on each run.
 $Settings = if (Test-Path $SettingsPath) {
-    Get-Content $SettingsPath -Raw | ConvertFrom-Json
+    [System.IO.File]::ReadAllText($SettingsPath, [System.Text.Encoding]::UTF8) | ConvertFrom-Json
 } else {
     [PSCustomObject]@{}
 }
@@ -858,8 +863,17 @@ if (-not (Test-Path $GhosttyTheme)) {
         # `//` inside a string and a naive strip would corrupt the user's file. Once
         # WT saves the file itself (any UI change) the comments are gone and this
         # works; until then we say so and touch nothing.
+        #
+        # ReadAllText(..., UTF8) and NOT `Get-Content -Raw`: in Windows PowerShell
+        # 5.1 Get-Content falls back to the system ANSI codepage on a file with no
+        # BOM, which is exactly what WT writes. Paired with the UTF-8 WriteAllText
+        # below that turns every re-run into a mojibake amplifier -- the accented
+        # profile names ("Simbolo del sistema") get decoded as CP-1252 and
+        # re-encoded as UTF-8 once per install, so the damage doubles each time and
+        # the file stays valid JSON the whole way, silently. Read and write must
+        # name the SAME encoding; if you touch one, touch the other.
         try {
-            $Wt = Get-Content $WtPath -Raw | ConvertFrom-Json
+            $Wt = [System.IO.File]::ReadAllText($WtPath, [System.Text.Encoding]::UTF8) | ConvertFrom-Json
         } catch {
             Write-Host "!!  could not parse $WtPath (JSON comments?) -- skipping" -ForegroundColor Yellow
             Write-Host "    change any setting from the WT UI once, then re-run" -ForegroundColor Yellow
