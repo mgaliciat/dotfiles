@@ -49,7 +49,7 @@ How the list is kept, because a stale one is worse than none:
 
 A one-line fix, a question, or a single edit needs none of this.
 
-Why: the plan answers *what we decided and why*, and belongs in something that outlives it — a spec, a goal file, the bitácora. The Task list answers *where the execution stands*, a different question with a different lifetime: it is what survives a context summary, what says where things are without scrolling the transcript, and what keeps a six-step implementation from quietly ending at step three. The failure mode is never a wrong step, it is a forgotten one. Collapsing the two costs both — the plan rots as the work moves, and the execution goes untracked.
+Why: the plan answers *what we decided and why*, and belongs in something that outlives it — a spec, a goal file. The Task list answers *where the execution stands*, a different question with a different lifetime: it is what survives a context summary, what says where things are without scrolling the transcript, and what keeps a six-step implementation from quietly ending at step three. The failure mode is never a wrong step, it is a forgotten one. Collapsing the two costs both — the plan rots as the work moves, and the execution goes untracked.
 
 ## No attribution trailers in commits or PRs
 
@@ -105,14 +105,3 @@ Two tools, used in order:
 
 **Not** a general-purpose search: for the stable core of a mature language, or for anything not a library (configs, your own code, prose), it just costs a round-trip. Well-known and stable → answer directly.
 
-### obsidian — github.com/coddingtonbear/obsidian-local-rest-api
-
-MCP server for a **local, per-machine Obsidian vault** — the "Local REST API" community plugin ships its own MCP at `/mcp/`. `binaries.sh` only registers the HTTP endpoint (`127.0.0.1:27123`); the vault itself is never versioned (per-machine, like `~/.claude/skills/`), and the key comes from `~/.zshenv.local` (or a Windows user env var — `install-windows.ps1` replicates it too, since native Windows has no `~/.zshenv.local`).
-
-**Use it for cross-repo notes**: durable knowledge that has to outlive a single repo — most relevant here, *which service touches which and why* across a set of shared services. Write a note from one repo, read it from another. This is the "why" layer; `codebase-memory-mcp` is the "what/when" layer (mechanical call graph, `trace_path cross_service`). They complement — graph for the code, vault for the rationale.
-
-**Requires Obsidian OPEN** with the plugin + its MCP server enabled — that is the cost of the real-Obsidian path (Dataview, atomic patch by heading) over plain `Read`/`Write` on the markdown. If Obsidian is closed the tools fail: say so and stop, with **no fallback** to reading or writing the vault on disk (see the rule above).
-
-## Daily log (bitácora) in Obsidian
-
-The full how-to lives in the versioned **`bitacora` skill** (`claude/skills/bitacora/`, symlinked into `~/.claude/skills/` by the installer) — it self-activates on "bitácora" / "guarda resumen" and holds the format, path, and tagging. Off the always-loaded budget on purpose. The one thing a skill *can't* do is fire on a git event, so the trigger that belongs here: **after you land a `git commit` or open a PR, invoke the bitacora skill** to log what changed and why as a new per-invocation note.

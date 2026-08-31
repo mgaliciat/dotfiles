@@ -22,34 +22,12 @@ PERMISSIONS="$DOTFILES/claude/install/permissions.json"
 link "$DOTFILES/claude/statusline.sh" "$HOME/.claude/statusline.sh"
 link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 
-# Per-ITEM skill symlink — NOT the whole ~/.claude/skills/ dir. Symlinking the
-# whole dir was rejected (see project CLAUDE.md: per-machine content, .gitignore
-# leak risk). A single hand-authored skill we DO version is the additive
-# exception: we control its content, it sits beside the per-machine skills
-# (`learned`, `codebase-memory`) without touching them. `bitacora` = daily work
-# log into Obsidian; depends on the obsidian MCP, so it's mac/Linux like context7.
-link "$DOTFILES/claude/skills/bitacora" "$HOME/.claude/skills/bitacora"
-# `wiki` = synthesis layer OVER the bitácora: ingests Bitacora/ into cross-linked
-# Wiki/ pages, queries them, lints for rot. Same obsidian-MCP dependency, so same
-# mac/Linux reach. The per-vault taxonomy lives in the vault's Wiki/CLAUDE.md
-# (per-machine, not versioned) — the plugin is the engine, that file is the config.
-#
-# NOTE: `wiki` is a skills-dir PLUGIN, not a plain skill — the dir holds a
-# `.claude-plugin/plugin.json` (skills: ./skills/) so Claude Code auto-loads it as
-# `wiki@skills-dir`, bundling three sub-skills that invoke as `/wiki:ingest`,
-# `/wiki:query`, `/wiki:lint`. Plugin skills are ALWAYS namespaced with a colon:
-# invocation is `/<plugin>:<folder>` (folder = skill name, `wiki` = plugin `name:`
-# from plugin.json). So the folders are the bare verbs (ingest, …) and you type
-# the real colon form `/wiki:lint` — the `:` is a typeable invocation, not just a
-# display label. Naming the folder `wiki-lint` is what made it `/wiki:wiki-lint`.
-# It still installs by THIS symlink alone — a skills-dir plugin is referenced in
-# place, so a `git pull` propagates edits with no marketplace and no copy into
-# ~/.claude/plugins/cache (unlike mechanism 3 in plugins.sh). That's why nothing
-# here changed vs when it was a plain skill, and why plugins.sh has no `wiki`
-# entry. The plugin's value now is packaging: one dir, one symlink, and the three
-# skills share one ENGINE.md at the root (each SKILL.md reads it first) to keep the
-# OKF spec single-source. `bitacora` stays a plain skill (no plugin.json) beside it.
-link "$DOTFILES/claude/skills/wiki" "$HOME/.claude/skills/wiki"
+# NOTE: ~/.claude/skills/ gets NO symlink from here — the whole dir stays
+# per-machine (see project CLAUDE.md: per-machine content, .gitignore leak risk).
+# The two hand-authored skills we did version, `bitacora` and `wiki`, were dropped
+# in aug-2026 together with the obsidian MCP they both wrote through; if a
+# versioned skill ever comes back, the per-ITEM symlink (one `link` per skill dir,
+# never the parent) is the shape that was safe.
 
 # settings.json itself is NOT symlinked: it's 100% per-machine (like
 # ~/.gitconfig). Permissions and UI prefs diverge per host, and symlinking it

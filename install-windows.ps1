@@ -5,7 +5,7 @@
 # this script is NOT a port of the rest of the dotfiles — see CLAUDE.md, the
 # "per-machine split" section. It covers only:
 #   - symlinks for claude/statusline.ps1, claude/CLAUDE.md, the per-item skills
-#     we author (bitacora, wiki), and git/.gitignore_global
+#     and git/.gitignore_global
 #   - statusLine (+ refreshInterval), base permissions, attribution,
 #     outputStyle and the PowerShell-tool env var in settings.json
 #     (equivalent to the jq blocks in install.sh/install-linux.sh, native JSON here)
@@ -13,7 +13,7 @@
 #     its versioned config.toml, COPIED like on mac/Linux
 #   - codebase-memory-mcp — the `-ui-` release asset, NOT the official
 #     install.ps1 (which hardcodes the headless build; see that block)
-#   - HTTP-endpoint MCPs (context7, obsidian) — mechanism 2, key from env vars
+#   - HTTP-endpoint MCPs (context7) — mechanism 2, key from env vars
 #   - gh-stack: the `gh` extension + its skill (npx skills) — mirror of
 #     bootstrap_gh_stack in scripts/lib.sh and the block in binaries.sh
 #   - Nerd Fonts (the ONE stack layer that DOES exist on Windows: Windows
@@ -58,8 +58,11 @@ New-Item -ItemType Directory -Path $ClaudeDir -Force | Out-Null
 
 # True if $a and $b have identical content (recursively for dirs) -- used to make
 # the no-Developer-Mode copy path IDEMPOTENT: without it, every re-run backs up and
-# re-copies our own prior copy, and for the skill DIRS those `.backup` copies land
-# inside ~/.claude/skills/ and get loaded as phantom skills. Same content -> no-op.
+# re-copies our own prior copy, piling up `.backup.<timestamp>` files beside the
+# real one. Same content -> no-op. The dir arm is dead while every target is a
+# single file, and stays because a dir target is one `Set-DotfileSymlink` away
+# (that arm is what kept `.backup` copies of a skill dir from being loaded as
+# phantom skills back when this script linked two of them).
 function Test-SameContent {
     param([string]$A, [string]$B)
     $la = Test-Path $A -PathType Leaf; $lb = Test-Path $B -PathType Leaf
@@ -106,7 +109,7 @@ function Set-DotfileSymlink {
     # New-Item demands Administrator even with Developer Mode ON -- which is the whole
     # point of turning it on. cmd's mklink does pass SYMBOLIC_LINK_FLAG_ALLOW_
     # UNPRIVILEGED_CREATE, so it is the only way a normal user gets a real link here.
-    # /D for a directory target (the bitacora/wiki skills).
+    # /D for a directory target.
     $mkArgs = @()
     if (Test-Path $Source -PathType Container) { $mkArgs += "/D" }
     $mkArgs += @($Destination, $Source)
@@ -123,8 +126,8 @@ function Set-DotfileSymlink {
     } else {
         Write-Host "!!  could not symlink $Destination (enable Developer Mode: Settings > System > For developers)" -ForegroundColor Yellow
         Write-Host "    copying instead -- future 'git pull's will not propagate until you re-run this script" -ForegroundColor Yellow
-        # -Recurse so a directory target (the bitacora/wiki skills) copies its contents,
-        # not just an empty dir. Harmless/ignored for a single-file target.
+        # -Recurse so a directory target copies its contents, not just an empty
+        # dir. Harmless/ignored for a single-file target.
         Copy-Item $Source $Destination -Recurse -Force
     }
 }
@@ -151,18 +154,10 @@ function Invoke-Native {
 Set-DotfileSymlink (Join-Path $Dotfiles "claude\statusline.ps1") (Join-Path $ClaudeDir "statusline.ps1")
 Set-DotfileSymlink (Join-Path $Dotfiles "claude\CLAUDE.md")      (Join-Path $ClaudeDir "CLAUDE.md")
 
-# Per-ITEM skills we author (bitacora, wiki) -- mirror of settings.sh's per-item
-# symlinks. NOT the whole skills/ dir: that stays per-machine (`learned`,
-# `codebase-memory`) and versioning it risks leaking personal state. These two we
-# control and version, so they symlink in beside the others. `wiki` is a skills-dir
-# plugin (.claude-plugin/plugin.json), but installs by THIS symlink alone --
-# referenced in place, so `git pull` propagates edits with no copy, no marketplace.
-# skills/ may not exist yet (codebase-memory-mcp creates it later), so make it first.
-# Runtime note: both lean on the obsidian MCP, wired below.
-$SkillsDir = Join-Path $ClaudeDir "skills"
-New-Item -ItemType Directory -Path $SkillsDir -Force | Out-Null
-Set-DotfileSymlink (Join-Path $Dotfiles "claude\skills\bitacora") (Join-Path $SkillsDir "bitacora")
-Set-DotfileSymlink (Join-Path $Dotfiles "claude\skills\wiki")     (Join-Path $SkillsDir "wiki")
+# NOTE: nothing is symlinked into ~/.claude/skills/ -- it stays per-machine
+# (`learned`, `codebase-memory`) and versioning it risks leaking personal state.
+# `bitacora` and `wiki` were the two versioned exceptions and were dropped in
+# aug-2026 with the obsidian MCP they wrote through; mirror of settings.sh.
 
 # The one NON-Claude symlink from install.sh that is portable here: git runs
 # natively on Windows, unlike zsh/tmux/nvim/ghostty. Inert on its own -- it only
@@ -550,9 +545,9 @@ function Install-ClaudePlugin {
 # ─── context7 MCP (mechanism 2 — twin of binaries.sh) ───────────
 # Hosted HTTP server (current library docs) — register the endpoint, no binary.
 # Key from the ENVIRONMENT (a Windows user env var: `setx CONTEXT7_API_KEY <key>`),
-# never the repo. Header is `CONTEXT7_API_KEY: <key>` (not Authorization/Bearer —
-# that shape is obsidian's). No key -> skip cleanly. Idempotent via `claude mcp
-# get`; a ROTATED key needs `claude mcp remove context7 -s user` first.
+# never the repo. Header is `CONTEXT7_API_KEY: <key>`, not Authorization/Bearer.
+# No key -> skip cleanly. Idempotent via `claude mcp get`; a ROTATED key needs
+# `claude mcp remove context7 -s user` first.
 if ((Get-Command claude -ErrorAction SilentlyContinue) -and $env:CONTEXT7_API_KEY) {
     if ((Invoke-Native { claude mcp get context7 }) -eq 0) {
         Write-Host "OK  context7: already registered"
@@ -563,33 +558,6 @@ if ((Get-Command claude -ErrorAction SilentlyContinue) -and $env:CONTEXT7_API_KE
     }
 } elseif (-not $env:CONTEXT7_API_KEY) {
     Write-Host "i   context7: skipped (no CONTEXT7_API_KEY env var -- setx CONTEXT7_API_KEY <key>)"
-}
-
-# ─── obsidian MCP (mechanism 2 — twin of binaries.sh) ───────────
-# Same as binaries.sh: `claude mcp add` an HTTP endpoint, no binary, nothing to
-# install. The Obsidian "Local REST API" plugin ships its own MCP at /mcp/ on
-# 127.0.0.1:27123 — so this only makes sense on a box where you actually OPEN
-# Obsidian with that plugin + its HTTP server enabled. Registration succeeds even
-# with Obsidian closed (it just stores the URL); the tools only WORK when it is up.
-#
-# The key is per-machine, from the ENVIRONMENT — a Windows user env var here
-# (`setx OBSIDIAN_API_KEY <hex>`), since native Windows has no ~/.zshenv.local.
-# We strip a leading "Bearer " the plugin's copy button adds, else the header
-# doubles to "Bearer Bearer <hex>" and 401s. No key -> skip cleanly. Idempotent:
-# `claude mcp get` short-circuits (a ROTATED key needs `claude mcp remove obsidian
-# -s user` first). It writes ~/.claude.json, not settings.json, so order vs the
-# WriteAllText above does not matter — only `claude` in PATH does.
-if ((Get-Command claude -ErrorAction SilentlyContinue) -and $env:OBSIDIAN_API_KEY) {
-    $ObsKey = $env:OBSIDIAN_API_KEY -replace '^Bearer '
-    if ((Invoke-Native { claude mcp get obsidian }) -eq 0) {
-        Write-Host "OK  obsidian: already registered"
-    } elseif ((Invoke-Native { $null | claude mcp add --transport http obsidian http://127.0.0.1:27123/mcp/ -s user --header "Authorization: Bearer $ObsKey" }) -eq 0) {
-        Write-Host "OK  obsidian: MCP server registered (user scope)"
-    } else {
-        Write-Host "!!  obsidian registration failed -- check by hand (claude mcp add ...)" -ForegroundColor Yellow
-    }
-} elseif (-not $env:OBSIDIAN_API_KEY) {
-    Write-Host "i   obsidian: skipped (no OBSIDIAN_API_KEY env var -- setx OBSIDIAN_API_KEY <hex>)"
 }
 
 # No plugins installed right now: ponytail and andrej-karpathy-skills lived here

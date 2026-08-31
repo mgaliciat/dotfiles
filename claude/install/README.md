@@ -36,7 +36,7 @@ of each list is in that file's `_comment`.
 **2 — `binaries.sh`.** You install the binary (brew / curl) and run *its* setup command, which is
 the one that writes hooks, MCP servers and skills into `~/.claude/`. Today: `rtk` (a `PreToolUse`
 hook that compresses Bash output), `codebase-memory-mcp` (MCP server + hooks + the
-`codebase-memory` skill), the `context7` / `obsidian` endpoints, and the `gh-stack` skill
+`codebase-memory` skill), the `context7` endpoint, and the `gh-stack` skill
 (`npx skills add`, which resolves it from the `github/gh-stack` repo — the `gh` extension itself
 is installed by `bootstrap_gh_stack` in `scripts/lib.sh`, since it is not Claude Code state).
 That last one is the exception on idempotence: `skills add` re-downloads on every run, so the
