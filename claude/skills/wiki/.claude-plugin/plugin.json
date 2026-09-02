@@ -1,0 +1,10 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "wiki",
+  "version": "0.2.0",
+  "description": "Ingest / query / lint an OpenKnowledge vault (OKF v0.2) synthesized from the bitácora per-invocation notes.",
+  "author": {
+    "name": "M. Galicia"
+  },
+  "skills": "./skills/"
+}

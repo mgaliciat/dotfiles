@@ -164,6 +164,54 @@ elif [[ -z "${CONTEXT7_API_KEY:-}" ]]; then
   echo "→ context7: skipped (no CONTEXT7_API_KEY — add it to ~/.zshenv.local)"
 fi
 
+# ─── open-knowledge (the vault behind the bitácora/wiki skills) ─
+# Same shape as context7: a hosted HTTP endpoint we only register — no binary,
+# nothing to install, no local port. It is the OpenKnowledge server
+# (github.com/inkeep/open-knowledge) holding the personal knowledge base the
+# `bitacora` and `wiki` skills read and write. Doc + skills: `okf-knowledge-base`
+# (OKF v0.2 semantics) ships with the server, not from here.
+#
+# EVERY value comes from the ENVIRONMENT — including the URL, which is the one
+# difference from context7. The endpoint is a personal host and this repo is
+# PUBLIC; hardcoding it would leak where the vault lives for the sake of saving
+# one env var. So ~/.zshenv.local (gitignored) carries all three:
+#
+#   export OPENKNOWLEDGE_MCP_URL="https://<host>/mcp"
+#   export OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID="<id>.access"
+#   export OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET="<secret>"
+#
+# The two CF-Access headers are a Cloudflare Access service token — the endpoint
+# sits behind Zero Trust, so without them every call gets an HTML login page
+# instead of JSON-RPC, which surfaces as a server that connects and has no tools.
+# A machine missing any of the three skips cleanly: install.sh must not fail
+# there, and a HALF-registered server (URL, no token) is worse than none — it
+# looks configured and fails at call time.
+#
+# `--scope user` is load-bearing for the same reason as context7: the CLI default
+# `local` would bind the server to the dotfiles directory, and the entire point of
+# a vault is that a note written from one repo is readable from every other.
+#
+# Idempotence is ours (`claude mcp add` errors if the name exists), so a ROTATED
+# token needs `claude mcp remove open-knowledge -s user` before a re-run.
+if command -v claude >/dev/null 2>&1 \
+   && [[ -n "${OPENKNOWLEDGE_MCP_URL:-}" ]] \
+   && [[ -n "${OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID:-}" ]] \
+   && [[ -n "${OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET:-}" ]]; then
+  if claude mcp get open-knowledge >/dev/null 2>&1; then
+    echo "✓ open-knowledge: already registered"
+  elif claude mcp add --transport http open-knowledge "$OPENKNOWLEDGE_MCP_URL" \
+      --scope user \
+      --header "CF-Access-Client-Id: $OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID" \
+      --header "CF-Access-Client-Secret: $OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET" \
+      >/dev/null 2>&1 </dev/null; then
+    echo "✓ open-knowledge: MCP server registered (user scope)"
+  else
+    echo "⚠️  open-knowledge registration failed — check by hand (claude mcp add ...)"
+  fi
+elif command -v claude >/dev/null 2>&1; then
+  echo "→ open-knowledge: skipped (needs OPENKNOWLEDGE_MCP_URL + the two CF-Access vars in ~/.zshenv.local)"
+fi
+
 # ─── gh-stack skill (stacked PRs) ─────────────────────────────
 # Mechanism 2 with a twist: the external tool here is not a binary we install but
 # `npx skills` (skills.sh / vercel-labs), which resolves the skill from a repo and

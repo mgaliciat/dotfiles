@@ -90,3 +90,22 @@ Two tools, used in order:
 
 **Not** a general-purpose search: for the stable core of a mature language, or for anything not a library (configs, your own code, prose), it just costs a round-trip. Well-known and stable → answer directly.
 
+### open-knowledge — github.com/inkeep/open-knowledge
+
+MCP server for a **personal knowledge base**: a directory of markdown with YAML frontmatter, conforming to [OKF v0.2](https://github.com/GoogleCloudPlatform/open-knowledge-format), served over HTTP. `binaries.sh` only registers the endpoint; the URL and its Cloudflare Access token both come from the environment — never the repo, since a personal host in a public repo is the same leak as a key. Replaced the `obsidian` MCP in sep-2026: same job, without requiring a desktop app to be open.
+
+**Use it for cross-repo knowledge** — what has to outlive a single repo, above all *which service touches which and why* across a set of shared services. Write from one repo, read from any other. This is the "why" layer; `codebase-memory-mcp` is the "what/when" layer (mechanical call graph, `trace_path cross_service`). They complement: graph for the code, vault for the rationale.
+
+**Reach for the vault's own tools, never the filesystem ones.** `exec` (a read-only `cat`/`ls`/`grep`/`find` allowlist) instead of `Read`/`Grep`: it returns each file's frontmatter, backlinks and attribution alongside the text, and the vault is remote anyway. Then `search` for ranked lookup, `links` for the graph, `write`/`edit` to change things. **`write` with `position: replace` overwrites a whole document** — correct for one that does not exist yet, destructive for a live one; use `edit` there.
+
+Two skills ship with it and are the right entry point before hand-rolling anything: **`okf-knowledge-base`** (OKF v0.2 semantics — types, provenance, reserved files) and the project-local `open-knowledge` skill (tool discipline). Read them instead of re-deriving the spec.
+
+## Daily log (bitácora) and its wiki
+
+The vault above has two layers, and this repo versions a skill for each, in `claude/skills/`, symlinked into `~/.claude/skills/` by the installer:
+
+- **`bitacora`** — one immutable note per invocation (`bitacora/YYYY-MM-DD-HHMM-<repo>`), written after a unit of work lands. Self-activates on "bitácora" / "guarda resumen", and a `PostToolUse` hook (`claude/hooks/bitacora.{sh,ps1}`) fires it after a `git commit` — the one trigger a skill cannot own, since skills only activate on what the user says. Judging whether *this* commit is a unit of work rather than a WIP step is still yours.
+- **`wiki`** — the synthesis layer over it: a skills-dir plugin invoked as `/wiki:ingest`, `/wiki:query`, `/wiki:lint`.
+
+The per-vault contract — type vocabulary, repo-tag aliases, index and log formats, the external-research procedure — lives **inside the vault** at `wiki/CLAUDE.md`, not here: it is versioned with the content it governs and it outranks the skills. The how-to is in the skill files, off the always-loaded budget on purpose.
+

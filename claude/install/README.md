@@ -17,10 +17,17 @@ installed (the installers run their deps block first).
 | **3** | `plugins.sh` | The **Claude Code CLI** (`claude plugin`) | Handled by the CLI |
 
 **1 — `settings.sh`.** The only thing we write by hand: `statusLine` (+ `refreshInterval`),
-`permissions.allow/deny`, `attribution.commit/pr`, and the convergent cleanup of the obsolete
-`tmux-claude-session-manager` hooks. Additive-only, with a guard: if the key already exists on that
-machine, it is not touched. It also symlinks the two versioned pieces of `claude/`
-(`statusline.sh`, the user-level `CLAUDE.md`).
+`permissions.allow/deny`, `attribution.commit/pr`, the bitácora `PostToolUse` hook, and the
+convergent cleanup of the obsolete `tmux-claude-session-manager` hooks. Additive-only, with a
+guard: if the key already exists on that machine, it is not touched. It also symlinks the
+versioned pieces of `claude/` — `statusline.sh`, the user-level `CLAUDE.md`, `hooks/bitacora.sh`,
+and the two skills we author (`skills/bitacora`, `skills/wiki`), one `link` per item and never the
+parent dir.
+
+The bitácora hook is the one entry here that cannot use the `_settings_set_if_absent` helper:
+`.hooks.PostToolUse` is an array shared with other tools, so the guard deep-scans for our own
+command string instead of testing a `jq` path. Guarding on the path would either be satisfied by
+somebody else's hook — ours never landing — or append a duplicate on every run.
 
 Note the guards on the nested keys (`statusLine.refreshInterval`, `attribution.commit`,
 `attribution.pr`) key on the **field**, not on its parent object: guarding on the parent means a
@@ -36,7 +43,7 @@ of each list is in that file's `_comment`.
 **2 — `binaries.sh`.** You install the binary (brew / curl) and run *its* setup command, which is
 the one that writes hooks, MCP servers and skills into `~/.claude/`. Today: `rtk` (a `PreToolUse`
 hook that compresses Bash output), `codebase-memory-mcp` (MCP server + hooks + the
-`codebase-memory` skill), the `context7` endpoint, and the `gh-stack` skill
+`codebase-memory` skill), the `context7` and `open-knowledge` endpoints, and the `gh-stack` skill
 (`npx skills add`, which resolves it from the `github/gh-stack` repo — the `gh` extension itself
 is installed by `bootstrap_gh_stack` in `scripts/lib.sh`, since it is not Claude Code state).
 That last one is the exception on idempotence: `skills add` re-downloads on every run, so the

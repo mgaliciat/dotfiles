@@ -5,15 +5,18 @@
 # this script is NOT a port of the rest of the dotfiles — see CLAUDE.md, the
 # "per-machine split" section. It covers only:
 #   - symlinks for claude/statusline.ps1, claude/CLAUDE.md, the per-item skills
-#     and git/.gitignore_global
+#     we author (bitacora, wiki), claude/hooks/bitacora.ps1, and
+#     git/.gitignore_global
 #   - statusLine (+ refreshInterval), base permissions, attribution,
-#     outputStyle and the PowerShell-tool env var in settings.json
+#     outputStyle, the PowerShell-tool env var and the bitácora PostToolUse hook
+#     in settings.json
 #     (equivalent to the jq blocks in install.sh/install-linux.sh, native JSON here)
 #   - rtk (no official installer for Windows — we download the release zip) and
 #     its versioned config.toml, COPIED like on mac/Linux
 #   - codebase-memory-mcp — the `-ui-` release asset, NOT the official
 #     install.ps1 (which hardcodes the headless build; see that block)
-#   - HTTP-endpoint MCPs (context7) — mechanism 2, key from env vars
+#   - HTTP-endpoint MCPs (context7, open-knowledge) — mechanism 2, credentials
+#     (and, for open-knowledge, the URL itself) from env vars
 #   - gh-stack: the `gh` extension + its skill (npx skills) — mirror of
 #     bootstrap_gh_stack in scripts/lib.sh and the block in binaries.sh
 #   - Nerd Fonts (the ONE stack layer that DOES exist on Windows: Windows
@@ -154,10 +157,36 @@ function Invoke-Native {
 Set-DotfileSymlink (Join-Path $Dotfiles "claude\statusline.ps1") (Join-Path $ClaudeDir "statusline.ps1")
 Set-DotfileSymlink (Join-Path $Dotfiles "claude\CLAUDE.md")      (Join-Path $ClaudeDir "CLAUDE.md")
 
-# NOTE: nothing is symlinked into ~/.claude/skills/ -- it stays per-machine
-# (`learned`, `codebase-memory`) and versioning it risks leaking personal state.
-# `bitacora` and `wiki` were the two versioned exceptions and were dropped in
-# aug-2026 with the obsidian MCP they wrote through; mirror of settings.sh.
+# Per-ITEM skills we author (bitacora, wiki) -- mirror of settings.sh's per-item
+# symlinks. NOT the whole skills/ dir: that stays per-machine (`learned`,
+# `codebase-memory`, the OpenKnowledge ones) and versioning it risks leaking
+# personal state. These two we control and version, so they symlink in beside the
+# others. `wiki` is a skills-dir plugin (.claude-plugin/plugin.json) but installs
+# by THIS symlink alone -- referenced in place, so `git pull` propagates edits with
+# no copy and no marketplace. skills/ may not exist yet (codebase-memory-mcp
+# creates it later), so make it first.
+#
+# Runtime note: both write through the `open-knowledge` MCP, wired below.
+#
+# $SkillsDir is also read by the gh-stack block far below. It was defined HERE,
+# and when these two symlinks were dropped in aug-2026 the definition went with
+# them while that use stayed -- with $ErrorActionPreference = "Stop", `Join-Path
+# $null` throws and everything after it (the gh-stack skill, Nerd Fonts, the
+# Windows Terminal theme and keybindings) silently stopped installing. Keep the
+# assignment above the symlinks, not inside them.
+$SkillsDir = Join-Path $ClaudeDir "skills"
+New-Item -ItemType Directory -Path $SkillsDir -Force | Out-Null
+Set-DotfileSymlink (Join-Path $Dotfiles "claude\skills\bitacora") (Join-Path $SkillsDir "bitacora")
+Set-DotfileSymlink (Join-Path $Dotfiles "claude\skills\wiki")     (Join-Path $SkillsDir "wiki")
+
+# The bitácora's event half: a skill cannot fire on a git event, so the "log after
+# a commit lands" trigger is a PostToolUse hook (registered in the settings block
+# below) pointing at this script. The .PS1, not the .sh, for the same reason as
+# statusline above -- no bash, no jq. ~/.claude/hooks/ is a real per-machine dir
+# (codebase-memory-mcp writes its own hooks there), hence a per-ITEM link again.
+$HooksDir = Join-Path $ClaudeDir "hooks"
+New-Item -ItemType Directory -Path $HooksDir -Force | Out-Null
+Set-DotfileSymlink (Join-Path $Dotfiles "claude\hooks\bitacora.ps1") (Join-Path $HooksDir "bitacora.ps1")
 
 # The one NON-Claude symlink from install.sh that is portable here: git runs
 # natively on Windows, unlike zsh/tmux/nvim/ghostty. Inert on its own -- it only
@@ -325,6 +354,49 @@ if ($Settings.env -isnot [PSCustomObject]) {
 } else {
     $Settings.env | Add-Member -NotePropertyName "CLAUDE_CODE_USE_POWERSHELL_TOOL" -NotePropertyValue "1"
     Write-Host "OK  env.CLAUDE_CODE_USE_POWERSHELL_TOOL added to settings.json (1)"
+}
+
+# ─── PostToolUse hook: bitácora after a commit ──────────────────
+# Twin of the jq block in settings.sh. A SKILL cannot fire on an event -- it
+# self-activates on what the user says, and "log the bitácora after you commit"
+# has no user utterance to hang on -- so the trigger is a hook and the how-to
+# stays in the skill. The script only detects the commit and returns one line.
+#
+# `matcher` covers BOTH tool names: this box sets CLAUDE_CODE_USE_POWERSHELL_TOOL
+# (above), so commits normally route through PowerShell, but a session driving Git
+# Bash uses Bash. Matching one is how this would go quietly dead.
+#
+# ABSOLUTE path, like the statusLine block: `~` is not expanded here.
+#
+# Guarded on the COMMAND STRING appearing anywhere in the object, not on a
+# property path: .hooks.PostToolUse is an array shared with other tools
+# (codebase-memory-mcp registers its own entries there), so an "is the key
+# present" guard would either be satisfied by somebody else's hook -- ours never
+# landing -- or append a duplicate on every re-run.
+$BitacoraPs1  = Join-Path $HooksDir "bitacora.ps1"
+$SettingsJson = $Settings | ConvertTo-Json -Depth 10
+if ($SettingsJson -like "*bitacora.ps1*") {
+    Write-Host "OK  bitacora PostToolUse hook already in settings.json -- leaving it alone"
+} else {
+    if (-not ($Settings.PSObject.Properties.Name -contains "hooks")) {
+        $Settings | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([PSCustomObject]@{})
+    }
+    if (-not ($Settings.hooks.PSObject.Properties.Name -contains "PostToolUse")) {
+        $Settings.hooks | Add-Member -NotePropertyName "PostToolUse" -NotePropertyValue @()
+    }
+    $BitacoraHook = [PSCustomObject]@{
+        matcher = "Bash|PowerShell"
+        hooks   = @([PSCustomObject]@{
+            type    = "command"
+            command = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$BitacoraPs1`""
+            timeout = 5
+        })
+    }
+    # @(...) + entry, not +=: PostToolUse may arrive as a single object rather than
+    # an array when settings.json holds exactly one entry, and += on that is a
+    # string concatenation, not an append.
+    $Settings.hooks.PostToolUse = @($Settings.hooks.PostToolUse) + $BitacoraHook
+    Write-Host "OK  bitacora PostToolUse hook added to settings.json"
 }
 
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
@@ -558,6 +630,42 @@ if ((Get-Command claude -ErrorAction SilentlyContinue) -and $env:CONTEXT7_API_KE
     }
 } elseif (-not $env:CONTEXT7_API_KEY) {
     Write-Host "i   context7: skipped (no CONTEXT7_API_KEY env var -- setx CONTEXT7_API_KEY <key>)"
+}
+
+# ─── open-knowledge MCP (mechanism 2 — twin of binaries.sh) ─────
+# The OpenKnowledge server holding the personal knowledge base that the `bitacora`
+# and `wiki` skills (symlinked far above) read and write. Hosted HTTP endpoint:
+# register it, nothing to install.
+#
+# EVERY value comes from the environment, the URL included -- Windows user env
+# vars here, since native Windows has no ~/.zshenv.local:
+#
+#   setx OPENKNOWLEDGE_MCP_URL "https://<host>/mcp"
+#   setx OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID "<id>.access"
+#   setx OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET "<secret>"
+#
+# The URL is env-sourced rather than hardcoded (unlike context7's public endpoint)
+# because it is a PERSONAL host and this repo is public. The two CF-Access headers
+# are a Cloudflare Access service token: without them the endpoint answers with an
+# HTML login page instead of JSON-RPC, which surfaces as a server that connects
+# and has no tools. All three or none -- a half-registered server looks configured
+# and fails at call time, which is far worse to diagnose than an absent one.
+#
+# Writes ~/.claude.json, not settings.json, so its position relative to the
+# WriteAllText above does not matter -- only `claude` being on PATH does.
+# Idempotent via `claude mcp get`; a ROTATED token needs
+# `claude mcp remove open-knowledge -s user` first.
+if ((Get-Command claude -ErrorAction SilentlyContinue) -and $env:OPENKNOWLEDGE_MCP_URL `
+    -and $env:OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID -and $env:OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET) {
+    if ((Invoke-Native { claude mcp get open-knowledge }) -eq 0) {
+        Write-Host "OK  open-knowledge: already registered"
+    } elseif ((Invoke-Native { $null | claude mcp add --transport http open-knowledge $env:OPENKNOWLEDGE_MCP_URL -s user --header "CF-Access-Client-Id: $env:OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID" --header "CF-Access-Client-Secret: $env:OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET" }) -eq 0) {
+        Write-Host "OK  open-knowledge: MCP server registered (user scope)"
+    } else {
+        Write-Host "!!  open-knowledge registration failed -- check by hand (claude mcp add ...)" -ForegroundColor Yellow
+    }
+} elseif (Get-Command claude -ErrorAction SilentlyContinue) {
+    Write-Host "i   open-knowledge: skipped (needs OPENKNOWLEDGE_MCP_URL + the two CF-Access env vars -- setx)"
 }
 
 # No plugins installed right now: ponytail and andrej-karpathy-skills lived here

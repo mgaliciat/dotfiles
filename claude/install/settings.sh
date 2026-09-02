@@ -22,12 +22,46 @@ PERMISSIONS="$DOTFILES/claude/install/permissions.json"
 link "$DOTFILES/claude/statusline.sh" "$HOME/.claude/statusline.sh"
 link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 
-# NOTE: ~/.claude/skills/ gets NO symlink from here — the whole dir stays
-# per-machine (see project CLAUDE.md: per-machine content, .gitignore leak risk).
-# The two hand-authored skills we did version, `bitacora` and `wiki`, were dropped
-# in aug-2026 together with the obsidian MCP they both wrote through; if a
-# versioned skill ever comes back, the per-ITEM symlink (one `link` per skill dir,
-# never the parent) is the shape that was safe.
+# Per-ITEM skill symlinks — NOT the whole ~/.claude/skills/ dir. Symlinking the
+# whole dir was rejected (see project CLAUDE.md: per-machine content, .gitignore
+# leak risk). A hand-authored skill we DO version is the additive exception: we
+# control its content, it sits beside the per-machine skills (`learned`,
+# `codebase-memory`, the OpenKnowledge ones) without touching them, and there is no
+# leak because the repo folder only ever holds what we put there.
+#
+# Both were dropped in aug-2026 with the obsidian MCP they wrote through, and came
+# back in sep-2026 rewritten against the `open-knowledge` MCP (registered in
+# binaries.sh). `bitacora` = one immutable note per invocation into the vault's
+# bitacora/ layer.
+link "$DOTFILES/claude/skills/bitacora" "$HOME/.claude/skills/bitacora"
+# `wiki` = the synthesis layer OVER the bitácora: ingests bitacora/ into
+# cross-linked wiki/ pages, queries them, lints for rot. The per-vault taxonomy is
+# NOT here — it lives in the vault's own wiki/CLAUDE.md, versioned with the content
+# it governs. The plugin is the engine, that file is the config.
+#
+# NOTE: `wiki` is a skills-dir PLUGIN, not a plain skill — the dir holds a
+# `.claude-plugin/plugin.json` (skills: ./skills/) so Claude Code auto-loads it as
+# `wiki@skills-dir`, bundling three sub-skills that invoke as `/wiki:ingest`,
+# `/wiki:query`, `/wiki:lint`. Plugin skills are ALWAYS namespaced with a colon:
+# invocation is `/<plugin>:<folder>` (folder = skill name, `wiki` = plugin `name:`
+# from plugin.json). So the folders are the bare verbs (ingest, …) and you type the
+# real colon form `/wiki:lint` — the `:` is a typeable invocation, not a display
+# label. Naming the folder `wiki-lint` is what made it `/wiki:wiki-lint`.
+# It still installs by THIS symlink alone — a skills-dir plugin is referenced in
+# place, so a `git pull` propagates edits with no marketplace and no copy into
+# ~/.claude/plugins/cache (unlike mechanism 3 in plugins.sh). That's why nothing
+# here differs from a plain skill, and why plugins.sh has no `wiki` entry. The
+# plugin's value is packaging: one dir, one symlink, and the three skills share one
+# ENGINE.md at the root (each SKILL.md reads it first) so the spec is single-source.
+# `bitacora` stays a plain skill (no plugin.json) beside it.
+link "$DOTFILES/claude/skills/wiki" "$HOME/.claude/skills/wiki"
+
+# The bitácora's event half. A skill cannot fire on a git event — it only
+# self-activates on what the user says — so the "log after a commit lands" trigger
+# is a PostToolUse hook (registered further down) pointing at this script.
+# ~/.claude/hooks/ is a real per-machine dir (codebase-memory-mcp writes its own
+# hooks there), so this is a per-ITEM link for the same reason as the skills above.
+link "$DOTFILES/claude/hooks/bitacora.sh" "$HOME/.claude/hooks/bitacora.sh"
 
 # settings.json itself is NOT symlinked: it's 100% per-machine (like
 # ~/.gitconfig). Permissions and UI prefs diverge per host, and symlinking it
@@ -204,6 +238,49 @@ _settings_set_if_absent '.terminalTitleFromRename' \
 _settings_set_if_absent '.preferredNotifChannel' \
   '.preferredNotifChannel = "terminal_bell"' \
   'preferredNotifChannel (terminal_bell)'
+
+# ── PostToolUse hook: bitácora after a commit ──
+# The one thing a SKILL cannot do is fire on an event: it self-activates on what
+# the user says, and "log the bitácora after you commit" has no user utterance to
+# hang on. So the trigger is a hook and the how-to stays in the skill —
+# claude/hooks/bitacora.sh only detects the commit and returns one line of context.
+#
+# `matcher` covers BOTH tool names: settings.json sets CLAUDE_CODE_USE_POWERSHELL_TOOL
+# on Windows, and any session that inherits it routes commits through PowerShell
+# instead of Bash. Matching only "Bash" is how this would go quietly dead.
+#
+# Invoked as `bash ~/.claude/hooks/…` rather than as the script itself: the file
+# arrives through a symlink from a fresh clone, and git does not always carry the
+# exec bit (it never does on Windows checkouts). Naming the interpreter sidesteps
+# the whole question.
+#
+# Guarded on the COMMAND STRING appearing anywhere in .hooks, not on a jq path:
+# .hooks.PostToolUse is an array shared with other tools (codebase-memory-mcp
+# registers its own entries there), so `_settings_set_if_absent` cannot be used —
+# its key would be satisfied by somebody else's hook and ours would never land,
+# or a re-run would append a duplicate. Deep-scanning for our own command is the
+# only check that is both idempotent and additive.
+if ! jq -e '[.. | strings] | any(test("hooks/bitacora"))' "$SETTINGS" >/dev/null 2>&1; then
+  SETTINGS_TMP="$(mktemp)"
+  if jq '.hooks //= {}
+         | .hooks.PostToolUse //= []
+         | .hooks.PostToolUse += [{
+             matcher: "Bash|PowerShell",
+             hooks: [{
+               type: "command",
+               command: "bash ~/.claude/hooks/bitacora.sh",
+               timeout: 5
+             }]
+           }]' "$SETTINGS" > "$SETTINGS_TMP"; then
+    mv "$SETTINGS_TMP" "$SETTINGS"
+    echo "✓ bitácora PostToolUse hook added to settings.json"
+  else
+    rm -f "$SETTINGS_TMP"
+    echo "⚠️  could not add the bitácora hook — settings.json left untouched"
+  fi
+else
+  echo "✓ bitácora PostToolUse hook already in settings.json — leaving it alone"
+fi
 
 # ── convergent cleanup: stale tmux-claude-session-manager hooks ──
 # Until jul-2026 the plugin read state through 4 hooks (UserPromptSubmit /
