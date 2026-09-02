@@ -36,21 +36,6 @@ Why: `Edit` matches the exact string and **fails loudly** when it doesn't — a 
 
 Bash keeps everything that is genuinely shell: running tests and builds, `git`, `docker`, `grep`/`find` for search, one-off inspection with `cat`/`sed -n`. The line is **reading and running vs. editing** — editing is the tools' job.
 
-## What a finished plan or spec turns into is tracked as Tasks
-
-**A plan or a spec is not itself a Task list — it is the document that produces one.** While planning is still open, the plan stays prose: the outcome, the scope, the trade-offs. The moment it is finalized and implementation begins, the activities that follow from it are created as Tasks with Claude Code's own task tools, before any code is written — one Task per step that produces something. Don't transcribe the plan's sections; transcribe the work it says to execute.
-
-How the list is kept, because a stale one is worse than none:
-
-- **Exactly one Task `in_progress` at a time.** Open the next only after closing the current one.
-- **Close each the moment that step is really done**, not when it is "mostly" done, and never in a batch at the end. The list is a live view, not a report.
-- **A step that failed, got blocked, or landed half-done stays open** — say what blocked it. Marking it complete to tidy the list hides exactly the thing worth surfacing.
-- **Work discovered mid-implementation gets appended** rather than done silently off-list.
-
-A one-line fix, a question, or a single edit needs none of this.
-
-Why: the plan answers *what we decided and why*, and belongs in something that outlives it — a spec, a goal file. The Task list answers *where the execution stands*, a different question with a different lifetime: it is what survives a context summary, what says where things are without scrolling the transcript, and what keeps a six-step implementation from quietly ending at step three. The failure mode is never a wrong step, it is a forgotten one. Collapsing the two costs both — the plan rots as the work moves, and the execution goes untracked.
-
 ## No attribution trailers in commits or PRs
 
 **Never add a `Co-Authored-By: Claude …` trailer** — or any other authorship footer, "generated with" line, or tool-attribution link — to a git commit message or a pull request description. This holds for every route that writes on the user's behalf: `git commit`, `gh pr create`, the GitHub web UI, a git GUI, or any app/MCP that opens a PR.
