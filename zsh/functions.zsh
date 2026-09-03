@@ -219,6 +219,10 @@ claude-config() {
 # CUSTOM_MODEL(+suffixes) → ANTHROPIC_CUSTOM_MODEL_OPTION* adds one extra
 # picker entry; SUBAGENT_MODEL → CLAUDE_CODE_SUBAGENT_MODEL is what
 # subagents/teammates run on when their definition names no model.
+# MODEL_DISCOVERY → CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY (set to 1) asks
+# the gateway itself which models it serves, so the /model picker lists them
+# instead of only the tier ids declared above. It is the one mapped var whose
+# target is not an ANTHROPIC_* name — it configures the client, not the API.
 # VS Code footgun: `code` only spawns a NEW process when none is running;
 # with a window already open it hands the args to that instance and its
 # (gateway-less) environment wins. Quit VS Code first, then `code .`.
@@ -276,6 +280,7 @@ _claude_api_vars() {
     MODEL          ANTHROPIC_MODEL
     DEFAULT_MODEL  ANTHROPIC_DEFAULT_MODEL
     SUBAGENT_MODEL CLAUDE_CODE_SUBAGENT_MODEL
+    MODEL_DISCOVERY CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY
   )
   local tier suffix
   for tier in OPUS SONNET HAIKU FABLE; do
