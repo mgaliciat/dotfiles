@@ -194,8 +194,7 @@ claude-config() {
 # the VS Code extension — go through the gateway, hence the old
 # `claude-config remove env` / `restore env` dance before each launch.
 # Instead the values sit in ~/.claude/claude-api.env (per-machine, never
-# versioned) under a CLAUDE_API_* prefix, and these two map them onto the
-# real ANTHROPIC_* names for ONE child process via `env`:
+# versioned) and these two hand them to ONE child process via `env`:
 #   claude-api [args]  → claude through the gateway; plain `claude` stays as-is.
 #   code-api [args]    → VS Code with the same vars, so its Claude Code
 #                        extension (which spawns the CLI from VS Code's own
@@ -204,25 +203,22 @@ claude-config() {
 # Neither shadows the bare command — the `-api` suffix IS the opt-in. An
 # earlier version named the second one `code`, which meant every `code .` on
 # a box with no gateway paid a warning for a state that is not an error.
-# Only the CLAUDE_API_* vars that are set get mapped, so a gateway that
-# needs just URL + token works without inventing model ids. BASE_URL is the
-# one that must exist: without it there is no API to speak of, so both
-# refuse instead of falling back — launching the plain binary under a name
-# that promises the gateway would hide the misconfiguration, and the plain
-# name is one word away.
-# Each tier (OPUS/SONNET/HAIKU/FABLE) carries three companions, mapped with
-# the same suffix: _NAME and _DESCRIPTION label it in the /model picker, and
-# _SUPPORTED_CAPABILITIES (e.g. `effort,thinking,adaptive_thinking`) is what
-# turns effort/thinking ON for an id the built-in pattern match does not
-# recognise — a gateway alias like `my-gw/claude-opus-5` gets neither until
-# it is declared, and once set ONLY the listed capabilities are enabled.
-# CUSTOM_MODEL(+suffixes) → ANTHROPIC_CUSTOM_MODEL_OPTION* adds one extra
-# picker entry; SUBAGENT_MODEL → CLAUDE_CODE_SUBAGENT_MODEL is what
-# subagents/teammates run on when their definition names no model.
-# MODEL_DISCOVERY → CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY (set to 1) asks
-# the gateway itself which models it serves, so the /model picker lists them
-# instead of only the tier ids declared above. It is the one mapped var whose
-# target is not an ANTHROPIC_* name — it configures the client, not the API.
+#
+# THE FILE HOLDS THE REAL NAMES AND IS PASSED THROUGH VERBATIM. There used to be
+# a CLAUDE_API_* prefix here and a 22-entry table translating it; the prefix
+# bought nothing (checked against the 2.1.259 binary, Claude Code never reads
+# `CLAUDE_API_*` from the environment — the one `CLAUDE_API_KEY` string in there
+# is placeholder text in the GitHub-Actions setup flow) while the table had to
+# grow a row for every variable the gateway might want, and a name missing from
+# it was dropped in silence. Passthrough has no such hole: what you write is
+# what the child gets. The docs are the reference for which names exist
+# (code.claude.com/docs/en/env-vars); `_SUPPORTED_CAPABILITIES` is the one worth
+# remembering, because Claude Code turns effort/thinking on by pattern-matching
+# the model id, so a gateway's own id gets neither until that var declares them.
+# ANTHROPIC_BASE_URL is the one that must be present: without it there is no API
+# to speak of, so both refuse instead of falling back — launching the plain
+# binary under a name that promises the gateway would hide the misconfiguration,
+# and the plain name is one word away.
 # VS Code footgun: `code` only spawns a NEW process when none is running;
 # with a window already open it hands the args to that instance and its
 # (gateway-less) environment wins. Quit VS Code first, then `code .`.
@@ -231,11 +227,10 @@ claude-config() {
 # sourced by EVERY zsh, interactive or not, so an export there puts the gateway
 # credential in the environment of every process the shell ever spawns — every
 # script, every npm hook, anything that can read /proc or run `ps eww`. Reading
-# it here instead keeps the token in exactly one child. It is NOT about Claude
-# Code picking the prefix up: checked against the 2.1.259 binary, `CLAUDE_API_*`
-# is never read from the environment (the one `CLAUDE_API_KEY` string in there
-# is placeholder text in the GitHub-Actions setup flow, suggesting a name for a
-# repo secret). An exported value still wins over the file, for one-off tests.
+# it here instead keeps the token in exactly one child. That is also why the
+# file, not an export, is the source of truth now: with the real names, an
+# exported value would already have sent every plain `claude` through the
+# gateway, which is the state this whole thing exists to avoid.
 #
 # The file is parsed, never sourced: `NAME=value` lines (an optional leading
 # `export`, `#` comments, optional quotes), so a stray command in it cannot run.
@@ -247,8 +242,7 @@ _claude_api_vars() {
   # Resolved per call, not at source time, so CLAUDE_API_ENV_FILE can point at
   # another file (a second gateway, a test) without reloading the shell.
   local envfile=${CLAUDE_API_ENV_FILE:-$HOME/.claude/claude-api.env}
-  local -A vals
-  local line k v
+  local line k v has_base=0
   if [[ -r $envfile ]]; then
     while IFS= read -r line || [[ -n $line ]]; do
       line=${line#"${line%%[![:space:]]*}"}
@@ -258,45 +252,27 @@ _claude_api_vars() {
         line=${line#"${line%%[![:space:]]*}"}
       fi
       k=${line%%=*}
-      [[ $k == $line ]] && continue
+      # No `=` at all, or a name `env` would reject: skip rather than build an
+      # argument that makes the whole launch fail on one bad line. The test
+      # strips every legal character and checks nothing survives, instead of a
+      # `[A-Za-z_][A-Za-z0-9_]#` pattern — that `#` is an EXTENDED_GLOB operator
+      # and would be a literal in a shell that has the option off, matching
+      # nothing and silently dropping the entire file.
+      [[ $k == $line || -z $k || $k == [0-9]* || -n ${k//[A-Za-z0-9_]/} ]] && continue
       v=${line#*=}
       # One layer of matching quotes, the way the file would be written by hand.
       [[ $v == \"*\" || $v == \'*\' ]] && v=${v[2,-2]}
-      vals[$k]=$v
+      [[ $k == ANTHROPIC_BASE_URL ]] && has_base=1
+      reply+=("${k}=${v}")
     done < $envfile
   fi
 
-  local base=${CLAUDE_API_BASE_URL:-$vals[CLAUDE_API_BASE_URL]}
-  if [[ -z $base ]]; then
+  if (( ! has_base )); then
     # funcstack[2] is the caller, so the message names the command actually
     # typed (claude-api / code-api) instead of hardcoding one of the two.
-    echo "${funcstack[2]}: CLAUDE_API_BASE_URL is unset (put it in $envfile)" >&2
+    echo "${funcstack[2]}: ANTHROPIC_BASE_URL is unset (put it in $envfile)" >&2
     return 1
   fi
-  reply+=("ANTHROPIC_BASE_URL=$base")
-  local -a pairs=(
-    KEY            ANTHROPIC_API_KEY
-    AUTH_TOKEN     ANTHROPIC_AUTH_TOKEN
-    MODEL          ANTHROPIC_MODEL
-    DEFAULT_MODEL  ANTHROPIC_DEFAULT_MODEL
-    SUBAGENT_MODEL CLAUDE_CODE_SUBAGENT_MODEL
-    MODEL_DISCOVERY CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY
-  )
-  local tier suffix
-  for tier in OPUS SONNET HAIKU FABLE; do
-    for suffix in "" _NAME _DESCRIPTION _SUPPORTED_CAPABILITIES; do
-      pairs+=("${tier}_MODEL${suffix}" "ANTHROPIC_DEFAULT_${tier}_MODEL${suffix}")
-    done
-  done
-  for suffix in "" _NAME _DESCRIPTION _SUPPORTED_CAPABILITIES; do
-    pairs+=("CUSTOM_MODEL${suffix}" "ANTHROPIC_CUSTOM_MODEL_OPTION${suffix}")
-  done
-  local src target name val
-  for src target in "${pairs[@]}"; do
-    name="CLAUDE_API_${src}"
-    val=${(P)name:-$vals[$name]}
-    [[ -n $val ]] && reply+=("${target}=${val}")
-  done
   return 0
 }
 
