@@ -184,6 +184,85 @@ claude-config() {
   esac
 }
 
+# ─── claude-api / code: launch with the API env, per process ───
+# Claude Code reads the gateway from ANTHROPIC_* env vars (documented at
+# code.claude.com/docs/en/env-vars): ANTHROPIC_BASE_URL for the host,
+# ANTHROPIC_API_KEY (X-Api-Key) or ANTHROPIC_AUTH_TOKEN (Bearer) for the
+# credential, ANTHROPIC_MODEL for the model plus ANTHROPIC_DEFAULT_<TIER>_MODEL
+# for what the opus/sonnet/haiku/fable aliases resolve to. Exporting those
+# globally (or via the `env` block of settings.json) makes EVERY claude — and
+# the VS Code extension — go through the gateway, hence the old
+# `claude-config remove env` / `restore env` dance before each launch.
+# Instead the values sit in ~/.zshenv.local (secrets, per-machine, never
+# versioned) under a CLAUDE_API_* prefix that nothing acts on, and these two
+# map them onto the real ANTHROPIC_* names for ONE child process via `env`:
+#   claude-api [args]  → claude through the gateway; plain `claude` stays as-is.
+#   code [args]        → VS Code with the same vars, so its Claude Code
+#                        extension (which spawns the CLI from VS Code's own
+#                        environment) goes through the gateway too.
+# Only the CLAUDE_API_* vars that are set get mapped, so a gateway that
+# needs just URL + token works without inventing model ids. BASE_URL is the
+# one that must exist: without it there is no API to speak of, so
+# `claude-api` refuses and `code` falls back to a plain VS Code (with a
+# warning), keeping `code` usable on a box that has no gateway at all.
+# Each tier (OPUS/SONNET/HAIKU/FABLE) carries three companions, mapped with
+# the same suffix: _NAME and _DESCRIPTION label it in the /model picker, and
+# _SUPPORTED_CAPABILITIES (e.g. `effort,thinking,adaptive_thinking`) is what
+# turns effort/thinking ON for an id the built-in pattern match does not
+# recognise — a gateway alias like `my-gw/claude-opus-5` gets neither until
+# it is declared, and once set ONLY the listed capabilities are enabled.
+# CUSTOM_MODEL(+suffixes) → ANTHROPIC_CUSTOM_MODEL_OPTION* adds one extra
+# picker entry; SUBAGENT_MODEL → CLAUDE_CODE_SUBAGENT_MODEL is what
+# subagents/teammates run on when their definition names no model.
+# VS Code footgun: `code` only spawns a NEW process when none is running;
+# with a window already open it hands the args to that instance and its
+# (gateway-less) environment wins. Quit VS Code first, then `code .`.
+_claude_api_vars() {
+  reply=()
+  if [[ -z "$CLAUDE_API_BASE_URL" ]]; then
+    echo "claude-api: CLAUDE_API_BASE_URL is unset (export it in ~/.zshenv.local)" >&2
+    return 1
+  fi
+  reply+=("ANTHROPIC_BASE_URL=$CLAUDE_API_BASE_URL")
+  local -a pairs=(
+    KEY            ANTHROPIC_API_KEY
+    AUTH_TOKEN     ANTHROPIC_AUTH_TOKEN
+    MODEL          ANTHROPIC_MODEL
+    DEFAULT_MODEL  ANTHROPIC_DEFAULT_MODEL
+    SUBAGENT_MODEL CLAUDE_CODE_SUBAGENT_MODEL
+  )
+  local tier suffix
+  for tier in OPUS SONNET HAIKU FABLE; do
+    for suffix in "" _NAME _DESCRIPTION _SUPPORTED_CAPABILITIES; do
+      pairs+=("${tier}_MODEL${suffix}" "ANTHROPIC_DEFAULT_${tier}_MODEL${suffix}")
+    done
+  done
+  for suffix in "" _NAME _DESCRIPTION _SUPPORTED_CAPABILITIES; do
+    pairs+=("CUSTOM_MODEL${suffix}" "ANTHROPIC_CUSTOM_MODEL_OPTION${suffix}")
+  done
+  local src target name
+  for src target in "${pairs[@]}"; do
+    name="CLAUDE_API_${src}"
+    [[ -n "${(P)name}" ]] && reply+=("${target}=${(P)name}")
+  done
+  return 0
+}
+
+claude-api() {
+  local -a reply
+  _claude_api_vars || return 1
+  env "${reply[@]}" claude "$@"
+}
+
+code() {
+  local -a reply
+  if _claude_api_vars; then
+    env "${reply[@]}" code "$@"
+  else
+    command code "$@"
+  fi
+}
+
 # ─── refresh: reload tmux config + the shell env ──────────────
 # One command for "I edited a dotfile and want it live now" without
 # remembering which layer to poke. Two independent reloads:
