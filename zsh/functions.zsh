@@ -193,18 +193,23 @@ claude-config() {
 # globally (or via the `env` block of settings.json) makes EVERY claude — and
 # the VS Code extension — go through the gateway, hence the old
 # `claude-config remove env` / `restore env` dance before each launch.
-# Instead the values sit in ~/.zshenv.local (secrets, per-machine, never
-# versioned) under a CLAUDE_API_* prefix that nothing acts on, and these two
-# map them onto the real ANTHROPIC_* names for ONE child process via `env`:
+# Instead the values sit in ~/.claude/claude-api.env (per-machine, never
+# versioned) under a CLAUDE_API_* prefix, and these two map them onto the
+# real ANTHROPIC_* names for ONE child process via `env`:
 #   claude-api [args]  → claude through the gateway; plain `claude` stays as-is.
-#   code [args]        → VS Code with the same vars, so its Claude Code
+#   code-api [args]    → VS Code with the same vars, so its Claude Code
 #                        extension (which spawns the CLI from VS Code's own
-#                        environment) goes through the gateway too.
+#                        environment) goes through the gateway too; plain
+#                        `code` stays as-is.
+# Neither shadows the bare command — the `-api` suffix IS the opt-in. An
+# earlier version named the second one `code`, which meant every `code .` on
+# a box with no gateway paid a warning for a state that is not an error.
 # Only the CLAUDE_API_* vars that are set get mapped, so a gateway that
 # needs just URL + token works without inventing model ids. BASE_URL is the
-# one that must exist: without it there is no API to speak of, so
-# `claude-api` refuses and `code` falls back to a plain VS Code (with a
-# warning), keeping `code` usable on a box that has no gateway at all.
+# one that must exist: without it there is no API to speak of, so both
+# refuse instead of falling back — launching the plain binary under a name
+# that promises the gateway would hide the misconfiguration, and the plain
+# name is one word away.
 # Each tier (OPUS/SONNET/HAIKU/FABLE) carries three companions, mapped with
 # the same suffix: _NAME and _DESCRIPTION label it in the /model picker, and
 # _SUPPORTED_CAPABILITIES (e.g. `effort,thinking,adaptive_thinking`) is what
@@ -217,13 +222,54 @@ claude-config() {
 # VS Code footgun: `code` only spawns a NEW process when none is running;
 # with a window already open it hands the args to that instance and its
 # (gateway-less) environment wins. Quit VS Code first, then `code .`.
+#
+# WHY A FILE AND NOT ~/.zshenv.local, where the other secrets live: .zshenv is
+# sourced by EVERY zsh, interactive or not, so an export there puts the gateway
+# credential in the environment of every process the shell ever spawns — every
+# script, every npm hook, anything that can read /proc or run `ps eww`. Reading
+# it here instead keeps the token in exactly one child. It is NOT about Claude
+# Code picking the prefix up: checked against the 2.1.259 binary, `CLAUDE_API_*`
+# is never read from the environment (the one `CLAUDE_API_KEY` string in there
+# is placeholder text in the GitHub-Actions setup flow, suggesting a name for a
+# repo secret). An exported value still wins over the file, for one-off tests.
+#
+# The file is parsed, never sourced: `NAME=value` lines (an optional leading
+# `export`, `#` comments, optional quotes), so a stray command in it cannot run.
+# It holds a credential — keep it chmod 600. ~/.claude/ is Claude Code's own
+# directory and its bundle carries a dotenv filename list (.env.local and
+# friends), hence the unambiguous `claude-api.env` rather than `env.local`.
 _claude_api_vars() {
   reply=()
-  if [[ -z "$CLAUDE_API_BASE_URL" ]]; then
-    echo "claude-api: CLAUDE_API_BASE_URL is unset (export it in ~/.zshenv.local)" >&2
+  # Resolved per call, not at source time, so CLAUDE_API_ENV_FILE can point at
+  # another file (a second gateway, a test) without reloading the shell.
+  local envfile=${CLAUDE_API_ENV_FILE:-$HOME/.claude/claude-api.env}
+  local -A vals
+  local line k v
+  if [[ -r $envfile ]]; then
+    while IFS= read -r line || [[ -n $line ]]; do
+      line=${line#"${line%%[![:space:]]*}"}
+      [[ -z $line || $line == '#'* ]] && continue
+      if [[ $line == export[[:space:]]* ]]; then
+        line=${line#export}
+        line=${line#"${line%%[![:space:]]*}"}
+      fi
+      k=${line%%=*}
+      [[ $k == $line ]] && continue
+      v=${line#*=}
+      # One layer of matching quotes, the way the file would be written by hand.
+      [[ $v == \"*\" || $v == \'*\' ]] && v=${v[2,-2]}
+      vals[$k]=$v
+    done < $envfile
+  fi
+
+  local base=${CLAUDE_API_BASE_URL:-$vals[CLAUDE_API_BASE_URL]}
+  if [[ -z $base ]]; then
+    # funcstack[2] is the caller, so the message names the command actually
+    # typed (claude-api / code-api) instead of hardcoding one of the two.
+    echo "${funcstack[2]}: CLAUDE_API_BASE_URL is unset (put it in $envfile)" >&2
     return 1
   fi
-  reply+=("ANTHROPIC_BASE_URL=$CLAUDE_API_BASE_URL")
+  reply+=("ANTHROPIC_BASE_URL=$base")
   local -a pairs=(
     KEY            ANTHROPIC_API_KEY
     AUTH_TOKEN     ANTHROPIC_AUTH_TOKEN
@@ -240,10 +286,11 @@ _claude_api_vars() {
   for suffix in "" _NAME _DESCRIPTION _SUPPORTED_CAPABILITIES; do
     pairs+=("CUSTOM_MODEL${suffix}" "ANTHROPIC_CUSTOM_MODEL_OPTION${suffix}")
   done
-  local src target name
+  local src target name val
   for src target in "${pairs[@]}"; do
     name="CLAUDE_API_${src}"
-    [[ -n "${(P)name}" ]] && reply+=("${target}=${(P)name}")
+    val=${(P)name:-$vals[$name]}
+    [[ -n $val ]] && reply+=("${target}=${val}")
   done
   return 0
 }
@@ -254,13 +301,10 @@ claude-api() {
   env "${reply[@]}" claude "$@"
 }
 
-code() {
+code-api() {
   local -a reply
-  if _claude_api_vars; then
-    env "${reply[@]}" code "$@"
-  else
-    command code "$@"
-  fi
+  _claude_api_vars || return 1
+  env "${reply[@]}" code "$@"
 }
 
 # ─── refresh: reload tmux config + the shell env ──────────────
