@@ -26,8 +26,11 @@ The design rationale (what is versioned vs. per-machine, and why every non-obvio
 | `install-linux.sh` | Ubuntu/Debian/WSL2 — same symlinks minus Ghostty; apt + GitHub release binaries |
 | `install-windows.ps1` | Native Windows — Claude Code pieces, Nerd Fonts and the theme for Windows Terminal only |
 | `.github/workflows/lint.yml` | CI: shellcheck + `bash -n` / `zsh -n`, Lua and JSON syntax, PowerShell parse. Static only — nothing installs |
+| `runbook/` | Step-by-step bring-up per OS (`macos.md`, `linux-wsl2.md`, `windows.md`): prerequisites, order of operations, verify, troubleshooting, undo |
 
 ## Setup on a new machine
+
+The short version is below; the full procedure per OS, with what to have in place *before* running the installer and what to check after, is in [`runbook/`](runbook/README.md).
 
 Prerequisite: **Homebrew**. If you don't have it:
 

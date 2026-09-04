@@ -17,6 +17,8 @@ Native Windows (no WSL2 — `install-linux.sh` already covers that) has a fourth
 
 There is no test suite, lint, or build. Changes are validated by running them.
 
+**`runbook/` is the operator's copy of the above** — one file per OS with prerequisites, the order that avoids a second run (Claude Code and the secrets *before* the installer, because the MCP registrations are guarded on both), a verify block and troubleshooting. It restates what the installers do, so **a change to an installer's steps, guards or output markers is not done until the matching runbook says the same thing**. Rationale stays here; the runbooks hold only the how.
+
 ## Architecture: the per-machine split
 
 The defining decision in this repo. Some things are versioned (shared across machines), some are **deliberately not** (each machine keeps its own):
