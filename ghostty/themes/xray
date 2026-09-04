@@ -10,7 +10,8 @@
 #
 # ANSI is deliberately LOW-chroma, not monochrome: a grayscale terminal loses
 # git diffs and error colours, so each hue is kept but "under x-ray" — muted,
-# cool-leaning, ~30% saturation. Semantics survive, the look stays radiograph.
+# cool-leaning, ~40% saturation (raised from ~30% because the
+# first cut read as gray on gray). Semantics survive, the look stays radiograph.
 #
 # Cross-stack mirror: nvim/lua/themes/xray.lua and tmux/themes/xray.conf.
 # NOTE: the canvas is #101010 (the board), NOT true black — the icon's #000
@@ -32,21 +33,21 @@ selection-foreground = #f0f0f0
 # ─── ANSI 16 ─────────────────────────────────────────────────
 # normals (0-7): board grays + desaturated functional hues.
 palette = 0=#202020
-palette = 1=#c47a7a
-palette = 2=#8fb08f
-palette = 3=#c4b07a
-palette = 4=#7f9fb8
-palette = 5=#a893b0
-palette = 6=#86adb0
+palette = 1=#d06e6e
+palette = 2=#80bf80
+palette = 3=#d1b46c
+palette = 4=#71a1c6
+palette = 5=#b188bc
+palette = 6=#75b9bf
 palette = 7=#cdcecf
 
 # brights (8-15): +luminance. bright_black is the chip-leg gray (#4c4c4c),
 # readable over #101010 without competing with text.
 palette = 8=#4c4c4c
-palette = 9=#d69090
-palette = 10=#a6c4a6
-palette = 11=#d6c68f
-palette = 12=#9bb8cf
-palette = 13=#bfaac7
-palette = 14=#9fc4c7
+palette = 9=#e37b7b
+palette = 10=#96d096
+palette = 11=#e4cd7c
+palette = 12=#8eb9dc
+palette = 13=#c79cd5
+palette = 14=#8fd0d5
 palette = 15=#f0f0f0

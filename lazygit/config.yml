@@ -6,30 +6,53 @@ gui:
   # Mouse off: in tmux popups the mouse sometimes does weird things
   # (Ghostty's selection interferes with lazygit's clicks).
   mouseEvents: false
-  # Theme with the blueprint palette (same spirit as ghostty/nvim/tmux).
+  # Hand-mirror of the ACTIVE stack theme (`xray`, see ghostty/themes/xray).
+  # Lazygit only runs in the tmux popup (Alt+g) — inside nvim git is
+  # Neogit + codediff, which paint from the colorscheme. So this is the one
+  # mirror that does NOT follow the three selection lines on its own: when
+  # the stack theme changes, re-copy the hex here.
   theme:
     activeBorderColor:
-      - "#7dd3fc" # cyan — active pane
+      - "#a3b5c6" # film blue — the accent
       - bold
     inactiveBorderColor:
-      - "#3b5675" # grey — inactive borders
+      - "#4c4c4c" # chip legs
     optionsTextColor:
-      - "#5a9fff"
+      - "#71a1c6" # ansi4 steel blue
     selectedLineBgColor:
-      - "#1e4571" # blueprint bg highlight
+      - "#303030" # trace gray (selection bg)
     cherryPickedCommitBgColor:
-      - "#e8c468"
+      - "#d1b46c" # ansi3
     cherryPickedCommitFgColor:
-      - "#0e2a47"
+      - "#101010" # the board
     unstagedChangesColor:
-      - "#e87a7a"
+      - "#d06e6e" # ansi1
     defaultFgColor:
-      - "#cde3f5"
+      - "#cdcecf" # ghost silver
   # showFileTree: shows the change organized as a tree (default true).
   showFileTree: true
   showCommandLog: false # more room for the main panels
+  showRandomTip: false # the status panel is for the repo, not for tips
   scrollHeight: 4 # smooth scroll
   sidePanelWidth: 0.3333 # 1/3 for the left panel (files/branches/etc)
+  # The side panel you're IN takes 2× the space of the others: the commits
+  # list gets subjects + authors when browsing history, and gives the room
+  # back the moment focus moves to the diff. Off by default upstream because
+  # the layout shifts on every panel jump; here that shift is the point.
+  expandFocusedSidePanel: true
+  # +N/-M per file in the files/commit-files views — tells you which file in a
+  # commit is worth opening before you open it.
+  showNumstatInFilesView: true
+  showBranchCommitHash: true
+  # `2` on the files panel cycles files → worktrees → submodules (same for
+  # 3 branches/remotes/tags, 4 commits/reflog, 5 stash) instead of being a
+  # no-op once you're already there. Saves reaching for `[` / `]`.
+  switchTabsWithPanelJumpKeys: true
+  # ↑N ↓M against the base branch in the branches panel.
+  showDivergenceFromBaseBranch: arrowAndNumber
+  # Nerd Font icons for files/branches/commits. Snacks sets the same value for
+  # the nvim float; this is for the tmux popup, whose font is a NF too.
+  nerdFontsVersion: "3"
 git:
   # Pull with rebase by default (avoids noisy merge commits).
   pull:
@@ -37,9 +60,9 @@ git:
   # Auto-fetch disabled (doesn't hang if the network is slow).
   autoFetch: false
   # Paginate diffs with delta if it's installed (you have it via brew).
-  pagers:
+  diffRenderers:
     - colorArg: always
-      pager: delta --paging=never --syntax-theme=base16-256
+      command: delta --paging=never --syntax-theme=base16-256
 # ─── custom commands ──────────────────────────────────────────
 # `?` inside lazygit shows ALL the available shortcuts.
 customCommands:
