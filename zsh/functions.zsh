@@ -5,6 +5,11 @@
 #  simpler alias. Don't bloat. Anything per-machine goes in ~/.zshrc.local.
 # ═══════════════════════════════════════════════════════════════
 
+# Where this repo is checked out, resolved from this file's own path at source
+# time (.zshrc already sources us through the resolved symlink). Used instead
+# of a hardcoded ~/dotfiles so a clone anywhere else still works.
+typeset -g _DOTFILES_ROOT="${${(%):-%x}:A:h:h}"
+
 # ─── navigation / shell ───────────────────────────────────────
 
 # mkdir + cd in a single step.
@@ -114,7 +119,7 @@ _fzf_cd_widget() {
   local dir
   dir=$({
     echo "$HOME/.config"
-    echo "$HOME/dotfiles"
+    echo "$_DOTFILES_ROOT"
     for parent in "$HOME/projects" "$HOME/code" "$HOME/work" "$HOME/Developments"; do
       [[ -d "$parent" ]] && find "$parent" -maxdepth 3 -type d -name ".git" \
         -exec dirname {} \; 2>/dev/null

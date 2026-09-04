@@ -8,8 +8,10 @@
 #     we author (bitacora, wiki), claude/hooks/bitacora.ps1, and
 #     git/.gitignore_global
 #   - statusLine (+ refreshInterval), base permissions, attribution,
-#     outputStyle, the PowerShell-tool env var and the bitácora PostToolUse hook
-#     in settings.json
+#     outputStyle, fallbackModel, autoContinueAtUsageLimit,
+#     preferredNotifChannel, the PowerShell-tool env var and the bitácora
+#     PostToolUse hook in settings.json (CI checks this list against
+#     settings.sh; terminalTitleFromRename is the one deliberate omission)
 #     (equivalent to the jq blocks in install.sh/install-linux.sh, native JSON here)
 #   - rtk (no official installer for Windows — we download the release zip) and
 #     its versioned config.toml, COPIED like on mac/Linux
@@ -320,6 +322,37 @@ if ($Settings.PSObject.Properties.Name -contains "outputStyle") {
 } else {
     $Settings | Add-Member -NotePropertyName "outputStyle" -NotePropertyValue "Concise"
     Write-Host "OK  outputStyle added to settings.json (Concise)"
+}
+
+# ─── fallbackModel / autoContinueAtUsageLimit / preferredNotifChannel (mirror of settings.sh) ───
+# The three platform-neutral keys settings.sh writes, guarded the same way.
+# The rationale is in settings.sh; the short version --
+#   fallbackModel: the model that takes over when the primary is overloaded.
+#     The schema wants an ARRAY even for one entry; a bare string is silently
+#     ignored, which is the whole reason the value is spelled out here.
+#   autoContinueAtUsageLimit: resume by itself when the usage window resets
+#     instead of parking on a dialog nobody is watching.
+#   preferredNotifChannel: `terminal_bell` is the one channel every terminal
+#     has; `auto` detects the terminal from the environment and guesses wrong
+#     often enough that the explicit value is the safer default.
+#
+# terminalTitleFromRename is deliberately NOT mirrored. settings.sh sets it to
+# false because tmux owns the tab title there; on native Windows there is no
+# tmux, Windows Terminal's tab title is otherwise the shell's, and letting
+# `/rename` label the tab is the useful behaviour. That is the one documented
+# divergence, and the CI mirror check (.github/workflows/lint.yml) allowlists
+# it by name -- add a key to that list only with a comment like this one.
+foreach ($Pair in @(
+    @{ Name = "fallbackModel";            Value = @("sonnet");     Label = "fallbackModel (sonnet)" },
+    @{ Name = "autoContinueAtUsageLimit"; Value = $true;           Label = "autoContinueAtUsageLimit" },
+    @{ Name = "preferredNotifChannel";    Value = "terminal_bell"; Label = "preferredNotifChannel (terminal_bell)" }
+)) {
+    if ($Settings.PSObject.Properties.Name -contains $Pair.Name) {
+        Write-Host "OK  $($Pair.Label) already set in settings.json -- leaving it alone"
+    } else {
+        $Settings | Add-Member -NotePropertyName $Pair.Name -NotePropertyValue $Pair.Value
+        Write-Host "OK  $($Pair.Label) added to settings.json"
+    }
 }
 
 # ─── env.CLAUDE_CODE_USE_POWERSHELL_TOOL: native PowerShell tool ───

@@ -73,6 +73,25 @@ jobs:
       # Parse only — PowerShell's own parser, no execution. Catches the
       # unbalanced-brace / bad-token class of error in the Windows installer,
       # which otherwise only surfaces on a Windows box.
+      # install-windows.ps1 replicates claude/install/settings.sh by hand and
+      # nothing else keeps them in sync (CLAUDE.md admits it). This catches the
+      # cheapest drift: a settings.json key that settings.sh writes and the
+      # Windows script never mentions. Keys that DIVERGE ON PURPOSE go in the
+      # allowlist below, each with its reason written next to the Windows block.
+      - name: settings.sh ↔ install-windows.ps1 mirror
+        shell: bash
+        run: |
+          allow='terminalTitleFromRename'   # tmux owns the tab title on mac/Linux; no tmux on Windows
+          missing=0
+          for key in $(grep -oE "_settings_set_if_absent +'\.[A-Za-z.]+'" claude/install/settings.sh \
+                       | sed -E "s/.*'\.([A-Za-z.]+)'/\1/" | awk -F. '{print $NF}' | sort -u); do
+            # Quoted, so a key named in a comment does not count as mirrored.
+            if grep -q "\"$key\"" install-windows.ps1; then echo "ok    $key"
+            elif grep -qw "$key" <<<"$allow"; then echo "skip  $key (documented divergence)"
+            else echo "MISSING in install-windows.ps1: $key"; missing=1; fi
+          done
+          exit $missing
+
       - name: pwsh parse
         shell: pwsh
         run: |
