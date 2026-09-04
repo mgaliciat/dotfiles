@@ -309,20 +309,23 @@ keybind = cmd+eight=goto_tab:8
 keybind = cmd+nine=goto_tab:9
 
 # ═══════════════════════════════════════════════════════════════
-#  PACKAGE 5 — dock icon: the official one, untouched
+#  PACKAGE 5 — dock icon: the built-in `xray` style
 # ═══════════════════════════════════════════════════════════════
 
-# `official` is also Ghostty's default — the line is here to say the choice is
-# deliberate, not an omission. The icon never followed `theme =` anyway (Ghostty
-# has no such binding), so a custom one is a second palette to keep in sync by
-# hand for a 128px square you glance at. Not worth it.
+# The white ghost over a monochrome PCB, one of Ghostty's shipped styles — no
+# custom asset to version and nothing to draw. Not `microchip`, which is the
+# GREEN board with an orange trace; the names are easy to swap and the only
+# way to tell is to look (the PNGs live in Assets.car, `MicrochipImage` /
+# `XrayImage`). The icon never followed `theme =` anyway (Ghostty has no such
+# binding), so a `custom-style` icon would be a second palette to keep in sync
+# by hand for a 128px square you glance at; a stock style sidesteps that.
 #
-# Other built-in styles: blueprint, chalkboard, microchip, glass, holographic,
-# paper, retro, xray. And `custom-style`, the only one that takes colors — it
-# then REQUIRES macos-icon-frame (aluminum|beige|plastic|chrome),
+# Other built-in styles: official (the default), blueprint, chalkboard, glass,
+# holographic, paper, retro, microchip. And `custom-style`, the only one that takes
+# colors — it then REQUIRES macos-icon-frame (aluminum|beige|plastic|chrome),
 # macos-icon-ghost-color and macos-icon-screen-color (a linear vertical
 # gradient, first color = bottom). `macos-custom-icon` takes a PNG/ICNS path.
-macos-icon = official
+macos-icon = xray
 
 # ═══════════════════════════════════════════════════════════════
 #  PACKAGE 6 — Fullscreen pro (macOS)
