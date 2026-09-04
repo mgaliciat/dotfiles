@@ -18,6 +18,48 @@ link() {
   echo "✓ $dst → $src"
 }
 
+# The portable symlink set — everything that lands in the same place on mac
+# and Linux. Lives here so that adding a file to the repo is ONE edit, not one
+# per installer (the ide link was missing from both for two months because
+# each list was maintained by hand). install.sh adds the mac-only Ghostty
+# pieces on top; install-linux.sh adds nothing.
+#
+# ~/.local/bin entries are tools that must resolve by NAME, not by repo path:
+# tmux runs its binds through `$SHELL -c` (non-interactive, no .zshrc, so no
+# zsh functions), and `prefix + g` / the Alt+a popups call `ide` and
+# `claude-api-env` from there. ~/.local/bin is first on PATH via zsh/.zshenv,
+# which every zsh sources, non-interactive included.
+link_portable() {
+  link "$DOTFILES/zsh/.zshrc"             "$HOME/.zshrc"
+  link "$DOTFILES/zsh/.zshenv"            "$HOME/.zshenv"
+  link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
+  link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
+  link "$DOTFILES/tmux"                   "$HOME/.config/tmux"
+  link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
+  link "$DOTFILES/scripts/claude-api-env" "$HOME/.local/bin/claude-api-env"
+  link "$DOTFILES/scripts/ide"            "$HOME/.local/bin/ide"
+}
+
+# Claude Code: three mechanisms, one file each, split by WHO writes to
+# settings.json — us with jq (settings.sh), the external binary in its own
+# setup command (binaries.sh), the plugin CLI (plugins.sh). Same on every
+# platform that can run bash, hence one call here instead of three `source`
+# lines per installer. Detail in claude/install/README.md.
+#
+# The order is load-bearing: settings.sh symlinks ~/.claude/CLAUDE.md, and
+# `rtk init` (binaries.sh) appends an @RTK.md line to it — that write must land
+# on the versioned file through the symlink, not on a loose one.
+#
+# Call it AFTER the platform's package block: settings.sh needs jq, and on a
+# fresh machine running first would silently skip every settings.json write
+# until the second run. `rtk` also need not come from the package manager —
+# binaries.sh falls back to the official curl installer when it is missing.
+install_claude() {
+  source "$DOTFILES/claude/install/settings.sh"
+  source "$DOTFILES/claude/install/binaries.sh"
+  source "$DOTFILES/claude/install/plugins.sh"
+}
+
 # gh-stack (github/gh-stack) — stacked branches/PRs as a `gh` extension.
 # It is NOT a formula or an apt package: `gh extension install` is the only
 # supported install, so it cannot ride along in the deps block like everything

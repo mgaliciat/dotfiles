@@ -7,11 +7,14 @@ set -euo pipefail
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TS="$(date +%Y%m%d_%H%M%S)"
 
-# link() and bootstrap_tmux(), shared with install-linux.sh.
+# link(), link_portable(), install_claude() and the bootstraps, shared with
+# install-linux.sh.
 source "$DOTFILES/scripts/lib.sh"
 
-link "$DOTFILES/zsh/.zshrc"             "$HOME/.zshrc"
-link "$DOTFILES/zsh/.zshenv"            "$HOME/.zshenv"
+# zsh, git, nvim, tmux, lazygit, ~/.local/bin tools — the list is in lib.sh so
+# both installers link the same set. Only Ghostty is mac-specific, below.
+link_portable
+
 # A stale orphaned `config` (no extension) wins over our symlink and loads its
 # own inline content, ignoring the dotfiles theme. Defensive backup before
 # linking config.ghostty.
@@ -33,20 +36,6 @@ if [[ -d "$DOTFILES/ghostty/themes" ]]; then
   mkdir -p "$HOME/.config/ghostty"
   link "$DOTFILES/ghostty/themes"       "$HOME/.config/ghostty/themes"
 fi
-link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
-link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
-link "$DOTFILES/tmux"                   "$HOME/.config/tmux"
-link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
-
-# `claude --api` / `code --api` (zsh/functions.zsh) and the Alt+a / Alt+A tmux
-# popups all delegate to this one helper, so it has to be on PATH rather than
-# called by repo path: tmux runs its binds through `$SHELL -c`, which never
-# sources .zshrc and so cannot see a zsh function. ~/.local/bin is already
-# first on PATH (zsh/.zshenv) and is where the claude binary itself lives.
-link "$DOTFILES/scripts/claude-api-env" "$HOME/.local/bin/claude-api-env"
-# Same reason: tmux's `prefix + g` (tmux.conf) runs it by this path instead of
-# hardcoding where the repo was cloned.
-link "$DOTFILES/scripts/ide"            "$HOME/.local/bin/ide"
 
 # ─── stack theme ──────────────────────────────────────────────
 # Nothing to do here. The theme selection is a direct value in each versioned
@@ -213,13 +202,9 @@ fi
 # or the plugin CLI (plugins.sh). The full detail — and which mechanism to use
 # to add something new — is in claude/install/README.md.
 #
-# The order is load-bearing: settings.sh symlinks ~/.claude/CLAUDE.md, and
-# `rtk init` (binaries.sh) adds an @RTK.md line to it — we want that to land on
-# the versioned file through the symlink, not on a loose one.
-# They go AFTER the Homebrew block: settings.sh needs jq.
-source "$DOTFILES/claude/install/settings.sh"
-source "$DOTFILES/claude/install/binaries.sh"
-source "$DOTFILES/claude/install/plugins.sh"
+# Sourced in a load-bearing order by install_claude (scripts/lib.sh). It goes
+# AFTER the Homebrew block: settings.sh needs jq.
+install_claude
 
 bootstrap_tmux
 bootstrap_gh_stack

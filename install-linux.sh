@@ -4,31 +4,23 @@
 # For macOS use ./install.sh.
 #
 # Idempotent: backs up existing files before symlinking.
-# Strategy: apt for what is available + cargo install for what is missing.
+# Strategy: apt for what is available, official curl installers and GitHub
+# release binaries for what it lacks (no cargo — see the note further down).
 
 set -euo pipefail
 
 DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TS="$(date +%Y%m%d_%H%M%S)"
 
-# link() and bootstrap_tmux(), shared with install.sh.
+# link(), link_portable(), install_claude() and the bootstraps, shared with
+# install.sh.
 source "$DOTFILES/scripts/lib.sh"
 
 # ─── symlinks (portable subset of install.sh) ─────────────────
-# Skipped: ghostty and its themes (macOS-only GUI). The rest of the repo is
-# the portable subset and is linked exactly like on mac.
-link "$DOTFILES/zsh/.zshrc"             "$HOME/.zshrc"
-link "$DOTFILES/zsh/.zshenv"            "$HOME/.zshenv"
-link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
-link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
-link "$DOTFILES/tmux"                   "$HOME/.config/tmux"
-link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
-
-# On PATH, not called by repo path: tmux runs its binds through `$SHELL -c`,
-# which never sources .zshrc and so cannot see the `claude --api` zsh function.
-# See the same block in install.sh.
-link "$DOTFILES/scripts/claude-api-env" "$HOME/.local/bin/claude-api-env"
-link "$DOTFILES/scripts/ide"            "$HOME/.local/bin/ide"
+# The whole portable set — the same list install.sh links, kept once in
+# lib.sh. What is skipped here is only what install.sh adds on top: ghostty
+# and its themes (macOS-only GUI).
+link_portable
 
 # ─── stack theme ──────────────────────────────────────────────
 # Nothing to do here. Same reason as in install.sh: palettes AND the active
@@ -117,22 +109,10 @@ if ! command -v bat >/dev/null 2>&1 && command -v batcat >/dev/null 2>&1; then
 fi
 
 # ─── Claude Code ──────────────────────────────────────────────
-# Same scripts as install.sh (mac) — the Claude Code logic does not diverge
-# between platforms, so it lives once in claude/install/. Three mechanisms split
-# by WHO writes to settings.json: us with jq (settings.sh), the external binary
-# (binaries.sh), the plugin CLI (plugins.sh). Detail in claude/install/README.md.
-#
-# `rtk` here does not come from Homebrew: binaries.sh falls back on its own to
-# the official curl installer when the binary is missing (the `command -v` guard
-# covers both cases).
-#
-# The order is load-bearing: settings.sh symlinks ~/.claude/CLAUDE.md, and
-# `rtk init` (binaries.sh) adds an @RTK.md line to it — we want that to land on
-# the versioned file through the symlink, not on a loose one.
-# They go AFTER the apt block: settings.sh needs jq.
-source "$DOTFILES/claude/install/settings.sh"
-source "$DOTFILES/claude/install/binaries.sh"
-source "$DOTFILES/claude/install/plugins.sh"
+# Same three scripts as on mac, sourced in a load-bearing order by
+# install_claude (scripts/lib.sh) — the Claude Code logic does not diverge
+# between platforms. It goes AFTER the apt block: settings.sh needs jq.
+install_claude
 
 bootstrap_tmux
 bootstrap_gh_stack

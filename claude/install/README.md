@@ -5,10 +5,10 @@ Everything this repo does to `~/.claude/` lives here, split by **who writes to
 the write, because that determines who handles idempotence and where to look when
 something breaks.
 
-The three files are **sourced** from the bash installers (`install.sh`,
-`install-linux.sh` — both source all three); they are not standalone executables. They
-assume `link()`, `$DOTFILES` and `$TS` from the parent, and that `jq` is already
-installed (the installers run their deps block first).
+The three files are **sourced**, in a fixed order, by `install_claude` in `scripts/lib.sh`,
+which both bash installers (`install.sh`, `install-linux.sh`) call after their package
+block; they are not standalone executables. They assume `link()`, `$DOTFILES` and `$TS`
+from the parent, and that `jq` is already installed.
 
 | | File | Who writes to `settings.json` | Idempotence |
 |---|---|---|---|
