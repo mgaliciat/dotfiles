@@ -250,7 +250,16 @@ claude-config() {
 # The file holds a credential — keep it chmod 600. ~/.claude/ is Claude Code's
 # own directory and its bundle carries a dotenv filename list (.env.local and
 # friends), hence the unambiguous `claude-api.env` rather than `env.local`.
-_claude_api_launch() {
+#
+# NO LEADING UNDERSCORE ON THIS NAME. Claude Code's Bash tool does not source
+# .zshrc; it replays a snapshot of the interactive shell's functions
+# (~/.claude/shell-snapshots/) and that snapshot DROPS every function whose
+# name starts with a single `_` (`_fzf_cd_widget`, `_prompt_git`… are all
+# absent from it; `__zoxide_*` and plain names survive). `claude()` below is
+# kept, so with a `_`-prefixed helper every `claude mcp list` / `claude agents
+# --json` Claude runs from inside a session died with `command not found:
+# _claude_api_launch`. A plain name rides along with the wrapper.
+claude_api_launch() {
   local bin=$1
   shift
   if [[ $1 == --api ]]; then
@@ -269,12 +278,12 @@ _claude_api_launch() {
   command $bin "$@"
 }
 
-claude() { _claude_api_launch claude "$@" }
+claude() { claude_api_launch claude "$@" }
 
 # VS Code footgun: `code` only spawns a NEW process when none is running; with
 # a window already open it hands the args to that instance and its
 # (gateway-less) environment wins. Quit VS Code first, then `code --api .`.
-code() { _claude_api_launch code "$@" }
+code() { claude_api_launch code "$@" }
 
 # ─── refresh: reload tmux config + the shell env ──────────────
 # One command for "I edited a dotfile and want it live now" without
