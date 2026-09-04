@@ -1,0 +1,52 @@
+# xray — the palette of Ghostty's own `xray` dock icon (macos-icon = xray):
+# a monochrome PCB with a silver ghost. Sampled from the icon itself
+# (`XrayImage` in Ghostty.app's Assets.car, 1.3.1) rather than guessed:
+#   #101010 board (the dominant tone)      #202020 / #303030 traces
+#   #4c4c4c chip legs / screws             #808080 · #a0a0a0 solder, silk
+#   #cdcecf ghost body                     #f0f0f0 ghost highlight
+# The only chroma in the icon is a faint cool cast (#a0a0b0-ish) on the
+# lighter grays — that cast, pushed just far enough to be usable, is the
+# single accent (#a3b5c6, "film blue"). Everything else stays neutral.
+#
+# ANSI is deliberately LOW-chroma, not monochrome: a grayscale terminal loses
+# git diffs and error colours, so each hue is kept but "under x-ray" — muted,
+# cool-leaning, ~30% saturation. Semantics survive, the look stays radiograph.
+#
+# Cross-stack mirror: nvim/lua/themes/xray.lua and tmux/themes/xray.conf.
+# NOTE: the canvas is #101010 (the board), NOT true black — the icon's #000
+# is only its metal frame. `minimum-contrast = 3.0` is fine here: every gray
+# below (#808080 up) already clears it over #101010.
+
+# background and text
+background = #101010
+foreground = #cdcecf
+
+# cursor — film blue, the one accent. Cursor text drops to the board colour.
+cursor-color = #a3b5c6
+cursor-text  = #101010
+
+# selection — a trace-gray lift, no tint; the ghost highlight as fg.
+selection-background = #303030
+selection-foreground = #f0f0f0
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# normals (0-7): board grays + desaturated functional hues.
+palette = 0=#202020
+palette = 1=#c47a7a
+palette = 2=#8fb08f
+palette = 3=#c4b07a
+palette = 4=#7f9fb8
+palette = 5=#a893b0
+palette = 6=#86adb0
+palette = 7=#cdcecf
+
+# brights (8-15): +luminance. bright_black is the chip-leg gray (#4c4c4c),
+# readable over #101010 without competing with text.
+palette = 8=#4c4c4c
+palette = 9=#d69090
+palette = 10=#a6c4a6
+palette = 11=#d6c68f
+palette = 12=#9bb8cf
+palette = 13=#bfaac7
+palette = 14=#9fc4c7
+palette = 15=#f0f0f0

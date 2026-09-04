@@ -20,7 +20,7 @@
 # the file is versioned, a `git pull` propagates the theme to the other
 # machines. To change the look: edit this line (and the equivalent lines
 # in nvim and tmux — they share the id) and commit. There's no switcher and no pointer.
-theme = solarized-osaka
+theme = xray
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -52,6 +52,9 @@ theme = solarized-osaka
 #   · solarized-light — Ethan Schoonover's canonical Solarized Light.
 #   · solarized-dark — its dark companion, the canonical one (base03 canvas,
 #     published accents) — the original, not the osaka fork above.
+#   · xray — the palette of the `xray` dock icon (PACKAGE 5): monochrome PCB
+#     canvas (#101010), silver ghost text (#cdcecf), one cool "film blue"
+#     accent, ANSI kept but desaturated. Grays sampled from the icon itself.
 # Canvas override — BELONGS TO solarized-osaka, not to the stack in general.
 # craftzdog's Ghostty uses the built-in "Solarized Dark - Patched" but overrides
 # the background with #031219 (deep ocean, near-black blue, a touch lighter than

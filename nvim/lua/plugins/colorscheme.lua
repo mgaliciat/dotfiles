@@ -22,6 +22,7 @@
 --   solarized-light  canonical Solarized Light
 --   solarized-dark   canonical Solarized Dark (the original, not the osaka fork)
 --   retta            Eclipse "Retta" port (true black + pumpkin/cream, high contrast)
+--   xray             palette of Ghostty's `xray` dock icon (monochrome PCB + silver ghost)
 --   obsidian         high-contrast dark, cyan accent (nvim only + fallback)
 --
 -- The solarized-osaka variants do NOT live in this selector — they use their own
