@@ -54,7 +54,7 @@ Follows the vault's `nota-invocacion` template. Frontmatter plus the four
 sections — pass `content` and `frontmatter` to `write` in one call:
 
 ```yaml
-type: log                 # required by OKF; `log` is what this layer uses
+type: log-entry           # required by OKF; what the 170+ existing notes use (not `log`)
 date: 2026-09-02          # ISO 8601
 repo: dotfiles            # the repository slug, bare
 tags: [repo/dotfiles]     # plus a shared #topic when one applies
