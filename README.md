@@ -101,3 +101,7 @@ The env file holds a credential: per-machine, `chmod 600`, never versioned, and 
 
 - **`~/.claude/claude-api.env`** — the gateway credential (see above). Deliberately *not* in `.zshenv.local`: that file is exported into every process the shell spawns, this one is read by a single launch.
 - **`~/.claude/settings.json`**, **`~/.claude/skills/`** (except the two we version), **`~/.claude/projects/*/memory/`** — Claude Code state. Permissions and UI prefs diverge per host; skills and memories are written by Claude Code and its binaries at runtime. `install.sh` only does guarded, additive merges into `settings.json`. If you delete `~/.claude` entirely, re-running `./install.sh` rebuilds everything the binaries install; your permissions and memories don't come back — they never lived in the repo.
+
+## License
+
+[MIT](LICENSE). Third-party pieces keep their own: `scripts/ide` is adapted from craftzdog's dotfiles, the `solarized-osaka` palette is his plugin's, and the themes ported from elsewhere name their source in `CLAUDE.md` ("The stack theme").
