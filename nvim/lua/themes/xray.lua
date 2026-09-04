@@ -11,7 +11,8 @@
 --   #a3b5c6 "film blue" accent — the icon's faint cool cast, pushed to usable
 --
 -- ANSI hues are kept but LOW-chroma ("under x-ray"): a grayscale editor
--- loses diffs and diagnostics, so each hue survives at ~30% saturation.
+-- loses diffs and diagnostics, so each hue survives at ~40% saturation
+-- (raised from ~30%: the first cut read as gray on gray).
 --
 -- tokyonight base: variant `night`.
 -- bg_statusline = bg on purpose: the bar blends into the board instead of
@@ -33,21 +34,21 @@ local palette = {
   fg_gutter     = "#404040",       -- line numbers: visible, not shouting
 
   black         = "#202020",       -- ansi0
-  red           = "#c47a7a",       -- ansi1
-  green         = "#8fb08f",       -- ansi2
-  yellow        = "#c4b07a",       -- ansi3
-  blue          = "#7f9fb8",       -- ansi4
-  magenta       = "#a893b0",       -- ansi5
-  cyan          = "#86adb0",       -- ansi6
+  red           = "#d06e6e",       -- ansi1
+  green         = "#80bf80",       -- ansi2
+  yellow        = "#d1b46c",       -- ansi3
+  blue          = "#71a1c6",       -- ansi4
+  magenta       = "#b188bc",       -- ansi5
+  cyan          = "#75b9bf",       -- ansi6
   white         = "#cdcecf",       -- ansi7
 
   bright_black   = "#4c4c4c",      -- ansi8
-  bright_red     = "#d69090",      -- ansi9
-  bright_green   = "#a6c4a6",      -- ansi10
-  bright_yellow  = "#d6c68f",      -- ansi11
-  bright_blue    = "#9bb8cf",      -- ansi12
-  bright_magenta = "#bfaac7",      -- ansi13
-  bright_cyan    = "#9fc4c7",      -- ansi14
+  bright_red     = "#e37b7b",      -- ansi9
+  bright_green   = "#96d096",      -- ansi10
+  bright_yellow  = "#e4cd7c",      -- ansi11
+  bright_blue    = "#8eb9dc",      -- ansi12
+  bright_magenta = "#c79cd5",      -- ansi13
+  bright_cyan    = "#8fd0d5",      -- ansi14
   bright_white   = "#f0f0f0",      -- ansi15
 
   comment       = "#707070",       -- solder gray, one step under the silkscreen
@@ -105,6 +106,19 @@ return {
       change = palette.yellow,
       delete = palette.red,
     }
+    -- Diff BACKGROUNDS. tokyonight blends its own green2/red1/blue7 into the
+    -- canvas, which lands teal (#243e4a) and wine (#4a272f) — loud blocks in a
+    -- monochrome buffer. These are the board (#101010) with ~10% of each hue:
+    -- a tint you read as green/red next to the fg colour, not a fill.
+    -- Used by DiffAdd/DiffDelete/DiffChange/DiffText, hence by codediff's
+    -- line tint (it derives its brighter character tint from these) and by
+    -- Neogit's inline hunks alike.
+    c.diff = {
+      add    = "#1a261a",
+      delete = "#2a1a1a",
+      change = "#262418",
+      text   = "#3a3828",
+    }
     c.terminal_black = palette.bright_black
   end,
 
@@ -120,9 +134,24 @@ return {
     hl.TelescopePromptBorder = { fg = palette.accent, bg = c.bg_float }
     hl.TelescopeMatching     = { fg = palette.accent, bold = true }
 
-    hl.GitSignsAdd    = { fg = c.green }
-    hl.GitSignsChange = { fg = c.yellow }
-    hl.GitSignsDelete = { fg = c.red }
+    -- Gutter signs in the BRIGHT variants: the normals are tuned for text on
+    -- the board, and a one-cell strip needs more contrast than a word does.
+    -- *Nr paints the line number (gitsigns numhl); *Staged keeps the normal
+    -- shade so staged reads as "already handled" next to unstaged.
+    hl.GitSignsAdd          = { fg = palette.bright_green }
+    hl.GitSignsChange       = { fg = palette.bright_yellow }
+    hl.GitSignsDelete       = { fg = palette.bright_red }
+    hl.GitSignsUntracked    = { fg = palette.bright_cyan }
+    hl.GitSignsAddNr        = { fg = palette.bright_green,  bold = true }
+    hl.GitSignsChangeNr     = { fg = palette.bright_yellow, bold = true }
+    hl.GitSignsDeleteNr     = { fg = palette.bright_red,    bold = true }
+    hl.GitSignsUntrackedNr  = { fg = palette.bright_cyan,   bold = true }
+    hl.GitSignsStagedAdd    = { fg = palette.green }
+    hl.GitSignsStagedChange = { fg = palette.yellow }
+    hl.GitSignsStagedDelete = { fg = palette.red }
+    hl.GitSignsStagedAddNr    = { fg = palette.green }
+    hl.GitSignsStagedChangeNr = { fg = palette.yellow }
+    hl.GitSignsStagedDeleteNr = { fg = palette.red }
 
     -- Inline code: trace-gray bg (ansi0) + the ghost highlight as fg — code
     -- reads as "etched", the brightest thing in a prose buffer.
@@ -145,5 +174,62 @@ return {
 
     hl["@markup.link.url"]   = { fg = palette.blue, underline = true }
     hl["@markup.link.label"] = { fg = palette.accent }
+
+    -- ─── Neogit ──────────────────────────────────────────────
+    -- Neogit builds its own palette from String/Function/… and then darkens
+    -- or shifts them (section headers came out #60989d, a teal no theme here
+    -- owns). It registers every group with `default = true`, so anything the
+    -- colorscheme defines first wins — that is this block. Rule: structure
+    -- by brightness (headers = accent, paths = fg, metadata = comment), hue
+    -- only where it carries meaning (added/deleted/modified).
+    local diff_add, diff_del = c.diff.add, c.diff.delete
+    hl.NeogitSectionHeader        = { fg = palette.accent, bold = true }
+    hl.NeogitSectionHeaderCount   = { fg = palette.fg_dark }
+    hl.NeogitBranch               = { fg = palette.accent, bold = true }
+    hl.NeogitBranchHead           = { fg = palette.bright_white, bold = true, underline = true }
+    hl.NeogitRemote               = { fg = palette.blue, bold = true }
+    hl.NeogitTagName              = { fg = palette.yellow }
+    hl.NeogitObjectId             = { fg = palette.fg_dark }
+    hl.NeogitFilePath             = { fg = palette.fg }
+    hl.NeogitSubtleText           = { fg = palette.comment }
+    hl.NeogitUnpushedTo           = { fg = palette.blue }
+    hl.NeogitUnpulledFrom         = { fg = palette.blue }
+    hl.NeogitCursorLine           = { bg = "#181818" }
+    hl.NeogitGraphAuthor          = { fg = palette.fg_dark }
+    hl.NeogitCommitViewHeader     = { fg = palette.bg, bg = palette.accent, bold = true }
+    hl.NeogitCommitViewDescription = { fg = palette.bright_white, bold = true }
+
+    hl.NeogitHunkHeader           = { fg = palette.fg_dark, bg = "#202020" }
+    hl.NeogitHunkHeaderHighlight  = { fg = palette.accent,  bg = "#303030", bold = true }
+    hl.NeogitHunkHeaderCursor     = { fg = palette.accent,  bg = "#303030", bold = true }
+    hl.NeogitDiffContext          = { bg = palette.bg }
+    hl.NeogitDiffContextHighlight = { bg = "#181818" }
+    hl.NeogitDiffContextCursor    = { bg = "#181818" }
+    hl.NeogitDiffAdd              = { fg = palette.green,        bg = diff_add }
+    hl.NeogitDiffAddHighlight     = { fg = palette.bright_green, bg = diff_add }
+    hl.NeogitDiffAddCursor        = { fg = palette.bright_green, bg = diff_add }
+    hl.NeogitDiffDelete           = { fg = palette.red,          bg = diff_del }
+    hl.NeogitDiffDeleteHighlight  = { fg = palette.bright_red,   bg = diff_del }
+    hl.NeogitDiffDeleteCursor     = { fg = palette.bright_red,   bg = diff_del }
+
+    hl.NeogitChangeModified       = { fg = palette.yellow,  bold = true }
+    hl.NeogitChangeAdded          = { fg = palette.green,   bold = true }
+    hl.NeogitChangeNewFile        = { fg = palette.green,   bold = true }
+    hl.NeogitChangeDeleted        = { fg = palette.red,     bold = true }
+    hl.NeogitChangeRenamed        = { fg = palette.blue,    bold = true }
+    hl.NeogitChangeCopied         = { fg = palette.blue,    bold = true }
+    hl.NeogitChangeUpdated        = { fg = palette.accent,  bold = true }
+    hl.NeogitChangeBothModified   = { fg = palette.magenta, bold = true }
+
+    hl.NeogitPopupSectionTitle    = { fg = palette.bright_white, bold = true }
+    hl.NeogitPopupActionKey       = { fg = palette.accent, bold = true }
+    hl.NeogitPopupSwitchKey       = { fg = palette.accent, bold = true }
+    hl.NeogitPopupOptionKey       = { fg = palette.accent, bold = true }
+    hl.NeogitPopupConfigKey       = { fg = palette.accent, bold = true }
+    hl.NeogitPopupSwitchEnabled   = { fg = palette.green }
+    hl.NeogitPopupOptionEnabled   = { fg = palette.green }
+    hl.NeogitPopupConfigEnabled   = { fg = palette.green }
+    hl.NeogitPopupBranchName      = { fg = palette.accent, bold = true }
+    hl.NeogitPopupBold            = { fg = palette.bright_white, bold = true }
   end,
 }

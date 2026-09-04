@@ -47,7 +47,7 @@ autocmd("FileType", {
   group = augroup("ft_markdown", { clear = true }),
   pattern = { "markdown", "gitcommit" },
   callback = function()
-    vim.opt_local.wrap = true
+    vim.opt_local.wrap = true                 -- already global; kept so prose wraps even if code stops
     vim.opt_local.linebreak = true            -- wrap respects words
     vim.opt_local.spell = true
     vim.opt_local.spelllang = { "en", "es" }  -- bilingual, like your repo

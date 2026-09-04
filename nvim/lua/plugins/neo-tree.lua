@@ -6,6 +6,10 @@
 --     edits of filenames as text. Pure vim-style workflow.
 --
 -- Keybind: <leader>n (toggle) — `n` for "neo-tree".
+-- The `git_status` source (changed files as a tree) was bound and dropped
+-- the same day: the working tree is codediff's job (<leader>gv) and history
+-- is the commit pickers' (<leader>gf); a third list of the same files
+-- added nothing.
 -- Auto-opens at startup if you didn't open a specific file
 -- (e.g. `nvim .` or plain `nvim`) — replicates the behavior you
 -- liked with oil but without it disappearing when you edit a file.

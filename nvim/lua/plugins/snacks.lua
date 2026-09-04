@@ -5,10 +5,13 @@
 --
 --   dashboard  → splash when opening nvim with no args (recents + shortcuts)
 --   indent     → vertical guides + scope highlight of the current block
---   scroll     → subtle smooth scroll (~150ms)
 --   zen        → focus mode (<leader>z toggle)
 --
 -- Intentionally off:
+--   scroll        → smooth scroll fought the trackpad (see its block below).
+--   lazygit       → git inside nvim is Neogit + codediff (plugins/neogit.lua,
+--                   plugins/codediff.lua) — a buffer UI, not a TUI in a float.
+--                   Lazygit stays in the tmux popup (Alt+g) for the shell.
 --   notifier      → we already have nvim-notify via noice.nvim. Enabling it
 --                   duplicates the message sink and breaks the routing to
 --                   notify_send that noice does when you lose focus.
@@ -67,11 +70,14 @@ return {
     },
 
     -- ─── scroll ───────────────────────────────────────
-    -- Subtle smooth scroll. The default easing is good;
-    -- 150ms is the sweet spot between "static" and "motion sickness".
-    scroll = {
-      animate = { duration = { step = 15, total = 150 }, easing = "linear" },
-    },
+    -- OFF (2026-09-04). It animates every scroll event, and a trackpad
+    -- through Ghostty+tmux sends dozens per second: each one starts a new
+    -- 150ms animation while nvim keeps relocating the cursor to honour
+    -- scrolloff=8, so the cursor darts around the window during a swipe.
+    -- j/k/{/} were never affected (one event, one animation). Keyboard-only
+    -- smooth scroll isn't an option snacks offers — it hooks WinScrolled,
+    -- which can't tell a wheel from a key — so the whole module goes.
+    scroll = { enabled = false },
 
     -- ─── zen ──────────────────────────────────────────
     -- Minimalist focus mode: centers the buffer, hides
@@ -83,6 +89,7 @@ return {
     },
 
     -- Explicitly off: documents intent.
+    lazygit      = { enabled = false },
     notifier     = { enabled = false },
     statuscolumn = { enabled = false },
     bigfile      = { enabled = false },

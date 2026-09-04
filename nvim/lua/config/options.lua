@@ -35,7 +35,17 @@ opt.relativenumber = true            -- jumps with `5j`, `10k` without counting
 opt.cursorline = true
 opt.scrolloff = 8                    -- 8 lines of margin when scrolling
 opt.sidescrolloff = 8
-opt.wrap = false                     -- wrap is usually noise for code
+-- Wrap ON (2026-09-04): a long line continues on the next screen row instead
+-- of scrolling the whole pane sideways — with a 32-col tree on the left the
+-- horizontal scroll hid the start of every line you were reading.
+-- linebreak breaks at a word, not mid-token; breakindent keeps the
+-- continuation under the code's indent so a wrapped line still reads as one
+-- statement; showbreak marks where that happened. codediff sets nowrap on
+-- its own diff windows, because wrap breaks side-by-side alignment.
+opt.wrap = true
+opt.linebreak = true
+opt.breakindent = true
+opt.showbreak = "↪ "
 
 -- Indentation
 opt.expandtab = true

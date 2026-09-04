@@ -5,14 +5,29 @@ return {
   "lewis6991/gitsigns.nvim",
   event = { "BufReadPre", "BufNewFile" },
   opts = {
+    -- `▎` (left one-eighth block) instead of `│`: a box-drawing bar is one
+    -- pixel wide and vanishes on a dark canvas; the block is a solid strip
+    -- that reads from across the room. Deletes are the angle glyphs, which
+    -- point at the gap where the lines were.
     signs = {
-      add          = { text = "│" },
-      change       = { text = "│" },
-      delete       = { text = "_" },
-      topdelete    = { text = "‾" },
-      changedelete = { text = "~" },
-      untracked    = { text = "┆" },
+      add          = { text = "▎" },
+      change       = { text = "▎" },
+      delete       = { text = "" },
+      topdelete    = { text = "" },
+      changedelete = { text = "▎" },
+      untracked    = { text = "▎" },
     },
+    signs_staged = {
+      add          = { text = "▎" },
+      change       = { text = "▎" },
+      delete       = { text = "" },
+      topdelete    = { text = "" },
+      changedelete = { text = "▎" },
+    },
+    -- Also paint the LINE NUMBER of a changed line (GitSigns*Nr): the sign
+    -- column is one cell, the number is three — twice the ink for the same
+    -- information.
+    numhl = true,
     current_line_blame = false,           -- toggle with <leader>gb if you want it
     on_attach = function(bufnr)
       local gs = require("gitsigns")
