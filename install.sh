@@ -38,6 +38,13 @@ link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
 link "$DOTFILES/tmux"                   "$HOME/.config/tmux"
 link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
 
+# `claude --api` / `code --api` (zsh/functions.zsh) and the Alt+a / Alt+A tmux
+# popups all delegate to this one helper, so it has to be on PATH rather than
+# called by repo path: tmux runs its binds through `$SHELL -c`, which never
+# sources .zshrc and so cannot see a zsh function. ~/.local/bin is already
+# first on PATH (zsh/.zshenv) and is where the claude binary itself lives.
+link "$DOTFILES/scripts/claude-api-env" "$HOME/.local/bin/claude-api-env"
+
 # ─── stack theme ──────────────────────────────────────────────
 # Nothing to do here. The theme selection is a direct value in each versioned
 # config (Ghostty `theme =`, nvim `vim.g.theme`, the palette `source` in

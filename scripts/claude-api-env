@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# ─── scripts/claude-api-env — run a command with the gateway env ──
+#
+#   claude-api-env <command> [args...]
+#
+# Reads ~/.claude/claude-api.env (per-machine, never versioned — it holds a
+# gateway credential) and execs <command> with those variables set, and ONLY
+# for that one process. Deliberately generic: it knows nothing about `claude`,
+# so it serves `claude`, `code`, or anything else that talks to the gateway.
+#
+# WHY A SCRIPT AND NOT (only) A ZSH FUNCTION. The `--api` flag on `claude` /
+# `code` lives in zsh/functions.zsh, which .zshrc sources — so it exists in
+# INTERACTIVE shells and nowhere else. tmux launches its Claude popups with
+# `tmux new-session … "exec claude"`, which tmux runs through `$SHELL -c`:
+# non-interactive, no .zshrc, no function. Same for any script or hook. Moving
+# the parsing here and symlinking it onto PATH (~/.local/bin, see install.sh)
+# makes the gateway reachable from all of them, and leaves ONE implementation
+# instead of two copies that drift — the zsh function is now a facade over this.
+#
+# THE FILE IS PARSED, NEVER SOURCED: `NAME=value` lines, an optional leading
+# `export`, `#` comments, one optional layer of matching quotes. A credentials
+# file must not be able to run commands, so `source` is not an option here —
+# don't "simplify" it into one.
+#
+# A line whose name `env` would reject is SKIPPED rather than fatal: one typo
+# in the file should not take the whole launch down with it.
+#
+# ANTHROPIC_BASE_URL is the one variable that must be present. Without it there
+# is no gateway to speak of, so this refuses instead of falling back to the
+# plain binary — launching under a name that promises the gateway would hide
+# the misconfiguration, and the plain command is one word away.
+set -u
+
+envfile=${CLAUDE_API_ENV_FILE:-$HOME/.claude/claude-api.env}
+
+# CLAUDE_API_HOLD_ERRORS is set by the tmux binds, never by a human. Inside a
+# popup the session's only process IS this script, so a plain exit destroys the
+# session and takes the error message with it — you see a flash and nothing
+# else. Waiting for a key keeps the pane alive long enough to read it. An
+# interactive terminal scrolls back, so it doesn't pay for the pause.
+die() {
+  echo "claude-api-env: $1" >&2
+  if [[ ${CLAUDE_API_HOLD_ERRORS:-} == 1 ]]; then
+    echo "claude-api-env: press any key to close" >&2
+    read -r -n 1 -s || true
+  fi
+  exit 1
+}
+
+[[ $# -gt 0 ]] || die "usage: claude-api-env <command> [args...]"
+# `env` reads a leading `NAME=value` as one more assignment and, left with no
+# command, PRINTS THE WHOLE ENVIRONMENT — the credential included — to stdout.
+# Nothing in env's own parsing prevents that, so refuse it here.
+[[ $1 == *=* ]] && die "'$1' is not a command (it contains '=')"
+
+vars=()
+has_base=0
+
+if [[ -r $envfile ]]; then
+  # `|| [[ -n $line ]]` so a last line with no trailing newline is still read.
+  while IFS= read -r line || [[ -n $line ]]; do
+    line=${line#"${line%%[![:space:]]*}"}
+    [[ -z $line || $line == '#'* ]] && continue
+
+    if [[ $line == export[[:space:]]* ]]; then
+      line=${line#export}
+      line=${line#"${line%%[![:space:]]*}"}
+    fi
+
+    key=${line%%=*}
+    # `$key == $line` means there was no `=` at all. The last test strips every
+    # character legal in a variable name and checks nothing survives — cheaper
+    # to read than an anchored regex, and it can't be defeated by a shell
+    # option the way a glob can.
+    [[ $key == "$line" || -z $key || $key == [0-9]* || -n ${key//[A-Za-z0-9_]/} ]] && continue
+
+    value=${line#*=}
+    # One layer of MATCHING quotes, the way the file would be written by hand.
+    # A lone quote is not stripped: the pattern needs both ends to match, so it
+    # cannot fire on a single character.
+    if [[ $value == \"*\" || $value == \'*\' ]]; then
+      value=${value:1:${#value}-2}
+    fi
+
+    [[ $key == ANTHROPIC_BASE_URL ]] && has_base=1
+    vars+=("$key=$value")
+  done < "$envfile"
+fi
+
+(( has_base )) || die "ANTHROPIC_BASE_URL is unset (put it in $envfile) — not launching $1"
+
+# `exec env` replaces this process, so nothing of ours is left in the tree and
+# the pane's process is the target command itself — which is what the tmux
+# binds and their Alt+d detach assume. No `--`: both BSD and GNU env stop
+# reading options at the first assignment, and `vars` is never empty here (it
+# holds ANTHROPIC_BASE_URL at minimum), so a command starting with `-` is
+# already safe — and a `--` placed AFTER the assignments is itself taken as the
+# command ("env: --: No such file or directory").
+exec env "${vars[@]}" "$@"

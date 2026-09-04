@@ -24,6 +24,11 @@ link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
 link "$DOTFILES/tmux"                   "$HOME/.config/tmux"
 link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
 
+# On PATH, not called by repo path: tmux runs its binds through `$SHELL -c`,
+# which never sources .zshrc and so cannot see the `claude --api` zsh function.
+# See the same block in install.sh.
+link "$DOTFILES/scripts/claude-api-env" "$HOME/.local/bin/claude-api-env"
+
 # ─── stack theme ──────────────────────────────────────────────
 # Nothing to do here. Same reason as in install.sh: palettes AND the active
 # selection travel versioned and arrive through the dir symlinks above

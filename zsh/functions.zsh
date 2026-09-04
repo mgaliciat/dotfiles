@@ -184,7 +184,7 @@ claude-config() {
   esac
 }
 
-# ─── claude-api / code: launch with the API env, per process ───
+# ─── claude / code --api: launch with the API env, per process ───
 # Claude Code reads the gateway from ANTHROPIC_* env vars (documented at
 # code.claude.com/docs/en/env-vars): ANTHROPIC_BASE_URL for the host,
 # ANTHROPIC_API_KEY (X-Api-Key) or ANTHROPIC_AUTH_TOKEN (Bearer) for the
@@ -194,15 +194,32 @@ claude-config() {
 # the VS Code extension — go through the gateway, hence the old
 # `claude-config remove env` / `restore env` dance before each launch.
 # Instead the values sit in ~/.claude/claude-api.env (per-machine, never
-# versioned) and these two hand them to ONE child process via `env`:
-#   claude-api [args]  → claude through the gateway; plain `claude` stays as-is.
-#   code-api [args]    → VS Code with the same vars, so its Claude Code
-#                        extension (which spawns the CLI from VS Code's own
-#                        environment) goes through the gateway too; plain
-#                        `code` stays as-is.
-# Neither shadows the bare command — the `-api` suffix IS the opt-in. An
-# earlier version named the second one `code`, which meant every `code .` on
-# a box with no gateway paid a warning for a state that is not an error.
+# versioned) and a `--api` flag hands them to ONE child process via `env`:
+#   claude --api [args]  → claude through the gateway.
+#   code --api [args]    → VS Code with the same vars, so its Claude Code
+#                          extension (which spawns the CLI from VS Code's own
+#                          environment) goes through the gateway too.
+# Without the flag both are the plain binary, untouched: the wrappers run
+# `command claude` / `command code`, nothing is read and the helper below is
+# never even looked up, so a box with no gateway file never pays for a state
+# that is not an error. (These replaced `claude-api` / `code-api`, sep-2026 —
+# same machinery, but a suffixed name is a second command to remember and does
+# not read as "the same tool, one switch".)
+#
+# THE PARSING ITSELF LIVES IN `scripts/claude-api-env`, on PATH via
+# ~/.local/bin — these functions only strip the flag and delegate. Read that
+# file for the env-file rules; the short version is that it is parsed, never
+# sourced. The split exists because a zsh function is reachable only from an
+# INTERACTIVE shell, and tmux launches its Claude popups through `$SHELL -c`
+# (see tmux/utility.conf) where .zshrc never runs — so the gateway had a
+# ceiling that no amount of work here could lift. One implementation on PATH
+# serves the shell, tmux, scripts and hooks alike.
+#
+# `--api` IS ONLY RECOGNISED AS THE FIRST ARGUMENT, and is removed before the
+# real binary sees it. Scanning the whole list would be friendlier to type but
+# would also strip the string out of `claude -p 'compare --api vs the SDK'` —
+# a silent corruption of the prompt, and neither binary has a real `--api` flag
+# to collide with anyway. First-arg-only can never misread a value as a flag.
 #
 # THE FILE HOLDS THE REAL NAMES AND IS PASSED THROUGH VERBATIM. There used to be
 # a CLAUDE_API_* prefix here and a 22-entry table translating it; the prefix
@@ -215,13 +232,6 @@ claude-config() {
 # (code.claude.com/docs/en/env-vars); `_SUPPORTED_CAPABILITIES` is the one worth
 # remembering, because Claude Code turns effort/thinking on by pattern-matching
 # the model id, so a gateway's own id gets neither until that var declares them.
-# ANTHROPIC_BASE_URL is the one that must be present: without it there is no API
-# to speak of, so both refuse instead of falling back — launching the plain
-# binary under a name that promises the gateway would hide the misconfiguration,
-# and the plain name is one word away.
-# VS Code footgun: `code` only spawns a NEW process when none is running;
-# with a window already open it hands the args to that instance and its
-# (gateway-less) environment wins. Quit VS Code first, then `code .`.
 #
 # WHY A FILE AND NOT ~/.zshenv.local, where the other secrets live: .zshenv is
 # sourced by EVERY zsh, interactive or not, so an export there puts the gateway
@@ -232,61 +242,34 @@ claude-config() {
 # exported value would already have sent every plain `claude` through the
 # gateway, which is the state this whole thing exists to avoid.
 #
-# The file is parsed, never sourced: `NAME=value` lines (an optional leading
-# `export`, `#` comments, optional quotes), so a stray command in it cannot run.
-# It holds a credential — keep it chmod 600. ~/.claude/ is Claude Code's own
-# directory and its bundle carries a dotenv filename list (.env.local and
+# The file holds a credential — keep it chmod 600. ~/.claude/ is Claude Code's
+# own directory and its bundle carries a dotenv filename list (.env.local and
 # friends), hence the unambiguous `claude-api.env` rather than `env.local`.
-_claude_api_vars() {
-  reply=()
-  # Resolved per call, not at source time, so CLAUDE_API_ENV_FILE can point at
-  # another file (a second gateway, a test) without reloading the shell.
-  local envfile=${CLAUDE_API_ENV_FILE:-$HOME/.claude/claude-api.env}
-  local line k v has_base=0
-  if [[ -r $envfile ]]; then
-    while IFS= read -r line || [[ -n $line ]]; do
-      line=${line#"${line%%[![:space:]]*}"}
-      [[ -z $line || $line == '#'* ]] && continue
-      if [[ $line == export[[:space:]]* ]]; then
-        line=${line#export}
-        line=${line#"${line%%[![:space:]]*}"}
-      fi
-      k=${line%%=*}
-      # No `=` at all, or a name `env` would reject: skip rather than build an
-      # argument that makes the whole launch fail on one bad line. The test
-      # strips every legal character and checks nothing survives, instead of a
-      # `[A-Za-z_][A-Za-z0-9_]#` pattern — that `#` is an EXTENDED_GLOB operator
-      # and would be a literal in a shell that has the option off, matching
-      # nothing and silently dropping the entire file.
-      [[ $k == $line || -z $k || $k == [0-9]* || -n ${k//[A-Za-z0-9_]/} ]] && continue
-      v=${line#*=}
-      # One layer of matching quotes, the way the file would be written by hand.
-      [[ $v == \"*\" || $v == \'*\' ]] && v=${v[2,-2]}
-      [[ $k == ANTHROPIC_BASE_URL ]] && has_base=1
-      reply+=("${k}=${v}")
-    done < $envfile
+_claude_api_launch() {
+  local bin=$1
+  shift
+  if [[ $1 == --api ]]; then
+    shift
+    # Explicit check so a machine that hasn't re-run install.sh since the
+    # helper was added says what to do, instead of `command not found`.
+    if ! command -v claude-api-env >/dev/null 2>&1; then
+      echo "$bin --api: claude-api-env is not on PATH (run ./install.sh)" >&2
+      return 1
+    fi
+    # The helper execs the real binary from PATH, so this cannot re-enter the
+    # wrapper the way a bare `$bin` would.
+    command claude-api-env $bin "$@"
+    return
   fi
-
-  if (( ! has_base )); then
-    # funcstack[2] is the caller, so the message names the command actually
-    # typed (claude-api / code-api) instead of hardcoding one of the two.
-    echo "${funcstack[2]}: ANTHROPIC_BASE_URL is unset (put it in $envfile)" >&2
-    return 1
-  fi
-  return 0
+  command $bin "$@"
 }
 
-claude-api() {
-  local -a reply
-  _claude_api_vars || return 1
-  env "${reply[@]}" claude "$@"
-}
+claude() { _claude_api_launch claude "$@" }
 
-code-api() {
-  local -a reply
-  _claude_api_vars || return 1
-  env "${reply[@]}" code "$@"
-}
+# VS Code footgun: `code` only spawns a NEW process when none is running; with
+# a window already open it hands the args to that instance and its
+# (gateway-less) environment wins. Quit VS Code first, then `code --api .`.
+code() { _claude_api_launch code "$@" }
 
 # ─── refresh: reload tmux config + the shell env ──────────────
 # One command for "I edited a dotfile and want it live now" without
