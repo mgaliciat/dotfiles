@@ -44,6 +44,9 @@ link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
 # sources .zshrc and so cannot see a zsh function. ~/.local/bin is already
 # first on PATH (zsh/.zshenv) and is where the claude binary itself lives.
 link "$DOTFILES/scripts/claude-api-env" "$HOME/.local/bin/claude-api-env"
+# Same reason: tmux's `prefix + g` (tmux.conf) runs it by this path instead of
+# hardcoding where the repo was cloned.
+link "$DOTFILES/scripts/ide"            "$HOME/.local/bin/ide"
 
 # ─── stack theme ──────────────────────────────────────────────
 # Nothing to do here. The theme selection is a direct value in each versioned

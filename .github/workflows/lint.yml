@@ -1,0 +1,86 @@
+# Static checks only — nothing here installs the dotfiles or needs a Mac.
+# Everything that runs is a syntax/lint pass over the files a `git pull`
+# delivers, so a typo in an installer or a zsh file is caught before it lands
+# on the other machines. Runtime validation stays where it always was: running
+# the installer (CLAUDE.md, "there is no test suite").
+#
+# tmux and nvim configs are NOT parsed here on purpose: both need their
+# plugins present to load, and stubbing those out tests the stub, not the
+# config. tmux is validated by the installer's `tmux source-file` reload.
+name: lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  shell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # shellcheck ships preinstalled on ubuntu runners; .shellcheckrc at the
+      # repo root carries the config (external-sources, the two disables).
+      - name: shellcheck
+        run: |
+          shellcheck --version
+          shellcheck -x \
+            install.sh install-linux.sh \
+            scripts/lib.sh scripts/ide scripts/claude-api-env \
+            claude/install/*.sh claude/hooks/bitacora.sh claude/statusline.sh
+
+      - name: bash -n
+        run: |
+          for f in install.sh install-linux.sh scripts/lib.sh scripts/ide \
+                   scripts/claude-api-env claude/install/*.sh \
+                   claude/hooks/bitacora.sh claude/statusline.sh; do
+            bash -n "$f" && echo "ok  $f"
+          done
+
+      - name: zsh -n
+        run: |
+          sudo apt-get install -y -q zsh >/dev/null
+          for f in zsh/.zshenv zsh/.zshrc zsh/functions.zsh; do
+            zsh -n "$f" && echo "ok  $f"
+          done
+
+  lua-json:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Syntax only (luac -p): nvim's runtime globals (`vim.*`) don't exist
+      # outside the editor, so nothing is executed.
+      - name: luac -p
+        run: |
+          sudo apt-get install -y -q lua5.1 >/dev/null
+          find nvim -name '*.lua' -print0 | xargs -0 -n1 luac5.1 -p
+          echo "ok  $(find nvim -name '*.lua' | wc -l) lua files"
+
+      - name: jq (json validity)
+        run: |
+          for f in claude/install/permissions.json nvim/lazy-lock.json \
+                   claude/skills/wiki/.claude-plugin/plugin.json; do
+            jq empty "$f" && echo "ok  $f"
+          done
+
+  powershell:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Parse only — PowerShell's own parser, no execution. Catches the
+      # unbalanced-brace / bad-token class of error in the Windows installer,
+      # which otherwise only surfaces on a Windows box.
+      - name: pwsh parse
+        shell: pwsh
+        run: |
+          $failed = $false
+          foreach ($f in @('install-windows.ps1', 'claude/statusline.ps1', 'claude/hooks/bitacora.ps1')) {
+            $tokens = $null; $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $f), [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors.Count -gt 0) { $failed = $true; $errors | ForEach-Object { Write-Host "$f: $($_.Message)" } }
+            else { Write-Host "ok  $f" }
+          }
+          if ($failed) { exit 1 }

@@ -1,0 +1,17 @@
+# Repo-wide ShellCheck config — picked up by the editor, `shellcheck` from the
+# repo root, and .github/workflows/lint.yml.
+
+# claude/install/*.sh and scripts/lib.sh are sourced by the installers, so
+# `shellcheck -x` follows the `source` lines into them.
+external-sources=true
+
+# SC2016 — "expressions don't expand in single quotes". Every hit is a jq
+# filter (`'.permissions.allow = $perms[0].allow'`), where the `$` is jq's,
+# not the shell's; single quotes are exactly right there.
+disable=SC2016
+
+# SC2317 — "command appears to be unreachable", on the
+# `return 0 2>/dev/null || exit 0` idiom the sourced install scripts use to
+# bail out whether they were sourced (return) or executed (exit). Both
+# branches are reachable; ShellCheck only sees one of the two call modes.
+disable=SC2317

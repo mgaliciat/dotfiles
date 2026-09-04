@@ -1,0 +1,23 @@
+# Editor-agnostic whitespace rules (https://editorconfig.org). nvim reads this
+# natively (0.9+), VS Code with the EditorConfig extension. It only covers what
+# the repo has no formatter for; lua/sh have no stylua/shfmt step here on purpose.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.ps1]
+indent_size = 4
+
+[*.md]
+# A trailing double space is a hard line break in Markdown.
+trim_trailing_whitespace = false
+
+# lazy.nvim owns this file; never reformat it by hand.
+[nvim/lazy-lock.json]
+insert_final_newline = false

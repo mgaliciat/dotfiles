@@ -14,6 +14,7 @@ Convention: `prefix x` = you press `Ctrl+t`, release, then `x`.
 |---|---|
 | `Alt+c` | **Claude Code in a 90% popup** — persistent "default" session per project |
 | `Alt+C` | **Claude YOLO** — same as `Alt+c` but with `--dangerously-skip-permissions` (separate session) ⚠️ |
+| `Alt+a` / `Alt+A` | **Same two popups, through the API gateway** — reads `~/.claude/claude-api.env` via `claude-api-env`; separate sessions from `Alt+c`/`Alt+C`. Needs the env file, otherwise the popup shows the error and waits for a key |
 | `Alt+u` | **Central picker of Claude sessions** (session-manager plugin) — ALL sessions, live working/waiting/idle state + preview |
 | `Alt+y` | **Claude launcher per directory** (session-manager plugin) |
 | `Alt+d` | **Close the Claude popup** (safe detach — only if you're inside a `claude*` session) |
@@ -41,6 +42,7 @@ Convention: `prefix x` = you press `Ctrl+t`, release, then `x`.
 **Session naming convention:**
 - `claude-<hash>` → the default one that `Alt+c` / `Alt+y` open (they share the hash)
 - `claude-yolo-<hash>` → the YOLO default that `Alt+C` opens
+- `claude-api-<hash>` / `claude-api-yolo-<hash>` → the gateway twins that `Alt+a` / `Alt+A` open (a different endpoint is a different conversation)
 
 To list the active Claude sessions: `tmux ls | grep claude` (or `Alt+u`).
 To kill a specific session: `tmux kill-session -t claude-<hash>`.

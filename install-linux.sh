@@ -28,6 +28,7 @@ link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
 # which never sources .zshrc and so cannot see the `claude --api` zsh function.
 # See the same block in install.sh.
 link "$DOTFILES/scripts/claude-api-env" "$HOME/.local/bin/claude-api-env"
+link "$DOTFILES/scripts/ide"            "$HOME/.local/bin/ide"
 
 # ─── stack theme ──────────────────────────────────────────────
 # Nothing to do here. Same reason as in install.sh: palettes AND the active

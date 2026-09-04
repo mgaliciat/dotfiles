@@ -14,11 +14,8 @@
 #   │         terminal (30%)           │          │
 #   └──────────────────────────────────┴──────────┘
 #
-# Usage: inside a tmux session, run:
-#   ~/dotfiles/scripts/ide
-# Or add it to your PATH with:
-#   ln -s ~/dotfiles/scripts/ide ~/.local/bin/ide
-# And then just: `ide`
+# Usage: inside a tmux session, `ide` (the installers symlink this file onto
+# ~/.local/bin), or `prefix + g` (tmux.conf runs it by that same path).
 #
 # If you're not in tmux, it warns you and exits.
 

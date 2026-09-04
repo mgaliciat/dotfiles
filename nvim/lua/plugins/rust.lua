@@ -1,7 +1,7 @@
 -- ─── rustaceanvim ─────────────────────────────────────────────
 -- Replaces the lspconfig+rust_analyzer config with a richer setup:
--- Rust-specific inlay hints, runnables (individual test with
--- <leader>rr), integrated debug, expand-macro.
+-- Rust-specific inlay hints, runnables (`:RustLsp runnables` — no keymap
+-- is bound for it here), integrated debug, expand-macro.
 --
 -- It is NOT set up via lspconfig — the plugin registers itself when a
 -- .rs buffer loads. That's why it stays out of the loop in lsp.lua.
