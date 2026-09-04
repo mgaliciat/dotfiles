@@ -109,7 +109,7 @@ bootstrap_tmux() {
   # tpm then sees the dir exists and leaves it alone. Convergent: re-running the
   # installer fetches + checks out the pin, realigning a stale clone.
   local csm_dir="$HOME/.config/tmux/plugins/tmux-claude-session-manager"
-  local csm_pin="45d593f7e17d34fd5bad5330f825d430e817938e"
+  local csm_pin="be1c3882fb0c675914fb74a39366febee8033ac3"
   if [[ ! -d "$csm_dir/.git" ]]; then
     echo "→ Cloning tmux-claude-session-manager into $csm_dir"
     git clone https://github.com/craftzdog/tmux-claude-session-manager "$csm_dir"
