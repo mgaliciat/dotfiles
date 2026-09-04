@@ -18,7 +18,7 @@ jobs:
   shell:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # shellcheck ships preinstalled on ubuntu runners; .shellcheckrc at the
       # repo root carries the config (external-sources, the two disables).
@@ -48,7 +48,7 @@ jobs:
   lua-json:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Syntax only (luac -p): nvim's runtime globals (`vim.*`) don't exist
       # outside the editor, so nothing is executed.
@@ -68,7 +68,7 @@ jobs:
   powershell:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       # Parse only — PowerShell's own parser, no execution. Catches the
       # unbalanced-brace / bad-token class of error in the Windows installer,
@@ -99,7 +99,8 @@ jobs:
           foreach ($f in @('install-windows.ps1', 'claude/statusline.ps1', 'claude/hooks/bitacora.ps1')) {
             $tokens = $null; $errors = $null
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $f), [ref]$tokens, [ref]$errors) | Out-Null
-            if ($errors.Count -gt 0) { $failed = $true; $errors | ForEach-Object { Write-Host "$f: $($_.Message)" } }
+            # ${f} — a bare `$f:` is read as a drive/scope qualifier and fails to parse.
+            if ($errors.Count -gt 0) { $failed = $true; $errors | ForEach-Object { Write-Host "${f}: $($_.Message)" } }
             else { Write-Host "ok  $f" }
           }
           if ($failed) { exit 1 }
