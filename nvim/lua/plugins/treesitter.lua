@@ -22,7 +22,7 @@ return {
     config = function()
       require("nvim-treesitter").install({
         -- Languages the user uses
-        "go", "gomod", "gosum",
+        "go", "gomod", "gosum", "gowork", "gotmpl",
         "typescript", "tsx", "javascript", "html", "css", "scss",
         "astro",
         "rust",
@@ -32,7 +32,8 @@ return {
         "bash",
         "markdown", "markdown_inline",
         -- General support
-        "lua", "vim", "vimdoc", "query",      -- required by nvim itself
+        "lua", "luadoc", "luap",              -- luadoc: ---@annotations highlighted; luap: lua patterns
+        "vim", "vimdoc", "query",             -- required by nvim itself
         "json", "yaml", "toml",
         "dockerfile",
         "gitcommit", "gitignore", "diff",

@@ -1,6 +1,7 @@
 # Editor-agnostic whitespace rules (https://editorconfig.org). nvim reads this
 # natively (0.9+), VS Code with the EditorConfig extension. It only covers what
-# the repo has no formatter for; lua/sh have no stylua/shfmt step here on purpose.
+# the repo has no formatter for: sh has no shfmt step, and lua is opted OUT of
+# stylua by `.styluaignore` (hand-aligned tables) even though nvim has it on save.
 root = true
 
 [*]

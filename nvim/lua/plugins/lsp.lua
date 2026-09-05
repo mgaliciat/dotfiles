@@ -25,6 +25,37 @@ return {
     },
   },
 
+  -- Non-LSP tools mason must ALSO own: formatters, linters, debug adapters.
+  -- mason-lspconfig only knows servers, and mason-nvim-dap only installs
+  -- delve once dap itself loads (lazy, on a keymap) — so `stylua`,
+  -- `goimports`, `gofumpt` and `delve` were all referenced by conform/dap
+  -- and none was ever installed. This runs at startup and closes that gap;
+  -- nothing here goes to brew (see "Mason doesn't pollute brew", CLAUDE.md).
+  {
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    dependencies = { "williamboman/mason.nvim" },
+    event = "VeryLazy",
+    opts = {
+      ensure_installed = {
+        -- Lua
+        "stylua",
+        -- Go
+        "gofumpt",        -- stricter gofmt (conform)
+        "goimports",      -- import grouping (conform)
+        "golangci-lint",  -- meta-linter (nvim-lint)
+        "delve",          -- debugger (nvim-dap-go)
+        "gotestsum",      -- test runner neotest-golang prefers (structured output)
+        -- Rust (the toolchain itself is rustup's: rust-analyzer, rustfmt,
+        -- rust-src, clippy — see plugins/rust.lua)
+        "codelldb",       -- debugger; rustaceanvim finds it in mason's path
+        -- Shell
+        "shfmt",
+      },
+      run_on_start = true,
+      start_delay = 3000,   -- ms; don't compete with startup
+    },
+  },
+
   -- SchemaStore: catalog of JSON/YAML schemas (package.json, tsconfig,
   -- GitHub Actions, k8s, etc.). Without this, jsonls and yamlls don't know
   -- how to validate anything by default.
@@ -72,6 +103,14 @@ return {
           "marksman",       -- Markdown
         },
         automatic_installation = true,
+        -- mason-lspconfig v2 enables EVERY installed mason package that
+        -- lspconfig has a server file for. stylua ships an LSP mode and
+        -- lspconfig knows it, so installing stylua (for conform) also
+        -- attached a second "stylua" client next to lua_ls — a duplicate
+        -- formatter provider that fights conform's format-on-save.
+        -- rust_analyzer is excluded for the same reason as rustaceanvim
+        -- staying out of `ensure_installed`: it owns that client.
+        automatic_enable = { exclude = { "stylua", "rust_analyzer" } },
       })
 
       -- on_attach via LspAttach autocmd (idiomatic post-0.10).
@@ -192,14 +231,27 @@ return {
 
         -- ─── Backend / systems ─────────────────────────────────
         gopls = {
+          -- gomod/gowork/gotmpl on top of lspconfig's default so `go.mod`
+          -- gets the tidy/upgrade lenses and templates get completion.
+          filetypes = { "go", "gomod", "gowork", "gotmpl" },
           settings = {
             gopls = {
               gofumpt = true,
               usePlaceholders = true,
               completeUnimported = true,
+              -- ALL staticcheck analyzers, not the maintainers' subset —
+              -- the extra ones are the style/simplification family (S*, ST*)
+              -- that golangci-lint would otherwise duplicate in nvim-lint.
               staticcheck = true,
               semanticTokens = true,                  -- more precise highlighting (variable vs type vs function)
               experimentalPostfixCompletions = true,  -- `err.iferr<Tab>` → `if err != nil { return err }`
+              -- govulncheck on the imports graph, not on prompt: a CVE in a
+              -- dependency shows as a diagnostic on the import line.
+              vulncheck = "Imports",
+              -- Deep diagnostics 250ms after the last keystroke instead of
+              -- the 1s default — gopls 0.21 is fast enough on a laptop.
+              diagnosticsDelay = "250ms",
+              symbolScope = "workspace",              -- workspace symbols don't crawl GOROOT/deps
               directoryFilters = {                    -- perf on large repos
                 "-node_modules",
                 "-vendor",
@@ -208,28 +260,32 @@ return {
               hints = {
                 assignVariableTypes = true,
                 compositeLiteralFields = true,
+                compositeLiteralTypes = true,
                 constantValues = true,
                 functionTypeParameters = true,
                 parameterNames = true,
                 rangeVariableTypes = true,
+                ignoredError = true,                  -- `_ = f()` hint when an error is dropped
               },
               -- Additional diagnostics. fieldalignment is left out because it's
               -- famously noisy (prioritizes memory over logical order).
               analyses = {
-                unusedparams = true,    -- parameters never used
-                unusedwrite  = true,    -- you write to a field and nobody reads it
-                nilness      = true,    -- detects nil derefs
-                useany       = true,    -- prefers `any` over `interface{}` (Go 1.18+)
-                shadow       = true,    -- variable shadowing (gopls handles the `if err :=` pattern well)
+                unusedparams   = true,  -- parameters never used
+                unusedwrite    = true,  -- you write to a field and nobody reads it
+                unusedvariable = true,  -- with a quick-fix that deletes the declaration
+                nilness        = true,  -- detects nil derefs
+                useany         = true,  -- prefers `any` over `interface{}` (Go 1.18+)
+                shadow         = true,  -- variable shadowing (gopls handles the `if err :=` pattern well)
               },
-              -- Code lenses: inline prefix-actions. Run them with
-              -- `:lua vim.lsp.codelens.run()` (mapped to <leader>cl below).
+              -- Code lenses: inline prefix-actions, run with <leader>cl.
+              -- `test` and `gc_details` are gone in gopls ≥0.18 (tests are
+              -- neotest's job now, gc details became a code action).
               codelenses = {
                 generate           = true,  -- run `go generate` from the buffer
-                test               = true,  -- run the current package's tests
                 tidy               = true,  -- `go mod tidy`
                 upgrade_dependency = true,  -- list available upgrades
-                gc_details         = true,  -- inline escape analysis
+                run_govulncheck    = true,  -- full govulncheck on demand from go.mod
+                vendor             = true,
                 regenerate_cgo     = true,
               },
             },
@@ -277,16 +333,38 @@ return {
         },
 
         lua_ls = {
+          -- The nvim runtime and plugin libraries are NOT listed here: lazydev
+          -- (plugins/lazydev.lua) adds them per-buffer, only the ones the file
+          -- actually requires. The old `nvim_get_runtime_file("", true)` shipped
+          -- every runtime dir to the server on every start — seconds of
+          -- indexing, and no types for lazy-loaded plugins.
           settings = {
             Lua = {
               runtime = { version = "LuaJIT" },
-              workspace = {
-                checkThirdParty = false,
-                library = vim.api.nvim_get_runtime_file("", true),
+              workspace = { checkThirdParty = false },
+              diagnostics = {
+                globals = { "vim" },
+                -- `missing-fields` fires on every partial opts table handed to
+                -- a plugin's setup(), which is the whole shape of a lazy spec.
+                disable = { "missing-fields" },
               },
-              diagnostics = { globals = { "vim" } },
+              -- Inlay hints, same treatment as gopls: parameter names at call
+              -- sites and inferred types on locals; index hints are noise.
+              hint = {
+                enable = true,
+                setType = true,
+                paramType = true,
+                paramName = "Literal",     -- only when the argument is a literal, not a variable
+                arrayIndex = "Disable",
+                semicolon = "Disable",
+              },
+              codeLens = { enable = true },
+              format = { enable = false },   -- stylua via conform
               telemetry = { enable = false },
               completion = { callSnippet = "Replace" },
+              -- `_foo` is private: hover/completion stop suggesting it from
+              -- outside the module.
+              doc = { privateName = { "^_" } },
             },
           },
         },

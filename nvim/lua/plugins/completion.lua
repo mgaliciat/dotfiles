@@ -27,7 +27,13 @@ return {
     },
     signature = { enabled = true, window = { border = "rounded" } },
     sources = {
-      default = { "lsp", "path", "snippets", "buffer" },
+      default = { "lazydev", "lsp", "path", "snippets", "buffer" },
+      providers = {
+        -- lazydev's completions (nvim API, plugin types) outrank lua_ls's own
+        -- for the same symbol; without the offset both show and lua_ls's
+        -- untyped one wins the sort.
+        lazydev = { name = "LazyDev", module = "lazydev.integrations.blink", score_offset = 100 },
+      },
     },
   },
 }

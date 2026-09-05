@@ -20,6 +20,16 @@ per-machine files and the two silent guards.
   step prints `→ skipped` and everything else proceeds.
 - **1Password** running, only if this machine signs commits through
   `op-ssh-sign`. Unrelated to the installer; it bites on the first `git commit`.
+- **Rust toolchain via rustup**, only for Rust work — the installer never
+  touches it. nvim's rust-analyzer, rustfmt and std sources are rustup
+  components, and a rustup install without them leaves proxies on PATH that
+  fail on exec (so `command -v rust-analyzer` lies; `rust-analyzer --version`
+  does not):
+
+  ```bash
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+  rustup component add rust-analyzer rustfmt rust-src clippy
+  ```
 
 ## First install
 

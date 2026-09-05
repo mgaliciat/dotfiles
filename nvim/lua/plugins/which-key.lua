@@ -19,6 +19,7 @@ return {
       { "<leader>f",  group = "find (telescope)" },
       { "<leader>g",  group = "git" },
       { "<leader>r",  group = "rename" },
+      { "<leader>t",  group = "test (neotest)" },
     },
   },
   keys = {

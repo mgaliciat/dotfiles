@@ -22,6 +22,14 @@ Windows side, so also run [`windows.md`](windows.md) there.
 - **`gh` (GitHub CLI)** comes from apt only on Ubuntu 23.10+ / Debian 13. Older
   releases: install it from GitHub's apt repo first, or accept that
   `gh-stack` skips.
+- **Rust toolchain via rustup**, only for Rust work — the installer never
+  touches it (the cargo block was removed on purpose, see the script). nvim's
+  rust-analyzer, rustfmt and std sources are rustup components:
+
+  ```bash
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+  rustup component add rust-analyzer rustfmt rust-src clippy
+  ```
 
 ## First install
 

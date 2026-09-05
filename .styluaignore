@@ -1,0 +1,6 @@
+# stylua (installed by mason for every OTHER lua project) must not touch this
+# repo: the lua here aligns `=` and trailing comments by hand in palette and
+# plugin tables, and stylua collapses that on every save. conform's
+# format-on-save for lua stays on globally; this file is what opts the repo
+# out (stylua reads it like a .gitignore, --stdin-filepath included).
+nvim/
