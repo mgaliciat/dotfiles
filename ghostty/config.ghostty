@@ -20,7 +20,7 @@
 # the file is versioned, a `git pull` propagates the theme to the other
 # machines. To change the look: edit this line (and the equivalent lines
 # in nvim and tmux — they share the id) and commit. There's no switcher and no pointer.
-theme = xray
+theme = solarized-osaka
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -65,9 +65,9 @@ theme = xray
 # looks like it never applied (only its ANSI/cursor change). Re-enable it only
 # together with `theme = solarized-osaka`; leave it commented for everything else.
 #
-# OFF (2026-08-12) — the active theme is solarized-dark, whose own canvas is
-# base03 (#002b36). Left commented; re-enable it only with `theme = solarized-osaka`.
-# background = #031219
+# ON (2026-09-06) — solarized-osaka is active again. Comment it out the day
+# `theme =` points anywhere else.
+background = #031219
 
 # Display P3 wide-gamut — orange and cream saturate more on
 # M-chip / Retina screens. No downside on non-P3 machines.
@@ -82,15 +82,12 @@ window-colorspace = display-p3
 #         paper, solarized-light).
 #   4.5 = WCAG AA body text. Rescues every gray but DISTORTS brand
 #         colors: Claude orange ends up nearly black. Not recommended.
-# At 3.0 (2026-08-13) even though solarized-dark is a DARK theme — the usual
-# reason to raise it is a light one. Measured over base03 (#002b36), exactly
-# ONE tone is below the floor: base01 #586e75 at 2.79:1 (comments, borders,
-# inactive UI) — that's the one this lifts. Everything else already clears it
-# and passes through untouched: base00 3.37, base0 (fg) 4.75, and every accent
-# from red/orange/magenta ~3.3 up to blue 4.08 and base1 5.61.
-# So the trade is narrow and deliberate: Schoonover's dimmed comments in
-# exchange for legibility. Back to 1.1 if that dimming was the point.
-minimum-contrast = 3.0
+# At 1.1 (2026-09-06) for solarized-osaka: craftzdog's config has no
+# minimum-contrast at all, and the dimmed base01 comments over the glass are
+# part of that look. It was 3.0 under solarized-dark (2026-08-13), where the
+# only tone below the floor was base01 #586e75 at 2.79:1 — go back to 3.0
+# if a light theme (light-2026, paper, solarized-light) becomes active.
+minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
 # Google Sans Code — back as primary (2026-08-22) after Paper Mono (2026-08-19),
@@ -140,10 +137,15 @@ adjust-cell-height = 3%
 # tab bar) · native (standard macOS look) · hidden (no titlebar).
 macos-titlebar-style = tabs
 
-# Solid, opaque background. For craftzdog's "glass" look (wallpaper blurred
-# behind the deep ocean) set opacity 0.9 + blur 20.
-background-opacity = 1.0
-background-blur = 0
+# craftzdog's "glass" look, values verbatim from his dotfiles-public ghostty
+# config: opacity 0.9 + blur 20 (his key is the legacy `background-blur-radius`;
+# Ghostty ≥ 1.1 renamed it to `background-blur`, same meaning). It BELONGS TO
+# solarized-osaka, like the `background =` override above — the palette was
+# built for a wallpaper showing through the deep ocean, and nvim's
+# solarized-osaka spec sets `transparent = true` to inherit exactly this.
+# Back to 1.0 / 0 (solid) with any other theme.
+background-opacity = 0.9
+background-blur = 20
 
 # breathe sideways — generous padding so that Claude Code's dense
 # output (tool calls, diffs, trees) doesn't feel cramped.
