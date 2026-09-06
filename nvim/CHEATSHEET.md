@@ -513,7 +513,7 @@ Everything starts **expanded** (`foldlevel = 99`). nvim-ufo used to do this (pee
 | `<leader>Z` | snacks.zen | Zoom the current window only |
 | `<leader>h` | dropbar | Interactive breadcrumb picker (winbar): navigate path → symbol and jump |
 | `<leader>cm` | render-markdown | Toggle in-buffer markdown rendering |
-| `:Noice` / `:Noice last` | noice | Message history / the last message (cmdline and popups are noice too) |
+| `:Noice` / `:Noice last` | noice | Message history / the last message. noice also draws the cmdline — on the **bottom line, shell style** (`:` `/` `?` `!` as the prompt, syntax-highlighted as you type); completion is nvim's own popup menu right above it, `<Tab>` / `<S-Tab>` to walk it |
 | `:Snacks.dashboard()` | snacks.dashboard | Splash screen when opening nvim with no args — `f` files, `g` grep, `r` recent, `s` restore session, `n` new, `c` config, `L` Lazy, `q` quit. Then a **Projects** list (git roots of recent files, numbered): a key `cd`s there and restores that directory's session, or opens the file picker if it has none |
 | any prompt for text | snacks.input | `vim.ui.input` is a small floating window (neo-tree add/rename, grug-far prompts) — `<Esc>` cancels, `<CR>` confirms |
 

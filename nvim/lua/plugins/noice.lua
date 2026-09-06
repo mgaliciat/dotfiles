@@ -29,11 +29,35 @@ return {
     -- presets: applies common configs as a block
     presets = {
       bottom_search          = true,    -- search on the bottom line, not a float
-      command_palette        = true,    -- cmdline + popup together at top-center
+      command_palette        = false,   -- was the top-center floating bar; see cmdline below
       long_message_to_split  = true,    -- long messages open a split
       lsp_doc_border         = true,    -- border on hover/signature
       inc_rename             = true,    -- integrated inc-rename.nvim preview
     },
+
+    -- ─── cmdline: terminal style (sep-2026) ───────────────────
+    -- `:` lives on the bottom line, like a shell prompt, not in a floating
+    -- bar at the top (that was the `command_palette` preset). noice still
+    -- owns it — syntax highlighting of the command as you type, the
+    -- `:lua`/`:!`/`:h` modes — it just draws it where the cmdline is.
+    -- The icons are the literal prompt characters: the typed `:` is
+    -- concealed by noice and drawn back as the icon, so `:` stays `:`.
+    cmdline = {
+      view = "cmdline",
+      format = {
+        cmdline     = { icon = ":" },
+        search_down = { icon = "/" },
+        search_up   = { icon = "?" },
+        filter      = { icon = "!" },
+        lua         = { icon = ":lua" },
+        help        = { icon = ":h" },
+      },
+    },
+    -- Completion in the cmdline is nvim's own popup menu (`wildoptions=pum`,
+    -- `wildmode` in options.lua), which sits directly above the bottom line
+    -- like a shell's menu-select. noice's popupmenu would float in the
+    -- middle of the screen once the cmdline is no longer up there with it.
+    popupmenu = { enabled = false },
     -- LSP UI replacements
     lsp = {
       override = {
