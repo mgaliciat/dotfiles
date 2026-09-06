@@ -35,7 +35,7 @@ Synthesize the `entries/` notes not yet processed:
 6. **Cross-link.** Each page links the neighbours it mentions and the specific
    source note(s) it synthesizes (`[YYYY-MM-DD-HHMM-<repo>](../entries/….md)`).
    External sources go under `# Citations`, and anything fetched from the live web
-   gets captured in `fuentes/` first — pages cite local documents, not URLs that
+   gets captured in `sources/` first — pages cite local documents, not URLs that
    rot. Relative links only; never the root-absolute form.
 7. **Preserve the repo tag** from the bitácora on the service page and mirror it
    into frontmatter `tags`, so raw and wiki cross-reference.

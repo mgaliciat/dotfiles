@@ -84,7 +84,7 @@ it may write to.
     `/logbook:entry`.
   - `claude_sessions/*` — frozen legacy raw, from before the bitácora. Ingested,
     never appended to; two entry gates produce drift.
-- **`fuentes/*`** — external material captured verbatim (`type: source`), immutable
+- **`sources/*`** — external material captured verbatim (`type: source`), immutable
   after capture, so pages cite a local document and never the live web. Analysis
   does not go here.
 - **`specs/*`** — feature specs agreed before implementing.
@@ -131,5 +131,12 @@ page writes integrate facts, they don't duplicate them.
 
 ## Language
 
-Vault prose follows the vault (usually Spanish). These skill files are English
-because they are versioned in a public repo; the vault's content is not.
+**English, everywhere, since 2026-09-06** — every path segment the vault creates
+(folders, files, page slugs, template names) and all new prose. The vault's own
+`wiki/CLAUDE.md` carries the rule; it outranks this file if the two ever drift.
+
+Not retroactive, and don't make it so on a whim: the 199 existing entries are
+immutable raw and stay Spanish, and the Spanish wiki pages stay until somebody
+translates one deliberately — a half-translated page is worse than a consistent
+one. **When you do rename for this rule, use `move`**: it rewrites the inbound
+links in the same pass, which is the only reason the rule is affordable.

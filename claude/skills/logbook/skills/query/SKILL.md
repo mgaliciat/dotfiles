@@ -25,7 +25,7 @@ vault — the point of a compounding wiki is not re-deriving what it already kno
 5. **Going outside is a separate, gated move.** If the answer needs the live web,
    follow the external-research procedure in the vault's `wiki/CLAUDE.md` — scan
    the vault first, agree a rubric with the user, capture each source in
-   `fuentes/` as you fetch it, and only then write. Don't fetch first and tidy up
+   `sources/` as you fetch it, and only then write. Don't fetch first and tidy up
    after.
 6. **File what is worth keeping.** If the answer is durable knowledge, write it —
    a new page, or an addition to an existing one with proper frontmatter — and

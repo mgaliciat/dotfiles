@@ -107,7 +107,9 @@ One skills-dir plugin, `logbook`, in `claude/skills/logbook/`, symlinked into `~
 - **`/logbook:entry`** — capture: one immutable note per invocation (`entries/YYYY-MM-DD-HHMM-<repo>`), written after a unit of work lands. Self-activates on "logbook" / "bitácora" / "guarda resumen", and a `PostToolUse` hook (`claude/hooks/logbook.{sh,ps1}`) fires it after a `git commit` — the one trigger a skill cannot own, since skills only activate on what the user says. Judging whether *this* commit is a unit of work rather than a WIP step is still yours.
 - **`/logbook:ingest`, `/logbook:query`, `/logbook:lint`** — the synthesis layer over those notes.
 
-**Vault layout (sep-2026):** the raw layer is `entries/` (was `bitacora/`, renamed with the folder `move` that rewrites inbound links) and the synthesized one is `wiki/`. `logbook` names the tooling and is never a vault path.
+**Vault layout (sep-2026):** the raw layer is `entries/` (was `bitacora/`), external captures are `sources/` (was `fuentes/`), the synthesized layer is `wiki/`. `logbook` names the tooling and is never a vault path. Renames go through the `move` tool, which rewrites inbound links in the same pass.
+
+**The vault is English now — paths and new prose alike** (2026-09-06). It used to write notes in whatever language the session was in, which is what left a vault whose folder names and content disagreed. Not retroactive: the existing entries are immutable and stay Spanish, and the Spanish wiki pages stay until translated deliberately. The rule itself lives in the vault's `wiki/CLAUDE.md`.
 
 The per-vault contract — type vocabulary, repo-tag aliases, index and log formats, the external-research procedure — lives **inside the vault** at `wiki/CLAUDE.md`, not here: it is versioned with the content it governs and it outranks the skills. The how-to is in the skill files, off the always-loaded budget on purpose.
 

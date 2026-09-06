@@ -88,12 +88,14 @@ tags: [repo/dotfiles]     # plus a shared #topic when one applies
 
 ## Language
 
-Write notes in whatever language the session is working in — the vault is not the
-repo, and its content is not held to this repo's English-only rule.
+**Write the note in English**, whatever language the session is being conducted
+in — same rule as the repo, and since 2026-09-06 the vault's too, paths and prose
+alike. The 199 older notes are Spanish and stay that way: raw is immutable, so
+never "fix" one.
 
 ## What this skill does NOT do
 
-Write to `wiki/`, `fuentes/` or `specs/`, update `index.md`, or touch `log.md`.
+Write to `wiki/`, `sources/` or `specs/`, update `index.md`, or touch `log.md`.
 Capture is write-only and deliberately dumb; synthesis is `/logbook:ingest`. Raw
 stays messy on purpose.
 
