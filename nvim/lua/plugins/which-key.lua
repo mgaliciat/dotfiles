@@ -20,6 +20,7 @@ return {
       { "<leader>f",  group = "find (telescope)" },
       { "<leader>g",  group = "git" },
       { "<leader>r",  group = "rename" },
+      { "<leader>s",  group = "search & replace (grug-far)" },
       { "<leader>t",  group = "test (neotest)" },
     },
   },
