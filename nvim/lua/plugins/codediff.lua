@@ -1,5 +1,5 @@
 -- ─── codediff.nvim ────────────────────────────────────────────
--- The REVIEW half of git-in-nvim (Neogit is the OPERATE half): VS Code's
+-- The REVIEW half of git-in-nvim (lazygit, in snacks.lua, is the OPERATE half): VS Code's
 -- diff, ported to C. Two-tier highlighting — the changed LINE gets the
 -- DiffAdd/DiffDelete tint, the changed CHARACTERS inside it get a brighter
 -- one — so a one-word edit shows the word, not the whole line painted.
@@ -11,11 +11,11 @@
 -- thing diffview never had — the character-level pass. Binary is
 -- downloaded prebuilt; no compiler involved.
 --
--- Keys under <leader>g beside gitsigns (gs/gr/gp/gb) and Neogit (gg/gc/gl);
+-- Keys under <leader>g beside gitsigns (gs/gr/gp/gb) and lazygit (gg/gl/gL);
 -- the commit PICKERS (gf/gF) live in plugins/git-history.lua and land here.
 -- No repo-wide `CodeDiff history` key: `<leader>gf` (telescope over the
 -- same commits, with search) opens the chosen one here, and `<leader>gl`
--- is Neogit's log — a third view of the log was one too many.
+-- is lazygit's log — a third view of the log was one too many.
 
 return {
   "esmuellert/codediff.nvim",

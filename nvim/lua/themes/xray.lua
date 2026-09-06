@@ -111,8 +111,7 @@ return {
     -- monochrome buffer. These are the board (#101010) with ~10% of each hue:
     -- a tint you read as green/red next to the fg colour, not a fill.
     -- Used by DiffAdd/DiffDelete/DiffChange/DiffText, hence by codediff's
-    -- line tint (it derives its brighter character tint from these) and by
-    -- Neogit's inline hunks alike.
+    -- line tint (it derives its brighter character tint from these).
     c.diff = {
       add    = "#1a261a",
       delete = "#2a1a1a",
@@ -174,62 +173,7 @@ return {
 
     hl["@markup.link.url"]   = { fg = palette.blue, underline = true }
     hl["@markup.link.label"] = { fg = palette.accent }
-
-    -- ─── Neogit ──────────────────────────────────────────────
-    -- Neogit builds its own palette from String/Function/… and then darkens
-    -- or shifts them (section headers came out #60989d, a teal no theme here
-    -- owns). It registers every group with `default = true`, so anything the
-    -- colorscheme defines first wins — that is this block. Rule: structure
-    -- by brightness (headers = accent, paths = fg, metadata = comment), hue
-    -- only where it carries meaning (added/deleted/modified).
-    local diff_add, diff_del = c.diff.add, c.diff.delete
-    hl.NeogitSectionHeader        = { fg = palette.accent, bold = true }
-    hl.NeogitSectionHeaderCount   = { fg = palette.fg_dark }
-    hl.NeogitBranch               = { fg = palette.accent, bold = true }
-    hl.NeogitBranchHead           = { fg = palette.bright_white, bold = true, underline = true }
-    hl.NeogitRemote               = { fg = palette.blue, bold = true }
-    hl.NeogitTagName              = { fg = palette.yellow }
-    hl.NeogitObjectId             = { fg = palette.fg_dark }
-    hl.NeogitFilePath             = { fg = palette.fg }
-    hl.NeogitSubtleText           = { fg = palette.comment }
-    hl.NeogitUnpushedTo           = { fg = palette.blue }
-    hl.NeogitUnpulledFrom         = { fg = palette.blue }
-    hl.NeogitCursorLine           = { bg = "#181818" }
-    hl.NeogitGraphAuthor          = { fg = palette.fg_dark }
-    hl.NeogitCommitViewHeader     = { fg = palette.bg, bg = palette.accent, bold = true }
-    hl.NeogitCommitViewDescription = { fg = palette.bright_white, bold = true }
-
-    hl.NeogitHunkHeader           = { fg = palette.fg_dark, bg = "#202020" }
-    hl.NeogitHunkHeaderHighlight  = { fg = palette.accent,  bg = "#303030", bold = true }
-    hl.NeogitHunkHeaderCursor     = { fg = palette.accent,  bg = "#303030", bold = true }
-    hl.NeogitDiffContext          = { bg = palette.bg }
-    hl.NeogitDiffContextHighlight = { bg = "#181818" }
-    hl.NeogitDiffContextCursor    = { bg = "#181818" }
-    hl.NeogitDiffAdd              = { fg = palette.green,        bg = diff_add }
-    hl.NeogitDiffAddHighlight     = { fg = palette.bright_green, bg = diff_add }
-    hl.NeogitDiffAddCursor        = { fg = palette.bright_green, bg = diff_add }
-    hl.NeogitDiffDelete           = { fg = palette.red,          bg = diff_del }
-    hl.NeogitDiffDeleteHighlight  = { fg = palette.bright_red,   bg = diff_del }
-    hl.NeogitDiffDeleteCursor     = { fg = palette.bright_red,   bg = diff_del }
-
-    hl.NeogitChangeModified       = { fg = palette.yellow,  bold = true }
-    hl.NeogitChangeAdded          = { fg = palette.green,   bold = true }
-    hl.NeogitChangeNewFile        = { fg = palette.green,   bold = true }
-    hl.NeogitChangeDeleted        = { fg = palette.red,     bold = true }
-    hl.NeogitChangeRenamed        = { fg = palette.blue,    bold = true }
-    hl.NeogitChangeCopied         = { fg = palette.blue,    bold = true }
-    hl.NeogitChangeUpdated        = { fg = palette.accent,  bold = true }
-    hl.NeogitChangeBothModified   = { fg = palette.magenta, bold = true }
-
-    hl.NeogitPopupSectionTitle    = { fg = palette.bright_white, bold = true }
-    hl.NeogitPopupActionKey       = { fg = palette.accent, bold = true }
-    hl.NeogitPopupSwitchKey       = { fg = palette.accent, bold = true }
-    hl.NeogitPopupOptionKey       = { fg = palette.accent, bold = true }
-    hl.NeogitPopupConfigKey       = { fg = palette.accent, bold = true }
-    hl.NeogitPopupSwitchEnabled   = { fg = palette.green }
-    hl.NeogitPopupOptionEnabled   = { fg = palette.green }
-    hl.NeogitPopupConfigEnabled   = { fg = palette.green }
-    hl.NeogitPopupBranchName      = { fg = palette.accent, bold = true }
-    hl.NeogitPopupBold            = { fg = palette.bright_white, bold = true }
+    -- (A Neogit block lived here until sep-2026; lazygit replaced it and
+    --  takes its colours from lazygit/config.yml, not from this theme.)
   end,
 }

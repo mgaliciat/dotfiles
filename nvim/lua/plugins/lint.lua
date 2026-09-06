@@ -46,7 +46,7 @@ return {
 
     local function try_lint()
       -- Only lint real files that have a linter, and never while a diff or
-      -- a neogit buffer borrowed the filetype.
+      -- a terminal/float buffer borrowed the filetype.
       if vim.bo.buftype ~= "" then return end
       if not lint.linters_by_ft[vim.bo.filetype] then return end
       lint.try_lint()

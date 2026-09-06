@@ -9,7 +9,7 @@
 -- hard-wired to "current buffer vs commit" and it only knows how to land in
 -- fugitive or diffview, neither of which is in the stack any more.
 --
--- Keys under <leader>g beside gitsigns, Neogit and codediff:
+-- Keys under <leader>g beside gitsigns, lazygit and codediff:
 --   <leader>gf   commits of the repo      <CR> commit in codediff
 --   <leader>gF   commits of this file     <C-y> yank the hash
 -- The preview pane is telescope's own `git show` of the entry.

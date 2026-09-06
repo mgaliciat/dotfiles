@@ -413,7 +413,7 @@ Clippy runs on save; lifetime-elision inlay hints are always on. The toolchain i
 
 ## 8. Git — `<leader>g*`
 
-Three layers: gitsigns for the hunk under the cursor, Neogit for the porcelain (status, commit, log), codediff for reviewing diffs and history side by side.
+Three layers: gitsigns for the hunk under the cursor, lazygit (in a float) for the porcelain (status, stage, commit, push, log), codediff for reviewing diffs and history side by side.
 
 ### Hunks (gitsigns)
 
@@ -427,22 +427,15 @@ Three layers: gitsigns for the hunk under the cursor, Neogit for the porcelain (
 
 Gutter signs: `│` added / modified · `_` / `‾` deleted · `~` changed-and-deleted · `┆` untracked.
 
-### Porcelain (Neogit)
+### Porcelain (lazygit in a float)
+
+Same binary and versioned config as tmux's `Alt+g` (`lazygit/config.yml`), opened in a float inside nvim. Replaced Neogit in sep-2026.
 
 | Shortcut | Action |
 |---|---|
-| `<leader>gg` | Status buffer — stage with `s`, unstage `u`, commit `c`, push `p`, `?` for the full menu |
-| `<leader>gc` | Commit |
-| `<leader>gl` | Log |
-
-### Lazygit in a float (on trial beside Neogit, sep-2026)
-
-| Shortcut | Action |
-|---|---|
-| `<leader>gG` | lazygit for the repo — same binary and config as tmux's `Alt+g`, in a float inside nvim (`q` closes) |
+| `<leader>gg` | lazygit — stage with `space`, commit `c`, push `P`, pull `p`, `?` for every key; `q` closes |
+| `<leader>gl` | lazygit's log for the repo |
 | `<leader>gL` | lazygit's log for the current file |
-
-Whichever wins the week keeps `<leader>gg`.
 
 ### Review (codediff + commit pickers)
 

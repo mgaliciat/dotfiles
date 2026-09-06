@@ -18,8 +18,8 @@
 --
 -- Intentionally off:
 --   scroll        → smooth scroll fought the trackpad (see its block below).
---   (lazygit was off here until sep-2026 — "a buffer UI, not a TUI in a
---   float" — and is now on TRIAL beside Neogit, see its block below.)
+--   lazygit    → the git porcelain (status, stage, commit, push, log), as a
+--                float. Replaced Neogit in sep-2026 — see its block below.
 --   notifier      → we already have nvim-notify via noice.nvim. Enabling it
 --                   duplicates the message sink and breaks the routing to
 --                   notify_send that noice does when you lose focus.
@@ -122,14 +122,14 @@ return {
     words = { enabled = true, debounce = 200 },
 
     -- ─── lazygit ──────────────────────────────────────
-    -- On trial (sep-2026) as the "prettier than Neogit" candidate: the
-    -- lazygit TUI in a float, same binary and same versioned config as
-    -- the tmux popup (`Alt+g`, lazygit/config.yml — its palette mirrors
-    -- the stack theme by hand). `configure = false` for that reason:
-    -- with it on, snacks would append its own theme derived from nvim's
-    -- highlights and override the palette the repo maintains. If lazygit
-    -- wins the week it takes `<leader>gg` and Neogit goes; if Neogit
-    -- wins, this block goes back to `enabled = false`.
+    -- The git porcelain: the lazygit TUI in a float, same binary and same
+    -- versioned config as the tmux popup (`Alt+g`, lazygit/config.yml —
+    -- its palette mirrors the stack theme by hand). It replaced Neogit
+    -- (sep-2026): the user wanted the prettier UI and no second porcelain
+    -- beside it. Review (diffs, history) stays in codediff — lazygit's
+    -- diff pane is for reading a hunk before staging it, not for review.
+    -- `configure = false`: with it on, snacks appends its own theme derived
+    -- from nvim's highlights and overrides the palette the repo maintains.
     lazygit = { enabled = true, configure = false },
 
     -- Explicitly off: documents intent.
@@ -148,8 +148,10 @@ return {
     -- does when the buffer is visible. Asks before dropping unsaved changes.
     { "<leader>bd", function() Snacks.bufdelete() end,       desc = "Delete buffer (keep window)" },
     { "<leader>bo", function() Snacks.bufdelete.other() end, desc = "Delete other buffers" },
-    -- Capitals so Neogit keeps gg/gl during the trial.
-    { "<leader>gG", function() Snacks.lazygit() end,          desc = "Lazygit (float)" },
+    -- Neogit's old keys, same meaning: gg status, gl log. gc (commit) went
+    -- with Neogit — in lazygit `c` from the status float is the commit.
+    { "<leader>gg", function() Snacks.lazygit() end,          desc = "Lazygit" },
+    { "<leader>gl", function() Snacks.lazygit.log() end,      desc = "Lazygit: repo log" },
     { "<leader>gL", function() Snacks.lazygit.log_file() end, desc = "Lazygit: log of this file" },
     { "<leader>z",  function() Snacks.zen() end,           desc = "Zen mode" },
     { "<leader>Z",  function() Snacks.zen.zoom() end,      desc = "Zen zoom (window only)" },
