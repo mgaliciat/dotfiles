@@ -11,9 +11,10 @@
 -- Keys under <leader>s ("search & replace"), both prefilled:
 --   <leader>sr  word under the cursor / visual selection, project-wide
 --   <leader>sf  same, limited to the current file (paths prefilled)
--- The buffer's own keys are in `:h grug-far` — the ones worth knowing:
--- `<localleader>r` replace all, `<localleader>j/k` next/prev match,
--- `<localleader>l` open location, `<localleader>t` toggle regex/fixed.
+-- The buffer's own keys are in `:h grug-far` (`g?` inside it) — the ones
+-- worth knowing: `<localleader>r` replace all, `<localleader>j/k` apply
+-- just the next/prev match, `<Down>/<Up>` walk matches, `<localleader>s`
+-- sync in-place edits of the list to disk, `<localleader>c` close.
 --
 -- `with_visual_selection` is the plugin's own visual-mode entry: it
 -- reads the selection itself, so no `"<,'>` juggling here.

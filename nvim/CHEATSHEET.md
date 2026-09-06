@@ -254,6 +254,18 @@ All in `lua/config/keymaps.lua` with a `desc`, so they show in which-key and `<l
 
 Hidden and gitignored files are visible; the tree follows the current file and watches the filesystem (git pull, etc.).
 
+### harpoon — the task's hot files
+
+A per-project list of the handful of files you keep bouncing between, by slot number. Buffers (`<S-h>`/`<S-l>`) walk everything in order and recent files are history; this is intent. Marks persist per cwd.
+
+| Key | Action |
+|---|---|
+| `<leader>m` | Mark the current file (appends to the list) |
+| `<leader>M` | The list as an editable buffer: reorder lines to renumber, delete a line to unmark, `q` saves and closes |
+| `<leader>1` … `<leader>4` | Jump to slot 1–4 |
+
+No `]h`/`[h` cycling — gitsigns owns those for hunks.
+
 ---
 
 ## 5. Telescope (fuzzy finder) — `<leader>f*`
@@ -261,7 +273,10 @@ Hidden and gitignored files are visible; the tree follows the current file and w
 | Shortcut | Action |
 |---|---|
 | `<leader>ff` | Find files (in cwd) |
-| `<leader>fg` | Live grep (search text in the project) |
+| `<leader>fg` | Live grep — rg flags allowed inline: `foo -g *.go`, `foo src/`, `-w foo`, `"two words"`. A bare word is auto-quoted |
+| `<leader>fw` (normal / visual) | Grep the word under the cursor / the selection, project-wide |
+| `<leader>fG` | Live grep rooted at the current file's directory (monorepos) |
+| `<leader>fR` | Resume the last picker with its prompt and selection |
 | `<leader>/` | Search inside the current buffer |
 | `<leader>fb` | Open buffers |
 | `<leader>fr` | Recent files |
@@ -276,7 +291,11 @@ Hidden and gitignored files are visible; the tree follows the current file and w
 - `<C-j>` / `<C-k>` — navigate results (same as `<C-n>` / `<C-p>`)
 - `<CR>` — open
 - `<C-x>` / `<C-v>` / `<C-t>` — open in a horizontal split / vertical split / tab
+- `<C-q>` — send the results to the quickfix list
+- `<C-g>` (live grep only) — quote what you typed and append ` --iglob ` to narrow by file
 - `<Esc>` — close (no double escape)
+
+All rg-backed pickers see dotfiles (`--hidden`); `.git/`, `node_modules`, `vendor`, `target`, `dist`, `build` stay out.
 
 ---
 
@@ -347,21 +366,30 @@ Sources: LSP, path, snippets, buffer. Signature help pops up automatically while
 
 ## 7. Rust (rustaceanvim)
 
-Registers itself on `.rs` buffers; **not** in the lspconfig loop. Same `gd` / `gr` / `K` / `<leader>ca` keymaps as any LSP buffer, plus its own commands (no default keymaps):
+Registers itself on `.rs` buffers; **not** in the lspconfig loop. Same `gd` / `gr` / `<leader>ca` keymaps as any LSP buffer (`K` is rustaceanvim's hover with actions: go to impl, run test, open docs), plus its own, buffer-local under `<leader>c`:
 
-| Command | Action |
-|---|---|
-| `:RustLsp runnables` | Pick a target / test to run |
-| `:RustLsp debuggables` | Same, under the debugger |
-| `:RustLsp expandMacro` | Expand the macro under the cursor |
-| `:RustLsp explainError` | Long-form explanation of the error under the cursor |
-| `:RustLsp openCargo` | Jump to `Cargo.toml` |
+| Shortcut | Command | Action |
+|---|---|---|
+| `<leader>cr` | `:RustLsp runnables` | Pick a target / test to run |
+| `<leader>cD` | `:RustLsp debuggables` | Same, under the debugger |
+| `<leader>ce` | `:RustLsp explainError` | Long-form explanation of the error under the cursor (`rustc --explain`) |
+| `<leader>cE` | `:RustLsp expandMacro` | Expand the macro under the cursor |
+| `<leader>cx` | `:RustLsp renderDiagnostic` | The diagnostic as cargo prints it |
+| `<leader>cp` | `:RustLsp parentModule` | Jump to the parent module |
+| `<leader>cC` | `:RustLsp openCargo` | Jump to `Cargo.toml` |
+| `<leader>ck` | `:RustLsp openDocs` | docs.rs for the symbol under the cursor |
 
-Clippy runs on save; lifetime-elision inlay hints are always on.
+Clippy runs on save; lifetime-elision inlay hints are always on. The toolchain is rustup's (`rustup component add rust-analyzer rustfmt rust-src clippy`), only `codelldb` comes from mason.
+
+**Inside `Cargo.toml`** (crates.nvim, buffer-local): `<leader>cv` versions popup · `<leader>cF` features · `<leader>cu` / `<leader>cU` update (compatible) / upgrade (latest) the crate under the cursor, or the selection in visual · `<leader>cA` upgrade all · `<leader>ck` docs.rs · `<leader>cR` repository.
 
 ---
 
-## 8. Git — `<leader>g*` (gitsigns)
+## 8. Git — `<leader>g*`
+
+Three layers: gitsigns for the hunk under the cursor, Neogit for the porcelain (status, commit, log), codediff for reviewing diffs and history side by side.
+
+### Hunks (gitsigns)
 
 | Shortcut | Action |
 |---|---|
@@ -374,7 +402,25 @@ Clippy runs on save; lifetime-elision inlay hints are always on.
 
 Gutter signs: `│` added / modified · `_` / `‾` deleted · `~` changed-and-deleted · `┆` untracked.
 
-Full git UI: **`Alt+g`** in tmux opens lazygit in a popup (no prefix). `prefix + g` is something else — the IDE layout.
+### Porcelain (Neogit)
+
+| Shortcut | Action |
+|---|---|
+| `<leader>gg` | Status buffer — stage with `s`, unstage `u`, commit `c`, push `p`, `?` for the full menu |
+| `<leader>gc` | Commit |
+| `<leader>gl` | Log |
+
+### Review (codediff + commit pickers)
+
+| Shortcut | Action |
+|---|---|
+| `<leader>gv` | Working tree vs index, side by side |
+| `<leader>gB` | Current branch vs its base (`origin/HEAD...`) |
+| `<leader>gh` (normal / visual) | History of the current file / of the selected lines |
+| `<leader>gH` | History of the whole repo |
+| `<leader>gf` / `<leader>gF` | Telescope picker of repo / file commits — `<CR>` opens the commit in codediff, `<C-y>` yanks its hash |
+
+Full TUI: **`Alt+g`** in tmux opens lazygit in a popup (no prefix). `prefix + g` is something else — the IDE layout.
 
 ---
 
@@ -418,6 +464,22 @@ Mason installs the formatters on first use. If one is missing: `:Mason` → find
 
 The UI opens on attach/launch and closes when the session ends. `delve` is installed by mason-nvim-dap; other adapters go in its `ensure_installed`.
 
+### Tests — `<leader>t*` (neotest)
+
+Go through neotest-golang (gotestsum, `-race -count=1`), Rust through rustaceanvim's own adapter.
+
+| Shortcut | Action |
+|---|---|
+| `<leader>tt` | Run the nearest test |
+| `<leader>tf` | Run the current file |
+| `<leader>ta` | Run everything under cwd |
+| `<leader>tl` | Re-run the last run |
+| `<leader>td` | Debug the nearest test (dap strategy) |
+| `<leader>ts` | Toggle the summary tree (run / jump / expand from there) |
+| `<leader>to` | Output of the test under the cursor in a float |
+| `<leader>tO` | Toggle the output panel |
+| `<leader>tS` | Stop the run |
+
 ---
 
 ## 11. Folding (nvim-ufo)
@@ -448,20 +510,23 @@ Everything starts **expanded** (`foldlevel = 99`). `foldenable` stays `true` —
 | `:Noice` / `:Noice last` | noice | Message history / the last message (cmdline and popups are noice too) |
 | `:Snacks.dashboard()` | snacks.dashboard | Splash screen when opening nvim with no args — `f` files, `g` grep, `r` recent, `n` new, `c` config, `L` Lazy, `q` quit |
 
-Also on: snacks indent guides with scope highlight, subtle smooth scroll, incline (per-window filename floats), lualine, highlight-colors (inline `#hex` swatches).
+Also on: snacks indent guides with scope highlight, incline (per-window filename floats), lualine, highlight-colors (inline `#hex` swatches). Smooth scroll is off (it fought the trackpad).
 
 ---
 
 ## 13. Search and replace
 
-### Search
+### Search in the buffer
 - `/<pattern>` — search forward
 - `?<pattern>` — search backward
 - `n` / `N` — next / previous
 - `*` / `#` — search the word under the cursor
 - `<Esc>` — clear the highlight (custom)
 
-### Replace `:substitute`
+### Search in the project
+Telescope, §5: `<leader>fg` live grep with rg flags, `<leader>fw` word under the cursor, `<leader>fG` current file's directory, `<leader>fR` resume.
+
+### Replace in the buffer — `:substitute`
 - `:s/old/new/` — first occurrence in the line
 - `:s/old/new/g` — all in the line
 - `:%s/old/new/g` — all in the file
@@ -469,6 +534,19 @@ Also on: snacks indent guides with scope highlight, subtle smooth scroll, inclin
 - `:'<,'>s/old/new/g` — in the visual selection
 
 Useful flags: `c` confirm, `i` case-insensitive, `I` case-sensitive.
+
+### Replace across the project — `<leader>s*` (grug-far)
+
+A buffer with four fields (search, replace, files filter, flags) and the live match list below. Every match is editable in place; nothing touches disk until you apply.
+
+| Shortcut | Action |
+|---|---|
+| `<leader>sr` (normal / visual) | Search & replace the word under the cursor / the selection, project-wide |
+| `<leader>sf` (normal / visual) | Same, limited to the current file |
+
+**Inside the grug-far buffer** (`<localleader>` = space): `<space>r` replace all · `<space>j` / `<space>k` apply just the next / previous match · `<Down>` / `<Up>` walk the matches, `<CR>` jump to one, `<space>o` open it · `<space>s` sync your in-place edits of the result list to disk (`<space>l` for one line) · `<space>q` send to quickfix · `<space>t` history · `<space>c` close · `g?` all keys. Flags field takes rg flags (`-i`, `-w`, `--fixed-strings`); `\1` back-references work in the replace field.
+
+The old route still works: `<C-q>` in Telescope sends the matches to quickfix, then `:cdo s/old/new/g | update`.
 
 ---
 
@@ -525,16 +603,39 @@ Useful flags: `c` confirm, `i` case-insensitive, `I` case-sensitive.
 
 Press `<leader>` and wait ~400ms (`timeoutlen`):
 
+- `<leader>a` → ai (claude code)
 - `<leader>b` → buffer
 - `<leader>c` → code (LSP / format / debug)
 - `<leader>cg` → go debug
 - `<leader>f` → find (telescope)
 - `<leader>g` → git
 - `<leader>r` → rename
+- `<leader>s` → search & replace (grug-far)
+- `<leader>t` → test (neotest)
+
+Single keys outside a group: `<leader>m` / `<leader>M` / `<leader>1-4` harpoon, `<leader>h` dropbar, `<leader>e` oil, `<leader>n` neo-tree, `<leader>z` zen.
 
 ---
 
-## 17. Useful tips
+## 17. Claude Code — `<leader>a*` (claudecode.nvim)
+
+nvim hosts the editor side of the VS Code extension's protocol; the Claude process itself runs in the same tmux popup session `Alt+c` uses for this directory, so the shell and the editor share one conversation. A session started from the shell before nvim needs a manual `/ide` once.
+
+| Shortcut | Action |
+|---|---|
+| `<leader>ac` | Open the popup on this directory's session (creates it if needed) |
+| `<leader>ar` | Resume a session (picker) |
+| `<leader>aC` | Continue the last session |
+| `<leader>ab` | Add the current buffer to Claude's context |
+| `<leader>as` (visual) | Send the selection |
+| `<leader>as` (in neo-tree / oil) | Add the file under the cursor |
+| `<leader>aa` / `<leader>ad` | Accept / deny the diff Claude proposed (in the diff buffer) |
+| `<leader>am` | Select model |
+| `<leader>aS` | Connection status |
+
+---
+
+## 18. Useful tips
 
 - **Macros**: `q<letter>` start recording, `q` stop, `@<letter>` run. `@@` repeats the last one.
 - **Marks**: `m<letter>` marks a position, `'<letter>` jumps to the line, `` `<letter> `` jumps to the exact character. Uppercase marks (`mA`) are global across files.
@@ -547,7 +648,7 @@ Press `<leader>` and wait ~400ms (`timeoutlen`):
 
 ---
 
-## 18. When something doesn't work
+## 19. When something doesn't work
 
 | Symptom | Diagnosis |
 |---|---|
