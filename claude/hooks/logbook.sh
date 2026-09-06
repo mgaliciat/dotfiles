@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
-# ─── PostToolUse hook: remind to log the bitácora after a commit ───
+# ─── PostToolUse hook: remind to write the logbook entry after a commit ───
 #
 # A skill cannot fire on an event — it only self-activates on what the user says.
-# The bitácora is supposed to be written after a commit lands, and "the model
+# The entry is supposed to be written after a commit lands, and "the model
 # remembers to" is exactly the guarantee a prose rule in CLAUDE.md does not give.
 # So the event half lives here and the how-to half stays in the skill: this script
 # only detects the commit and hands back one line of context.
 #
-# Installed by claude/install/settings.sh as ~/.claude/hooks/bitacora.sh (symlink)
-# and invoked as `bash ~/.claude/hooks/bitacora.sh` — through bash on purpose, so
+# Installed by claude/install/settings.sh as ~/.claude/hooks/logbook.sh (symlink)
+# and invoked as `bash ~/.claude/hooks/logbook.sh` — through bash on purpose, so
 # a fresh clone with no exec bit still runs. Windows has its own .ps1 twin
 # (install-windows.ps1 registers that one); this file never runs there.
 #
@@ -51,6 +51,6 @@ RESPONSE="$(jq -r '.tool_response | if type == "string" then . else tostring end
 jq -n '{
   hookSpecificOutput: {
     hookEventName: "PostToolUse",
-    additionalContext: "A git commit just landed. If this commit closes a meaningful unit of work (not a WIP step), invoke the `bitacora` skill now to write the per-invocation note — what changed and, above all, WHY, which the diff will not preserve. If it is a WIP step, say so in one line and skip it."
+    additionalContext: "A git commit just landed. If this commit closes a meaningful unit of work (not a WIP step), invoke the `logbook:entry` skill now to write the per-invocation note — what changed and, above all, WHY, which the diff will not preserve. If it is a WIP step, say so in one line and skip it."
   }
 }'

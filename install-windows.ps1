@@ -4,12 +4,12 @@
 # Intentionally narrow scope: zsh/tmux/nvim do not run natively on Windows, so
 # this script is NOT a port of the rest of the dotfiles — see CLAUDE.md, the
 # "per-machine split" section. It covers only:
-#   - symlinks for claude/statusline.ps1, claude/CLAUDE.md, the per-item skills
-#     we author (bitacora, wiki), claude/hooks/bitacora.ps1, and
+#   - symlinks for claude/statusline.ps1, claude/CLAUDE.md, the per-item skill
+#     plugin we author (logbook), claude/hooks/logbook.ps1, and
 #     git/.gitignore_global
 #   - statusLine (+ refreshInterval), base permissions, attribution,
 #     outputStyle, fallbackModel, autoContinueAtUsageLimit,
-#     preferredNotifChannel, the PowerShell-tool env var and the bitácora
+#     preferredNotifChannel, the PowerShell-tool env var and the logbook
 #     PostToolUse hook in settings.json (CI checks this list against
 #     settings.sh; terminalTitleFromRename is the one deliberate omission)
 #     (equivalent to the jq blocks in install.sh/install-linux.sh, native JSON here)
@@ -159,36 +159,57 @@ function Invoke-Native {
 Set-DotfileSymlink (Join-Path $Dotfiles "claude\statusline.ps1") (Join-Path $ClaudeDir "statusline.ps1")
 Set-DotfileSymlink (Join-Path $Dotfiles "claude\CLAUDE.md")      (Join-Path $ClaudeDir "CLAUDE.md")
 
-# Per-ITEM skills we author (bitacora, wiki) -- mirror of settings.sh's per-item
-# symlinks. NOT the whole skills/ dir: that stays per-machine (`learned`,
+# The per-ITEM skill plugin we author (logbook) -- mirror of settings.sh's
+# per-item symlinks. NOT the whole skills/ dir: that stays per-machine (`learned`,
 # `codebase-memory`, the OpenKnowledge ones) and versioning it risks leaking
-# personal state. These two we control and version, so they symlink in beside the
-# others. `wiki` is a skills-dir plugin (.claude-plugin/plugin.json) but installs
-# by THIS symlink alone -- referenced in place, so `git pull` propagates edits with
-# no copy and no marketplace. skills/ may not exist yet (codebase-memory-mcp
-# creates it later), so make it first.
+# personal state. This one we control and version, so it symlinks in beside the
+# others. `logbook` is a skills-dir plugin (.claude-plugin/plugin.json) but
+# installs by THIS symlink alone -- referenced in place, so `git pull` propagates
+# edits with no copy and no marketplace. Its four sub-skills invoke as
+# /logbook:entry, /logbook:ingest, /logbook:query, /logbook:lint. skills/ may not
+# exist yet (codebase-memory-mcp creates it later), so make it first.
 #
-# Runtime note: both write through the `open-knowledge` MCP, wired below.
+# Runtime note: all four read and write through the `open-knowledge` MCP, wired
+# below.
 #
 # $SkillsDir is also read by the gh-stack block far below. It was defined HERE,
-# and when these two symlinks were dropped in aug-2026 the definition went with
-# them while that use stayed -- with $ErrorActionPreference = "Stop", `Join-Path
+# and when these symlinks were dropped in aug-2026 the definition went with them
+# while that use stayed -- with $ErrorActionPreference = "Stop", `Join-Path
 # $null` throws and everything after it (the gh-stack skill, Nerd Fonts, the
 # Windows Terminal theme and keybindings) silently stopped installing. Keep the
 # assignment above the symlinks, not inside them.
 $SkillsDir = Join-Path $ClaudeDir "skills"
 New-Item -ItemType Directory -Path $SkillsDir -Force | Out-Null
-Set-DotfileSymlink (Join-Path $Dotfiles "claude\skills\bitacora") (Join-Path $SkillsDir "bitacora")
-Set-DotfileSymlink (Join-Path $Dotfiles "claude\skills\wiki")     (Join-Path $SkillsDir "wiki")
+Set-DotfileSymlink (Join-Path $Dotfiles "claude\skills\logbook") (Join-Path $SkillsDir "logbook")
 
-# The bitácora's event half: a skill cannot fire on a git event, so the "log after
+# The logbook's event half: a skill cannot fire on a git event, so the "log after
 # a commit lands" trigger is a PostToolUse hook (registered in the settings block
 # below) pointing at this script. The .PS1, not the .sh, for the same reason as
 # statusline above -- no bash, no jq. ~/.claude/hooks/ is a real per-machine dir
 # (codebase-memory-mcp writes its own hooks there), hence a per-ITEM link again.
 $HooksDir = Join-Path $ClaudeDir "hooks"
 New-Item -ItemType Directory -Path $HooksDir -Force | Out-Null
-Set-DotfileSymlink (Join-Path $Dotfiles "claude\hooks\bitacora.ps1") (Join-Path $HooksDir "bitacora.ps1")
+Set-DotfileSymlink (Join-Path $Dotfiles "claude\hooks\logbook.ps1") (Join-Path $HooksDir "logbook.ps1")
+
+# Convergent cleanup of the pre-rename names (sep-2026): the plugin was `wiki` and
+# capture was a separate plain skill, `bitacora`. A machine that ran the old
+# installer still has those symlinks and they now dangle -- a dangling skill dir is
+# a skill Claude Code tries to load and cannot. ReparsePoint-guarded so a REAL
+# per-machine dir carrying one of those names is never touched, and .Delete() not
+# Remove-Item for the same reason Set-DotfileSymlink uses it: Remove-Item on a
+# directory symlink recurses into the target and would wipe the repo's own files.
+# TEMPORARY: delete once every machine has run this version.
+foreach ($StalePath in @(
+    (Join-Path $SkillsDir "bitacora"),
+    (Join-Path $SkillsDir "wiki"),
+    (Join-Path $HooksDir  "bitacora.ps1")
+)) {
+    $StaleItem = Get-Item -LiteralPath $StalePath -Force -ErrorAction SilentlyContinue
+    if ($StaleItem -and $StaleItem.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+        $StaleItem.Delete()
+        Write-Host "OK  removed pre-rename symlink $StalePath"
+    }
+}
 
 # The one NON-Claude symlink from install.sh that is portable here: git runs
 # natively on Windows, unlike zsh/tmux/nvim/ghostty. Inert on its own -- it only
@@ -389,9 +410,9 @@ if ($Settings.env -isnot [PSCustomObject]) {
     Write-Host "OK  env.CLAUDE_CODE_USE_POWERSHELL_TOOL added to settings.json (1)"
 }
 
-# ─── PostToolUse hook: bitácora after a commit ──────────────────
+# ─── PostToolUse hook: logbook entry after a commit ─────────────
 # Twin of the jq block in settings.sh. A SKILL cannot fire on an event -- it
-# self-activates on what the user says, and "log the bitácora after you commit"
+# self-activates on what the user says, and "write the entry after you commit"
 # has no user utterance to hang on -- so the trigger is a hook and the how-to
 # stays in the skill. The script only detects the commit and returns one line.
 #
@@ -406,10 +427,26 @@ if ($Settings.env -isnot [PSCustomObject]) {
 # (codebase-memory-mcp registers its own entries there), so an "is the key
 # present" guard would either be satisfied by somebody else's hook -- ours never
 # landing -- or append a duplicate on every re-run.
-$BitacoraPs1  = Join-Path $HooksDir "bitacora.ps1"
+$LogbookPs1 = Join-Path $HooksDir "logbook.ps1"
+
+# Strip the pre-rename entry FIRST (sep-2026). Without this the guard below sees
+# no "logbook.ps1" string, appends ours, and leaves the dead `bitacora.ps1` entry
+# beside it failing on every commit. Mirror of the same cleanup in settings.sh.
+# TEMPORARY, same terms.
+if (($Settings.PSObject.Properties.Name -contains "hooks") -and
+    ($Settings.hooks.PSObject.Properties.Name -contains "PostToolUse")) {
+    $KeptHooks = @(@($Settings.hooks.PostToolUse) | Where-Object {
+        -not (@($_.hooks) | Where-Object { [string]$_.command -like "*bitacora.ps1*" })
+    })
+    if ($KeptHooks.Count -ne @($Settings.hooks.PostToolUse).Count) {
+        $Settings.hooks.PostToolUse = $KeptHooks
+        Write-Host "OK  pre-rename bitacora hook stripped from settings.json"
+    }
+}
+
 $SettingsJson = $Settings | ConvertTo-Json -Depth 10
-if ($SettingsJson -like "*bitacora.ps1*") {
-    Write-Host "OK  bitacora PostToolUse hook already in settings.json -- leaving it alone"
+if ($SettingsJson -like "*logbook.ps1*") {
+    Write-Host "OK  logbook PostToolUse hook already in settings.json -- leaving it alone"
 } else {
     if (-not ($Settings.PSObject.Properties.Name -contains "hooks")) {
         $Settings | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([PSCustomObject]@{})
@@ -417,19 +454,19 @@ if ($SettingsJson -like "*bitacora.ps1*") {
     if (-not ($Settings.hooks.PSObject.Properties.Name -contains "PostToolUse")) {
         $Settings.hooks | Add-Member -NotePropertyName "PostToolUse" -NotePropertyValue @()
     }
-    $BitacoraHook = [PSCustomObject]@{
+    $LogbookHook = [PSCustomObject]@{
         matcher = "Bash|PowerShell"
         hooks   = @([PSCustomObject]@{
             type    = "command"
-            command = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$BitacoraPs1`""
+            command = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$LogbookPs1`""
             timeout = 5
         })
     }
     # @(...) + entry, not +=: PostToolUse may arrive as a single object rather than
     # an array when settings.json holds exactly one entry, and += on that is a
     # string concatenation, not an append.
-    $Settings.hooks.PostToolUse = @($Settings.hooks.PostToolUse) + $BitacoraHook
-    Write-Host "OK  bitacora PostToolUse hook added to settings.json"
+    $Settings.hooks.PostToolUse = @($Settings.hooks.PostToolUse) + $LogbookHook
+    Write-Host "OK  logbook PostToolUse hook added to settings.json"
 }
 
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
@@ -666,8 +703,8 @@ if ((Get-Command claude -ErrorAction SilentlyContinue) -and $env:CONTEXT7_API_KE
 }
 
 # ─── open-knowledge MCP (mechanism 2 — twin of binaries.sh) ─────
-# The OpenKnowledge server holding the personal knowledge base that the `bitacora`
-# and `wiki` skills (symlinked far above) read and write. Hosted HTTP endpoint:
+# The OpenKnowledge server holding the personal knowledge base that the `logbook`
+# skills (symlinked far above) read and write. Hosted HTTP endpoint:
 # register it, nothing to install.
 #
 # EVERY value comes from the environment, the URL included -- Windows user env

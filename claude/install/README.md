@@ -17,14 +17,14 @@ from the parent, and that `jq` is already installed.
 | **3** | `plugins.sh` | The **Claude Code CLI** (`claude plugin`) | Handled by the CLI |
 
 **1 — `settings.sh`.** The only thing we write by hand: `statusLine` (+ `refreshInterval`),
-`permissions.allow/deny`, `attribution.commit/pr`, the bitácora `PostToolUse` hook, and the
-convergent cleanup of the obsolete `tmux-claude-session-manager` hooks. Additive-only, with a
-guard: if the key already exists on that machine, it is not touched. It also symlinks the
-versioned pieces of `claude/` — `statusline.sh`, the user-level `CLAUDE.md`, `hooks/bitacora.sh`,
-and the two skills we author (`skills/bitacora`, `skills/wiki`), one `link` per item and never the
-parent dir.
+`permissions.allow/deny`, `attribution.commit/pr`, the logbook `PostToolUse` hook, and the
+convergent cleanups (the obsolete `tmux-claude-session-manager` hooks, and the pre-rename
+`bitacora`/`wiki` symlinks and hook entry). Additive-only, with a guard: if the key already
+exists on that machine, it is not touched. It also symlinks the versioned pieces of `claude/` —
+`statusline.sh`, the user-level `CLAUDE.md`, `hooks/logbook.sh`, and the skill plugin we author
+(`skills/logbook`), one `link` per item and never the parent dir.
 
-The bitácora hook is the one entry here that cannot use the `_settings_set_if_absent` helper:
+The logbook hook is the one entry here that cannot use the `_settings_set_if_absent` helper:
 `.hooks.PostToolUse` is an array shared with other tools, so the guard deep-scans for our own
 command string instead of testing a `jq` path. Guarding on the path would either be satisfied by
 somebody else's hook — ours never landing — or append a duplicate on every run.

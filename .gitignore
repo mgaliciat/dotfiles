@@ -13,11 +13,16 @@
 # symlinked per-item into ~/.claude/skills/ (settings.sh) and must be tracked here.
 # So: ignore everything under skills/, then whitelist ours by name. Anything not
 # listed (`learned`, `codebase-memory`, …) stays per-machine.
+#
+# RENAMING A VERSIONED SKILL MEANS EDITING THE WHITELIST IN THE SAME COMMIT. The
+# entry is a literal name, so `git mv` on a skill dir drops the old path from the
+# index and silently declines to add the new one — `git status` then reports a
+# clean tree with the skill deleted from the repo. That is how `bitacora` + `wiki`
+# nearly vanished when they became `logbook` (sep-2026).
 claude/settings.json
 claude/memory/
 claude/skills/*
-!claude/skills/bitacora/
-!claude/skills/wiki/
+!claude/skills/logbook/
 
 # Git config — per-machine (each Mac has its own credentials, 1Password vaults,
 # signing keys). Only .gitignore_global is versioned.

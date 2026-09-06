@@ -59,12 +59,12 @@ fallback for symlinks, and scoop refuses to run under it.
    ```
 
    What it does, in order:
-   - symlinks `claude/CLAUDE.md`, `statusline.ps1`, `hooks/bitacora.ps1`, the
-     `bitacora` and `wiki` skills (directory symlinks) and
-     `git/.gitignore_global`;
+   - symlinks `claude/CLAUDE.md`, `statusline.ps1`, `hooks/logbook.ps1`, the
+     `logbook` skill plugin (a directory symlink) and `git/.gitignore_global`,
+     removing the pre-rename `bitacora`/`wiki` links if they are still there;
    - writes the `settings.json` keys `settings.sh` writes on mac/Linux
      (statusline, permissions from `permissions.json`, attribution, output
-     style, fallback model, the PowerShell-tool env var, the bitácora hook),
+     style, fallback model, the PowerShell-tool env var, the logbook hook),
      each only if absent. `terminalTitleFromRename` is deliberately not
      mirrored — no tmux here;
    - `rtk` from its release zip plus its versioned `config.toml`, copied;

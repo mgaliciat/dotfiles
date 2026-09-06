@@ -29,39 +29,56 @@ link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 # `codebase-memory`, the OpenKnowledge ones) without touching them, and there is no
 # leak because the repo folder only ever holds what we put there.
 #
-# Both were dropped in aug-2026 with the obsidian MCP they wrote through, and came
-# back in sep-2026 rewritten against the `open-knowledge` MCP (registered in
-# binaries.sh). `bitacora` = one immutable note per invocation into the vault's
-# bitacora/ layer.
-link "$DOTFILES/claude/skills/bitacora" "$HOME/.claude/skills/bitacora"
-# `wiki` = the synthesis layer OVER the bitácora: ingests bitacora/ into
-# cross-linked wiki/ pages, queries them, lints for rot. The per-vault taxonomy is
+# Dropped in aug-2026 with the obsidian MCP they wrote through, and back in
+# sep-2026 rewritten against the `open-knowledge` MCP (registered in binaries.sh).
+#
+# `logbook` covers BOTH vault layers, capture and synthesis: `/logbook:entry`
+# writes one immutable note per invocation into entries/, and ingest/query/lint
+# work over the wiki/ pages synthesized from those notes. The per-vault taxonomy is
 # NOT here — it lives in the vault's own wiki/CLAUDE.md, versioned with the content
 # it governs. The plugin is the engine, that file is the config.
 #
-# NOTE: `wiki` is a skills-dir PLUGIN, not a plain skill — the dir holds a
+# NOTE: `logbook` is a skills-dir PLUGIN, not a plain skill — the dir holds a
 # `.claude-plugin/plugin.json` (skills: ./skills/) so Claude Code auto-loads it as
-# `wiki@skills-dir`, bundling three sub-skills that invoke as `/wiki:ingest`,
-# `/wiki:query`, `/wiki:lint`. Plugin skills are ALWAYS namespaced with a colon:
-# invocation is `/<plugin>:<folder>` (folder = skill name, `wiki` = plugin `name:`
-# from plugin.json). So the folders are the bare verbs (ingest, …) and you type the
-# real colon form `/wiki:lint` — the `:` is a typeable invocation, not a display
-# label. Naming the folder `wiki-lint` is what made it `/wiki:wiki-lint`.
-# It still installs by THIS symlink alone — a skills-dir plugin is referenced in
-# place, so a `git pull` propagates edits with no marketplace and no copy into
+# `logbook@skills-dir`, bundling four sub-skills that invoke as `/logbook:entry`,
+# `/logbook:ingest`, `/logbook:query`, `/logbook:lint`. Plugin skills are ALWAYS
+# namespaced with a colon: invocation is `/<plugin>:<folder>` (folder = skill name,
+# `logbook` = plugin `name:` from plugin.json). So the folders are the bare nouns
+# and verbs (entry, ingest, …) and you type the real colon form `/logbook:lint` —
+# the `:` is a typeable invocation, not a display label. Naming a folder
+# `wiki-lint` is what once made it `/wiki:wiki-lint`.
+# It installs by THIS symlink alone — a skills-dir plugin is referenced in place,
+# so a `git pull` propagates edits with no marketplace and no copy into
 # ~/.claude/plugins/cache (unlike mechanism 3 in plugins.sh). That's why nothing
-# here differs from a plain skill, and why plugins.sh has no `wiki` entry. The
-# plugin's value is packaging: one dir, one symlink, and the three skills share one
-# ENGINE.md at the root (each SKILL.md reads it first) so the spec is single-source.
-# `bitacora` stays a plain skill (no plugin.json) beside it.
-link "$DOTFILES/claude/skills/wiki" "$HOME/.claude/skills/wiki"
+# here differs from a plain skill, and why plugins.sh has no `logbook` entry. The
+# plugin's value is packaging: one dir, one symlink, and the synthesis skills share
+# one ENGINE.md at the root (each SKILL.md reads it first) so the spec is
+# single-source. `entry` is deliberately outside that: it fires from the commit
+# hook on every unit of work and stays self-contained.
+link "$DOTFILES/claude/skills/logbook" "$HOME/.claude/skills/logbook"
 
-# The bitácora's event half. A skill cannot fire on a git event — it only
+# The logbook's event half. A skill cannot fire on a git event — it only
 # self-activates on what the user says — so the "log after a commit lands" trigger
 # is a PostToolUse hook (registered further down) pointing at this script.
 # ~/.claude/hooks/ is a real per-machine dir (codebase-memory-mcp writes its own
 # hooks there), so this is a per-ITEM link for the same reason as the skills above.
-link "$DOTFILES/claude/hooks/bitacora.sh" "$HOME/.claude/hooks/bitacora.sh"
+link "$DOTFILES/claude/hooks/logbook.sh" "$HOME/.claude/hooks/logbook.sh"
+
+# ── convergent cleanup: the pre-rename `bitacora` + `wiki` names (sep-2026) ──
+# The plugin was `wiki` and capture was a separate plain skill, `bitacora`; both
+# are now the one `logbook` plugin. A machine that ran the old installer still has
+# those two symlinks, and they now dangle — a dangling skill dir is a skill Claude
+# Code tries to load and cannot. Guarded on -L so a REAL per-machine dir that
+# happens to carry one of those names is never touched. TEMPORARY: delete once
+# every machine has run this version.
+for _stale in "$HOME/.claude/skills/bitacora" "$HOME/.claude/skills/wiki" \
+              "$HOME/.claude/hooks/bitacora.sh"; do
+  if [ -L "$_stale" ]; then
+    rm -f "$_stale"
+    echo "✓ removed pre-rename symlink $_stale"
+  fi
+done
+unset _stale
 
 # settings.json itself is NOT symlinked: it's 100% per-machine (like
 # ~/.gitconfig). Permissions and UI prefs diverge per host, and symlinking it
@@ -239,11 +256,32 @@ _settings_set_if_absent '.preferredNotifChannel' \
   '.preferredNotifChannel = "terminal_bell"' \
   'preferredNotifChannel (terminal_bell)'
 
-# ── PostToolUse hook: bitácora after a commit ──
+# ── convergent cleanup: the pre-rename bitacora hook entry (sep-2026) ──
+# Must run BEFORE the block that registers the new one, or the guard below sees a
+# settings.json with no "hooks/logbook" string, appends ours, and leaves the dead
+# `hooks/bitacora.sh` entry beside it firing exit 127 on every commit. Same shape
+# as the state.sh cleanup at the bottom of this file. TEMPORARY, same terms.
+if jq -e '[.. | strings] | any(test("hooks/bitacora"))' "$SETTINGS" >/dev/null 2>&1; then
+  SETTINGS_TMP="$(mktemp)"
+  if jq '.hooks |= (to_entries
+          | map(.value |= map(select(
+              (.hooks // []) | any(.command? // "" | test("hooks/bitacora")) | not
+            )))
+          | map(select((.value | length) > 0))
+          | from_entries)' "$SETTINGS" > "$SETTINGS_TMP"; then
+    mv "$SETTINGS_TMP" "$SETTINGS"
+    echo "✓ pre-rename bitacora hook stripped from settings.json"
+  else
+    rm -f "$SETTINGS_TMP"
+    echo "⚠️  pre-rename hook cleanup failed — settings.json left untouched"
+  fi
+fi
+
+# ── PostToolUse hook: logbook entry after a commit ──
 # The one thing a SKILL cannot do is fire on an event: it self-activates on what
-# the user says, and "log the bitácora after you commit" has no user utterance to
+# the user says, and "write the entry after you commit" has no user utterance to
 # hang on. So the trigger is a hook and the how-to stays in the skill —
-# claude/hooks/bitacora.sh only detects the commit and returns one line of context.
+# claude/hooks/logbook.sh only detects the commit and returns one line of context.
 #
 # `matcher` covers BOTH tool names: settings.json sets CLAUDE_CODE_USE_POWERSHELL_TOOL
 # on Windows, and any session that inherits it routes commits through PowerShell
@@ -260,7 +298,7 @@ _settings_set_if_absent '.preferredNotifChannel' \
 # its key would be satisfied by somebody else's hook and ours would never land,
 # or a re-run would append a duplicate. Deep-scanning for our own command is the
 # only check that is both idempotent and additive.
-if ! jq -e '[.. | strings] | any(test("hooks/bitacora"))' "$SETTINGS" >/dev/null 2>&1; then
+if ! jq -e '[.. | strings] | any(test("hooks/logbook"))' "$SETTINGS" >/dev/null 2>&1; then
   SETTINGS_TMP="$(mktemp)"
   if jq '.hooks //= {}
          | .hooks.PostToolUse //= []
@@ -268,18 +306,18 @@ if ! jq -e '[.. | strings] | any(test("hooks/bitacora"))' "$SETTINGS" >/dev/null
              matcher: "Bash|PowerShell",
              hooks: [{
                type: "command",
-               command: "bash ~/.claude/hooks/bitacora.sh",
+               command: "bash ~/.claude/hooks/logbook.sh",
                timeout: 5
              }]
            }]' "$SETTINGS" > "$SETTINGS_TMP"; then
     mv "$SETTINGS_TMP" "$SETTINGS"
-    echo "✓ bitácora PostToolUse hook added to settings.json"
+    echo "✓ logbook PostToolUse hook added to settings.json"
   else
     rm -f "$SETTINGS_TMP"
-    echo "⚠️  could not add the bitácora hook — settings.json left untouched"
+    echo "⚠️  could not add the logbook hook — settings.json left untouched"
   fi
 else
-  echo "✓ bitácora PostToolUse hook already in settings.json — leaving it alone"
+  echo "✓ logbook PostToolUse hook already in settings.json — leaving it alone"
 fi
 
 # ── convergent cleanup: stale tmux-claude-session-manager hooks ──

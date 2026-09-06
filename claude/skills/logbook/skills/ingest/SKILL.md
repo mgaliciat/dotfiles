@@ -1,15 +1,15 @@
 ---
 name: ingest
-description: Synthesize the raw bitacora/ per-invocation notes into cross-linked wiki/ pages (OKF v0.2) in the OpenKnowledge vault — one per service, concept, decision or entity, linking notes that share a topic. Use when the user says "ingest", "sintetiza la bitácora", "wiki ingest", "/wiki:ingest", or asks to process the bitácora into the wiki.
+description: Synthesize the raw entries/ per-invocation notes into cross-linked wiki/ pages (OKF v0.2) in the OpenKnowledge vault — one per service, concept, decision or entity, linking notes that share a topic. Use when the user says "ingest", "sintetiza la bitácora", "logbook ingest", "/logbook:ingest", or asks to process the logbook into the wiki.
 ---
 
-# wiki · ingest
+# logbook · ingest
 
-**First read `~/.claude/skills/wiki/ENGINE.md`** (the shared engine: where the
+**First read `~/.claude/skills/logbook/ENGINE.md`** (the shared engine: where the
 contract lives, which MCP tools to use, the layers, the link rule, the watermark).
 Then read the vault's own `wiki/CLAUDE.md`. Then run this workflow.
 
-Synthesize the `bitacora/` notes not yet processed:
+Synthesize the `entries/` notes not yet processed:
 
 1. **Determine the range.** The user's, or from the watermark: the most recent
    ingest entry in `wiki/log.md`, taking every note with a timestamp **≥** the end
@@ -33,7 +33,7 @@ Synthesize the `bitacora/` notes not yet processed:
    and bump the page's timestamp on every update. Do not invent a `resource`, a
    source, or provenance to fill a field.
 6. **Cross-link.** Each page links the neighbours it mentions and the specific
-   source note(s) it synthesizes (`[YYYY-MM-DD-HHMM-<repo>](../bitacora/….md)`).
+   source note(s) it synthesizes (`[YYYY-MM-DD-HHMM-<repo>](../entries/….md)`).
    External sources go under `# Citations`, and anything fetched from the live web
    gets captured in `fuentes/` first — pages cite local documents, not URLs that
    rot. Relative links only; never the root-absolute form.

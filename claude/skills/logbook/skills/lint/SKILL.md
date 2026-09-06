@@ -1,11 +1,11 @@
 ---
 name: lint
-description: Health-check the OpenKnowledge wiki for rot — OKF conformance, broken links, orphans, contradictions, stale claims, missing cross-refs, gaps. Report, don't fix without confirming. Use when the user says "lint wiki", "/wiki:lint", or asks to check the vault for rot.
+description: Health-check the OpenKnowledge wiki for rot — OKF conformance, broken links, orphans, contradictions, stale claims, missing cross-refs, gaps. Report, don't fix without confirming. Use when the user says "lint wiki", "lint logbook", "/logbook:lint", or asks to check the vault for rot.
 ---
 
-# wiki · lint
+# logbook · lint
 
-**First read `~/.claude/skills/wiki/ENGINE.md`** (the shared engine: where the
+**First read `~/.claude/skills/logbook/ENGINE.md`** (the shared engine: where the
 contract lives, which MCP tools to use, the layers, the link rule). Then read the
 vault's own `wiki/CLAUDE.md`. Then run this workflow.
 
@@ -42,7 +42,7 @@ findings, including the ones left unfixed.
   the single source.
 - Missing cross-refs: a page names a topic that has its own page and doesn't link
   it. Asymmetric links count.
-- Gaps: topics frequent in `bitacora/` with no page yet.
+- Gaps: topics frequent in `entries/` with no page yet.
 - Repo-tag aliases that drifted from the table in `wiki/CLAUDE.md`. The fix lands
   on the wiki page — the raw note is immutable and the watermark depends on it.
 

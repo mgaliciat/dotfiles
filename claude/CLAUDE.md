@@ -100,12 +100,14 @@ MCP server for a **personal knowledge base**: a directory of markdown with YAML 
 
 Two skills ship with it and are the right entry point before hand-rolling anything: **`okf-knowledge-base`** (OKF v0.2 semantics — types, provenance, reserved files) and the project-local `open-knowledge` skill (tool discipline). Read them instead of re-deriving the spec.
 
-## Daily log (bitácora) and its wiki
+## Logbook — the daily log and its wiki
 
-The vault above has two layers, and this repo versions a skill for each, in `claude/skills/`, symlinked into `~/.claude/skills/` by the installer:
+One skills-dir plugin, `logbook`, in `claude/skills/logbook/`, symlinked into `~/.claude/skills/` by the installer. Four sub-skills, all namespaced with a colon:
 
-- **`bitacora`** — one immutable note per invocation (`bitacora/YYYY-MM-DD-HHMM-<repo>`), written after a unit of work lands. Self-activates on "bitácora" / "guarda resumen", and a `PostToolUse` hook (`claude/hooks/bitacora.{sh,ps1}`) fires it after a `git commit` — the one trigger a skill cannot own, since skills only activate on what the user says. Judging whether *this* commit is a unit of work rather than a WIP step is still yours.
-- **`wiki`** — the synthesis layer over it: a skills-dir plugin invoked as `/wiki:ingest`, `/wiki:query`, `/wiki:lint`.
+- **`/logbook:entry`** — capture: one immutable note per invocation (`entries/YYYY-MM-DD-HHMM-<repo>`), written after a unit of work lands. Self-activates on "logbook" / "bitácora" / "guarda resumen", and a `PostToolUse` hook (`claude/hooks/logbook.{sh,ps1}`) fires it after a `git commit` — the one trigger a skill cannot own, since skills only activate on what the user says. Judging whether *this* commit is a unit of work rather than a WIP step is still yours.
+- **`/logbook:ingest`, `/logbook:query`, `/logbook:lint`** — the synthesis layer over those notes.
+
+**Vault layout (sep-2026):** the raw layer is `entries/` (was `bitacora/`, renamed with the folder `move` that rewrites inbound links) and the synthesized one is `wiki/`. `logbook` names the tooling and is never a vault path.
 
 The per-vault contract — type vocabulary, repo-tag aliases, index and log formats, the external-research procedure — lives **inside the vault** at `wiki/CLAUDE.md`, not here: it is versioned with the content it governs and it outranks the skills. The how-to is in the skill files, off the always-loaded budget on purpose.
 

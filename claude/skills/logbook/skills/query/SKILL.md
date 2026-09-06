@@ -1,11 +1,11 @@
 ---
 name: query
-description: Answer a question from the OpenKnowledge wiki without re-deriving it from scratch, filing any new knowledge worth keeping. Use when the user says "query wiki", "pregunta a la wiki", "/wiki:query", or asks a question meant to be answered from the vault.
+description: Answer a question from the OpenKnowledge wiki without re-deriving it from scratch, filing any new knowledge worth keeping. Use when the user says "query wiki", "pregunta a la wiki", "/logbook:query", or asks a question meant to be answered from the vault.
 ---
 
-# wiki · query
+# logbook · query
 
-**First read `~/.claude/skills/wiki/ENGINE.md`** (the shared engine: where the
+**First read `~/.claude/skills/logbook/ENGINE.md`** (the shared engine: where the
 contract lives, which MCP tools to use, the layers, the link rule). Then read the
 vault's own `wiki/CLAUDE.md`. Then run this workflow.
 
@@ -16,7 +16,7 @@ vault — the point of a compounding wiki is not re-deriving what it already kno
    `grep` for exhaustive literal matches — they answer different questions, so run
    both when the first comes back thin. Follow `links` (backlinks and forward
    links) out of whatever you land on: the graph is the index.
-2. **Drop to `bitacora/` only when `wiki/` cannot answer**, and say that you did —
+2. **Drop to `entries/` only when `wiki/` cannot answer**, and say that you did —
    a question the wiki could not answer is itself a finding for `ingest`.
 3. **Answer with citations** to the pages used, as relative links.
 4. **Say what the vault does not know.** Missing knowledge stated plainly beats a

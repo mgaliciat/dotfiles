@@ -1,15 +1,20 @@
 ---
-name: bitacora
-description: Write one immutable per-invocation work-log note (bitacora/YYYY-MM-DD-HHMM-<repo>) into the OpenKnowledge vault, recording what changed and why, tagged by repo so a day spanning many agents and services can be read, cross-referenced, and later synthesized by the wiki skill. Use when the user says "bitácora", "guarda resumen", "resumen del día", or after landing a git commit / opening a PR.
+name: entry
+description: Write one immutable per-invocation work-log note (entries/YYYY-MM-DD-HHMM-<repo>) into the OpenKnowledge vault, recording what changed and why, tagged by repo so a day spanning many agents and services can be read, cross-referenced, and later synthesized by /logbook:ingest. Use when the user says "logbook", "bitácora", "guarda resumen", "resumen del día", or after landing a git commit / opening a PR.
 ---
 
-# Bitácora (OpenKnowledge)
+# logbook · entry
+
+Deliberately **self-contained**: unlike its three siblings this skill does not
+read `~/.claude/skills/logbook/ENGINE.md` first. It fires after every commit, and
+capture is write-only — everything it needs is below. Read the engine only when
+something here is ambiguous.
 
 Working across many agents and services in parallel and losing the thread of what
 got done where. This skill drops **one immutable note per invocation** — a small,
-atomic log entry written as it happens. Reassembly is the wiki `ingest` skill's
-job: it reads these notes and synthesizes cross-linked pages, linking together the
-ones that share a topic.
+atomic log entry written as it happens. Reassembly is `/logbook:ingest`'s job: it
+reads these notes and synthesizes cross-linked pages, linking together the ones
+that share a topic.
 
 Why one file per invocation (not one shared daily note): each note is written once
 and never touched again. That immutability is what lets `ingest` track exactly
@@ -26,11 +31,12 @@ it. Keep it to the *reasoning* git won't preserve, not a commit-log dump.
   work**, not per WIP commit. (A `PostToolUse` hook fires on every commit and
   reminds you; the judgment of whether *this* commit is a unit of work is still
   yours. Say so and skip when it isn't.)
-- Whenever the user says "bitácora" / "guarda resumen" / "resumen del día".
+- Whenever the user says "logbook" / "bitácora" / "guarda resumen" / "resumen del
+  día", or invokes `/logbook:entry`.
 
 ## Where
 
-One file **per invocation**: **`bitacora/YYYY-MM-DD-HHMM-<repo>`** in the
+One file **per invocation**: **`entries/YYYY-MM-DD-HHMM-<repo>`** in the
 OpenKnowledge vault, written with the `open-knowledge` MCP's `write` tool
 (`document`). `<repo>` is the primary repo/service slug — the **repository** name,
 not the product's and not the org's; the vault's `wiki/CLAUDE.md` keeps the alias
@@ -39,7 +45,7 @@ table, and a raw note is never re-tagged after the fact.
 - The path carries **no extension**: `write` appends `.md` itself.
 - Date and time are in your context — don't guess them. `HHMM` (no colon — it's a
   filename), so the name sorts chronologically.
-- **Check the path first** with `exec` (`ls bitacora/ | grep <YYYY-MM-DD-HHMM>`).
+- **Check the path first** with `exec` (`ls entries/ | grep <YYYY-MM-DD-HHMM>`).
   If that exact name exists (same repo, same minute), suffix `-2`, `-3`, … A
   `write` at an existing path with `position: replace` **destroys** the note that
   was there — the one failure this whole layer is built to prevent.
@@ -88,5 +94,9 @@ repo, and its content is not held to this repo's English-only rule.
 ## What this skill does NOT do
 
 Write to `wiki/`, `fuentes/` or `specs/`, update `index.md`, or touch `log.md`.
-Capture is write-only and deliberately dumb; synthesis is `/wiki:ingest`. Raw stays
-messy on purpose.
+Capture is write-only and deliberately dumb; synthesis is `/logbook:ingest`. Raw
+stays messy on purpose.
+
+The vault's folders are `entries/` (raw) and `wiki/` (synthesized); `logbook` is
+the name of the plugin that reads and writes them, never a path. `entries/` was
+`bitacora/` until 2026-09-06.

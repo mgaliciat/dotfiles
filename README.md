@@ -21,7 +21,7 @@ The design rationale (what is versioned vs. per-machine, and why every non-obvio
 | `lazygit/config.yml` | lazygit theme + custom commands |
 | `git/.gitignore_global` | Global gitignore — macOS noise, editor files, build dirs, **and AI-agent scratch** (`.claude/`, `.cursor/`, `.aider*`, …), excluded in every repo |
 | `scripts/` | `ide` (4-pane tmux layout, `prefix + g`), `claude-api-env` (runs a command with the gateway env), `lib.sh` (shared by both bash installers). The first two are symlinked onto `~/.local/bin` |
-| `claude/` | User-level Claude Code pieces — `CLAUDE.md` (→ `~/.claude/CLAUDE.md`), `statusline.{sh,ps1}`, `hooks/bitacora.{sh,ps1}`, the `bitacora` and `wiki` skills, and `install/` (everything the installers do to `~/.claude/`, see its README) |
+| `claude/` | User-level Claude Code pieces — `CLAUDE.md` (→ `~/.claude/CLAUDE.md`), `statusline.{sh,ps1}`, `hooks/logbook.{sh,ps1}`, the `logbook` skill plugin, and `install/` (everything the installers do to `~/.claude/`, see its README) |
 | `install.sh` | macOS entry point — symlinks + Homebrew deps + Claude Code setup |
 | `install-linux.sh` | Ubuntu/Debian/WSL2 — same symlinks minus Ghostty; apt + GitHub release binaries |
 | `install-windows.ps1` | Native Windows — Claude Code pieces, Nerd Fonts and the theme for Windows Terminal only |
@@ -48,9 +48,9 @@ cd ~/dotfiles
 
 `install.sh` is idempotent — re-run it after every `git pull`. It backs up anything it would overwrite as `<file>.backup.<timestamp>` and then:
 
-1. **Symlinks** `.zshrc`, `.zshenv`, `.gitignore_global`, ghostty (config + themes), nvim, tmux, lazygit, `~/.local/bin/{ide,claude-api-env}`, and the Claude pieces (`~/.claude/CLAUDE.md`, `statusline.sh`, `hooks/bitacora.sh`, `skills/bitacora`, `skills/wiki`).
+1. **Symlinks** `.zshrc`, `.zshenv`, `.gitignore_global`, ghostty (config + themes), nvim, tmux, lazygit, `~/.local/bin/{ide,claude-api-env}`, and the Claude pieces (`~/.claude/CLAUDE.md`, `statusline.sh`, `hooks/logbook.sh`, `skills/logbook`).
 2. **Installs missing Homebrew deps** (see `REQUIRED_FORMULAE` / `REQUIRED_CASKS` in the script): the zsh plugins, `eza`, `bat`, `fd`, `ripgrep`, `gomi`, `zoxide`, `fzf`, `jq`, `gh`, `git-delta`, `pyenv`, `neovim`, `tree-sitter-cli`, `tmux`, `lazygit`, `rtk`; casks `ghostty`, `1password-cli` and the fonts `config.ghostty` names. Paper Mono has no cask and is fetched from its GitHub release.
-3. **Configures Claude Code** — all additive-only, nothing you set by hand on that machine is clobbered. Split by who writes `~/.claude/settings.json` (`claude/install/README.md`): our `jq` merges (statusline, base permissions, no attribution trailer, the bitácora `PostToolUse` hook), the external binaries' own setup ([`rtk`](https://github.com/rtk-ai/rtk), [`codebase-memory-mcp`](https://github.com/DeusData/codebase-memory-mcp), the `context7` and `open-knowledge` MCP endpoints, the `gh-stack` skill), and the plugin CLI (currently nothing).
+3. **Configures Claude Code** — all additive-only, nothing you set by hand on that machine is clobbered. Split by who writes `~/.claude/settings.json` (`claude/install/README.md`): our `jq` merges (statusline, base permissions, no attribution trailer, the logbook `PostToolUse` hook), the external binaries' own setup ([`rtk`](https://github.com/rtk-ai/rtk), [`codebase-memory-mcp`](https://github.com/DeusData/codebase-memory-mcp), the `context7` and `open-knowledge` MCP endpoints, the `gh-stack` skill), and the plugin CLI (currently nothing).
 4. **Bootstraps tmux** — clones tpm if missing, pins `tmux-claude-session-manager` to a commit, reloads the config if a server is running. Inside tmux: `prefix + I` installs the rest of the plugins the first time.
 5. Installs the `gh-stack` extension for `gh`.
 6. Registers VS Code as the default app for `.ghostty` files (if VS Code is installed).

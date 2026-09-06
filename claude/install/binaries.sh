@@ -164,11 +164,11 @@ elif [[ -z "${CONTEXT7_API_KEY:-}" ]]; then
   echo "→ context7: skipped (no CONTEXT7_API_KEY — add it to ~/.zshenv.local)"
 fi
 
-# ─── open-knowledge (the vault behind the bitácora/wiki skills) ─
+# ─── open-knowledge (the vault behind the logbook skills) ──────
 # Same shape as context7: a hosted HTTP endpoint we only register — no binary,
 # nothing to install, no local port. It is the OpenKnowledge server
 # (github.com/inkeep/open-knowledge) holding the personal knowledge base the
-# `bitacora` and `wiki` skills read and write. Doc + skills: `okf-knowledge-base`
+# `logbook` skills read and write. Doc + skills: `okf-knowledge-base`
 # (OKF v0.2 semantics) ships with the server, not from here.
 #
 # EVERY value comes from the ENVIRONMENT — including the URL, which is the one

@@ -107,7 +107,7 @@ per-machine files and the two silent guards.
 
 ```bash
 readlink ~/.zshrc ~/.config/nvim ~/.config/tmux ~/.local/bin/ide     # all into the repo
-readlink ~/.claude/CLAUDE.md ~/.claude/skills/bitacora ~/.claude/skills/wiki
+readlink ~/.claude/CLAUDE.md ~/.claude/skills/logbook ~/.claude/hooks/logbook.sh
 claude mcp list                                                     # context7, open-knowledge, codebase-memory
 rtk --version && rtk config                                         # config path under ~/Library/Application Support/rtk
 tmux -V && git -C ~/.config/tmux/plugins/tmux-claude-session-manager rev-parse --short HEAD

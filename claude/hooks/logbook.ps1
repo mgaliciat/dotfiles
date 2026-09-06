@@ -1,16 +1,16 @@
-# ─── PostToolUse hook: remind to log the bitácora after a commit ───
+# ─── PostToolUse hook: remind to write the logbook entry after a commit ───
 #
-# Windows twin of claude/hooks/bitacora.sh — same contract, same output, rewritten
+# Windows twin of claude/hooks/logbook.sh — same contract, same output, rewritten
 # because native Windows has no bash to run the .sh (the statusline.sh /
 # statusline.ps1 split, for the same reason). The two are hand-kept in sync;
 # nothing checks that automatically.
 #
 # Why a hook at all: a skill cannot fire on an event, only on what the user says.
-# The bitácora is meant to be written after a commit lands, and "the model
+# The entry is meant to be written after a commit lands, and "the model
 # remembers to" is exactly the guarantee a prose rule does not give. This script
 # holds the event half; the how-to half stays in the skill.
 #
-# Registered by install-windows.ps1 as ~/.claude/hooks/bitacora.ps1.
+# Registered by install-windows.ps1 as ~/.claude/hooks/logbook.ps1.
 #
 # Contract: input arrives as JSON on stdin, stdout is parsed back as JSON, and
 # `hookSpecificOutput.additionalContext` is the only field that reaches the model.
@@ -46,7 +46,7 @@ try {
     if ($null -ne $In.tool_response) { $Response = ($In.tool_response | Out-String) }
     if ($Response -like '*nothing to commit*') { exit 0 }
 
-    $Context = 'A git commit just landed. If this commit closes a meaningful unit of work (not a WIP step), invoke the `bitacora` skill now to write the per-invocation note - what changed and, above all, WHY, which the diff will not preserve. If it is a WIP step, say so in one line and skip it.'
+    $Context = 'A git commit just landed. If this commit closes a meaningful unit of work (not a WIP step), invoke the `logbook:entry` skill now to write the per-invocation note - what changed and, above all, WHY, which the diff will not preserve. If it is a WIP step, say so in one line and skip it.'
 
     # -Depth 3: the default of 2 in Windows PowerShell 5.1 stringifies the nested
     # object into "System.Collections.Hashtable" instead of serializing it.

@@ -1,14 +1,21 @@
-# LLM wiki (OpenKnowledge) — engine
+# Logbook (OpenKnowledge) — engine
 
-Shared spec for the `wiki` plugin's three skills (`/wiki:ingest`, `/wiki:query`,
-`/wiki:lint`). **Each of those skills reads this file first**, then runs its
-workflow. Everything common — where the contract lives, which tools to use, the
-layers, the watermark — is here once; the skills hold only their own steps.
+Shared spec for the `logbook` plugin's synthesis skills (`/logbook:ingest`,
+`/logbook:query`, `/logbook:lint`). **Each of those reads this file first**, then
+runs its workflow. Everything common — where the contract lives, which tools to
+use, the layers, the watermark — is here once; the skills hold only their own
+steps. The fourth skill, `/logbook:entry`, is the capture gate and is
+self-contained on purpose: it fires from a commit hook and does not read this file.
 
-The `bitacora` skill captures work as immutable per-invocation notes, but capture is
-write-only: notes pile up, they never come back synthesized. This plugin is the
-read/synthesis layer on top. Raw stays messy on purpose; the wiki is the ordered
-layer, and the agent — not the human — keeps it ordered.
+`/logbook:entry` captures work as immutable per-invocation notes, but capture is
+write-only: notes pile up, they never come back synthesized. The other three are
+the read/synthesis layer on top. Raw stays messy on purpose; the wiki is the
+ordered layer, and the agent — not the human — keeps it ordered.
+
+**Vault paths, not skill names.** The raw layer is `entries/` and the synthesized
+one `wiki/`; `logbook` is the name of the tooling and never a path. `entries/` was
+`bitacora/` until 2026-09-06 — a folder `move` carried all 199 notes and rewrote
+the inbound links, so nothing outside these docs still says the old name.
 
 Pattern: **the vault is the source of truth, the LLM is a processing layer.** The
 knowledge should *compound*, not just accumulate.
@@ -73,8 +80,8 @@ Authoritative list is `wiki/CLAUDE.md`; this is the shape, so a workflow knows w
 it may write to.
 
 - **Raw — immutable. Read, never edit, never move.**
-  - `bitacora/*` — the active gate: one file per invocation, written by the
-    `bitacora` skill.
+  - `entries/*` — the active gate: one file per invocation, written by
+    `/logbook:entry`.
   - `claude_sessions/*` — frozen legacy raw, from before the bitácora. Ingested,
     never appended to; two entry gates produce drift.
 - **`fuentes/*`** — external material captured verbatim (`type: source`), immutable
@@ -82,12 +89,12 @@ it may write to.
   does not go here.
 - **`specs/*`** — feature specs agreed before implementing.
 - **`wiki/<topic>`** — the synthesized layer, one page per concept / service /
-  decision / entity / repo. This is the only layer these three skills write to,
+  decision / entity / repo. This is the only layer the synthesis skills write to,
   plus `wiki/index.md` and `wiki/log.md`.
 
 ## Links
 
-Relative markdown links (`[servicio-x](./servicio-x.md)`, `[nota](../bitacora/….md)`).
+Relative markdown links (`[servicio-x](./servicio-x.md)`, `[nota](../entries/….md)`).
 **Never mix in the root-absolute form** `/carpeta/x.md`: prefixing `./` to a
 root-style path from a document already inside that folder duplicates the segment
 (`wiki/wiki/x.md`) and the link dies silently. A page with no backlink to the raw
@@ -115,7 +122,7 @@ hand-written ones with them.
 The most recent **ingest** entry in `wiki/log.md` carries the source range it
 processed, and that range **is** the processed marker — it replaces moving files
 into a `processed/` folder, which is what keeps the raw immutable. "Since the last
-ingest" = every `bitacora/` note whose timestamp is **≥** the end of that range
+ingest" = every `entries/` note whose timestamp is **≥** the end of that range
 (inclusive). Because each note is one immutable file whose name sorts
 chronologically, a note that appears after an ingest is always a *new* file with a
 later name — never an edit to one already read — so nothing falls in the crack the
