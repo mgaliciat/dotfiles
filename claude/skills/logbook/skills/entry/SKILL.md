@@ -56,7 +56,7 @@ table, and a raw note is never re-tagged after the fact.
 
 ## Note format
 
-Follows the vault's `nota-invocacion` template. Frontmatter plus the four
+Follows the vault's `entry-note` template. Frontmatter plus the four
 sections — pass `content` and `frontmatter` to `write` in one call:
 
 ```yaml
@@ -69,16 +69,20 @@ tags: [repo/dotfiles]     # plus a shared #topic when one applies
 ```markdown
 # YYYY-MM-DD HH:MM — <repo / service>
 
-## Qué cambió
+## What changed
 
-## Por qué
+## Why
 
-## Notas
+## Notes
 
-## Seguimiento
+## Follow-up
 ```
 
-- **`Por qué` is the section that earns the note.** What changed is in the diff;
+Notes written before 2026-09-06 carry the Spanish headings (`Qué cambió` / `Por qué`
+/ `Notas` / `Seguimiento`) the template used to have. They are raw and immutable —
+read them, never "fix" them.
+
+- **`Why` is the section that earns the note.** What changed is in the diff;
   the decision, the alternative rejected, and the constraint that forced it are not.
 - The `repo/<name>` tag is what lets `ingest` and `lint` slice by service.
 - When one problem spans several services or sessions, give the notes a **shared
