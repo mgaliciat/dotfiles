@@ -135,6 +135,12 @@ Examples: `daw` deletes a word + space. `ci"` changes the content between quotes
 
 Closing char (`)`, `}`, `]`) wraps tight; opening char (`(`, `{`, `[`) adds a space inside. `t` asks for an HTML tag.
 
+### Auto-pairs, auto-tags, comments (no keys to learn)
+
+- **mini.pairs** — typing `(` `[` `{` `"` `'` `` ` `` inserts the closer; `<BS>` between a pair deletes both, `<CR>` between `{}` opens a block. It skips pairing when the next char is a word char or the same closer, inside strings/comments (treesitter), and when the line is already unbalanced. Typing the closer over an existing one just moves past it.
+- **nvim-ts-autotag** — in html / tsx / jsx / astro / vue / svelte / xml, `<div>` inserts `</div>` and renaming one side of a tag renames the other. Typing `</` does not auto-complete (deliberate: it collides with closing an outer tag by hand).
+- **`gc` is context-aware** — native commenting (`gcc` line, `gc<motion>`, `gc` in visual) picks the comment syntax from the treesitter node under the cursor, so in a `.astro` or `.tsx` the JS half gets `//` and the markup half `<!-- -->` / `{/* */}`.
+
 ### Visual mode
 - `v` / `V` / `<C-v>` — visual char / line / block
 - `o` — jump to the other end of the selection
@@ -207,6 +213,8 @@ All in `lua/config/keymaps.lua` with a `desc`, so they show in which-key and `<l
 | `<leader>cd` | Show the line's diagnostic in a float |
 | `<leader>fd` | All workspace diagnostics (telescope) |
 
+Rendering: every line shows a short `●` at the right, except the line the cursor is on, which shows the full multi-line message underneath (`virtual_lines`). Move the cursor onto an error to read the whole rustc / tsc text without `<leader>cd`.
+
 ### Accelerators (craftzdog style)
 
 **Accelerators within the vim model**, not Mac crutches — designed so the yank register never gets polluted.
@@ -265,6 +273,17 @@ A per-project list of the handful of files you keep bouncing between, by slot nu
 | `<leader>1` … `<leader>4` | Jump to slot 1–4 |
 
 No `]h`/`[h` cycling — gitsigns owns those for hunks.
+
+### Sessions — `<leader>S*` (persistence)
+
+One session per cwd and git branch: buffers, splits, folds, cursor positions. Saved automatically on exit once at least one real file is open; **never restored automatically** — `nvim` alone still lands on the dashboard.
+
+| Shortcut | Action |
+|---|---|
+| `<leader>Sr` or `s` on the dashboard | Restore the session for this directory |
+| `<leader>Sl` | Restore the most recent session, whatever the directory |
+| `<leader>Ss` | Pick a session from the list |
+| `<leader>Sd` | Don't save this session on exit (keeps the one on disk) |
 
 ---
 
@@ -508,7 +527,7 @@ Everything starts **expanded** (`foldlevel = 99`). `foldenable` stays `true` —
 | `<leader>h` | dropbar | Interactive breadcrumb picker (winbar): navigate path → symbol and jump |
 | `<leader>cm` | render-markdown | Toggle in-buffer markdown rendering |
 | `:Noice` / `:Noice last` | noice | Message history / the last message (cmdline and popups are noice too) |
-| `:Snacks.dashboard()` | snacks.dashboard | Splash screen when opening nvim with no args — `f` files, `g` grep, `r` recent, `n` new, `c` config, `L` Lazy, `q` quit |
+| `:Snacks.dashboard()` | snacks.dashboard | Splash screen when opening nvim with no args — `f` files, `g` grep, `r` recent, `s` restore session, `n` new, `c` config, `L` Lazy, `q` quit |
 
 Also on: snacks indent guides with scope highlight, incline (per-window filename floats), lualine, highlight-colors (inline `#hex` swatches). Smooth scroll is off (it fought the trackpad).
 
@@ -547,6 +566,22 @@ A buffer with four fields (search, replace, files filter, flags) and the live ma
 **Inside the grug-far buffer** (`<localleader>` = space): `<space>r` replace all · `<space>j` / `<space>k` apply just the next / previous match · `<Down>` / `<Up>` walk the matches, `<CR>` jump to one, `<space>o` open it · `<space>s` sync your in-place edits of the result list to disk (`<space>l` for one line) · `<space>q` send to quickfix · `<space>t` history · `<space>c` close · `g?` all keys. Flags field takes rg flags (`-i`, `-w`, `--fixed-strings`); `\1` back-references work in the replace field.
 
 The old route still works: `<C-q>` in Telescope sends the matches to quickfix, then `:cdo s/old/new/g | update`.
+
+### Quickfix list (nvim-bqf)
+
+`:copen` / `:cclose` open and close it, `]q` / `[q` walk the entries (native). Inside the window:
+
+| Key | Action |
+|---|---|
+| `p` | Toggle the floating preview of the entry under the cursor (auto-shown by default) |
+| `<C-f>` / `<C-b>` | Scroll the preview |
+| `zf` | fzf over the entries: type to filter, `<Tab>` to mark, `<CR>` builds a **new** quickfix list from the marks |
+| `<Tab>` / `<S-Tab>` | Sign / unsign the entry (moves down / up) |
+| `zn` / `zN` | New list from the signed / the unsigned entries |
+| `<` / `>` | Older / newer quickfix list |
+| `<CR>` / `o` / `O` | Open the entry / open and close the window / open in a new tab |
+
+Typical: `<leader>fg` → `<C-q>` → `zf` to keep the 12 hits that matter → `:cdo s/old/new/g | update`.
 
 ---
 
@@ -611,6 +646,7 @@ Press `<leader>` and wait ~400ms (`timeoutlen`):
 - `<leader>g` → git
 - `<leader>r` → rename
 - `<leader>s` → search & replace (grug-far)
+- `<leader>S` → session (persistence)
 - `<leader>t` → test (neotest)
 
 Single keys outside a group: `<leader>m` / `<leader>M` / `<leader>1-4` harpoon, `<leader>h` dropbar, `<leader>e` oil, `<leader>n` neo-tree, `<leader>z` zen.

@@ -100,9 +100,16 @@ opt.foldenable = true                -- ufo requires true to render its virtual 
 opt.list = true
 opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 
--- Diagnostic UI
+-- Diagnostic UI. Two renderings that split by cursor line (nvim 0.11+):
+-- the short `●` virtual text on every line EXCEPT the one you're on, and
+-- the full multi-line message (`virtual_lines`) under the current line
+-- only. Long rustc / tsc messages used to be truncated at the window
+-- edge; now they wrap below the line you are reading, and the rest of
+-- the buffer stays as quiet as before. Both `current_line` flags are
+-- needed — with only the second, the current line shows both.
 vim.diagnostic.config({
-  virtual_text = { prefix = "●", spacing = 4 },
+  virtual_text = { prefix = "●", spacing = 4, current_line = false },
+  virtual_lines = { current_line = true },
   signs = true,
   underline = true,
   update_in_insert = false,          -- noisy while typing

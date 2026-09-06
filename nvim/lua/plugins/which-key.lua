@@ -21,6 +21,7 @@ return {
       { "<leader>g",  group = "git" },
       { "<leader>r",  group = "rename" },
       { "<leader>s",  group = "search & replace (grug-far)" },
+      { "<leader>S",  group = "session (persistence)" },
       { "<leader>t",  group = "test (neotest)" },
     },
   },
