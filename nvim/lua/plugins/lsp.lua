@@ -54,6 +54,16 @@ return {
         -- Docs / infra (nvim-lint)
         "markdownlint-cli2",
         "hadolint",       -- Dockerfile best practices
+        -- Web (conform, manual `<leader>cf`). prettierd is the daemon
+        -- flavour conform tries first; the plain `prettier` fallback in
+        -- conform.lua is for repos that ship their own in node_modules.
+        "prettierd",
+        -- NOT here, both for the same reason — mason has them but they need
+        -- a system runtime no machine has, and a package that fails installs
+        -- retries (and fails) on every start: php_cs_fixer needs `php`;
+        -- sqlfluff needs python ≥3.10 and macOS ships 3.9 (runtimes live in
+        -- Dockerfiles here, not on the host). conform keeps listing both, so
+        -- `brew install php` / a newer python + `:MasonInstall` is all it takes.
       },
       run_on_start = true,
       start_delay = 3000,   -- ms; don't compete with startup

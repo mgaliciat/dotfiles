@@ -27,6 +27,10 @@ require("lazy").setup({
   install = { colorscheme = { "tokyonight-night", "habamax" } },
   checker = { enabled = true, notify = false },  -- checks for updates in the background, without notifying
   change_detection = { notify = false },
+  -- No plugin here declares a luarocks dependency. With this on, lazy
+  -- bootstraps hererocks (a private lua 5.1 + luarocks) and :checkhealth
+  -- reports an ERROR every time that bootstrap is absent.
+  rocks = { enabled = false },
   performance = {
     rtp = {
       -- Built-in plugins we don't use. Disabling them shaves ~5ms off startup.

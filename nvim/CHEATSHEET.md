@@ -470,7 +470,7 @@ Full TUI: **`Alt+g`** in tmux opens lazygit in a popup (no prefix). `prefix + g`
 - SQL → `sqlfluff`
 - shell → `shfmt`
 
-Mason installs the formatters on first use. If one is missing: `:Mason` → find it → `i` to install. `:ConformInfo` shows which formatter applies to the current buffer.
+mason-tool-installer installs the formatters at startup (stylua, gofumpt, goimports, shfmt, prettierd). Two are listed but deliberately not installed because they need a system runtime the machines don't have: `php_cs_fixer` (php) and `sqlfluff` (python ≥ 3.10; macOS ships 3.9). `:ConformInfo` shows which formatter applies to the current buffer.
 
 ---
 

@@ -23,6 +23,46 @@
 --  valid themes here, but outside the matrix.)
 vim.g.theme = "xray"
 
+-- ─── remote-plugin providers ──────────────────────────────────
+-- Nothing here is a remote plugin (every plugin is Lua), so the Python,
+-- Ruby, Perl and Node providers only ever probe for host packages that
+-- aren't installed and report it in :checkhealth. Off = no probe.
+-- `:python3` / `:ruby` etc. become unavailable, which nothing uses.
+vim.g.loaded_python3_provider = 0
+vim.g.loaded_ruby_provider = 0
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_node_provider = 0
+
+-- ─── filetype detection ───────────────────────────────────────
+-- Filetypes the LSP configs target that nvim's built-in detection
+-- doesn't produce on its own (:checkhealth vim.lsp flags them as
+-- "Unknown filetype"). Dotted types keep the parent's behaviour —
+-- `yaml.docker-compose` still gets yamlls and the yaml parser, and
+-- SchemaStore matches the compose schema on the filename anyway;
+-- `markdown.mdx` keeps marksman, render-markdown and the markdown
+-- autocmds. `gotmpl` is what gopls wants for Go templates.
+vim.filetype.add({
+  extension = {
+    mdx    = "markdown.mdx",
+    tmpl   = "gotmpl",
+    gotmpl = "gotmpl",
+  },
+  filename = {
+    ["compose.yml"]         = "yaml.docker-compose",
+    ["compose.yaml"]        = "yaml.docker-compose",
+    ["docker-compose.yml"]  = "yaml.docker-compose",
+    ["docker-compose.yaml"] = "yaml.docker-compose",
+    [".gitlab-ci.yml"]      = "yaml.gitlab",
+    [".gitlab-ci.yaml"]     = "yaml.gitlab",
+  },
+  pattern = {
+    ["docker%-compose%..*%.ya?ml"] = "yaml.docker-compose",   -- docker-compose.override.yml
+    ["compose%..*%.ya?ml"]         = "yaml.docker-compose",   -- compose.prod.yml
+    [".*/values%.ya?ml"]           = "yaml.helm-values",      -- helm chart values
+    [".*/values%-.*%.ya?ml"]       = "yaml.helm-values",      -- values-prod.yaml
+  },
+})
+
 -- ─── vim.opt ──────────────────────────────────────────────────
 -- Good defaults. Follows the spirit of the dotfiles: comment the WHY,
 -- not the WHAT — vim.opt.number = true needs no comment.
