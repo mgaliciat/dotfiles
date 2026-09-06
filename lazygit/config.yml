@@ -6,29 +6,30 @@ gui:
   # Mouse off: in tmux popups the mouse sometimes does weird things
   # (Ghostty's selection interferes with lazygit's clicks).
   mouseEvents: false
-  # Hand-mirror of the ACTIVE stack theme (`xray`, see ghostty/themes/xray).
-  # Lazygit only runs in the tmux popup (Alt+g) — inside nvim git is
-  # Neogit + codediff, which paint from the colorscheme. So this is the one
-  # mirror that does NOT follow the three selection lines on its own: when
-  # the stack theme changes, re-copy the hex here.
+  # Hand-mirror of the ACTIVE stack theme (`solarized-osaka`, see
+  # ghostty/themes/solarized-osaka). Both entry points — the tmux popup (Alt+g)
+  # and the nvim float (snacks, `configure = false` so it never overlays its own
+  # theme) — read this file, so it paints the same in both. It is the one mirror
+  # that does NOT follow the three selection lines on its own: when the stack
+  # theme changes, re-copy the hex here.
   theme:
     activeBorderColor:
-      - "#a3b5c6" # film blue — the accent
+      - "#d23681" # magenta — craftzdog's signature accent
       - bold
     inactiveBorderColor:
-      - "#4c4c4c" # chip legs
+      - "#576d74" # base01 — separators / borders
     optionsTextColor:
-      - "#71a1c6" # ansi4 steel blue
+      - "#268bd3" # ansi4 blue
     selectedLineBgColor:
-      - "#303030" # trace gray (selection bg)
+      - "#063540" # base02 — selection bg
     cherryPickedCommitBgColor:
-      - "#d1b46c" # ansi3
+      - "#b28500" # ansi3
     cherryPickedCommitFgColor:
-      - "#101010" # the board
+      - "#001419" # base04 — the canvas
     unstagedChangesColor:
-      - "#d06e6e" # ansi1
+      - "#db302d" # ansi1
     defaultFgColor:
-      - "#cdcecf" # ghost silver
+      - "#839395" # plugin Normal fg (same as ghostty's `foreground`)
   # showFileTree: shows the change organized as a tree (default true).
   showFileTree: true
   showCommandLog: false # more room for the main panels
