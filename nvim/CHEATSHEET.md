@@ -628,7 +628,6 @@ Typical: `<leader>fg` → `<C-q>` → `zf` to keep the 12 hits that matter → `
 
 Press `<leader>` and wait ~400ms (`timeoutlen`):
 
-- `<leader>a` → ai (claude code)
 - `<leader>b` → buffer
 - `<leader>c` → code (LSP / format)
 - `<leader>f` → find (telescope)
@@ -642,25 +641,7 @@ Single keys outside a group: `<leader>m` / `<leader>M` / `<leader>1-4` harpoon, 
 
 ---
 
-## 17. Claude Code — `<leader>a*` (claudecode.nvim)
-
-nvim hosts the editor side of the VS Code extension's protocol; the Claude process itself runs in the same tmux popup session `Alt+c` uses for this directory, so the shell and the editor share one conversation. A session started from the shell before nvim needs a manual `/ide` once.
-
-| Shortcut | Action |
-|---|---|
-| `<leader>ac` | Open the popup on this directory's session (creates it if needed) |
-| `<leader>ar` | Resume a session (picker) |
-| `<leader>aC` | Continue the last session |
-| `<leader>ab` | Add the current buffer to Claude's context |
-| `<leader>as` (visual) | Send the selection |
-| `<leader>as` (in neo-tree / oil) | Add the file under the cursor |
-| `<leader>aa` / `<leader>ad` | Accept / deny the diff Claude proposed (in the diff buffer) |
-| `<leader>am` | Select model |
-| `<leader>aS` | Connection status |
-
----
-
-## 18. Useful tips
+## 17. Useful tips
 
 - **Macros**: `q<letter>` start recording, `q` stop, `@<letter>` run. `@@` repeats the last one.
 - **Marks**: `m<letter>` marks a position, `'<letter>` jumps to the line, `` `<letter> `` jumps to the exact character. Uppercase marks (`mA`) are global across files.
@@ -673,11 +654,11 @@ nvim hosts the editor side of the VS Code extension's protocol; the Claude proce
 
 ---
 
-## 19. When something doesn't work
+## 18. When something doesn't work
 
 | Symptom | Diagnosis |
 |---|---|
-| A shortcut doesn't respond | `<leader>fk` to see if it's registered; `:WhichKey <leader>a` for a group |
+| A shortcut doesn't respond | `<leader>fk` to see if it's registered; `:WhichKey <leader>g` for a group |
 | LSP doesn't complete | `:LspInfo` shows whether it's running. `:Mason` to check the server is installed |
 | Odd color | `:Inspect` under the cursor shows which highlight group applies it |
 | Language without highlight | `:TSInstall <lang>` to install the parser |

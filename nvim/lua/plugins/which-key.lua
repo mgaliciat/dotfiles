@@ -13,7 +13,6 @@ return {
     spec = {
       -- Groups: visible names for the prefixes. The individual
       -- mappings (with their desc) are discovered on their own.
-      { "<leader>a",  group = "ai (claude code)" },
       { "<leader>b",  group = "buffer" },
       { "<leader>c",  group = "code (LSP / format)" },
       { "<leader>f",  group = "find (telescope)" },
