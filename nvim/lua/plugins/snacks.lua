@@ -11,8 +11,8 @@
 --   indent     → vertical guides + scope highlight of the current block
 --   zen        → focus mode (<leader>z toggle)
 --   input      → `vim.ui.input` as a small floating window instead of the
---                cmdline — dap's conditional breakpoint, neo-tree's
---                add/rename, grug-far's prompts. (`vim.ui.select` is
+--                cmdline — neo-tree's add/rename, grug-far's prompts,
+--                `:LspRestart`'s client pick. (`vim.ui.select` is
 --                telescope-ui-select's, in telescope.lua — a list wants a
 --                picker, a one-liner wants an input box.)
 --

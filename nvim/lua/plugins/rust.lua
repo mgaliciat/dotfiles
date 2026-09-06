@@ -1,8 +1,8 @@
 -- ─── rustaceanvim ─────────────────────────────────────────────
 -- rust-analyzer done properly: it replaces the lspconfig+rust_analyzer route
--- with runnables/debuggables/testables, expand-macro, explain-error, the
--- rendered diagnostic, hover actions, a neotest adapter and a dap config
--- that finds codelldb on its own.
+-- with runnables/testables, expand-macro, explain-error, the rendered
+-- diagnostic, hover actions and a neotest adapter. (It also ships a dap
+-- config; unused here — DAP was dropped from this config in sep-2026.)
 --
 -- It is NOT set up via lspconfig — the plugin registers itself when a
 -- .rs buffer loads. That's why it stays out of the loop in lsp.lua, and why
@@ -16,8 +16,6 @@
 -- knows nothing about std (no completion on `Vec`, no go-to-def into the
 -- library). This machine had rust-analyzer as a rustup PROXY with no
 -- component behind it until sep-2026 — the LSP had never actually run.
--- Debugger: `codelldb` from mason (mason-tool-installer, lsp.lua);
--- rustaceanvim picks it up from mason's path by default.
 
 return {
   "mrcjkb/rustaceanvim",
@@ -45,9 +43,8 @@ return {
             vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
           end
           -- Rust-only keys, under <leader>c beside the LSP ones from lsp.lua
-          -- (ca/cs/cl/ch/cf/cd) and the dap ones (cb/cB/cu/cR/ct).
+          -- (ca/cs/cl/ch/cf/cd).
           map("n", "<leader>cr", function() vim.cmd.RustLsp("runnables") end,      "Rust: runnables")
-          map("n", "<leader>cD", function() vim.cmd.RustLsp("debuggables") end,    "Rust: debuggables")
           map("n", "<leader>ce", function() vim.cmd.RustLsp("explainError") end,   "Rust: explain error (rustc --explain)")
           map("n", "<leader>cE", function() vim.cmd.RustLsp("expandMacro") end,    "Rust: expand macro")
           map("n", "<leader>cx", function() vim.cmd.RustLsp("renderDiagnostic") end, "Rust: render diagnostic (as cargo prints it)")
@@ -104,13 +101,6 @@ return {
             rustfmt = { rangeFormatting = { enable = true } },
           },
         },
-      },
-
-      dap = {
-        -- Load Rust's pretty-printers into lldb so a `String` is a string and
-        -- a `Vec` a list, not raw pointers.
-        load_rust_types = true,
-        auto_generate_source_map = true,
       },
     }
   end,

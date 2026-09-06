@@ -17,8 +17,9 @@
 -- Lua: no adapter. This config has no lua test suite, and neotest-plenary
 -- would add a dependency for zero tests. Add it the day one exists.
 --
--- Keys under <leader>t (group registered in which-key.lua). `<leader>td`
--- debugs the nearest test through nvim-dap-go, same delve as <leader>cgt.
+-- Keys under <leader>t (group registered in which-key.lua). No debug
+-- strategy: DAP was dropped from this config (sep-2026) — a failing test's
+-- output plus the LSP is what gets read now, not a stepping session.
 
 return {
   "nvim-neotest/neotest",
@@ -33,7 +34,6 @@ return {
     { "<leader>tf", function() require("neotest").run.run(vim.fn.expand("%")) end,    desc = "Test: file" },
     { "<leader>ta", function() require("neotest").run.run(vim.uv.cwd()) end,          desc = "Test: all (cwd)" },
     { "<leader>tl", function() require("neotest").run.run_last() end,                 desc = "Test: re-run last" },
-    { "<leader>td", function() require("neotest").run.run({ strategy = "dap" }) end,  desc = "Test: debug nearest" },
     { "<leader>ts", function() require("neotest").summary.toggle() end,               desc = "Test: summary" },
     { "<leader>to", function() require("neotest").output.open({ enter = true, auto_close = true }) end, desc = "Test: output" },
     { "<leader>tO", function() require("neotest").output_panel.toggle() end,          desc = "Test: output panel" },
@@ -50,8 +50,6 @@ return {
           go_test_args = { "-v", "-race", "-count=1" },
           -- gotestsum when mason has it; the adapter falls back on its own.
           runner = "gotestsum",
-          -- Debug through nvim-dap-go's delve config (plugins/dap.lua).
-          dap_go_enabled = true,
         }),
         require("rustaceanvim.neotest"),
       },

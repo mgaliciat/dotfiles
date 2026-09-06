@@ -15,8 +15,7 @@ return {
       -- mappings (with their desc) are discovered on their own.
       { "<leader>a",  group = "ai (claude code)" },
       { "<leader>b",  group = "buffer" },
-      { "<leader>c",  group = "code (LSP / debug)" },
-      { "<leader>cg", group = "go debug" },
+      { "<leader>c",  group = "code (LSP / format)" },
       { "<leader>f",  group = "find (telescope)" },
       { "<leader>g",  group = "git" },
       { "<leader>r",  group = "rename" },

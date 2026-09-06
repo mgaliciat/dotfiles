@@ -350,7 +350,7 @@ All rg-backed pickers see dotfiles (`--hidden`); `.git/`, `node_modules`, `vendo
 
 | Toolchain | For which LSP | How to install |
 |---|---|---|
-| `go` | gopls, delve | `brew install go` |
+| `go` | gopls, gotestsum | `brew install go` |
 | `node` | ts_ls, angularls, astro, html, cssls, jsonls, yamlls, intelephense, emmet, bashls, marksman | you already have it (Claude Code requires it) |
 | `python3` | basedpyright | macOS ships one; `pyenv` for specific versions |
 | `rustup` | rust-analyzer | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
@@ -399,7 +399,6 @@ Registers itself on `.rs` buffers; **not** in the lspconfig loop. Same `gd` / `g
 | Shortcut | Command | Action |
 |---|---|---|
 | `<leader>cr` | `:RustLsp runnables` | Pick a target / test to run |
-| `<leader>cD` | `:RustLsp debuggables` | Same, under the debugger |
 | `<leader>ce` | `:RustLsp explainError` | Long-form explanation of the error under the cursor (`rustc --explain`) |
 | `<leader>cE` | `:RustLsp expandMacro` | Expand the macro under the cursor |
 | `<leader>cx` | `:RustLsp renderDiagnostic` | The diagnostic as cargo prints it |
@@ -407,7 +406,7 @@ Registers itself on `.rs` buffers; **not** in the lspconfig loop. Same `gd` / `g
 | `<leader>cC` | `:RustLsp openCargo` | Jump to `Cargo.toml` |
 | `<leader>ck` | `:RustLsp openDocs` | docs.rs for the symbol under the cursor |
 
-Clippy runs on save; lifetime-elision inlay hints are always on. The toolchain is rustup's (`rustup component add rust-analyzer rustfmt rust-src clippy`), only `codelldb` comes from mason.
+Clippy runs on save; lifetime-elision inlay hints are always on. The toolchain is rustup's (`rustup component add rust-analyzer rustfmt rust-src clippy`); nothing for Rust comes from mason.
 
 **Inside `Cargo.toml`** (crates.nvim, buffer-local): `<leader>cv` versions popup · `<leader>cF` features · `<leader>cu` / `<leader>cU` update (compatible) / upgrade (latest) the crate under the cursor, or the selection in visual · `<leader>cA` upgrade all · `<leader>ck` docs.rs · `<leader>cR` repository.
 
@@ -474,27 +473,9 @@ mason-tool-installer installs the formatters at startup (stylua, gofumpt, goimpo
 
 ---
 
-## 10. Debugging (nvim-dap + dap-ui, Go via delve)
+## 10. Tests — `<leader>t*` (neotest)
 
-| Shortcut | Action |
-|---|---|
-| `<F5>` | Continue / start |
-| `<F10>` | Step over |
-| `<F11>` | Step into |
-| `<F12>` | Step out |
-| `<leader>cb` | Toggle breakpoint |
-| `<leader>cB` | Conditional breakpoint (prompts for the condition) |
-| `<leader>cu` | Toggle the debug UI (scopes, watches, stacks, repl) |
-| `<leader>cR` | Re-run the last debug session |
-| `<leader>ct` | Terminate the session |
-| `<leader>cgt` (Go only) | Debug the nearest test |
-| `<leader>cgT` (Go only) | Debug the last test again |
-
-The UI opens on attach/launch and closes when the session ends. `delve` is installed by mason-nvim-dap; other adapters go in its `ensure_installed`.
-
-### Tests — `<leader>t*` (neotest)
-
-Go through neotest-golang (gotestsum, `-race -count=1`), Rust through rustaceanvim's own adapter.
+Go through neotest-golang (gotestsum, `-race -count=1`), Rust through rustaceanvim's own adapter. There is no debugger in this config (DAP was removed in sep-2026): a failing test's output (`<leader>to`) plus the diagnostics is the loop.
 
 | Shortcut | Action |
 |---|---|
@@ -502,7 +483,6 @@ Go through neotest-golang (gotestsum, `-race -count=1`), Rust through rustaceanv
 | `<leader>tf` | Run the current file |
 | `<leader>ta` | Run everything under cwd |
 | `<leader>tl` | Re-run the last run |
-| `<leader>td` | Debug the nearest test (dap strategy) |
 | `<leader>ts` | Toggle the summary tree (run / jump / expand from there) |
 | `<leader>to` | Output of the test under the cursor in a float |
 | `<leader>tO` | Toggle the output panel |
@@ -537,7 +517,7 @@ Everything starts **expanded** (`foldlevel = 99`). `foldenable` stays `true` —
 | `<leader>cm` | render-markdown | Toggle in-buffer markdown rendering |
 | `:Noice` / `:Noice last` | noice | Message history / the last message (cmdline and popups are noice too) |
 | `:Snacks.dashboard()` | snacks.dashboard | Splash screen when opening nvim with no args — `f` files, `g` grep, `r` recent, `s` restore session, `n` new, `c` config, `L` Lazy, `q` quit. Then a **Projects** list (git roots of recent files, numbered): a key `cd`s there and restores that directory's session, or opens the file picker if it has none |
-| any prompt for text | snacks.input | `vim.ui.input` is a small floating window (conditional breakpoint, neo-tree add/rename, grug-far) — `<Esc>` cancels, `<CR>` confirms |
+| any prompt for text | snacks.input | `vim.ui.input` is a small floating window (neo-tree add/rename, grug-far prompts) — `<Esc>` cancels, `<CR>` confirms |
 
 Also on: snacks indent guides with scope highlight, incline (per-window filename floats), lualine, highlight-colors (inline `#hex` swatches). Smooth scroll is off (it fought the trackpad).
 
@@ -626,7 +606,7 @@ Typical: `<leader>fg` → `<C-q>` → `zf` to keep the 12 hits that matter → `
 - `:Lazy restore` — go back to the lockfile (`lazy-lock.json`)
 
 ### LSP servers (mason)
-- `:Mason` — UI to install/uninstall LSPs, formatters, linters, debug adapters
+- `:Mason` — UI to install/uninstall LSPs, formatters, linters
 - `:MasonInstall <name>` — install a specific one
 - `:LspInfo` — LSP status in the current buffer
 - `:LspRestart` — restart the buffer's LSP
@@ -650,8 +630,7 @@ Press `<leader>` and wait ~400ms (`timeoutlen`):
 
 - `<leader>a` → ai (claude code)
 - `<leader>b` → buffer
-- `<leader>c` → code (LSP / format / debug)
-- `<leader>cg` → go debug
+- `<leader>c` → code (LSP / format)
 - `<leader>f` → find (telescope)
 - `<leader>g` → git
 - `<leader>r` → rename

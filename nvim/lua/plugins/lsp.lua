@@ -25,11 +25,10 @@ return {
     },
   },
 
-  -- Non-LSP tools mason must ALSO own: formatters, linters, debug adapters.
-  -- mason-lspconfig only knows servers, and mason-nvim-dap only installs
-  -- delve once dap itself loads (lazy, on a keymap) — so `stylua`,
-  -- `goimports`, `gofumpt` and `delve` were all referenced by conform/dap
-  -- and none was ever installed. This runs at startup and closes that gap;
+  -- Non-LSP tools mason must ALSO own: formatters, linters, test runners.
+  -- mason-lspconfig only knows servers — so `stylua`, `goimports` and
+  -- `gofumpt` were all referenced by conform and none was ever installed.
+  -- This runs at startup and closes that gap;
   -- nothing here goes to brew (see "Mason doesn't pollute brew", CLAUDE.md).
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
@@ -43,11 +42,9 @@ return {
         "gofumpt",        -- stricter gofmt (conform)
         "goimports",      -- import grouping (conform)
         "golangci-lint",  -- meta-linter (nvim-lint)
-        "delve",          -- debugger (nvim-dap-go)
         "gotestsum",      -- test runner neotest-golang prefers (structured output)
-        -- Rust (the toolchain itself is rustup's: rust-analyzer, rustfmt,
+        -- Rust: nothing — the toolchain is rustup's (rust-analyzer, rustfmt,
         -- rust-src, clippy — see plugins/rust.lua)
-        "codelldb",       -- debugger; rustaceanvim finds it in mason's path
         -- Shell
         "shfmt",
         "shellcheck",     -- bashls only runs it "if on PATH", and nothing else put it there
