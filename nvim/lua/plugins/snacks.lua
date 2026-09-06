@@ -18,9 +18,8 @@
 --
 -- Intentionally off:
 --   scroll        → smooth scroll fought the trackpad (see its block below).
---   lazygit       → git inside nvim is Neogit + codediff (plugins/neogit.lua,
---                   plugins/codediff.lua) — a buffer UI, not a TUI in a float.
---                   Lazygit stays in the tmux popup (Alt+g) for the shell.
+--   (lazygit was off here until sep-2026 — "a buffer UI, not a TUI in a
+--   float" — and is now on TRIAL beside Neogit, see its block below.)
 --   notifier      → we already have nvim-notify via noice.nvim. Enabling it
 --                   duplicates the message sink and breaks the routing to
 --                   notify_send that noice does when you lose focus.
@@ -122,8 +121,18 @@ return {
     -- doesn't match the `x` in another function.
     words = { enabled = true, debounce = 200 },
 
+    -- ─── lazygit ──────────────────────────────────────
+    -- On trial (sep-2026) as the "prettier than Neogit" candidate: the
+    -- lazygit TUI in a float, same binary and same versioned config as
+    -- the tmux popup (`Alt+g`, lazygit/config.yml — its palette mirrors
+    -- the stack theme by hand). `configure = false` for that reason:
+    -- with it on, snacks would append its own theme derived from nvim's
+    -- highlights and override the palette the repo maintains. If lazygit
+    -- wins the week it takes `<leader>gg` and Neogit goes; if Neogit
+    -- wins, this block goes back to `enabled = false`.
+    lazygit = { enabled = true, configure = false },
+
     -- Explicitly off: documents intent.
-    lazygit      = { enabled = false },
     notifier     = { enabled = false },
     statuscolumn = { enabled = false },
     quickfile    = { enabled = false },
@@ -139,6 +148,9 @@ return {
     -- does when the buffer is visible. Asks before dropping unsaved changes.
     { "<leader>bd", function() Snacks.bufdelete() end,       desc = "Delete buffer (keep window)" },
     { "<leader>bo", function() Snacks.bufdelete.other() end, desc = "Delete other buffers" },
+    -- Capitals so Neogit keeps gg/gl during the trial.
+    { "<leader>gG", function() Snacks.lazygit() end,          desc = "Lazygit (float)" },
+    { "<leader>gL", function() Snacks.lazygit.log_file() end, desc = "Lazygit: log of this file" },
     { "<leader>z",  function() Snacks.zen() end,           desc = "Zen mode" },
     { "<leader>Z",  function() Snacks.zen.zoom() end,      desc = "Zen zoom (window only)" },
   },

@@ -435,6 +435,15 @@ Gutter signs: `│` added / modified · `_` / `‾` deleted · `~` changed-and-d
 | `<leader>gc` | Commit |
 | `<leader>gl` | Log |
 
+### Lazygit in a float (on trial beside Neogit, sep-2026)
+
+| Shortcut | Action |
+|---|---|
+| `<leader>gG` | lazygit for the repo — same binary and config as tmux's `Alt+g`, in a float inside nvim (`q` closes) |
+| `<leader>gL` | lazygit's log for the current file |
+
+Whichever wins the week keeps `<leader>gg`.
+
 ### Review (codediff + commit pickers)
 
 | Shortcut | Action |
