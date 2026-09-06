@@ -12,6 +12,21 @@
 -- Lua: nothing. lua_ls's own diagnostics cover it; selene/luacheck would
 -- re-report the same undefined-global class with a second config file.
 --
+-- Shell: nothing here either — bashls runs shellcheck itself once the
+-- binary is on PATH (mason-tool-installer puts it there, lsp.lua), and a
+-- second run through nvim-lint would double every warning. zsh files are
+-- out regardless: shellcheck has no zsh dialect.
+--
+-- Markdown: markdownlint-cli2, the config-file flavour (`.markdownlint-cli2.*`
+-- or `.markdownlint.*` in the repo win; no config = its defaults). marksman
+-- is an LSP for links and headings, it does not lint prose structure.
+--
+-- Dockerfile: hadolint. No LSP exists for Dockerfiles; this is the only
+-- feedback there is, and the dev workflow is Docker-first.
+--
+-- JS/TS: NOT here — eslint runs as a language server (lsp.lua), which also
+-- gives the fix-all code action nvim-lint can't offer.
+--
 -- Trigger: after save and on leaving insert — never per keystroke, golangci
 -- on a big package takes seconds.
 
@@ -21,6 +36,8 @@ return {
   opts = {
     linters_by_ft = {
       go = { "golangcilint" },
+      markdown = { "markdownlint-cli2" },
+      dockerfile = { "hadolint" },
     },
   },
   config = function(_, opts)

@@ -28,6 +28,10 @@ return {
   dependencies = {
     "nvim-lua/plenary.nvim",
     "nvim-telescope/telescope-live-grep-args.nvim",
+    -- `vim.ui.select` → a telescope dropdown. Without it, code actions
+    -- (`<leader>ca`), `:LspRestart`'s client pick and anything else that
+    -- asks the user to choose fall back to the numbered cmdline prompt.
+    "nvim-telescope/telescope-ui-select.nvim",
     {
       "nvim-telescope/telescope-fzf-native.nvim",
       build = "make",
@@ -86,6 +90,9 @@ return {
         find_files = { hidden = true },     -- includes dotfiles
       },
       extensions = {
+        ["ui-select"] = {
+          require("telescope.themes").get_dropdown({ previewer = false }),
+        },
         live_grep_args = {
           auto_quoting = true,
           mappings = {
@@ -105,5 +112,6 @@ return {
     telescope.setup(opts)
     pcall(telescope.load_extension, "fzf")
     telescope.load_extension("live_grep_args")
+    telescope.load_extension("ui-select")
   end,
 }

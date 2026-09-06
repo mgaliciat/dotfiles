@@ -50,6 +50,10 @@ return {
         "codelldb",       -- debugger; rustaceanvim finds it in mason's path
         -- Shell
         "shfmt",
+        "shellcheck",     -- bashls only runs it "if on PATH", and nothing else put it there
+        -- Docs / infra (nvim-lint)
+        "markdownlint-cli2",
+        "hadolint",       -- Dockerfile best practices
       },
       run_on_start = true,
       start_delay = 3000,   -- ms; don't compete with startup
@@ -83,6 +87,7 @@ return {
         ensure_installed = {
           -- Web / JS ecosystem
           "ts_ls",          -- TypeScript / JavaScript / React (.tsx)
+          "eslint",         -- ESLint rules as diagnostics + fix-all (js/ts/vue/svelte/astro)
           "angularls",      -- Angular (HTML templates + TS components)
           "astro",          -- Astro (.astro files)
           "html",           -- HTML standalone
@@ -177,6 +182,23 @@ return {
         ts_ls = {
           -- In Angular projects, angularls takes the lead; ts_ls covers
           -- standalone TS files and mixed React/Next/Astro projects.
+        },
+
+        -- ESLint as a language server (vscode-eslint-language-server): the
+        -- project's own eslint config drives it, so a repo without one gets
+        -- no diagnostics and no client noise. ts_ls reports types, this
+        -- reports rules — the two don't overlap. Covers js/ts/tsx, vue,
+        -- svelte and astro (lspconfig's filetype list). Fixes come as code
+        -- actions (`<leader>ca` → "Fix all auto-fixable problems") and as
+        -- the buffer command `:LspEslintFixAll`; NOT on save, same policy as
+        -- prettier in conform.lua — project style is the project's call.
+        eslint = {
+          settings = {
+            -- Resolve the working directory per file from the nearest
+            -- eslint config; the default (the LSP root) breaks monorepos
+            -- where each package has its own config.
+            workingDirectories = { mode = "auto" },
+          },
         },
 
         angularls = {

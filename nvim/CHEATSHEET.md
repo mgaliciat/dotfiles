@@ -120,8 +120,14 @@ mini.bracketed's `file`, `comment`, `quickfix`, `window` and `treesitter` target
 - `if` / `af` — inner / around **function** (treesitter)
 - `ic` / `ac` — inner / around **class** (treesitter)
 - `ia` / `aa` — inner / around **argument** (treesitter)
+- `io` / `ao` — inner / around **block / conditional / loop** (treesitter)
+- `iq` / `aq` — inner / around **any quote** (whichever of `"` `'` `` ` `` is closest)
+- `ib` / `ab` — inner / around **any bracket** (`()` `[]` `{}`)
+- `i?` / `a?` — prompts for the two delimiters
 
-Examples: `daw` deletes a word + space. `ci"` changes the content between quotes. `vaf` selects a whole function.
+All of these come from mini.ai, which also adds two prefixes: **`n`** for the *next* object and **`l`** for the *last* one, without moving the cursor first — `cin"` changes the next string on the line, `dal(` deletes the previous call's parens, `yinf` yanks the next function. Counts work: `v2af` selects the second enclosing function.
+
+Examples: `daw` deletes a word + space. `ci"` changes the content between quotes. `vaf` selects a whole function. `ciq` changes the string under the cursor whatever quote it uses.
 
 ### Surround (nvim-surround) — a new operator, no leader keys
 
@@ -326,6 +332,7 @@ All rg-backed pickers see dotfiles (`--hidden`); `.git/`, `node_modules`, `vendo
 |---|---|---|
 | Go | `gopls` | full inlay hints, gofumpt + staticcheck on, code lenses |
 | TypeScript / JavaScript / React (.tsx) | `ts_ls` | one server for the whole TS/JS ecosystem |
+| JS / TS / Vue / Svelte / Astro (rules) | `eslint` | the project's eslint config as diagnostics; no config → silent. `:LspEslintFixAll` or the "fix all" code action |
 | Angular | `angularls` | takes the lead in Angular projects; ts_ls covers TS outside the project |
 | Astro | `astro` | parses `.astro` with mixed frontmatter |
 | Rust | `rust-analyzer` via `rustaceanvim` | does NOT go through lspconfig — its own plugin (§7) |
@@ -335,7 +342,7 @@ All rg-backed pickers see dotfiles (`--hidden`); `.git/`, `node_modules`, `vendo
 | JSON | `jsonls` | automatic schemas via SchemaStore (package.json, tsconfig, etc.) |
 | HTML | `html` + `emmet_ls` | emmet expands `div.foo>span` → markup |
 | CSS / SCSS / Less | `cssls` + `emmet_ls` | |
-| Bash / sh / zsh | `bashls` | uses shellcheck if it's in PATH |
+| Bash / sh / zsh | `bashls` | runs shellcheck (mason installs it; bash/sh only — shellcheck has no zsh dialect) |
 | Lua | `lua_ls` | knows nvim's APIs for your config |
 | Markdown | `marksman` | links, refs, headings |
 
@@ -351,6 +358,8 @@ All rg-backed pickers see dotfiles (`--hidden`); `.git/`, `node_modules`, `vendo
 
 Mason downloads the rest on demand. `:Mason` to view/install/update. `:LspInfo` shows the LSP status in the current buffer.
 
+**Linters that are not language servers** (nvim-lint, run after save and on leaving insert, diagnostics land in the same list): `golangci-lint` for Go, `markdownlint-cli2` for Markdown, `hadolint` for Dockerfiles. The repo's config file wins where one exists.
+
 ### LSP keymaps (buffer-local, set on `LspAttach`)
 
 | Shortcut | Action |
@@ -362,7 +371,7 @@ Mason downloads the rest on demand. `:Mason` to view/install/update. `:LspInfo` 
 | `gt` | Goto type definition — Glance peek. **Careful:** in any buffer with LSP, `gt` is NOT "next tab" (`gT` still works) |
 | `K` | Over a closed fold: ufo peek. Otherwise: hover docs |
 | `<leader>rn` | Rename symbol with **IncRename** — live preview at every call site; the cmdline stays open for editing |
-| `<leader>ca` (normal / visual) | Code action (quick fix, imports, refactor) |
+| `<leader>ca` (normal / visual) | Code action (quick fix, imports, refactor, ESLint "fix all") — opens as a telescope dropdown, `<C-j>`/`<C-k>` and `<CR>` |
 | `<leader>cs` | Signature help |
 | `<leader>cl` | Run the code lens on the current line (go test, go generate…) — only when the server offers lenses |
 | `<leader>ch` | Toggle inlay hints (**enabled by default** where supported: Go, Rust, TS, Python) |
@@ -527,7 +536,8 @@ Everything starts **expanded** (`foldlevel = 99`). `foldenable` stays `true` —
 | `<leader>h` | dropbar | Interactive breadcrumb picker (winbar): navigate path → symbol and jump |
 | `<leader>cm` | render-markdown | Toggle in-buffer markdown rendering |
 | `:Noice` / `:Noice last` | noice | Message history / the last message (cmdline and popups are noice too) |
-| `:Snacks.dashboard()` | snacks.dashboard | Splash screen when opening nvim with no args — `f` files, `g` grep, `r` recent, `s` restore session, `n` new, `c` config, `L` Lazy, `q` quit |
+| `:Snacks.dashboard()` | snacks.dashboard | Splash screen when opening nvim with no args — `f` files, `g` grep, `r` recent, `s` restore session, `n` new, `c` config, `L` Lazy, `q` quit. Then a **Projects** list (git roots of recent files, numbered): a key `cd`s there and restores that directory's session, or opens the file picker if it has none |
+| any prompt for text | snacks.input | `vim.ui.input` is a small floating window (conditional breakpoint, neo-tree add/rename, grug-far) — `<Esc>` cancels, `<CR>` confirms |
 
 Also on: snacks indent guides with scope highlight, incline (per-window filename floats), lualine, highlight-colors (inline `#hex` swatches). Smooth scroll is off (it fought the trackpad).
 

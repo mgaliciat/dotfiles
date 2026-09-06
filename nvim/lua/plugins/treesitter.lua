@@ -62,35 +62,20 @@ return {
   -- On main, textobjects aren't configured as nvim-treesitter
   -- modules: the separate plugin exposes functions (`select`,
   -- `move`) that you map to keys manually.
+  --
+  -- Only `move` is mapped here. The `select` half (`vaf`, `dic`, `cia`…)
+  -- moved to mini.ai (plugins/mini-ai.lua), which reads the SAME
+  -- `textobjects.scm` queries this plugin ships — so the plugin stays
+  -- installed for its queries even where `move` isn't used.
   {
     "nvim-treesitter/nvim-treesitter-textobjects",
     branch = "main",
     dependencies = { "nvim-treesitter/nvim-treesitter" },
     event = { "BufReadPost", "BufNewFile" },
     config = function()
-      require("nvim-treesitter-textobjects").setup({
-        select = {
-          lookahead = true,
-        },
-      })
+      require("nvim-treesitter-textobjects").setup({})
 
-      local select = require("nvim-treesitter-textobjects.select")
       local move = require("nvim-treesitter-textobjects.move")
-
-      -- Selections: vaf / vif / vac / vic / vaa / via
-      local select_maps = {
-        { "af", "@function.outer" },
-        { "if", "@function.inner" },
-        { "ac", "@class.outer" },
-        { "ic", "@class.inner" },
-        { "aa", "@parameter.outer" },
-        { "ia", "@parameter.inner" },
-      }
-      for _, m in ipairs(select_maps) do
-        vim.keymap.set({ "x", "o" }, m[1], function()
-          select.select_textobject(m[2], "textobjects")
-        end, { desc = "select " .. m[2] })
-      end
 
       -- Movement: ]f / [f by functions, ]c / [c by classes
       vim.keymap.set({ "n", "x", "o" }, "]f", function()

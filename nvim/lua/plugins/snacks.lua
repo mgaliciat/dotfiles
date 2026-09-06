@@ -3,9 +3,18 @@
 -- we enable ONLY the minimalist visual stuff and leave the rest off so
 -- we don't clobber existing plugins:
 --
---   dashboard  → splash when opening nvim with no args (recents + shortcuts)
+--   dashboard  → splash when opening nvim with no args (projects + recents
+--                + shortcuts). "Projects" are the git roots of recent files;
+--                picking one `cd`s there and restores its persistence.nvim
+--                session (snacks knows persistence's load command), falling
+--                back to the file picker when there is no session yet.
 --   indent     → vertical guides + scope highlight of the current block
 --   zen        → focus mode (<leader>z toggle)
+--   input      → `vim.ui.input` as a small floating window instead of the
+--                cmdline — dap's conditional breakpoint, neo-tree's
+--                add/rename, grug-far's prompts. (`vim.ui.select` is
+--                telescope-ui-select's, in telescope.lua — a list wants a
+--                picker, a one-liner wants an input box.)
 --
 -- Intentionally off:
 --   scroll        → smooth scroll fought the trackpad (see its block below).
@@ -54,7 +63,8 @@ return {
       sections = {
         { section = "header" },
         { section = "keys",   gap = 1, padding = 1 },
-        { section = "recent_files", icon = " ", title = "Recent",  indent = 2, padding = 1 },
+        { section = "projects",     icon = " ", title = "Projects", indent = 2, padding = 1, limit = 5 },
+        { section = "recent_files", icon = " ", title = "Recent",   indent = 2, padding = 1 },
         { section = "startup" },
       },
     },
@@ -88,6 +98,8 @@ return {
       toggles = { dim = true, git_signs = false, diagnostics = false },
       show    = { statusline = false, tabline = false },
     },
+
+    input = { enabled = true },
 
     -- Explicitly off: documents intent.
     lazygit      = { enabled = false },
