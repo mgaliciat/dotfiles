@@ -523,7 +523,7 @@ Everything starts **expanded** (`foldlevel = 99`). `foldenable` stays `true` —
 
 Also on: snacks indent guides with scope highlight, incline (per-window filename floats), highlight-colors (inline `#hex` swatches), snacks.bigfile (files over 1.5 MB or with 1000-char lines open with treesitter, LSP and folds off — `ft=bigfile`). Smooth scroll is off (it fought the trackpad).
 
-**Statusline (lualine), right side, left to right:** `󰑊 @q` while recording a macro · ` ` the LSP clients attached to this buffer · `󰁨 ` the nvim-lint linters for this filetype · `󰉼 ` the conform formatters that are actually available (a configured-but-missing one is not shown — that is the tell) · filetype. On the left, after the diagnostics, `󱡅 2/4` when the file is in the harpoon list.
+**Statusline (lualine), right side, left to right:** `󰑊 @q` while recording a macro · `` + the LSP clients attached to this buffer · `󰁨` + the nvim-lint linters for this filetype · `󰉼` + the conform formatters that are actually available (a configured-but-missing one is not shown — that is the tell) · filetype. On the left, after the diagnostics, `󱡅 2/4` when the file is in the harpoon list.
 
 ---
 
