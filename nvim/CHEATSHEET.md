@@ -82,17 +82,15 @@ Every keymap below is taken from `lua/config/keymaps.lua` (native) or the `keys 
 | `]h` / `[h` | Git hunk | gitsigns (LSP-independent, any git buffer) |
 | `]f` / `[f` | Function start | treesitter textobjects |
 | `]c` / `[c` | Class start | treesitter textobjects |
-| `]t` / `[t` | TODO / FIX / HACK comment | todo-comments |
-| `]b` / `[b` | Buffer | mini.bracketed |
+| `]t` / `[t` | Failed test | neotest |
+| `]T` / `[T` | TODO / FIX / HACK comment | todo-comments |
+| `]]` / `[[` | Reference of the symbol under the cursor | snacks.words (LSP) |
+| `]q` / `[q` | Quickfix entry | native |
 | `]x` / `[x` | Merge-conflict marker | mini.bracketed |
 | `]i` / `[i` | Indent-level change | mini.bracketed |
-| `]j` / `[j` | Jumplist entry | mini.bracketed |
-| `]l` / `[l` | Location-list entry | mini.bracketed |
-| `]o` / `[o` | Recent file (oldfile) | mini.bracketed |
-| `]u` / `[u` | Undo state (linearized undo tree) | mini.bracketed |
 | `]y` / `[y` | **Yank history** — after a `p`, cycles through earlier yanks in place | mini.bracketed |
 
-mini.bracketed's `file`, `comment`, `quickfix`, `window` and `treesitter` targets are **disabled** on purpose so they don't shadow the rows above.
+mini.bracketed's other targets are **disabled**: `]b`, `]j`, `]o`, `]u`, `]d` duplicated `<S-l>`, `<C-o>`, `<leader>fr`, `u` and the native diagnostic jump; `]f` `]c` `]t` would shadow the rows above.
 
 ---
 
@@ -245,7 +243,6 @@ Rendering: every line shows a short `●` at the right, except the line the curs
 | Key | Action |
 |---|---|
 | `-` | Open the current file's directory (also the parent, from inside oil) |
-| `<leader>e` | Open oil |
 | `o` / `i` + name + `:w` | **Create file** (`foo.lua`) |
 | name with trailing `/` + `:w` | **Create folder** (`utils/`) |
 | `foo/bar/baz.lua` + `:w` | Nested folders + file in one go |
@@ -427,7 +424,6 @@ Three layers: gitsigns for the hunk under the cursor, Neogit for the porcelain (
 | `<leader>gr` | Reset hunk (discard the change) |
 | `<leader>gp` | Preview hunk |
 | `<leader>gb` | Toggle inline blame for the current line |
-| `<leader>gd` | Diff the current buffer against the index |
 
 Gutter signs: `│` added / modified · `_` / `‾` deleted · `~` changed-and-deleted · `┆` untracked.
 
@@ -446,8 +442,7 @@ Gutter signs: `│` added / modified · `_` / `‾` deleted · `~` changed-and-d
 | `<leader>gv` | Working tree vs index, side by side |
 | `<leader>gB` | Current branch vs its base (`origin/HEAD...`) |
 | `<leader>gh` (normal / visual) | History of the current file / of the selected lines |
-| `<leader>gH` | History of the whole repo |
-| `<leader>gf` / `<leader>gF` | Telescope picker of repo / file commits — `<CR>` opens the commit in codediff, `<C-y>` yanks its hash |
+| `<leader>gf` / `<leader>gF` | Telescope picker of repo / file commits — `<CR>` opens the commit in codediff, `<C-y>` yanks its hash. (Repo-wide history: this or `<leader>gl`) |
 
 Full TUI: **`Alt+g`** in tmux opens lazygit in a popup (no prefix). `prefix + g` is something else — the IDE layout.
 
@@ -521,7 +516,7 @@ Everything starts **expanded** (`foldlevel = 99`). `foldenable` stays `true` —
 | `:Snacks.dashboard()` | snacks.dashboard | Splash screen when opening nvim with no args — `f` files, `g` grep, `r` recent, `s` restore session, `n` new, `c` config, `L` Lazy, `q` quit. Then a **Projects** list (git roots of recent files, numbered): a key `cd`s there and restores that directory's session, or opens the file picker if it has none |
 | any prompt for text | snacks.input | `vim.ui.input` is a small floating window (neo-tree add/rename, grug-far prompts) — `<Esc>` cancels, `<CR>` confirms |
 
-Also on: snacks indent guides with scope highlight, incline (per-window filename floats), highlight-colors (inline `#hex` swatches), snacks.bigfile (files over 1.5 MB or with 1000-char lines open with treesitter, LSP and folds off — `ft=bigfile`). Smooth scroll is off (it fought the trackpad).
+Also on: snacks indent guides with scope highlight, dropbar's winbar (path + symbol per window — what tells the splits apart), highlight-colors (inline `#hex` swatches), snacks.bigfile (files over 1.5 MB or with 1000-char lines open with treesitter, LSP and folds off — `ft=bigfile`). Smooth scroll is off (it fought the trackpad).
 
 **Statusline (lualine), right side, left to right:** `󰑊 @q` while recording a macro · `` + the LSP clients attached to this buffer · `󰁨` + the nvim-lint linters for this filetype · `󰉼` + the conform formatters that are actually available (a configured-but-missing one is not shown — that is the tell) · filetype. On the left, after the diagnostics, `󱡅 2/4` when the file is in the harpoon list.
 
@@ -642,7 +637,7 @@ Press `<leader>` and wait ~400ms (`timeoutlen`):
 - `<leader>S` → session (persistence)
 - `<leader>t` → test (neotest)
 
-Single keys outside a group: `<leader>m` / `<leader>M` / `<leader>1-4` harpoon, `<leader>h` dropbar, `<leader>e` oil, `<leader>n` neo-tree, `<leader>z` zen.
+Single keys outside a group: `<leader>m` / `<leader>M` / `<leader>1-4` harpoon, `<leader>h` dropbar, `<leader>n` neo-tree, `<leader>z` zen (oil is `-`).
 
 ---
 

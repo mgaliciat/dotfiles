@@ -41,7 +41,8 @@ return {
       map("n", "<leader>gr", gs.reset_hunk,        "Reset hunk")
       map("n", "<leader>gp", gs.preview_hunk,      "Preview hunk")
       map("n", "<leader>gb", gs.toggle_current_line_blame, "Toggle blame")
-      map("n", "<leader>gd", gs.diffthis,          "Diff this")
+      -- No `diffthis` here: the buffer-vs-index diff is codediff's
+      -- `<leader>gv`, side by side with character-level highlighting.
     end,
   },
 }

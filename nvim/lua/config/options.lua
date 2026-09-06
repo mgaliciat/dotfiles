@@ -99,11 +99,11 @@ opt.smartindent = true
 -- Search
 opt.ignorecase = true
 opt.smartcase = true                 -- ignores case unless you type uppercase
-opt.incsearch = true
-opt.hlsearch = true
+-- (incsearch and hlsearch are nvim defaults; not restated here.)
 
 -- UI
-opt.termguicolors = true             -- 24-bit. Requires a capable terminal (Ghostty ✓).
+-- (termguicolors is auto-detected since nvim 0.10; Ghostty and tmux-256color
+--  both declare RGB, so it's on without a line here.)
 opt.signcolumn = "yes"               -- always visible: avoids layout shift when LSP/git signs appear
 opt.showmode = false                 -- lualine already shows the mode
 opt.cmdheight = 1
@@ -112,19 +112,17 @@ opt.splitright = true                -- vsplits to the right (intuitive on wide 
 opt.splitbelow = true
 opt.fillchars = { eob = " " }        -- hides ~ on empty lines at the end of the buffer
 
--- Buffers / files
-opt.hidden = true                    -- allows switching buffers without saving
+-- Buffers / files (hidden=on and backup=off are nvim defaults)
 opt.undofile = true                  -- persistent undo across sessions (in ~/.local/share/nvim/undo/)
 opt.swapfile = false                 -- more annoying than helpful with undofile + git
-opt.backup = false
 opt.updatetime = 250                 -- gitsigns/lsp respond faster (default 4000ms)
 opt.timeoutlen = 400                 -- chord timeout (which-key respects this)
 
 -- Clipboard
 opt.clipboard = "unnamedplus"        -- shares yank with the system clipboard
 
--- Completion / wildmenu
-opt.completeopt = { "menu", "menuone", "noselect" }
+-- Wildmenu. (No completeopt: blink.cmp drives insert completion and
+-- ignores it.)
 opt.wildmode = "longest:full,full"
 
 -- Folding (nvim-ufo provides it; starts fully expanded)

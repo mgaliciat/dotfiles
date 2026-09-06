@@ -11,8 +11,11 @@
 -- thing diffview never had — the character-level pass. Binary is
 -- downloaded prebuilt; no compiler involved.
 --
--- Keys under <leader>g beside gitsigns (gs/gr/gp/gb/gd) and Neogit (gg/gc/gl);
+-- Keys under <leader>g beside gitsigns (gs/gr/gp/gb) and Neogit (gg/gc/gl);
 -- the commit PICKERS (gf/gF) live in plugins/git-history.lua and land here.
+-- No repo-wide `CodeDiff history` key: `<leader>gf` (telescope over the
+-- same commits, with search) opens the chosen one here, and `<leader>gl`
+-- is Neogit's log — a third view of the log was one too many.
 
 return {
   "esmuellert/codediff.nvim",
@@ -20,7 +23,6 @@ return {
   keys = {
     { "<leader>gv", "<cmd>CodeDiff<cr>",           desc = "CodeDiff: working tree" },
     { "<leader>gh", "<cmd>CodeDiff history %<cr>", desc = "CodeDiff: file history" },
-    { "<leader>gH", "<cmd>CodeDiff history<cr>",   desc = "CodeDiff: repo history" },
     -- PR-style review: merge-base of origin/HEAD vs the working tree, so
     -- commits that landed on the base since branching don't show as yours.
     { "<leader>gB", "<cmd>CodeDiff origin/HEAD...<cr>", desc = "CodeDiff: branch vs base" },

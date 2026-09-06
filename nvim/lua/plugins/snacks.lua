@@ -57,7 +57,9 @@ return {
         keys = {
           { icon = " ", key = "f", desc = "Find File",     action = ":lua Snacks.dashboard.pick('files')" },
           { icon = " ", key = "n", desc = "New File",      action = ":ene | startinsert" },
-          { icon = " ", key = "g", desc = "Grep Text",     action = ":lua Snacks.dashboard.pick('live_grep')" },
+          -- Same picker as <leader>fg (rg flags allowed), not the plain
+          -- live_grep `Snacks.dashboard.pick` would resolve to.
+          { icon = " ", key = "g", desc = "Grep Text",     action = ":lua require('telescope').extensions.live_grep_args.live_grep_args()" },
           { icon = " ", key = "r", desc = "Recent Files",  action = ":lua Snacks.dashboard.pick('oldfiles')" },
           { icon = " ", key = "s", desc = "Restore Session", action = ":lua require('persistence').load()" },
           { icon = " ", key = "c", desc = "Config",        action = ":e $MYVIMRC" },
