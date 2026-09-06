@@ -368,7 +368,7 @@ Mason downloads the rest on demand. `:Mason` to view/install/update. `:LspInfo` 
 | `gr` | References — Glance peek |
 | `gi` | Goto implementation — Glance peek |
 | `gt` | Goto type definition — Glance peek. **Careful:** in any buffer with LSP, `gt` is NOT "next tab" (`gT` still works) |
-| `K` | Over a closed fold: ufo peek. Otherwise: hover docs |
+| `K` | Hover docs |
 | `<leader>rn` | Rename symbol with **IncRename** — live preview at every call site; the cmdline stays open for editing |
 | `<leader>ca` (normal / visual) | Code action (quick fix, imports, refactor, ESLint "fix all") — opens as a telescope dropdown, `<C-j>`/`<C-k>` and `<CR>` |
 | `<leader>cs` | Signature help |
@@ -487,9 +487,9 @@ Go through neotest-golang (gotestsum, `-race -count=1`), Rust through rustaceanv
 
 ---
 
-## 11. Folding (nvim-ufo)
+## 11. Folding (native, treesitter)
 
-Folds come from **nvim-ufo** (treesitter → indent chain), not native folding. `zR` / `zM` / `zr` / `zm` are ufo functions.
+Folds come from the treesitter tree (`foldexpr = vim.treesitter.foldexpr()`), no plugin. A folded line keeps its syntax colours (`foldtext = ""`). Buffers without a parser have no folds.
 
 | Shortcut | Action |
 |---|---|
@@ -498,9 +498,8 @@ Folds come from **nvim-ufo** (treesitter → indent chain), not native folding. 
 | `zm` / `zr` | Close / open one fold level |
 | `zc` / `zo` | Close / open fold |
 | `zj` / `zk` | Next / previous fold |
-| `K` | Peek the closed fold under the cursor (no fold → LSP hover) |
 
-Everything starts **expanded** (`foldlevel = 99`). `foldenable` stays `true` — ufo needs it to render its virtual text.
+Everything starts **expanded** (`foldlevel = 99`). nvim-ufo used to do this (peek on `K`, "N lines" suffix) and was dropped in sep-2026 as two plugins for two cosmetics.
 
 ---
 

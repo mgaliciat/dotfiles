@@ -125,14 +125,19 @@ opt.clipboard = "unnamedplus"        -- shares yank with the system clipboard
 -- ignores it.)
 opt.wildmode = "longest:full,full"
 
--- Folding (nvim-ufo provides it; starts fully expanded)
--- ufo needs a high foldlevel + foldenable=true; the provider
--- (treesitter→indent) is set in plugins/ufo.lua, NOT here with
--- foldexpr — ufo registers its own handler via the API.
-opt.foldcolumn = "1"                 -- fold marker column (clickable with ufo)
+-- Folding: native, from the treesitter tree (nvim 0.9+). nvim-ufo did this
+-- with two plugins and was dropped (sep-2026) — the peek-on-K and the
+-- "N lines" suffix weren't worth them. `foldtext = ""` keeps the folded
+-- line syntax-highlighted instead of the grey `+--` text. Buffers without
+-- a parser get no folds rather than indent folds; the only ones that
+-- matter here (logs, plain text) aren't folded anyway.
+opt.foldmethod = "expr"
+opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+opt.foldtext = ""
+opt.foldcolumn = "1"                 -- fold markers in the gutter
 opt.foldlevel = 99                   -- open everything by default
 opt.foldlevelstart = 99
-opt.foldenable = true                -- ufo requires true to render its virtual text
+opt.fillchars:append({ fold = " ", foldopen = "▾", foldclose = "▸", foldsep = " " })
 
 -- Invisible characters
 opt.list = true

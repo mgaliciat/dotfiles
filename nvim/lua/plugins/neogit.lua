@@ -48,7 +48,7 @@ return {
     disable_hint = true,
     -- Fold marks. Upstream draws sections/items with ASCII `>` / `v`; the
     -- Nerd Font chevrons read as the same fold state the file tree and
-    -- folds use elsewhere in this config (neo-tree, ufo). Hunks keep the
+    -- folds use elsewhere in this config (neo-tree, foldcolumn). Hunks keep the
     -- empty default: their header line already says what they are.
     signs = {
       hunk    = { "", "" },
