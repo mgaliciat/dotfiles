@@ -14,6 +14,18 @@
 -- the way cargo does). Do NOT add neotest-rust beside it — upstream says
 -- the two conflict.
 --
+-- JS/TS: neotest-vitest and neotest-jest side by side. Each one claims a
+-- file only when its own config is in the project root (vitest.config.*,
+-- jest.config.* / a "jest" key in package.json), so an Astro or Angular
+-- repo lands on the right one and a repo with neither gets no adapter —
+-- no "which runner" prompt, no false positives on `*.spec.ts` in a repo
+-- that runs karma.
+--
+-- Python: neotest-python on pytest. It runs the `python` the buffer's
+-- project resolves to; with runtimes in Docker rather than on the host,
+-- that means it only works inside a repo whose venv is on PATH — the
+-- adapter is here so the keys are uniform, not because the host has pytest.
+--
 -- Lua: no adapter. This config has no lua test suite, and neotest-plenary
 -- would add a dependency for zero tests. Add it the day one exists.
 --
@@ -28,6 +40,9 @@ return {
     "nvim-lua/plenary.nvim",
     "fredrikaverpil/neotest-golang",
     "mrcjkb/rustaceanvim",
+    "marilari88/neotest-vitest",
+    "nvim-neotest/neotest-jest",
+    "nvim-neotest/neotest-python",
   },
   keys = {
     { "<leader>tt", function() require("neotest").run.run() end,                      desc = "Test: nearest" },
@@ -52,6 +67,17 @@ return {
           runner = "gotestsum",
         }),
         require("rustaceanvim.neotest"),
+        require("neotest-vitest"),
+        require("neotest-jest")({
+          -- Run through the project's own binary, never a global one.
+          jestCommand = "npx jest --",
+        }),
+        require("neotest-python")({
+          runner = "pytest",
+          -- Re-detect the interpreter per run: the venv can appear after
+          -- nvim started (docker exec, direnv).
+          python = function() return vim.fn.exepath("python3") end,
+        }),
       },
       -- Diagnostics from failed assertions on the failing line, like an LSP.
       diagnostic = { enabled = true, severity = vim.diagnostic.severity.ERROR },

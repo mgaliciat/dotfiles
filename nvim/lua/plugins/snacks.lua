@@ -26,7 +26,12 @@
 --                   notify_send that noice does when you lose focus.
 --   statuscolumn  → LSP/git signs already live in the native signcolumn
 --                   (signcolumn="yes" in options.lua), it adds nothing.
---   bigfile/quickfile/words/etc → not needed for "look & feel".
+--   quickfile     → it renders the file before plugins load; with a ~40 ms
+--                   startup there's nothing to hide.
+--
+-- On, but not for looks (sep-2026): bigfile (guard against huge files),
+-- words (LSP reference highlight + `]]`/`[[`), bufdelete (`<leader>bd`
+-- keeps the window layout) — see their blocks below.
 --
 -- Dynamic discovery pattern: snacks is a "composable suite" just like
 -- the rest of the repo (mini.bracketed, blink.cmp). Each module
@@ -101,15 +106,37 @@ return {
 
     input = { enabled = true },
 
+    -- ─── bigfile ──────────────────────────────────────
+    -- Above 1.5 MB (or an average line over 1000 chars — a minified
+    -- bundle) the buffer gets `ft=bigfile`: no treesitter, no LSP, no
+    -- folds, syntax off. Without it a dumped JSON or a log freezes nvim
+    -- for seconds on open and on every keystroke.
+    bigfile = { enabled = true },
+
+    -- ─── words ────────────────────────────────────────
+    -- LSP document highlight: every reference of the symbol under the
+    -- cursor lights up, and `]]` / `[[` jump between them (keys below).
+    -- `*` finds text; this finds the same *binding*, so a local `x`
+    -- doesn't match the `x` in another function.
+    words = { enabled = true, debounce = 200 },
+
     -- Explicitly off: documents intent.
     lazygit      = { enabled = false },
     notifier     = { enabled = false },
     statuscolumn = { enabled = false },
-    bigfile      = { enabled = false },
     quickfile    = { enabled = false },
-    words        = { enabled = false },
   },
   keys = {
+    -- `]]` / `[[` are vim's section motions (`{` in column 0 — C-era).
+    -- When words has references for the buffer they jump between them;
+    -- otherwise the native motion runs, so nothing is lost.
+    { "]]", function() Snacks.words.jump(vim.v.count1) end,  mode = { "n", "t" }, desc = "Next reference" },
+    { "[[", function() Snacks.words.jump(-vim.v.count1) end, mode = { "n", "t" }, desc = "Prev reference" },
+    -- Buffer close that keeps the window layout: the window gets the
+    -- alternate (or next) buffer instead of being destroyed like `:bdelete`
+    -- does when the buffer is visible. Asks before dropping unsaved changes.
+    { "<leader>bd", function() Snacks.bufdelete() end,       desc = "Delete buffer (keep window)" },
+    { "<leader>bo", function() Snacks.bufdelete.other() end, desc = "Delete other buffers" },
     { "<leader>z",  function() Snacks.zen() end,           desc = "Zen mode" },
     { "<leader>Z",  function() Snacks.zen.zoom() end,      desc = "Zen zoom (window only)" },
   },

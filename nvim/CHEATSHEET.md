@@ -63,6 +63,7 @@ Every keymap below is taken from `lua/config/keymaps.lua` (native) or the `keys 
 - `n` / `N` — next / previous search match
 - `<C-o>` / `<C-i>` — back / forward in the jump history
 - `<C-^>` — toggle previous buffer
+- `]]` / `[[` — next / previous **reference of the symbol under the cursor** (LSP, via snacks.words — the same binding, not the same text; every reference is highlighted while the cursor sits on one). Falls back to the native section motion where there is no LSP
 
 ### Quick jumps (flash.nvim)
 
@@ -202,7 +203,8 @@ All in `lua/config/keymaps.lua` with a `desc`, so they show in which-key and `<l
 | Shortcut | Action |
 |---|---|
 | `<S-l>` / `<S-h>` | Next / previous buffer |
-| `<leader>bd` | Close current buffer |
+| `<leader>bd` | Close the current buffer **keeping the window** (snacks.bufdelete — `:bdelete` would take the split with it); asks before dropping unsaved changes |
+| `<leader>bo` | Close every other buffer |
 
 ### Moving lines
 
@@ -475,7 +477,7 @@ mason-tool-installer installs the formatters at startup (stylua, gofumpt, goimpo
 
 ## 10. Tests — `<leader>t*` (neotest)
 
-Go through neotest-golang (gotestsum, `-race -count=1`), Rust through rustaceanvim's own adapter. There is no debugger in this config (DAP was removed in sep-2026): a failing test's output (`<leader>to`) plus the diagnostics is the loop.
+Go through neotest-golang (gotestsum, `-race -count=1`), Rust through rustaceanvim's own adapter, JS/TS through neotest-vitest or neotest-jest (whichever config the project root has — neither means no adapter), Python through neotest-python on pytest (uses the `python3` on PATH, so inside a venv or a container shell). There is no debugger in this config (DAP was removed in sep-2026): a failing test's output (`<leader>to`) plus the diagnostics is the loop.
 
 | Shortcut | Action |
 |---|---|
@@ -519,7 +521,9 @@ Everything starts **expanded** (`foldlevel = 99`). `foldenable` stays `true` —
 | `:Snacks.dashboard()` | snacks.dashboard | Splash screen when opening nvim with no args — `f` files, `g` grep, `r` recent, `s` restore session, `n` new, `c` config, `L` Lazy, `q` quit. Then a **Projects** list (git roots of recent files, numbered): a key `cd`s there and restores that directory's session, or opens the file picker if it has none |
 | any prompt for text | snacks.input | `vim.ui.input` is a small floating window (neo-tree add/rename, grug-far prompts) — `<Esc>` cancels, `<CR>` confirms |
 
-Also on: snacks indent guides with scope highlight, incline (per-window filename floats), lualine, highlight-colors (inline `#hex` swatches). Smooth scroll is off (it fought the trackpad).
+Also on: snacks indent guides with scope highlight, incline (per-window filename floats), highlight-colors (inline `#hex` swatches), snacks.bigfile (files over 1.5 MB or with 1000-char lines open with treesitter, LSP and folds off — `ft=bigfile`). Smooth scroll is off (it fought the trackpad).
+
+**Statusline (lualine), right side, left to right:** `󰑊 @q` while recording a macro · ` ` the LSP clients attached to this buffer · `󰁨 ` the nvim-lint linters for this filetype · `󰉼 ` the conform formatters that are actually available (a configured-but-missing one is not shown — that is the tell) · filetype. On the left, after the diagnostics, `󱡅 2/4` when the file is in the harpoon list.
 
 ---
 

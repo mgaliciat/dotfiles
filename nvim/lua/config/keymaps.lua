@@ -49,7 +49,8 @@ map("v", "p", '"_dP', { desc = "Paste without yank" })
 -- Buffers
 map("n", "<S-l>", "<cmd>bnext<CR>",     { desc = "Next buffer" })
 map("n", "<S-h>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
-map("n", "<leader>bd", "<cmd>bdelete<CR>", { desc = "Delete buffer" })
+-- <leader>bd / <leader>bo live in plugins/snacks.lua (Snacks.bufdelete):
+-- `:bdelete` on a visible buffer takes its window with it.
 
 -- Diagnostic navigation (native LSP, no plugin required)
 map("n", "[d", function() vim.diagnostic.jump({ count = -1 }) end, { desc = "Prev diagnostic" })
