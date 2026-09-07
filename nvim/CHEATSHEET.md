@@ -63,7 +63,7 @@ Every keymap below is taken from `lua/config/keymaps.lua` (native) or the `keys 
 - `n` / `N` — next / previous search match
 - `<C-o>` / `<C-i>` — back / forward in the jump history
 - `<C-^>` — toggle previous buffer
-- `]]` / `[[` — next / previous **reference of the symbol under the cursor** (LSP, via snacks.words — the same binding, not the same text; every reference is highlighted while the cursor sits on one). Falls back to the native section motion where there is no LSP
+- `]]` / `[[` — next / previous **reference of the symbol under the cursor** (LSP, via snacks.words — the same binding, not the same text). The references are **not** highlighted — the `LspReference*` groups are cleared in `snacks.lua`, which keeps the extmarks the jump reads and drops the block of colour behind every occurrence. Falls back to the native section motion where there is no LSP
 
 ### Quick jumps (flash.nvim)
 

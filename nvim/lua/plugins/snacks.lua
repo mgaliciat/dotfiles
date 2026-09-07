@@ -29,7 +29,7 @@
 --                   startup there's nothing to hide.
 --
 -- On, but not for looks (sep-2026): bigfile (guard against huge files),
--- words (LSP reference highlight + `]]`/`[[`), bufdelete (`<leader>bd`
+-- words (`]]`/`[[` between LSP references, unpainted), bufdelete (`<leader>bd`
 -- keeps the window layout) — see their blocks below.
 --
 -- Dynamic discovery pattern: snacks is a "composable suite" just like
@@ -40,6 +40,27 @@ return {
   "folke/snacks.nvim",
   priority = 1000,                       -- before the colorscheme: the dashboard mounts clean
   lazy = false,                          -- the suite initializes at startup
+  -- snacks.words has no "navigate but don't paint" switch: it calls
+  -- `vim.lsp.buf.document_highlight()`, and the extmarks that lands carry
+  -- LspReference{Text,Read,Write,Target} — a dark block behind every
+  -- occurrence of the symbol under the cursor, repainted on each cursor
+  -- step, which reads as a selection nobody made. Clearing the four groups
+  -- drops the paint and KEEPS the extmarks, and the extmarks are what
+  -- `Snacks.words.jump` reads (`words.get()` walks the `vim_lsp_references`
+  -- / `nvim.lsp.references` namespaces), so `]]` / `[[` still work.
+  -- Disabling the module instead would take the jumping with it.
+  -- On ColorScheme too: a theme switch re-establishes its own defaults.
+  init = function()
+    local function unpaint()
+      for _, group in ipairs({
+        "LspReferenceText", "LspReferenceRead", "LspReferenceWrite", "LspReferenceTarget",
+      }) do
+        vim.api.nvim_set_hl(0, group, {})
+      end
+    end
+    vim.api.nvim_create_autocmd("ColorScheme", { callback = unpaint })
+    unpaint()
+  end,
   ---@type snacks.Config
   opts = {
     -- ─── dashboard ────────────────────────────────────
@@ -115,10 +136,10 @@ return {
     bigfile = { enabled = true },
 
     -- ─── words ────────────────────────────────────────
-    -- LSP document highlight: every reference of the symbol under the
-    -- cursor lights up, and `]]` / `[[` jump between them (keys below).
-    -- `*` finds text; this finds the same *binding*, so a local `x`
-    -- doesn't match the `x` in another function.
+    -- LSP document highlight: `]]` / `[[` jump between the references of
+    -- the symbol under the cursor. `*` finds text; this finds the same
+    -- *binding*, so a local `x` doesn't match the `x` in another function.
+    -- The highlighting half is unpainted in `init` below — see there.
     words = { enabled = true, debounce = 200 },
 
     -- ─── lazygit ──────────────────────────────────────
