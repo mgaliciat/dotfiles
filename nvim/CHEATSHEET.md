@@ -511,13 +511,13 @@ Everything starts **expanded** (`foldlevel = 99`). nvim-ufo used to do this (pee
 |---|---|---|
 | `<leader>z` | snacks.zen | Zen mode: centers the buffer, hides statusline / signs / diagnostics |
 | `<leader>Z` | snacks.zen | Zoom the current window only |
-| `<leader>h` | dropbar | Interactive breadcrumb picker (winbar): navigate path → symbol and jump |
+| `gt` / `gT` / `:tabnew` | bufferline | Tab bar at the top — it lists **tabpages, not buffers**, so it only ever shows what you opened by hand. Cycling is the native `gt`/`gT` on purpose: in a terminal `<Tab>` is the same byte as `<C-i>`, so binding it would kill the forward half of the jumplist |
 | `<leader>cm` | render-markdown | Toggle in-buffer markdown rendering |
 | `:Noice` / `:Noice last` | noice | Message history / the last message. noice also draws the cmdline — on the **bottom line, shell style** (`:` `/` `?` `!` as the prompt, syntax-highlighted as you type); completion is nvim's own popup menu right above it, `<Tab>` / `<S-Tab>` to walk it |
 | `:Snacks.dashboard()` | snacks.dashboard | Splash screen when opening nvim with no args — `f` files, `g` grep, `r` recent, `s` restore session, `n` new, `c` config, `L` Lazy, `q` quit. Then a **Projects** list (git roots of recent files, numbered): a key `cd`s there and restores that directory's session, or opens the file picker if it has none |
 | any prompt for text | snacks.input | `vim.ui.input` is a small floating window (neo-tree add/rename, grug-far prompts) — `<Esc>` cancels, `<CR>` confirms |
 
-Also on: snacks indent guides with scope highlight, dropbar's winbar (path + symbol per window — what tells the splits apart), highlight-colors (inline `#hex` swatches), snacks.bigfile (files over 1.5 MB or with 1000-char lines open with treesitter, LSP and folds off — `ft=bigfile`). Smooth scroll is off (it fought the trackpad).
+Also on: snacks indent guides with scope highlight, incline (the filename floating in each window's top-right corner — what tells the splits apart, with the focused one on an accent background), highlight-colors (inline `#hex` swatches), snacks.bigfile (files over 1.5 MB or with 1000-char lines open with treesitter, LSP and folds off — `ft=bigfile`). Smooth scroll is off (it fought the trackpad).
 
 **Statusline (lualine), right side, left to right:** `󰑊 @q` while recording a macro · `` + the LSP clients attached to this buffer · `󰁨` + the nvim-lint linters for this filetype · `󰉼` + the conform formatters that are actually available (a configured-but-missing one is not shown — that is the tell) · filetype. On the left, after the diagnostics, `󱡅 2/4` when the file is in the harpoon list.
 
@@ -637,7 +637,7 @@ Press `<leader>` and wait ~400ms (`timeoutlen`):
 - `<leader>S` → session (persistence)
 - `<leader>t` → test (neotest)
 
-Single keys outside a group: `<leader>m` / `<leader>M` / `<leader>1-4` harpoon, `<leader>h` dropbar, `<leader>n` neo-tree, `<leader>z` zen (oil is `-`).
+Single keys outside a group: `<leader>m` / `<leader>M` / `<leader>1-4` harpoon, `<leader>n` neo-tree, `<leader>z` zen (oil is `-`).
 
 ---
 

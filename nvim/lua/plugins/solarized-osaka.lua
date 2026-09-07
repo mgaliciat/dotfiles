@@ -43,14 +43,6 @@ return {
       sidebars  = "dark",
       floats    = "dark",
     },
-    -- The upstream colorscheme leaves WinBar/WinBarNC with a solid bg (base03).
-    -- Since dropbar.nvim injects the breadcrumb into the winbar, it inherits that bg and
-    -- looks like an opaque block over the transparent Normal. Force it to NONE
-    -- so the breadcrumb breathes (independent of the floats style).
-    on_highlights = function(hl, _)
-      hl.WinBar   = { bg = "NONE" }
-      hl.WinBarNC = { bg = "NONE" }
-    end,
   },
   config = function(_, opts)
     require("solarized-osaka").setup(opts)
