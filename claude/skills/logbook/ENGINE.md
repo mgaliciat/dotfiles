@@ -135,7 +135,7 @@ page writes integrate facts, they don't duplicate them.
 (folders, files, page slugs, template names) and all new prose. The vault's own
 `wiki/CLAUDE.md` carries the rule; it outranks this file if the two ever drift.
 
-**The synthesized layers were translated on 2026-09-07** — every `wiki/` page, its
+**The synthesized layers were translated on 2026-09-06** — every `wiki/` page, its
 contract and index, plus `guides/`, `runbooks/`, `specs/`, the folder descriptions
 and both templates. What stays Spanish is what cannot be rewritten without
 destroying its value: the 199 `entries/` notes and the `sources/` captures (raw and
