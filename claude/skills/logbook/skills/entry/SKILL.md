@@ -63,12 +63,12 @@ sections — pass `content` and `frontmatter` to `write` in one call:
 type: log-entry           # required by OKF; what the 170+ existing notes use (not `log`)
 date: 2026-09-02          # ISO 8601
 repo: dotfiles            # the repository slug, bare
+title: …                  # the note's headline — this is the document's H1
+description: …            # one line; it is what shows in every listing of entries/
 tags: [repo/dotfiles]     # plus a shared #topic when one applies
 ```
 
 ```markdown
-# YYYY-MM-DD HH:MM — <repo / service>
-
 ## What changed
 
 ## Why
@@ -78,9 +78,14 @@ tags: [repo/dotfiles]     # plus a shared #topic when one applies
 ## Follow-up
 ```
 
-Notes written before 2026-09-06 carry the Spanish headings (`Qué cambió` / `Por qué`
-/ `Notas` / `Seguimiento`) the template used to have. They are raw and immutable —
-read them, never "fix" them.
+**The body has no `#` heading** — `title:` is the H1, and a second one is an MD025
+violation on every note. Sections start at `##`. (The ~196 notes before 2026-09-06
+carry no `title:` and open with a `# YYYY-MM-DD HH:MM — <repo>` line instead; four
+notes from that day carry both and are the vault's only standing lint warnings.
+They are raw and immutable — read them, never "fix" them.)
+
+Those older notes also carry the Spanish headings (`Qué cambió` / `Por qué` /
+`Notas` / `Seguimiento`) the template used to have. Same rule: leave them.
 
 - **`Why` is the section that earns the note.** What changed is in the diff;
   the decision, the alternative rejected, and the constraint that forced it are not.
