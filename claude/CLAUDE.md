@@ -109,7 +109,7 @@ One skills-dir plugin, `logbook`, in `claude/skills/logbook/`, symlinked into `~
 
 **Vault layout (sep-2026):** the raw layer is `entries/` (was `bitacora/`), external captures are `sources/` (was `fuentes/`), the synthesized layer is `wiki/`. `logbook` names the tooling and is never a vault path. Renames go through the `move` tool, which rewrites inbound links in the same pass.
 
-**The vault is English now — paths and new prose alike** (2026-09-06). It used to write notes in whatever language the session was in, which is what left a vault whose folder names and content disagreed. Not retroactive: the existing entries are immutable and stay Spanish, and the Spanish wiki pages stay until translated deliberately. The rule itself lives in the vault's `wiki/CLAUDE.md`.
+**The vault is English now — paths, prose and tags alike** (2026-09-06 the rule, 2026-09-07 the content). It used to write notes in whatever language the session was in, which is what left a vault whose folder names and content disagreed. The synthesized layers were then translated wholesale: `wiki/`, `guides/`, `runbooks/`, `specs/`, the folder descriptions and the templates. Spanish survives only where rewriting would destroy the thing's value — `entries/` and `sources/` (immutable), `claude_sessions/` (frozen), and `wiki/log.md`, whose ingest watermarks are history. The rule and the raw↔wiki tag equivalence table both live in the vault's `wiki/CLAUDE.md`.
 
 The per-vault contract — type vocabulary, repo-tag aliases, index and log formats, the external-research procedure — lives **inside the vault** at `wiki/CLAUDE.md`, not here: it is versioned with the content it governs and it outranks the skills. The how-to is in the skill files, off the always-loaded budget on purpose.
 

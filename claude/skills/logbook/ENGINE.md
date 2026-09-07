@@ -135,8 +135,15 @@ page writes integrate facts, they don't duplicate them.
 (folders, files, page slugs, template names) and all new prose. The vault's own
 `wiki/CLAUDE.md` carries the rule; it outranks this file if the two ever drift.
 
-Not retroactive, and don't make it so on a whim: the 199 existing entries are
-immutable raw and stay Spanish, and the Spanish wiki pages stay until somebody
-translates one deliberately — a half-translated page is worse than a consistent
-one. **When you do rename for this rule, use `move`**: it rewrites the inbound
-links in the same pass, which is the only reason the rule is affordable.
+**The synthesized layers were translated on 2026-09-07** — every `wiki/` page, its
+contract and index, plus `guides/`, `runbooks/`, `specs/`, the folder descriptions
+and both templates. What stays Spanish is what cannot be rewritten without
+destroying its value: the 199 `entries/` notes and the `sources/` captures (raw and
+immutable), `claude_sessions/` (frozen), and `wiki/log.md` — append-only history
+whose ingest watermarks are read out of it. Tags moved with their pages, so a wiki
+tag no longer matches the raw one; `wiki/CLAUDE.md` carries the equivalence table
+`ingest` and `lint` need to slice across both.
+
+Translate a page whole or not at all — a half-translated one is worse than a
+consistent one. **When you rename for this rule, use `move`**: it rewrites the
+inbound links in the same pass, which is the only reason the rule is affordable.
