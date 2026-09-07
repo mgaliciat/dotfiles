@@ -161,8 +161,14 @@ return {
           end
 
           -- Inlay hints (Go, Rust, TS, Python via basedpyright support them).
+          -- OFF by default (sep-2026): they are virtual text with their own
+          -- background, injected BETWEEN the tokens they annotate, so on a
+          -- dense call — a gopls `WithHost(app.config.String(...))` with
+          -- parameter names and inferred types — the real identifiers and the
+          -- annotations interleave into one unreadable run. The servers still
+          -- compute them (the `hint` / `inlayHints` blocks below stay), so
+          -- `<leader>ch` turns them on for the one buffer that needs them.
           if vim.lsp.inlay_hint then
-            vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
             map("n", "<leader>ch", function()
               vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = ev.buf }),
                                         { bufnr = ev.buf })

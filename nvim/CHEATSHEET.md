@@ -329,7 +329,7 @@ All rg-backed pickers see dotfiles (`--hidden`); `.git/`, `node_modules`, `vendo
 
 | Language | LSP server | Notes |
 |---|---|---|
-| Go | `gopls` | full inlay hints, gofumpt + staticcheck on, code lenses |
+| Go | `gopls` | full inlay hint set (drawn on `<leader>ch`), gofumpt + staticcheck on, code lenses |
 | TypeScript / JavaScript / React (.tsx) | `ts_ls` | one server for the whole TS/JS ecosystem |
 | JS / TS / Vue / Svelte / Astro (rules) | `eslint` | the project's eslint config as diagnostics; no config → silent. `:LspEslintFixAll` or the "fix all" code action |
 | Angular | `angularls` | takes the lead in Angular projects; ts_ls covers TS outside the project |
@@ -373,7 +373,7 @@ Mason downloads the rest on demand. `:Mason` to view/install/update. `:LspInfo` 
 | `<leader>ca` (normal / visual) | Code action (quick fix, imports, refactor, ESLint "fix all") — opens as a telescope dropdown, `<C-j>`/`<C-k>` and `<CR>` |
 | `<leader>cs` | Signature help |
 | `<leader>cl` | Run the code lens on the current line (go test, go generate…) — only when the server offers lenses |
-| `<leader>ch` | Toggle inlay hints (**enabled by default** where supported: Go, Rust, TS, Python) |
+| `<leader>ch` | Toggle inlay hints (**off by default** — the servers compute them, they just aren't drawn until you ask; Go, Rust, TS, Python) |
 
 **Inside a Glance window:** `<CR>` jump · `o` jump and close · `<Tab>` / `<S-Tab>` next / previous location · `<C-v>` / `<C-x>` / `<C-t>` open in vsplit / split / tab · `<leader>l` toggle the list · `q` / `<Esc>` close.
 
@@ -405,7 +405,7 @@ Registers itself on `.rs` buffers; **not** in the lspconfig loop. Same `gd` / `g
 | `<leader>cC` | `:RustLsp openCargo` | Jump to `Cargo.toml` |
 | `<leader>ck` | `:RustLsp openDocs` | docs.rs for the symbol under the cursor |
 
-Clippy runs on save; lifetime-elision inlay hints are always on. The toolchain is rustup's (`rustup component add rust-analyzer rustfmt rust-src clippy`); nothing for Rust comes from mason.
+Clippy runs on save; rust-analyzer is configured with the full hint set (lifetime elision, closure returns, reborrows), but like every other server the hints are only drawn after `<leader>ch`. The toolchain is rustup's (`rustup component add rust-analyzer rustfmt rust-src clippy`); nothing for Rust comes from mason.
 
 **Inside `Cargo.toml`** (crates.nvim, buffer-local): `<leader>cv` versions popup · `<leader>cF` features · `<leader>cu` / `<leader>cU` update (compatible) / upgrade (latest) the crate under the cursor, or the selection in visual · `<leader>cA` upgrade all · `<leader>ck` docs.rs · `<leader>cR` repository.
 

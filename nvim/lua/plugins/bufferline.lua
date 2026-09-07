@@ -31,6 +31,12 @@ return {
   opts = {
     options = {
       mode = "tabs",
+      -- The angled edge craftzdog has (his line is commented out). It is
+      -- drawn with the powerline glyphs  /  , so it needs the Nerd Font
+      -- the stack already requires — in a terminal without one the tabs get
+      -- two boxes instead of a diagonal. "slope" is the same idea at a
+      -- steeper angle; "thin"/"thick" are plain bars, no geometry.
+      separator_style = "slant",
       show_buffer_close_icons = false,
       show_close_icon = false,
       diagnostics = "nvim_lsp",
