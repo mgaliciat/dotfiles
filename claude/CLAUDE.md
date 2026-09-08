@@ -38,78 +38,47 @@ Bash keeps everything that is genuinely shell: running tests and builds, `git`, 
 
 ## No attribution trailers in commits or PRs
 
-**Never add a `Co-Authored-By: Claude …` trailer** — or any other authorship footer, "generated with" line, or tool-attribution link — to a git commit message or a pull request description. This holds for every route that writes on the user's behalf: `git commit`, `gh pr create`, the GitHub web UI, a git GUI, or any app/MCP that opens a PR.
+**Never add a `Co-Authored-By: Claude …` trailer** — or any other authorship footer or "generated with" line — to a git commit message or a pull request description. This holds for every route that writes on the user's behalf: `git commit`, `gh pr create`, the GitHub web UI, a git GUI, or any app/MCP that opens a PR.
 
 Why: the commit is the user's. The trailer adds a line of noise to every entry in a history that is read far more often than it is written, and it names a co-author nobody can actually ask about the change.
 
-Enforced in **two** places on purpose, because either alone leaves a hole:
+**The `Claude-Session:` permalink is the one exception, and it is allowed.** When the harness asks for it, add it. It is not an authorship claim — it is a link back to the conversation that produced the change, which is the one thing a reader of that commit cannot reconstruct and might actually want. The banned trailer names a co-author nobody can ask; this one names the transcript.
 
-- `attribution: {"commit": "", "pr": ""}` in `~/.claude/settings.json` (written by `claude/install/settings.sh` — an empty string is the documented "hide it" sentinel, not a no-op). This stops the harness from *injecting* the trailer instruction in the first place. It supersedes `includeCoAuthoredBy`, which Claude Code now marks deprecated — don't reach for that one.
-- This rule, which covers what the setting doesn't: a PR body composed by hand, a commit made through another tool, or a machine whose `settings.json` predates the change.
+The `attribution` key in `settings.json` already stops the harness from injecting it; this rule covers what that setting can't reach — a PR body composed by hand, a commit made through another tool, a machine whose settings predate the change.
 
 If a repo's own convention *requires* a trailer, that repo wins — same precedence as the English-only rule above.
+
+## Verify against a source, never against the conversation
+
+**Every factual claim gets checked against something outside this session** — the code itself, the tool's own output, its live docs, the vault. Training memory and what was said earlier in the conversation are *leads*, not evidence. If a claim can't be traced to a source, say it's unverified rather than asserting it.
+
+The source depends on the claim, and the tools below are the instruments:
+
+- **A tool's own config, flags or API surface** → ask the binary. `gopls api-json`, `<tool> --help`, `ghostty +show-config`, `ghostty +list-keybinds`, `brew info`, `--version`. A tool is the only authority on itself.
+- **A product's documented behaviour** (Claude Code's settings, an API's contract) → fetch the doc page. Don't quote a flag or a key from memory.
+- **A performance or size claim** → measure it here. Never repeat a README's benchmark as if it described this machine.
+- **A library's signatures, this codebase's structure, or why one of our systems is the way it is** → the three MCPs below, each of which states its own trigger and its own limits. Those sections are the detail; this is only the reminder that recall is not one of the options.
+
+**The failure this prevents is specific**: an assertion that is plausible, confidently worded, and wrong — which costs more than saying nothing, because it gets acted on. It hides especially well in config, where a wrong key is usually a *silent no-op* rather than an error: `completeUnimported` and `analyses.useany` sat in the gopls block for months looking load-bearing after gopls had removed both, and only `gopls api-json` said so. Same shape as the `rg` vs `tgrep` benchmark below, and as the `+list-fonts` rule in the project `CLAUDE.md`: **enumerate, don't trust the config.**
+
+This is not a licence to re-derive settled facts. Something established *in this session by an actual check* stays established — don't re-run it. The rule is about the first assertion, not about repeating the verification.
 
 ## Tools installed by this dotfiles repo
 
 **A down MCP is never worked around.** If a server's tools aren't available in the session, reaching that service by any other route is **forbidden** — no `curl` against its endpoint, no hand-rolled JSON-RPC handshakes, no touching the files behind it. Say the MCP isn't active and stop; the user reconnects it with `/mcp`. Note that `claude mcp list` can report "Connected" while the tools were never registered in the session — the real test is whether `ToolSearch` finds them.
 
-### rtk — github.com/rtk-ai/rtk
+Each tool's own schema and skill say what it does. What follows is only what neither of those will tell you.
 
-A proxy CLI that rewrites common Bash commands (`git status`, `cargo test`, `npm test`, etc.) to their `rtk` equivalent, with filtered/compressed output. **No action needed on your side** — the `PreToolUse` hook (`rtk hook claude`) makes it transparent on every Bash call. Meta-command reference in `@RTK.md` (above).
+**rtk** — a `PreToolUse` hook rewrites Bash calls transparently; nothing to invoke. Its filtering truncates, so `tee = "always"` in our `claude/install/rtk-config.toml` leaves a recoverable log: when output looks cut, the inline `[see remaining: tail -n +N <log>]` marker is real — read that log instead of re-running the command. `rtk proxy <cmd>` bypasses filtering for one call. Never quote `rtk gain` as money or tokens saved: it is a counterfactual, and the one independent measurement ([JetBrains, jul-2026](https://blog.jetbrains.com/ai/2026/07/rtk-claude-code-token-savings/)) found no saving and no quality change.
 
-**Do not quote `rtk gain` as money or tokens saved.** It reports a *counterfactual* — the raw output rtk believes it prevented — not a delta on the bill, and it counts output Claude Code would have truncated anyway. The only independent measurement ([JetBrains, jul-2026](https://blog.jetbrains.com/ai/2026/07/rtk-claude-code-token-savings/), rtk 0.43.0 + sonnet-5) found **no savings on real agent work**: +7.6% cost at low reasoning effort (p=0.004, via +13.8% turns and +14.3% cache reads) and +0.1% at high effort. Structural reason: the hook only sees Bash, while native `Read`/`Grep` bypass it — ~33% of Bash calls, ~20% of tool-result chars, a ceiling near **3% of input tokens** — and the bulk of context cost is cached re-reads billed at a tenth. Task quality was statistically unchanged, so this is a wash, not a hazard.
+**codebase-memory-mcp** — prefer it over raw Grep/Glob/Read for *structural* code questions (call chains, who-calls-what, dead code); run `index_repository` if the project isn't indexed. Grep/Glob/Read remain right for plain text, configs and non-code files.
 
-**Where it does earn its place:** compact, readable output (`git status`, test failures) and, since truncation is what makes it risky, a config tuned against that. Ours is versioned at `claude/install/rtk-config.toml` (raised caps, `tee = "always"` so every truncation leaves a recoverable log, `diff`/`curl` excluded). When output looks cut, the inline `[see remaining: tail -n +N <log>]` marker is real — read that log instead of re-running the command. To bypass filtering entirely for one call: `rtk proxy <cmd>`.
+**context7** — for a library's current API signature, which is exactly where training-cutoff knowledge betrays you. Not a general-purpose search: for a mature language's stable core, or anything that isn't a library, it just costs a round-trip.
 
-### codebase-memory-mcp — github.com/DeusData/codebase-memory-mcp
-
-MCP server that indexes each project's code into a persistent knowledge graph. **Prefer its tools over raw Grep/Glob/Read** for any structural code exploration:
-
-- `search_graph` / `search_code` instead of grep to find functions, classes, routes
-- `trace_path` for call chains (who calls what, data flow, cross-service)
-- `get_code_snippet` to read a single function/class without opening the whole file
-- `get_architecture` for a project overview (languages, entry points, hotspots, layers, clusters)
-- `query_graph` for complex Cypher patterns (dead code, high complexity, etc.)
-- `list_projects` to see which projects are already indexed (with their absolute `root_path`) and query them without being inside that folder
-- If a project isn't indexed yet, run `index_repository` first
-
-Grep/Glob/Read are still the right tools for plain text, configs, and non-code files.
-
-It also installs the `codebase-memory` skill (self-activating on triggers like "explore the codebase", "who calls this function", "dead code", etc. — no need to invoke it by hand). It brings a decision matrix, exploration/tracing workflows, and Cypher examples for `query_graph` — more detail than this list. Use it whenever the trigger applies.
-
-### context7 — github.com/upstash/context7
-
-Hosted MCP server that injects **current** documentation for a library into context. Nothing is installed locally — `binaries.sh` only registers the endpoint, and the API key comes from the environment (`~/.zshenv.local`), so a machine without a key simply won't have these tools.
-
-Two tools, used in order:
-
-- `resolve-library-id` — turn a library name ("drizzle", "polars") into the id Context7 indexes it under
-- `query-docs` — ask a question against that library's live docs
-
-**Use it when the failure mode is a wrong API signature**, which is exactly where training-cutoff knowledge betrays you: a library released or reworked after the cutoff, a fast-moving one (most JS/TS tooling), or any time you're about to write a call from memory and aren't certain the signature is current. Cheaper to ask than to ship a plausible, wrong argument list and debug it later.
-
-**Not** a general-purpose search: for the stable core of a mature language, or for anything not a library (configs, your own code, prose), it just costs a round-trip. Well-known and stable → answer directly.
-
-### open-knowledge — github.com/inkeep/open-knowledge
-
-MCP server for a **personal knowledge base**: a directory of markdown with YAML frontmatter, conforming to [OKF v0.2](https://github.com/GoogleCloudPlatform/open-knowledge-format), served over HTTP. `binaries.sh` only registers the endpoint; the URL and its Cloudflare Access token both come from the environment — never the repo, since a personal host in a public repo is the same leak as a key. Replaced the `obsidian` MCP in sep-2026: same job, without requiring a desktop app to be open.
-
-**Use it for cross-repo knowledge** — what has to outlive a single repo, above all *which service touches which and why* across a set of shared services. Write from one repo, read from any other. This is the "why" layer; `codebase-memory-mcp` is the "what/when" layer (mechanical call graph, `trace_path cross_service`). They complement: graph for the code, vault for the rationale.
-
-**Reach for the vault's own tools, never the filesystem ones.** `exec` (a read-only `cat`/`ls`/`grep`/`find` allowlist) instead of `Read`/`Grep`: it returns each file's frontmatter, backlinks and attribution alongside the text, and the vault is remote anyway. Then `search` for ranked lookup, `links` for the graph, `write`/`edit` to change things. **`write` with `position: replace` overwrites a whole document** — correct for one that does not exist yet, destructive for a live one; use `edit` there.
-
-Two skills ship with it and are the right entry point before hand-rolling anything: **`okf-knowledge-base`** (OKF v0.2 semantics — types, provenance, reserved files) and the project-local `open-knowledge` skill (tool discipline). Read them instead of re-deriving the spec.
+**open-knowledge** — the cross-repo *why* layer (which service touches which and the reasoning), against codebase-memory-mcp's mechanical *what*. Use the vault's own `exec`/`search`, never `Read`/`Grep`: the vault is remote and its tools return frontmatter, backlinks and attribution with the text. **`write` with `position: replace` overwrites a whole document** — use `edit` on anything that already exists.
 
 ## Logbook — the daily log and its wiki
 
-One skills-dir plugin, `logbook`, in `claude/skills/logbook/`, symlinked into `~/.claude/skills/` by the installer. Four sub-skills, all namespaced with a colon:
+A `PostToolUse` hook fires `/logbook:entry` after every `git commit`. **Deciding whether that commit is a unit of work or a WIP step is yours** — say so and skip when it isn't, rather than writing a note per commit.
 
-- **`/logbook:entry`** — capture: one immutable note per invocation (`entries/YYYY-MM-DD-HHMM-<repo>`), written after a unit of work lands. Self-activates on "logbook" / "bitácora" / "guarda resumen", and a `PostToolUse` hook (`claude/hooks/logbook.{sh,ps1}`) fires it after a `git commit` — the one trigger a skill cannot own, since skills only activate on what the user says. Judging whether *this* commit is a unit of work rather than a WIP step is still yours.
-- **`/logbook:ingest`, `/logbook:query`, `/logbook:lint`** — the synthesis layer over those notes.
-
-**Vault layout (sep-2026):** the raw layer is `entries/` (was `bitacora/`), external captures are `sources/` (was `fuentes/`), the synthesized layer is `wiki/`. `logbook` names the tooling and is never a vault path. Renames go through the `move` tool, which rewrites inbound links in the same pass.
-
-**The vault is English now — paths, prose and tags alike** (2026-09-06 — the rule in the morning, the content the same evening). It used to write notes in whatever language the session was in, which is what left a vault whose folder names and content disagreed. The synthesized layers were then translated wholesale: `wiki/`, `guides/`, `runbooks/`, `specs/`, the folder descriptions and the templates. Spanish survives only where rewriting would destroy the thing's value — `entries/` and `sources/` (immutable), `claude_sessions/` (frozen), and `wiki/log.md`, whose ingest watermarks are history. The rule and the raw↔wiki tag equivalence table both live in the vault's `wiki/CLAUDE.md`.
-
-The per-vault contract — type vocabulary, repo-tag aliases, index and log formats, the external-research procedure — lives **inside the vault** at `wiki/CLAUDE.md`, not here: it is versioned with the content it governs and it outranks the skills. The how-to is in the skill files, off the always-loaded budget on purpose.
-
+The vault's layout, language rule and note format are deliberately not here: `ENGINE.md` carries them for the synthesis skills, `entry/SKILL.md` for capture, and the vault's own `wiki/CLAUDE.md` outranks both.
