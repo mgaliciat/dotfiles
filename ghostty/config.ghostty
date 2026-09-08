@@ -143,10 +143,9 @@ adjust-cell-height = 3%
 # option+click-drag on the resizable parts of the frame — standard system
 # behaviour, not something Ghostty adds.
 #
-# The ⌘1..⌘9 `goto_tab` binds in PACKAGE 4 still work, but blind: ⌘T opens a
-# tab and nothing on screen says which one is in front, or how many exist.
-# Kept because they cost nothing; delete them if a blind tab is worse than
-# no tab.
+# ⌘1..⌘9 went with it — see the `unbind` block in PACKAGE 4. ⌘T still opens
+# a tab, and nothing on screen says which one is in front or how many exist,
+# so tabs here are best treated as not existing.
 #
 # Ghostty warns that switching to or from `hidden` at runtime "may affect
 # existing windows in buggy ways" — ⌘⇧R is not enough, open a new window (or
@@ -337,16 +336,40 @@ keybind = cmd+shift+i=prompt_surface_title
 keybind = cmd+up=jump_to_prompt:-1
 keybind = cmd+down=jump_to_prompt:1
 
-# Tabs by number: ⌘1..⌘9 jumps straight to that tab.
-keybind = cmd+one=goto_tab:1
-keybind = cmd+two=goto_tab:2
-keybind = cmd+three=goto_tab:3
-keybind = cmd+four=goto_tab:4
-keybind = cmd+five=goto_tab:5
-keybind = cmd+six=goto_tab:6
-keybind = cmd+seven=goto_tab:7
-keybind = cmd+eight=goto_tab:8
-keybind = cmd+nine=goto_tab:9
+# Tabs by number: GONE (2026-09-07). Multiplexing is tmux's, and with
+# `macos-titlebar-style = hidden` there is no strip to see, so ⌘1..⌘9 were
+# jumping to a surface with nothing on screen to say it happened — worse
+# than no shortcut, because the switch is silent.
+#
+# These have to be `unbind`, not merely deleted: ⌘1..⌘9 → goto_tab are
+# GHOSTTY DEFAULTS (`ghostty +list-keybinds --default`), so removing our
+# lines would leave the behaviour exactly as it was.
+#
+# And BOTH spellings need their own line. Ghostty ships each of these keys
+# twice — `super+1` (the logical character) and `super+digit_1` (the
+# physical key) — and an `unbind` only clears the spelling it names.
+# Unbinding just `cmd+one` takes the count from 17 to 8, which looks like
+# it worked until ⌘1 still switches tabs. Verify with
+# `ghostty +list-keybinds | grep goto_tab`: it must print nothing.
+# The chords then fall through to the terminal, where tmux can have them.
+keybind = cmd+one=unbind
+keybind = cmd+two=unbind
+keybind = cmd+three=unbind
+keybind = cmd+four=unbind
+keybind = cmd+five=unbind
+keybind = cmd+six=unbind
+keybind = cmd+seven=unbind
+keybind = cmd+eight=unbind
+keybind = cmd+nine=unbind
+keybind = cmd+digit_1=unbind
+keybind = cmd+digit_2=unbind
+keybind = cmd+digit_3=unbind
+keybind = cmd+digit_4=unbind
+keybind = cmd+digit_5=unbind
+keybind = cmd+digit_6=unbind
+keybind = cmd+digit_7=unbind
+keybind = cmd+digit_8=unbind
+keybind = cmd+digit_9=unbind
 
 # ═══════════════════════════════════════════════════════════════
 #  PACKAGE 5 — dock icon: the built-in `xray` style
