@@ -130,29 +130,44 @@ font-thicken = false
 adjust-cell-height = 3%
 
 # ─── window ───────────────────────────────────────────────────
-# tabs integrated into the titlebar (Chrome/Arc style): frees up ~1
-# vertical line of terminal and looks cleaner than having a separate tab bar
-# and titlebar. The color is inherited from the theme's background.
-# Alternatives: transparent (titlebar blends with the background, separate
-# tab bar) · native (standard macOS look) · hidden (no titlebar).
-# NOT `hidden`, minimalism notwithstanding: that removes the tab strip, and
-# the ⌘1..⌘9 `goto_tab` binds in PACKAGE 4 would then be jumping between
-# tabs nothing on screen shows.
-macos-titlebar-style = tabs
-
-# ─── titlebar chrome (2026-09-07) ─────────────────────────────
-# What the titlebar keeps: the tab strip. What it loses:
+# No titlebar at all (2026-09-07). Multiplexing lives in tmux — sessions,
+# windows and the Claude popups — so Ghostty's own tab strip was showing
+# state nothing here produces. Hiding the titlebar takes that strip with it
+# and leaves the terminal edge to edge.
 #
-# The traffic lights. ⌘W closes, ⌘M minimises, ⌘↩ is fullscreen
+# Unlike `window-decoration = none` the window keeps its frame and rounded
+# corners, so this is not a borderless window, just a bare one.
+#
+# THE COST, and it is a real one: with no titlebar there is no drag area, so
+# the window can no longer be moved from the top. macOS's own fallback is
+# option+click-drag on the resizable parts of the frame — standard system
+# behaviour, not something Ghostty adds.
+#
+# The ⌘1..⌘9 `goto_tab` binds in PACKAGE 4 still work, but blind: ⌘T opens a
+# tab and nothing on screen says which one is in front, or how many exist.
+# Kept because they cost nothing; delete them if a blind tab is worse than
+# no tab.
+#
+# Ghostty warns that switching to or from `hidden` at runtime "may affect
+# existing windows in buggy ways" — ⌘⇧R is not enough, open a new window (or
+# restart) after changing this line.
+#
+# Alternatives: tabs (the previous value — a custom titlebar with the tab
+# strip built in) · transparent (Ghostty's default; native bar, background
+# shows through, separate tab strip) · native (standard macOS look).
+macos-titlebar-style = hidden
+
+# The traffic lights (2026-09-07). ⌘W closes, ⌘M minimises, ⌘↩ is fullscreen
 # (macos-non-native-fullscreen, below) — three buttons for three shortcuts
-# already bound, sitting in the corner of every window. Dragging the
-# titlebar still moves the window.
+# already bound. Redundant with the titlebar above; with it `hidden` there is
+# no bar left to put them in anyway, so this mostly matters if that line ever
+# goes back to `tabs` or `native`.
 macos-window-buttons = hidden
 
-# No `macos-titlebar-proxy-icon` here: Ghostty only draws that icon under
-# the `native` titlebar style, so with `tabs` above the setting is a no-op
-# and there is nothing to hide. It would only start mattering if this file
-# ever went back to `native`.
+# No `macos-titlebar-proxy-icon` here: Ghostty only draws that icon under the
+# `native` titlebar style, so with no titlebar at all the setting is a no-op
+# and there is nothing to hide. It would only start mattering if the style
+# above ever went back to `native`.
 
 # craftzdog's "glass" look, values verbatim from his dotfiles-public ghostty
 # config: opacity 0.9 + blur 20 (his key is the legacy `background-blur-radius`;
