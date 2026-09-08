@@ -78,6 +78,13 @@ tags: [repo/dotfiles]     # plus a shared #topic when one applies
 ## Follow-up
 ```
 
+**Blank lines around every block.** One before and after each list, table and
+fenced block, and one after every `##`. The shape that violates it constantly is a
+bold lead-in glued to its items — a `**…**` line with a `-` directly beneath it,
+which is MD032 on every bullet. Table separator rows are spaced too:
+`| --- | --- |`, never `|---|---|` (MD060, one warning per pipe). A note is
+immutable, so a warning written here is permanent; there is no fix pass later.
+
 **The body has no `#` heading** — `title:` is the H1, and a second one is an MD025
 violation on every note. Sections start at `##`. (The ~196 notes before 2026-09-06
 carry no `title:` and open with a `# YYYY-MM-DD HH:MM — <repo>` line instead; four
