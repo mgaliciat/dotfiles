@@ -168,11 +168,22 @@ return {
           -- annotations interleave into one unreadable run. The servers still
           -- compute them (the `hint` / `inlayHints` blocks below stay), so
           -- `<leader>ch` turns them on for the one buffer that needs them.
+          --
+          -- Go is the exception (sep-2026): `constantValues` is the only hint
+          -- in the set that shows something the source does NOT contain — the
+          -- resolved value of every member of an `iota` block — and losing it
+          -- is losing information, not decoration. Keyed on the filetype and
+          -- not on the client, because gopls also attaches to gomod/gowork/
+          -- gotmpl, where there is nothing to annotate. `<leader>ch` still
+          -- toggles, so a dense call site can be unpainted per buffer.
           if vim.lsp.inlay_hint then
             map("n", "<leader>ch", function()
               vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = ev.buf }),
                                         { bufnr = ev.buf })
             end, "Toggle inlay hints")
+            if vim.bo[ev.buf].filetype == "go" then
+              vim.lsp.inlay_hint.enable(true, { bufnr = ev.buf })
+            end
           end
         end,
       })
@@ -262,7 +273,10 @@ return {
             gopls = {
               gofumpt = true,
               usePlaceholders = true,
-              completeUnimported = true,
+              -- `completeUnimported` used to be here; gopls dropped the knob
+              -- (gone from `gopls api-json` as of v0.23.0) once the behaviour
+              -- became unconditional. An unknown key is not an error, it is a
+              -- silent no-op, so it stayed for months looking load-bearing.
               -- ALL staticcheck analyzers, not the maintainers' subset —
               -- the extra ones are the style/simplification family (S*, ST*)
               -- that golangci-lint would otherwise duplicate in nvim-lint.
@@ -298,12 +312,15 @@ return {
                 unusedwrite    = true,  -- you write to a field and nobody reads it
                 unusedvariable = true,  -- with a quick-fix that deletes the declaration
                 nilness        = true,  -- detects nil derefs
-                useany         = true,  -- prefers `any` over `interface{}` (Go 1.18+)
                 shadow         = true,  -- variable shadowing (gopls handles the `if err :=` pattern well)
+                -- `useany` (prefer `any` over `interface{}`) was here and is no
+                -- longer an analyzer in v0.23.0 — that family moved into the
+                -- modernize suite, which gopls offers as code actions instead.
               },
               -- Code lenses: inline prefix-actions, run with <leader>cl.
-              -- `test` and `gc_details` are gone in gopls ≥0.18 (tests are
-              -- neotest's job now, gc details became a code action).
+              -- `gc_details` is gone (it became a code action). `test` came
+              -- back in v0.23.0 but stays off: running tests is neotest's job
+              -- here, and a lens above every func duplicates `<leader>t*`.
               codelenses = {
                 generate           = true,  -- run `go generate` from the buffer
                 tidy               = true,  -- `go mod tidy`
