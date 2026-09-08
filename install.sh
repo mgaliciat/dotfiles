@@ -100,6 +100,17 @@ if command -v brew >/dev/null 2>&1; then
     tmux
     lazygit
     rtk                   # token-reducing proxy CLI for Claude Code — see the rtk section below
+    # Trigram-indexed grep (microsoft/tgrep). It is NOT an `rg` drop-in — the
+    # README says so itself — so nothing here aliases or replaces ripgrep, and
+    # `rg` stays what Claude Code's Grep tool and telescope shell out to.
+    # What it buys is a persistent index + server (`tgrep index .`, then
+    # `tgrep serve .`, index in `.tgrep/`), which only pays off on trees far
+    # larger than anything in ~/Developer: measured here on the biggest one
+    # (console, 594 indexed files) it is 6.9ms vs ripgrep's 12.6ms per search
+    # — a 5.7ms difference, for an 8 MB index and a daemon per repo. Installed
+    # for the checkouts where that ratio inverts (kernel/gecko-scale), not as
+    # a replacement for the everyday search.
+    tgrep
   )
   REQUIRED_CASKS=(
     ghostty

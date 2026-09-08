@@ -71,6 +71,9 @@ fallback for symlinks, and scoop refuses to run under it.
    - `codebase-memory-mcp` — the **`-ui-`** release asset, sha256-checked, not
      the official installer (which ships the headless build). A stamp file
      `~/.local/bin/.codebase-memory-mcp-ui` records the installed version;
+   - `tgrep` from its release zip into `%LOCALAPPDATA%\Programs\tgrep`, added to
+     the user PATH. No hash check: the release's `checksums.txt` lists only the
+     `.tar.gz` assets, never the Windows `.zip`;
    - registers the `context7` and `open-knowledge` MCP endpoints from the env
      vars;
    - the `gh-stack` extension and skill, if `gh` / `npx` are present;
@@ -92,6 +95,7 @@ Get-ChildItem $HOME\.claude\skills | Select Name, LinkType
 claude mcp list
 rtk --version; rtk config                           # Config: <path> line — the toml lives there
 codebase-memory-mcp --version; Get-Content $HOME\.local\bin\.codebase-memory-mcp-ui
+tgrep --version
 [System.Windows.Media.Fonts]::SystemFontFamilies | Where-Object Source -match 'Maple|Monaspace|PlemolJP'
 ```
 

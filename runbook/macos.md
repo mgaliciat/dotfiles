@@ -110,6 +110,7 @@ readlink ~/.zshrc ~/.config/nvim ~/.config/tmux ~/.local/bin/ide     # all into 
 readlink ~/.claude/CLAUDE.md ~/.claude/skills/logbook ~/.claude/hooks/logbook.sh
 claude mcp list                                                     # context7, open-knowledge, codebase-memory
 rtk --version && rtk config                                         # config path under ~/Library/Application Support/rtk
+tgrep --version                                                     # brew formula; index/serve are per-repo, opt-in
 tmux -V && git -C ~/.config/tmux/plugins/tmux-claude-session-manager rev-parse --short HEAD
 nvim --headless '+Lazy! sync' +qa                                   # first plugin install, non-interactive
 ```

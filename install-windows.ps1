@@ -653,6 +653,64 @@ if ($Cbm) {
     Write-Host "OK  codebase-memory-mcp: UI on http://localhost:9749"
 }
 
+# ─── tgrep (trigram-indexed grep) ───────────────────────────────
+# Mirror of the `tgrep` entry in install.sh's REQUIRED_FORMULAE — the caveats
+# live there and are not repeated: it is NOT an `rg` drop-in, and it earns its
+# place only on trees far larger than anything in ~/Developer.
+#
+# Homebrew has a formula; Windows has nothing (no winget, no scoop bucket), so
+# this is the release zip, the same shape as the rtk block above.
+#
+# THREE things this cannot copy from the codebase-memory-mcp block:
+#
+#  1. The asset name carries the version (`tgrep-v1.0.4-<triple>.zip`), so
+#     `latest/download/<asset>` cannot be spelled without already knowing the
+#     tag. Hence the API call, matching the font helper further down.
+#  2. `checksums.txt` exists in the release and covers ONLY the four .tar.gz
+#     assets — the two `-pc-windows-msvc.zip` files are absent from it (checked
+#     against v1.0.4). There is nothing to verify a Windows download against,
+#     so there is no hash check here; adding the cbm-style verification would
+#     throw "missing from checksums.txt" on every run.
+#  3. The zip has `tgrep.exe` at its root, no wrapper directory, so it expands
+#     straight into the target dir.
+$TgrepDir = Join-Path $env:LOCALAPPDATA "Programs\tgrep"
+$TgrepExe = Join-Path $TgrepDir "tgrep.exe"
+
+$TgrepCmd = Get-Command tgrep -ErrorAction SilentlyContinue
+if (-not $TgrepCmd -and -not (Test-Path $TgrepExe)) {
+    Write-Host ""
+    Write-Host "-> Installing tgrep"
+    $TmpZip = Join-Path $env:TEMP "tgrep.zip"
+    try {
+        # Rust target triples, not the amd64/arm64 spelling the cbm block uses.
+        $Triple = if ($env:PROCESSOR_ARCHITECTURE -eq "ARM64") { "aarch64-pc-windows-msvc" } else { "x86_64-pc-windows-msvc" }
+        $rel = Invoke-RestMethod "https://api.github.com/repos/microsoft/tgrep/releases/latest" -Headers @{ "User-Agent" = "dotfiles" }
+        $Pattern = [regex]::Escape($Triple) + '\.zip$'
+        $asset = $rel.assets | Where-Object { $_.name -match $Pattern } | Select-Object -First 1
+        if (-not $asset) { throw "no tgrep asset for $Triple in the latest release" }
+        Invoke-WebRequest $asset.browser_download_url -OutFile $TmpZip
+        New-Item -ItemType Directory -Path $TgrepDir -Force | Out-Null
+        Expand-Archive -Path $TmpZip -DestinationPath $TgrepDir -Force
+    } catch {
+        Write-Host "!!  tgrep install failed: $_" -ForegroundColor Yellow
+    } finally {
+        Remove-Item $TmpZip -Force -ErrorAction SilentlyContinue
+    }
+}
+
+if ($TgrepCmd) { $TgrepExe = $TgrepCmd.Source }
+
+if (Test-Path $TgrepExe) {
+    $UserPath = [Environment]::GetEnvironmentVariable("PATH", "User")
+    if ($UserPath -notlike "*$TgrepDir*") {
+        [Environment]::SetEnvironmentVariable("PATH", "$UserPath;$TgrepDir", "User")
+        $env:PATH = "$env:PATH;$TgrepDir"
+        Write-Host "OK  $TgrepDir added to the user PATH"
+    }
+    $TgrepVer = (& $TgrepExe --version) -join " "
+    Write-Host "OK  tgrep installed ($TgrepVer)"
+}
+
 # ─── marketplace plugins (mechanism 3) ──────────────────────────
 # Port of claude/install/plugins.sh — PowerShell cannot source bash, so it is
 # replicated. `claude plugin` is the same cross-platform CLI and it writes
