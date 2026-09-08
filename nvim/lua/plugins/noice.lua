@@ -88,6 +88,17 @@ return {
       opts   = { skip = true },
     })
 
+    -- Filter: `watch.watch: ENOENT` from vim._watch. A server is allowed to
+    -- register a `workspace/didChangeWatchedFiles` watcher on a baseUri that
+    -- does not exist — gopls asks for `<go.work root>/vendor` on every
+    -- multi-module workspace that never vendored — and nvim's own runtime
+    -- calls that case out in a comment before notifying about it at INFO.
+    -- Nothing degrades; it just fires once per session on the first Go file.
+    table.insert(opts.routes, {
+      filter = { event = "notify", find = "watch.watch: ENOENT" },
+      opts   = { skip = true },
+    })
+
     require("noice").setup(opts)
   end,
 }
