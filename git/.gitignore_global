@@ -70,6 +70,17 @@ CLAUDE.local.md
 .windsurf/
 .continue/
 
+# Search index caches — rebuilt from the tree, machine-local, and big
+# (8 MB on a 594-file repo). tgrep drops one in every directory it indexes.
+.tgrep/
+
 # Local specs / research (not pushed to the repo)
 docs/specs/
 docs/research/
+planners/
+
+# WireMock. Note this ignores the WHOLE directory, stubs included — a project
+# that versions its `mappings/` + `__files/` as the contract needs a
+# `!wiremock/` negation in its own .gitignore, which wins over this file.
+wiremock/
+.wiremock/
