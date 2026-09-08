@@ -1,8 +1,8 @@
 {
   "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
   "name": "logbook",
-  "version": "0.3.0",
-  "description": "Capture, ingest, query and lint an OpenKnowledge vault (OKF v0.2): one immutable note per invocation, synthesized into cross-linked wiki pages.",
+  "version": "0.4.0",
+  "description": "Capture, ingest, query and lint an OpenKnowledge vault (OKF v0.2): one immutable note per invocation, synthesized into cross-linked wiki pages — plus guide, runbook and document, which author detailed documentation from verified sources.",
   "author": {
     "name": "M. Galicia"
   },

@@ -81,4 +81,6 @@ Each tool's own schema and skill say what it does. What follows is only what nei
 
 A `PostToolUse` hook fires `/logbook:entry` after every `git commit`. **Deciding whether that commit is a unit of work or a WIP step is yours** — say so and skip when it isn't, rather than writing a note per commit.
 
-The vault's layout, language rule and note format are deliberately not here: `ENGINE.md` carries them for the synthesis skills, `entry/SKILL.md` for capture, and the vault's own `wiki/CLAUDE.md` outranks both.
+The vault's layout, language rule and note format are deliberately not here: `ENGINE.md` carries them for the synthesis skills, `entry/SKILL.md` for capture, `AUTHORING.md` for the three that author documents (`/logbook:guide`, `/logbook:runbook`, `/logbook:document` → `guides/`, `runbooks/`, `docs/`), and the vault's own `wiki/CLAUDE.md` outranks all of them.
+
+**Those three are the "verify against a source" rule above, made into a workflow** — they build a document from the code, the binaries' own output, the vault and (gated) captured web sources, and cut or mark any claim that only came from the conversation.
