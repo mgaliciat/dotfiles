@@ -7,14 +7,23 @@
 # that is mechanism 1 (settings.sh).
 #
 # Sourced by install.sh and install-linux.sh — NOT a standalone executable.
-# It goes AFTER settings.sh: that one symlinks ~/.claude/CLAUDE.md, and `rtk init`
-# adds an @RTK.md line to it — we want that to land on the versioned file.
+# It goes AFTER settings.sh, which needs the deps block's jq. (It used to also
+# matter because `rtk init` wrote an @RTK.md line into ~/.claude/CLAUDE.md and we
+# wanted that on the versioned file; `--hook-only` stopped it writing there at
+# all, so that reason is retired — the order is not.)
 
 # ─── rtk (token-reducing proxy CLI) ───────────────────────────
 # Adds a PreToolUse hook (matcher Bash → "rtk hook claude") that rewrites common
 # commands (git status, cargo test, npm test...) to their rtk equivalent, with
-# filtered/compressed output: fewer context tokens. It also creates
-# ~/.claude/RTK.md (command reference, per-machine, not versioned).
+# filtered/compressed output: fewer context tokens.
+#
+# `--hook-only` is the point: without it `rtk init` also writes ~/.claude/RTK.md
+# and appends an `@RTK.md` import to ~/.claude/CLAUDE.md. Neither earns its
+# place — the hook rewrites Bash calls transparently, so there is nothing for the
+# agent to invoke and nothing to instruct it about. The generated RTK.md was
+# worse than neutral: it ended by pointing back at CLAUDE.md, which pointed at
+# it. A machine that ran an older installer keeps a stale ~/.claude/RTK.md; it is
+# per-machine and harmless, delete it by hand.
 #
 # On mac the binary already comes from Homebrew (REQUIRED_FORMULAE); on Linux
 # there is no formula, so it falls back to the official curl installer. The
@@ -36,7 +45,7 @@ fi
 if command -v rtk >/dev/null 2>&1; then
   # Idempotence: handled by rtk itself (verified by running it twice — the second
   # run detects the existing hook and does not duplicate it), not by our jq.
-  if rtk init --global --auto-patch >/dev/null 2>&1 </dev/null; then
+  if rtk init --global --auto-patch --hook-only >/dev/null 2>&1 </dev/null; then
     echo "✓ rtk Claude Code hook configured (or already there)"
   else
     echo "⚠️  rtk init --global failed — check by hand (rtk init --global -v)"

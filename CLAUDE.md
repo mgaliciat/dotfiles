@@ -64,7 +64,8 @@ Everything this repo does to `~/.claude/` lives here, split by **who writes to `
 
 The full reasoning lives in the comments of each `claude/install/*.sh` — read it before editing one. What follows is only what breaks quietly:
 
-- **Source order.** `settings.sh` → `binaries.sh` → `plugins.sh`, fixed inside `install_claude` — don't source them directly from an installer. `settings.sh` symlinks `~/.claude/CLAUDE.md`; `rtk init` (in `binaries.sh`) appends an `@RTK.md` line that must land on the versioned file through that symlink. All three run **after** the deps block (`settings.sh` needs `jq`).
+- **Source order.** `settings.sh` → `binaries.sh` → `plugins.sh`, fixed inside `install_claude` — don't source them directly from an installer. All three run **after** the deps block (`settings.sh` needs `jq`). Between the three it is contract, not mechanism: `rtk init` used to append an `@RTK.md` line to the `~/.claude/CLAUDE.md` that `settings.sh` symlinks, and `--hook-only` stopped that write.
+- **`rtk init` runs `--hook-only`.** Without it, it also writes `~/.claude/RTK.md` and imports it from `~/.claude/CLAUDE.md` — through the symlink, into this public repo's versioned file. The hook rewrites Bash transparently, so there is nothing for the agent to invoke and nothing to document. Same flag in `install-windows.ps1`; drop it and the import comes back on the next install.
 - **`codebase-memory-mcp install -y` runs with NO guard.** It registers the MCP server, the hooks and the `codebase-memory` skill. Behind the binary's `command -v` guard, a hand-deleted `~/.claude` never gets rebuilt and the install still looks like it worked. If that skill vanishes after an install, someone moved this back inside the `if`.
 - **`codebase-memory-mcp` ships two binaries per release and the official installer picks the wrong one.** The graph UI on `localhost:9749` exists only in the `-ui-` asset; the headless build accepts `--ui=true`, warns, and **keeps running**, so the symptom is a dead port rather than an error. `install-windows.ps1` fetches the `-ui-` asset itself. The two builds are indistinguishable from outside (same filename, same `--version`), so the guard is a **stamp file** — `~/.local/bin/.codebase-memory-mcp-ui` — and `codebase-memory-mcp update` self-updates back to headless, which only a stamp mismatch catches. Enable the UI with `config set ui_enabled true` + `ui_port`, **not** the documented `--ui=true --port=N`, which persists the keys and then blocks running the server. `binaries.sh` (mac/Linux) still installs the headless build.
 - **The `.zshrc` cleanup writes with `cat >`, never `mv`.** `~/.zshrc` is a symlink into the repo; `mv` replaces it with a regular file *and* leaves the dirty line in the versioned one. (The `settings.json` cleanup does use `mktemp` + `mv` — correct there, it's a real file.)
@@ -82,9 +83,13 @@ The full reasoning lives in the comments of each `claude/install/*.sh` — read 
 
 ### `claude/CLAUDE.md` (user-level → `~/.claude/CLAUDE.md`)
 
-Preferences that apply to ALL projects, distinct from this file. Two admitted categories: (a) which tools from these dotfiles to use and how; (b) general output/communication preferences.
+Preferences that apply to ALL projects, distinct from this file. **General working and communication rules only** — how to write code, what to verify before asserting it, what never to put in a commit.
 
-**A tool has to be installed by this repo to be documented there** — if it's not in `install.sh` or `install-linux.sh`, it doesn't belong. Category (b) doesn't depend on installed tools. **mac + Linux is the bar; Windows is allowed to lag** and catches up as things get tested there.
+**No skill, MCP or tool gets described there.** It used to admit a "which tools from these dotfiles to use and how" category and that category is gone (sep-2026): a skill's `description` frontmatter is already loaded every session, an MCP's tools carry their own schemas, and the user says which to use when they want it used. Pre-loading a manual for each one buys nothing and drifts the moment the tool changes — the same reason `rtk init` now runs `--hook-only` instead of importing an `RTK.md` there.
+
+**Nothing project-specific either**, including examples: it is a *user* file that travels to every repo. A rule that only makes sense next to this repo's nvim config or Ghostty theme belongs in this file, not that one.
+
+What survives is behaviour that holds with no tool named — "a down MCP is never worked around" is a rule, `codebase-memory-mcp` explaining itself is a manual.
 
 ## The stack theme
 

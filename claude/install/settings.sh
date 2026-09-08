@@ -16,9 +16,9 @@ PERMISSIONS="$DOTFILES/claude/install/permissions.json"
 # ── versioned symlinks (not settings.json itself, but its input) ──
 # statusline.sh: generic script, no personal state → versioned.
 # User-level CLAUDE.md: prose, preferences that apply to ALL projects.
-# The CLAUDE.md symlink goes BEFORE binaries.sh: `rtk init --global` appends an
-# `@RTK.md` line if missing, and we want that write to land on the versioned
-# file (through the symlink), not on a loose per-machine one.
+# Nothing in binaries.sh writes to ~/.claude/CLAUDE.md any more: `rtk init` used
+# to append an `@RTK.md` import, and `--hook-only` (binaries.sh) stopped it. The
+# symlink still goes first, it just no longer has to.
 link "$DOTFILES/claude/statusline.sh" "$HOME/.claude/statusline.sh"
 link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 

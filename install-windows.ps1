@@ -509,7 +509,11 @@ if (Test-Path $RtkExe) {
         Write-Host "OK  $RtkDir added to the user PATH"
     }
     try {
-        & $RtkExe init --global --auto-patch | Out-Null
+        # --hook-only: without it rtk init also writes ~/.claude/RTK.md and
+        # appends an @RTK.md import to ~/.claude/CLAUDE.md -- which is a symlink
+        # into this public repo. The hook rewrites Bash transparently; there is
+        # nothing for the agent to invoke, so there is nothing to document.
+        & $RtkExe init --global --auto-patch --hook-only | Out-Null
         Write-Host "OK  rtk Claude Code hook configured (or already there)"
     } catch {
         Write-Host "!!  rtk init --global failed -- check by hand ($RtkExe init --global -v)" -ForegroundColor Yellow

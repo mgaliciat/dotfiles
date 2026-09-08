@@ -1,8 +1,6 @@
 # CLAUDE.md (user-level)
 
-Preferences that apply to **every** project, not just this dotfiles repo — unlike a per-project `CLAUDE.md`, this travels with you to any machine/repo. Versioned and symlinked by `install.sh` to `~/.claude/CLAUDE.md`, same treatment as `claude/statusline.sh` (see this repo's `CLAUDE.md`, "per-machine split" section).
-
-@RTK.md
+General working rules that hold in **every** project — unlike a per-project `CLAUDE.md`, this travels to any machine and any repo. So nothing specific to one project belongs here, and neither does a description of a skill, an MCP or a tool: those announce themselves, and the user says which to use.
 
 ## Code is written in English
 
@@ -26,7 +24,7 @@ Same rule for prose: don't add a README, a summary file, or a doc block that nob
 
 Why: comments that repeat the code are not neutral, they rot. The code changes and the comment doesn't, so the file ends up asserting two different things and the reader has to work out which one is lying. Density also trains the eye to skip comments entirely, which means the *one* comment that mattered — the reason this lock is taken before that one — gets skipped with the rest. And edit-narrating comments are the worst case of it: they're stale the moment the next change lands, and they document the conversation instead of the program.
 
-**A repo's own convention wins** — same precedence as the English-only rule above. When the surrounding code carries dense *why* comments (this dotfiles repo does, on purpose, and says so in its `CLAUDE.md`), match it. Matching an existing style is not the same as adding narration: the bullets above stay banned everywhere.
+**A repo's own convention wins** — same precedence as the English-only rule above. When the surrounding code carries dense *why* comments on purpose, and says so, match it. Matching an existing style is not the same as adding narration: the bullets above stay banned everywhere.
 
 ## File edits go through Read / Edit / Write, never through a script
 
@@ -54,31 +52,17 @@ If a repo's own convention *requires* a trailer, that repo wins — same precede
 
 The source depends on the claim, and the tools below are the instruments:
 
-- **A tool's own config, flags or API surface** → ask the binary. `gopls api-json`, `<tool> --help`, `ghostty +show-config`, `ghostty +list-keybinds`, `brew info`, `--version`. A tool is the only authority on itself.
+- **A tool's own config, flags or API surface** → ask the binary: `<tool> --help`, `--version`, and whatever subcommand dumps its resolved config or lists what it actually has registered. A tool is the only authority on itself.
 - **A product's documented behaviour** (Claude Code's settings, an API's contract) → fetch the doc page. Don't quote a flag or a key from memory.
 - **A performance or size claim** → measure it here. Never repeat a README's benchmark as if it described this machine.
-- **A library's signatures, this codebase's structure, or why one of our systems is the way it is** → the three MCPs below, each of which states its own trigger and its own limits. Those sections are the detail; this is only the reminder that recall is not one of the options.
+- **A library's signatures, or this codebase's structure** → a tool that can actually look it up. Whichever ones the session has, each states its own trigger and its own limits; the point here is only that recall is not one of the options.
 
-**The failure this prevents is specific**: an assertion that is plausible, confidently worded, and wrong — which costs more than saying nothing, because it gets acted on. It hides especially well in config, where a wrong key is usually a *silent no-op* rather than an error: `completeUnimported` and `analyses.useany` sat in the gopls block for months looking load-bearing after gopls had removed both, and only `gopls api-json` said so. Same shape as the `rg` vs `tgrep` benchmark below, and as the `+list-fonts` rule in the project `CLAUDE.md`: **enumerate, don't trust the config.**
+**The failure this prevents is specific**: an assertion that is plausible, confidently worded, and wrong — which costs more than saying nothing, because it gets acted on. It hides especially well in config, where a wrong key is usually a *silent no-op* rather than an error: a setting the tool dropped releases ago sits there looking load-bearing, and only the binary's own output says otherwise. **Enumerate, don't trust the config.**
 
 This is not a licence to re-derive settled facts. Something established *in this session by an actual check* stays established — don't re-run it. The rule is about the first assertion, not about repeating the verification.
 
-## Tools installed by this dotfiles repo
+## A down MCP is never worked around
 
-**A down MCP is never worked around.** If a server's tools aren't available in the session, reaching that service by any other route is **forbidden** — no `curl` against its endpoint, no hand-rolled JSON-RPC handshakes, no touching the files behind it. Say the MCP isn't active and stop; the user reconnects it with `/mcp`. Note that `claude mcp list` can report "Connected" while the tools were never registered in the session — the real test is whether `ToolSearch` finds them.
+If a server's tools aren't available in the session, reaching that service by any other route is **forbidden** — no `curl` against its endpoint, no hand-rolled JSON-RPC handshakes, no touching the files behind it. Say the MCP isn't active and stop; the user reconnects it with `/mcp`.
 
-Each tool's own schema and skill say what it does. What follows is only what neither of those will tell you.
-
-**rtk** — a `PreToolUse` hook rewrites Bash calls transparently; nothing to invoke. Its filtering truncates, so `tee = "always"` in our `claude/install/rtk-config.toml` leaves a recoverable log: when output looks cut, the inline `[see remaining: tail -n +N <log>]` marker is real — read that log instead of re-running the command. `rtk proxy <cmd>` bypasses filtering for one call. Never quote `rtk gain` as money or tokens saved: it is a counterfactual, and the one independent measurement ([JetBrains, jul-2026](https://blog.jetbrains.com/ai/2026/07/rtk-claude-code-token-savings/)) found no saving and no quality change.
-
-**codebase-memory-mcp** — prefer it over raw Grep/Glob/Read for *structural* code questions (call chains, who-calls-what, dead code); run `index_repository` if the project isn't indexed. Grep/Glob/Read remain right for plain text, configs and non-code files.
-
-**context7** — for a library's current API signature, which is exactly where training-cutoff knowledge betrays you. Not a general-purpose search: for a mature language's stable core, or anything that isn't a library, it just costs a round-trip.
-
-**open-knowledge** — the cross-repo *why* layer (which service touches which and the reasoning), against codebase-memory-mcp's mechanical *what*. Use the vault's own `exec`/`search`, never `Read`/`Grep`: the vault is remote and its tools return frontmatter, backlinks and attribution with the text. **`write` with `position: replace` overwrites a whole document** — use `edit` on anything that already exists.
-
-## Logbook — the daily log and its wiki
-
-A `PostToolUse` hook fires `/logbook:entry` after every `git commit`. **Deciding whether that commit is a unit of work or a WIP step is yours** — say so and skip when it isn't, rather than writing a note per commit.
-
-The vault's layout, language rule and note format are deliberately not here: `ENGINE.md` carries them for the synthesis skills, `entry/SKILL.md` and `task/SKILL.md` for the two self-contained ones, `AUTHORING.md` for the ones that author documents, and the vault's own `wiki/CLAUDE.md` outranks all of them. Each skill's own description says when to reach for it.
+`claude mcp list` can report "Connected" while the tools were never registered in the session — the real test is whether `ToolSearch` finds them.

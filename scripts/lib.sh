@@ -46,9 +46,9 @@ link_portable() {
 # platform that can run bash, hence one call here instead of three `source`
 # lines per installer. Detail in claude/install/README.md.
 #
-# The order is load-bearing: settings.sh symlinks ~/.claude/CLAUDE.md, and
-# `rtk init` (binaries.sh) appends an @RTK.md line to it — that write must land
-# on the versioned file through the symlink, not on a loose one.
+# The order is fixed by contract, not by a mechanism any more: `rtk init` used to
+# append an @RTK.md line to the ~/.claude/CLAUDE.md that settings.sh symlinks, so
+# settings.sh had to run first. `--hook-only` (binaries.sh) stopped that write.
 #
 # Call it AFTER the platform's package block: settings.sh needs jq, and on a
 # fresh machine running first would silently skip every settings.json write

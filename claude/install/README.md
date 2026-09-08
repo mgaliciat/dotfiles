@@ -64,9 +64,10 @@ else to write it.
 
 ## Order
 
-`settings.sh` → `binaries.sh` → `plugins.sh`, and it is load-bearing: `settings.sh` symlinks
-`~/.claude/CLAUDE.md`, and `rtk init` (in `binaries.sh`) adds an `@RTK.md` line to it — we want
-that write to land on the versioned file through the symlink, not on a loose one.
+`settings.sh` → `binaries.sh` → `plugins.sh`. All three run after the platform's package block,
+because `settings.sh` needs `jq`. Between them the order is contract rather than mechanism: it used
+to matter because `rtk init` appended an `@RTK.md` line to the `~/.claude/CLAUDE.md` that
+`settings.sh` symlinks, and `--hook-only` stopped that write.
 
 ## What is NOT here
 
