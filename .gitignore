@@ -19,8 +19,15 @@
 # index and silently declines to add the new one — `git status` then reports a
 # clean tree with the skill deleted from the repo. That is how `bitacora` + `wiki`
 # nearly vanished when they became `logbook` (sep-2026).
+#
+# RTK.md is rtk's own command reference. `rtk init` writes it to ~/.claude/ and
+# imports it from ~/.claude/CLAUDE.md — a symlink to the versioned file, so the
+# import kept coming back into this public repo until binaries.sh started passing
+# `--hook-only` (sep-2026). Nothing writes claude/RTK.md today; this entry is the
+# guard for the day somebody copies it in to "fix" a dangling import.
 claude/settings.json
 claude/memory/
+claude/RTK.md
 claude/skills/*
 !claude/skills/logbook/
 
