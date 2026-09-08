@@ -137,7 +137,18 @@ description: …                     # one sentence; the SINGLE source of the in
 resource: …                        # the original this mirrors, when there is one — and it wins
 tags: [repo/<name>, …]             # mirror the repo tag so raw ↔ synthesized cross-reference
 timestamp: YYYY-MM-DD              # the date in your context, not a guess
+sources:                           # one entry per `sources/` capture this document cites
+  - id: <short-key>                #   optional, and what a markdown footnote keys to
+    resource: ../sources/<slug>.md #   the only required key — a vault path, never a live URL
 ```
+
+- **`sources` is the machine-readable half of the evidence rule.** Prose links
+  serve the reader; this array is what `links`, `audit` and the next agent can
+  actually follow, and it is OKF v0.2's replacement for a body `# Citations`
+  list. A document built on `sources/` captures that names none of them in
+  frontmatter is grounded only by convention. Omit the key entirely when the
+  document was built from the code and the vault alone — an empty array claims
+  something false.
 
 - **`write` for a document that does not exist; `edit` for one that does.** A
   `write` with `position: replace` at a live path destroys the whole body — that
@@ -145,9 +156,12 @@ timestamp: YYYY-MM-DD              # the date in your context, not a guess
   literal `content` silently forces `replace`, so never combine the two on a live
   page.
 - **Check the path first** with `exec` (`ls <folder>/`) before the first write.
-- **Relative markdown links only** (`[nvim](../wiki/nvim.md)`); never the
-  root-absolute `/folder/x.md` form, which duplicates the segment and dies
-  silently.
+- **Relative markdown links** (`[nvim](../wiki/nvim.md)`) — OpenKnowledge's
+  recommended form, and the one that still resolves on GitHub, in Obsidian and on
+  a published site. The root-absolute `/folder/x.md` form is equally valid to
+  OpenKnowledge but is not used here: what breaks is **mixing** the two, since a
+  `./` glued onto a root-style path doubles the folder segment and the link dies
+  silently. One form, everywhere.
 - **English**, whatever language the session is being conducted in — paths,
   file names, headings and prose alike.
 

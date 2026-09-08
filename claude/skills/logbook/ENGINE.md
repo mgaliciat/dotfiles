@@ -128,16 +128,38 @@ it may write to.
 
 ## Links
 
-Relative markdown links (`[servicio-x](./servicio-x.md)`, `[nota](../entries/….md)`).
-**Never mix in the root-absolute form** `/carpeta/x.md`: prefixing `./` to a
-root-style path from a document already inside that folder duplicates the segment
-(`wiki/wiki/x.md`) and the link dies silently. A page with no backlink to the raw
-note(s) it synthesizes is unfinished.
+Standard markdown links in the **relative** form — `[service-x](./service-x.md)`,
+`[note](../entries/….md)`. That is OpenKnowledge's own recommended form, and the
+reason is portability: a relative link still resolves on GitHub, in Obsidian, in
+VS Code and on a published site, none of which know where this vault's content
+root is.
+
+The root-absolute form (`/folder/x.md`, leading slash = content root) is equally
+valid to OpenKnowledge and handy across folders. **The rule is that the two never
+mix**: prefixing `./` to a root-style path from a document already inside that
+folder duplicates the segment (`wiki/wiki/x.md`) and the link dies silently. This
+vault picks the relative form and holds it everywhere, which is what makes that
+failure unreachable rather than merely rare — so a root-absolute link here is
+wrong for consistency, not because the form is invalid.
+
+A page with no backlink to the raw note(s) it synthesizes is unfinished.
 
 Links are not decoration here. OpenKnowledge retrieval is a **lexical loop** —
 BM25 plus recency plus graph traversal, with semantic search off — so links,
 folders, titles and folder descriptions *are* the index. Every link shortens the
 next agent's loop.
+
+### A folder's description carries its rule, not just its name
+
+Each layer's `.ok/frontmatter.yml` holds a `title`, a `description` and `tags`,
+and the agent reads that description **on every listing of the folder** — before
+any contract file, and whether or not it ever opens one. So the description is
+where a layer's discipline belongs, in one line and in the imperative:
+`entries/` says it is immutable and one file per invocation, `sources/` that it
+is verbatim capture with no analysis, `tasks/` that it is edited and never
+written. That places the rule closest to the action instead of relying on
+`wiki/CLAUDE.md` having been read — which `/logbook:entry` and `/logbook:task`
+never do.
 
 ## index.md and log.md
 
