@@ -81,6 +81,8 @@ Each tool's own schema and skill say what it does. What follows is only what nei
 
 A `PostToolUse` hook fires `/logbook:entry` after every `git commit`. **Deciding whether that commit is a unit of work or a WIP step is yours** — say so and skip when it isn't, rather than writing a note per commit.
 
+**`/logbook:task` is the other mid-work gate**: something surfaces that isn't worth derailing for — a retry that isn't idempotent, a migration nobody ran, something the tech lead raised — and it goes on a per-repo board in `tasks/` with enough context to resume cold. A technical one carries a `file:line` anchor **confirmed against the code before filing**, pinned to a short SHA; one that would cost more than a quick look to confirm is filed `unverified` with the question to answer, rather than eating the work it interrupted. Boards are the one mutable layer: always `edit`, never `write`, and a dropped task keeps its reason instead of being deleted.
+
 The vault's layout, language rule and note format are deliberately not here: `ENGINE.md` carries them for the synthesis skills, `entry/SKILL.md` for capture, `AUTHORING.md` for the four that author documents (`/logbook:guide`, `/logbook:runbook`, `/logbook:document`, `/logbook:walkthrough` → `guides/`, `runbooks/`, `docs/`, `flows/`), and the vault's own `wiki/CLAUDE.md` outranks all of them.
 
 **Those four are the "verify against a source" rule above, made into a workflow** — they build a document from the code, the binaries' own output, the vault and (gated) captured web sources, and cut or mark any claim that only came from the conversation.

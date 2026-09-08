@@ -38,15 +38,18 @@ link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 # guide/runbook/document/walkthrough AUTHOR new documents into guides/, runbooks/,
 # docs/ and flows/ from verified sources rather than from the session's context —
 # `walkthrough` anchors every diagram node to a file:line at a pinned commit SHA,
-# so its page can be re-verified mechanically. The per-vault taxonomy is
+# so its page can be re-verified mechanically. `task` is the odd one: a per-repo
+# board in tasks/, the one MUTABLE layer, for what surfaced mid-work and was not
+# worth derailing for. The per-vault taxonomy is
 # NOT here — it lives in the vault's own wiki/CLAUDE.md, versioned with the content
 # it governs. The plugin is the engine, that file is the config.
 #
 # NOTE: `logbook` is a skills-dir PLUGIN, not a plain skill — the dir holds a
 # `.claude-plugin/plugin.json` (skills: ./skills/) so Claude Code auto-loads it as
-# `logbook@skills-dir`, bundling eight sub-skills that invoke as `/logbook:entry`,
+# `logbook@skills-dir`, bundling nine sub-skills that invoke as `/logbook:entry`,
 # `/logbook:ingest`, `/logbook:query`, `/logbook:lint`, `/logbook:guide`,
-# `/logbook:runbook`, `/logbook:document`, `/logbook:walkthrough`. Plugin skills are ALWAYS
+# `/logbook:runbook`, `/logbook:document`, `/logbook:walkthrough`,
+# `/logbook:task`. Plugin skills are ALWAYS
 # namespaced with a colon: invocation is `/<plugin>:<folder>` (folder = skill name,
 # `logbook` = plugin `name:` from plugin.json). So the folders are the bare nouns
 # and verbs (entry, ingest, …) and you type the real colon form `/logbook:lint` —
@@ -59,8 +62,10 @@ link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 # plugin's value is packaging: one dir, one symlink, and the skills share two spec
 # files at the root (each SKILL.md reads them first) so the spec is single-source —
 # ENGINE.md for the vault's layers and tools, AUTHORING.md for the evidence rule
-# the four authoring skills follow. `entry` is deliberately outside both: it fires
-# from the commit hook on every unit of work and stays self-contained.
+# the four authoring skills follow. `entry` and `task` are deliberately outside
+# both and self-contained: both fire in the middle of other work — one from the
+# commit hook, one when a pending item surfaces — and a gate that costs three
+# spec files to open is one nobody uses.
 link "$DOTFILES/claude/skills/logbook" "$HOME/.claude/skills/logbook"
 
 # The logbook's event half. A skill cannot fire on a git event — it only
