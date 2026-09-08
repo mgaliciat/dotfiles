@@ -1,17 +1,22 @@
 # Logbook (OpenKnowledge) — authoring engine
 
 Shared spec for the `logbook` plugin's **document-writing** skills —
-`/logbook:guide`, `/logbook:runbook`, `/logbook:document`. Each of those reads
-`ENGINE.md` first (the layers, the MCP tools, the link rule, the watermark), then
-the vault's own `wiki/CLAUDE.md` (which outranks both), then **this** file, then
-its own workflow. Everything common to writing a long document — where the
-evidence comes from, how it is checked, the skeleton, the closing loop — is here
-once.
+`/logbook:guide`, `/logbook:runbook`, `/logbook:document`, `/logbook:walkthrough`.
+Each of those reads `ENGINE.md` first (the layers, the MCP tools, the link rule,
+the watermark), then the vault's own `wiki/CLAUDE.md` (which outranks both), then
+**this** file, then its own workflow. Everything common to writing a long
+document — where the evidence comes from, how it is checked, the skeleton, the
+closing loop — is here once.
 
-The three sibling skills are a different job and do not read this file:
+The other three skills are a different job and do not read this file:
 `/logbook:entry` captures raw, `/logbook:ingest` synthesizes raw into `wiki/`,
-`/logbook:lint` audits. These three **author** a document that did not exist as a
+`/logbook:lint` audits. These four **author** a document that did not exist as a
 document anywhere — from the code, from the vault, and (gated) from the web.
+
+`/logbook:walkthrough` is the strictest of the four and worth reading as this
+file's limit case: it traces one process through the code and pins every diagram
+node to a `file:line` at a recorded commit SHA, so the document can be
+**re-verified mechanically** later instead of only at the moment it was written.
 
 ## The rule that defines these skills
 
@@ -123,10 +128,10 @@ coverage, not of word count:
 
 ## Frontmatter and writing rules
 
-Shared across the three; the per-skill file names its `type` and its folder.
+Shared across the four; the per-skill file names its `type` and its folder.
 
 ```yaml
-type: guide | runbook | document   # required by OKF — a document without one is not done
+type: guide | runbook | document | flow   # required by OKF — a document without one is not done
 title: …                           # this IS the H1; the body carries no `#` heading (MD025)
 description: …                     # one sentence; the SINGLE source of the index one-liner
 resource: …                        # the original this mirrors, when there is one — and it wins

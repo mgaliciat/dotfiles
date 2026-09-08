@@ -2,24 +2,24 @@
 
 Shared spec for every `logbook` skill except the capture gate — the synthesis
 three (`/logbook:ingest`, `/logbook:query`, `/logbook:lint`) and the authoring
-three (`/logbook:guide`, `/logbook:runbook`, `/logbook:document`). **Each of those
-reads this file first**, then runs its workflow. Everything common — where the
-contract lives, which tools to use, the layers, the watermark — is here once; the
-skills hold only their own steps. The seventh, `/logbook:entry`, is the capture
-gate and is self-contained on purpose: it fires from a commit hook and does not
-read this file.
+four (`/logbook:guide`, `/logbook:runbook`, `/logbook:document`,
+`/logbook:walkthrough`). **Each of those reads this file first**, then runs its
+workflow. Everything common — where the contract lives, which tools to use, the
+layers, the watermark — is here once; the skills hold only their own steps. The
+eighth, `/logbook:entry`, is the capture gate and is self-contained on purpose:
+it fires from a commit hook and does not read this file.
 
 `/logbook:entry` captures work as immutable per-invocation notes, but capture is
 write-only: notes pile up, they never come back synthesized. The synthesis three
 are the read layer on top. Raw stays messy on purpose; the wiki is the ordered
 layer, and the agent — not the human — keeps it ordered.
 
-The authoring three are a different job: they **write a document that did not
-exist as a document anywhere**, into `guides/`, `runbooks/` and `docs/`, from
-sources verified in the run rather than from the session's own context. Their
-shared spec — the evidence rule, the four evidence channels, the skeleton, the
-closing loop — is `AUTHORING.md`, which they read after this file and after the
-vault's `wiki/CLAUDE.md`.
+The authoring four are a different job: they **write a document that did not
+exist as a document anywhere**, into `guides/`, `runbooks/`, `docs/` and
+`flows/`, from sources verified in the run rather than from the session's own
+context. Their shared spec — the evidence rule, the four evidence channels, the
+skeleton, the closing loop — is `AUTHORING.md`, which they read after this file
+and after the vault's `wiki/CLAUDE.md`.
 
 **Vault paths, not skill names.** The raw layer is `entries/` and the synthesized
 one `wiki/`; `logbook` is the name of the tooling and never a path. `entries/` was
@@ -100,7 +100,7 @@ it may write to.
 - **`wiki/<topic>`** — the synthesized layer, one page per concept / service /
   decision / entity / repo. This is the only layer the synthesis skills write to,
   plus `wiki/index.md` and `wiki/log.md`.
-- **The authored layers**, one skill each, all three written from verified sources
+- **The authored layers**, one skill each, all four written from verified sources
   under `AUTHORING.md` and never from the session's context:
   - `guides/<topic>` (`type: guide`) — reference and usage, the *what* you consult
     while working. `/logbook:guide`.
@@ -108,9 +108,13 @@ it may write to.
     per-step verification and an undo. `/logbook:runbook`.
   - `docs/<topic>` (`type: document`) — the long form: design docs, architecture,
     deep analysis. `/logbook:document`, which bootstraps the folder on first use.
+  - `flows/<repo>-<process>` (`type: flow`) — one process traced through the code
+    it really executes, as mermaid diagrams whose every node carries a
+    `file:line` anchor, pinned to a commit SHA so the page can be **re-verified
+    mechanically** later. `/logbook:walkthrough`, which bootstraps the folder.
 
   The *why* behind any of them stays on the `wiki/` page, linked, never copied.
-  All three keep a hand-written `index.md` and prepend to `wiki/log.md` like the
+  All four keep a hand-written `index.md` and prepend to `wiki/log.md` like the
   synthesis skills do.
 
 ## Links
@@ -135,8 +139,9 @@ directory. `wiki/log.md` is **newest-first**, one `## YYYY-MM-DD: <op> | <summar
 heading per operation.
 
 **Do not turn on the `okf` plugin's index generation.** Generated indexes are
-machine-owned and OpenKnowledge replaces their contents, taking these four
-hand-written ones with them.
+machine-owned and OpenKnowledge replaces their contents, taking every
+hand-written one with them — `wiki/`'s two and the per-folder `index.md` each
+authored layer keeps.
 
 ### The watermark
 
