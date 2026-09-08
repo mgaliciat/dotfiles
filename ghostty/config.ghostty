@@ -130,43 +130,40 @@ font-thicken = false
 adjust-cell-height = 3%
 
 # ─── window ───────────────────────────────────────────────────
-# No titlebar at all (2026-09-07). Multiplexing lives in tmux — sessions,
-# windows and the Claude popups — so Ghostty's own tab strip was showing
-# state nothing here produces. Hiding the titlebar takes that strip with it
-# and leaves the terminal edge to edge.
+# The native titlebar, painted with the window background so it reads as one
+# surface with the terminal (this is Ghostty's own default). It replaced
+# `tabs` and then `hidden` on the same day, 2026-09-07, and the second move
+# was a revert: `hidden` is the minimal look, but it removes the drag area
+# and a window you cannot move from the top is not worth the row it saves.
+# macOS's fallback there (option+click-drag on the frame) is a few pixels of
+# target and, with `macos-option-as-alt = left` below, the left Option is
+# going to the terminal anyway.
 #
-# Unlike `window-decoration = none` the window keeps its frame and rounded
-# corners, so this is not a borderless window, just a bare one.
+# So the row comes back and the emptiness is bought elsewhere: no traffic
+# lights, no proxy icon, and the bar takes the background colour instead of
+# macOS grey. The tab strip is separate under this style and macOS only
+# draws it from the second tab on, so with tabs unused (see the `unbind`
+# block in PACKAGE 4 — multiplexing is tmux's) it never appears.
 #
-# THE COST, and it is a real one: with no titlebar there is no drag area, so
-# the window can no longer be moved from the top. macOS's own fallback is
-# option+click-drag on the resizable parts of the frame — standard system
-# behaviour, not something Ghostty adds.
-#
-# ⌘1..⌘9 went with it — see the `unbind` block in PACKAGE 4. ⌘T still opens
-# a tab, and nothing on screen says which one is in front or how many exist,
-# so tabs here are best treated as not existing.
-#
-# Ghostty warns that switching to or from `hidden` at runtime "may affect
-# existing windows in buggy ways" — ⌘⇧R is not enough, open a new window (or
-# restart) after changing this line.
-#
-# Alternatives: tabs (the previous value — a custom titlebar with the tab
-# strip built in) · transparent (Ghostty's default; native bar, background
-# shows through, separate tab strip) · native (standard macOS look).
-macos-titlebar-style = hidden
+# Alternatives: tabs (a custom Ghostty titlebar with the strip built in —
+# saves ~1 row, and what this file used before) · hidden (no bar at all;
+# read the drag caveat above first, and note Ghostty warns that switching
+# to or from it at runtime "may affect existing windows in buggy ways") ·
+# native (standard macOS grey, no blending).
+macos-titlebar-style = transparent
 
 # The traffic lights (2026-09-07). ⌘W closes, ⌘M minimises, ⌘↩ is fullscreen
 # (macos-non-native-fullscreen, below) — three buttons for three shortcuts
-# already bound. Redundant with the titlebar above; with it `hidden` there is
-# no bar left to put them in anyway, so this mostly matters if that line ever
-# goes back to `tabs` or `native`.
+# already bound, in the corner of every window. The bar stays draggable
+# without them.
 macos-window-buttons = hidden
 
-# No `macos-titlebar-proxy-icon` here: Ghostty only draws that icon under the
-# `native` titlebar style, so with no titlebar at all the setting is a no-op
-# and there is nothing to hide. It would only start mattering if the style
-# above ever went back to `native`.
+# The proxy icon — the file glyph macOS puts beside the title, there to drag
+# a *document* somewhere. A terminal has none, so it is a target that leads
+# nowhere. This line was briefly deleted as a no-op, which was only true
+# under `tabs`: that style draws a titlebar of Ghostty's own with no proxy
+# icon in it, while `transparent` is the native bar and does have one.
+macos-titlebar-proxy-icon = hidden
 
 # craftzdog's "glass" look, values verbatim from his dotfiles-public ghostty
 # config: opacity 0.9 + blur 20 (his key is the legacy `background-blur-radius`;
@@ -336,10 +333,12 @@ keybind = cmd+shift+i=prompt_surface_title
 keybind = cmd+up=jump_to_prompt:-1
 keybind = cmd+down=jump_to_prompt:1
 
-# Tabs by number: GONE (2026-09-07). Multiplexing is tmux's, and with
-# `macos-titlebar-style = hidden` there is no strip to see, so ⌘1..⌘9 were
-# jumping to a surface with nothing on screen to say it happened — worse
-# than no shortcut, because the switch is silent.
+# Tabs by number: GONE (2026-09-07). Multiplexing is tmux's — sessions,
+# windows and the Claude popups — so Ghostty's tabs go unused, and ⌘1..⌘9
+# only ever landed on a surface that was not there. Unbinding them also
+# keeps the tab strip from appearing: under the `transparent` titlebar macOS
+# draws it from the second tab on, and with no way to reach tabs by number
+# there is rarely a second one.
 #
 # These have to be `unbind`, not merely deleted: ⌘1..⌘9 → goto_tab are
 # GHOSTTY DEFAULTS (`ghostty +list-keybinds --default`), so removing our
