@@ -6,10 +6,10 @@ four (`/logbook:guide`, `/logbook:runbook`, `/logbook:document`,
 `/logbook:walkthrough`). **Each of those reads this file first**, then runs its
 workflow. Everything common — where the contract lives, which tools to use, the
 layers, the watermark — is here once; the skills hold only their own steps. The
-other two are self-contained on purpose, because both fire **in the middle of
-other work** and a gate that costs three spec files to open is one nobody uses:
-`/logbook:entry` (the capture gate, from a commit hook) and `/logbook:task` (the
-pending-work board). Neither reads this file.
+other two are self-contained on purpose, because each writes one short thing and
+reading three spec files first is a cost neither would earn back:
+`/logbook:entry` (the capture gate, fired from a commit hook) and `/logbook:task`
+(the pending-work board). Neither reads this file.
 
 `/logbook:entry` captures work as immutable per-invocation notes, but capture is
 write-only: notes pile up, they never come back synthesized. The synthesis three
@@ -120,7 +120,7 @@ it may write to.
   synthesis skills do.
 - **`tasks/<repo>`** (`type: task-board`) — the one **mutable, stateful** layer:
   a per-repo board of pending work, `## Open` / `## Done`, written by
-  `/logbook:task`. Everything else here is either immutable (raw, sources) or a
+  `/logbook:task`, whatever the work came out of. Everything else here is either immutable (raw, sources) or a
   document that is revised; a board is state that flips. Hence its rules differ:
   it is **always `edit`, never `write`** at a live path, a task is never deleted
   (dropping is a recorded outcome), and it does **not** prepend to `wiki/log.md`

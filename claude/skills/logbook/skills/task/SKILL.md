@@ -1,20 +1,20 @@
 ---
 name: task
-description: Capture, list and close pending work on a per-repo board (tasks/<repo>, type task-board) in the OpenKnowledge vault — something that surfaced mid-work and was not worth derailing for, or something the tech lead raised — with enough context to resume cold, and a code anchor confirmed against the real code when the task is technical. Use when the user says "task", "pendiente", "apunta esto", "queda pendiente", "me lo pidió mi lead", "/logbook:task", or wants to see or close what is open.
+description: Capture, list and close pending work on a per-repo board (tasks/<repo>, type task-board) in the OpenKnowledge vault, with enough context to pick it up cold and a code anchor confirmed against the real code when the task is technical. Use when the user says "task", "tarea", "pendiente", "apunta esto", "queda pendiente", "/logbook:task", describes work to do later, or wants to see or close what is open.
 ---
 
 # logbook · task
 
-Deliberately **self-contained**, like `/logbook:entry` and for the same reason:
-this fires **in the middle of doing something else**. A capture gate that makes
-you read three spec files first is a capture gate nobody uses. Read
-`~/.claude/skills/logbook/ENGINE.md` only when something here is ambiguous.
+Deliberately **self-contained**, like `/logbook:entry`: everything needed is
+below, and reading three spec files before writing one task line is a cost the
+skill would never earn back. Read `~/.claude/skills/logbook/ENGINE.md` only when
+something here is ambiguous.
 
-Working on one thing and finding another — a retry that is not idempotent, a
-migration nobody ran, a `TODO` older than the feature, something the tech lead
-mentioned in passing. Fixing it now derails the current work; keeping it in your
-head loses it. This skill drops it on a **per-repo board** with enough context to
-pick it up cold, weeks later, without the session that found it.
+**Pending work, wherever it comes from** — something you decided to defer,
+something the review turned up, something agreed with someone else, something
+planned for later, something you noticed and did not want to lose. The board
+holds it with enough context to pick it up cold, weeks later, without the
+session that filed it.
 
 Three operations, one verb:
 
@@ -44,29 +44,32 @@ one `/logbook:entry` uses.
 
 ## Capturing
 
-**Fast path. This must not derail the work you interrupted** — you are filing a
-task, not starting it. Do not begin fixing the thing.
+**Keep it cheap.** You are filing a task, not starting it — do not begin fixing
+the thing, and do not turn a one-line capture into an investigation.
 
 ### 1. Is it technical?
 
 **Technical** means it points at code that exists. Then it gets an anchor, and
 the anchor gets **confirmed before it is written**:
 
-- Open the file and read the lines. Do not file from what you remember seeing
-  five minutes ago — that is how a task describes code that was already fixed.
+- Open the file and read the lines. Do not file from recollection or from what
+  was said earlier in the session — that is how a board fills with tasks about
+  code that was already fixed, or about a symbol that never had that name.
 - Record `path:line` **relative to the repo root**, the symbol, and the commit:
   `git rev-parse --short HEAD`. The anchor is true at that SHA and claims nothing
   about later.
 - **If confirming would take more than a quick look, file it as unverified** with
   the exact question to answer — and say so in the chat. A bounded capture that
-  says "unverified" beats an accurate one that ate twenty minutes of the work you
-  were actually doing.
+  says "unverified" beats an accurate one that cost twenty minutes. This is the
+  one place the plugin's evidence rule is deliberately capped: the check must
+  stay cheaper than the task it is describing.
 
-**Non-technical** — something the tech lead asked for, a decision waiting on
-somebody, a process item. No anchor, and the board says so. Record **who raised
-it and when**: a task with no origin is one nobody can chase. If it *is*
-checkable against code but you have not checked it, that is an unverified claim
-and gets written as one, with what to check.
+**Non-technical** — something agreed with someone, a decision waiting on a
+person, a process item, a follow-up from a review. No anchor, and the board says
+so. Record **who raised it and when** where there is a who: a task with no origin
+is one nobody can chase. If it *is* checkable against code and you have not
+checked it, that is an unverified claim and gets written as one, with what to
+check.
 
 ### 2. Write it
 
@@ -79,7 +82,7 @@ does not.
   - **Where**: `internal/queue/worker.go:88` @ `a1b2c3d` — `Worker.process`
     re-enqueues with no dedup key
   - **Why it matters**: a redelivery double-charges the customer
-  - **Origin**: found while tracing the invoice flow
+  - **Origin**: deferred while tracing the invoice flow
 ```
 
 - The checkbox line is the scannable layer: a **bold title that names the
@@ -87,10 +90,10 @@ does not.
 - **Where** — anchor + SHA + symbol, or `unverified —` and what to check.
 - **Why it matters** — the consequence. A task with no consequence gets deferred
   forever and should probably be dropped now instead.
-- **Origin** — `found while <doing what>`, or `raised by the tech lead,
-  <date>`, or whoever asked.
+- **Origin** — where it came from, in a few words: `deferred while <doing what>`,
+  `from the review of <PR>`, `agreed with <who>, <date>`, `planned for <when>`.
 - Link out when it helps: the `wiki/` page, the flow, the `entries/` note from
-  the session that found it. Relative links only.
+  the session it came out of. Relative links only.
 
 **One task per item.** Two problems in one checkbox is one that never gets
 closed.
@@ -112,8 +115,9 @@ Closing on belief is how a board stops being trusted. **Check first, then close:
 - **Technical** — re-read the anchor. Is the problem actually gone? If the file
   moved or the symbol was renamed, find it before deciding. `git log --oneline
   <sha>..HEAD -- <anchor path>` shows what touched it since the task was filed.
-- **Non-technical** — say what actually happened and who confirmed it. "The lead
-  said it is no longer needed" is a valid close and a different one from "done".
+- **Non-technical** — say what actually happened, and who confirmed it where
+  somebody did. "No longer needed" is a valid close and a different one from
+  "done"; both beat a checkbox flipped with no reason.
 
 Then **one `edit`**: flip `- [ ]` to `- [x]`, move the whole block under
 `## Done`, and append a closing line — the date, and the commit that closed it or
