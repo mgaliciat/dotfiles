@@ -273,12 +273,9 @@ notify-on-command-finish-action = no-bell,notify
 # Unfocused splits dim to 85% — you see instantly where you're typing.
 unfocused-split-opacity = 0.85
 
-# Dimensions (cols×rows) while resizing: OFF (2026-09-07). It is a panel in
-# the middle of the screen reporting a number you can already see, and
-# `always` fired it on every drag. `after-first` (the Ghostty default) still
-# pops it on manual resizes; `never` is the only value that is quiet.
-# Turn it back to `after-first` when a layout has to hit an exact width.
-resize-overlay = never
+# Shows the dimensions (cols×rows) when resizing the window.
+resize-overlay = always
+resize-overlay-position = center
 
 # ═══════════════════════════════════════════════════════════════
 #  PACKAGE 4 — Productive keybinds
@@ -305,40 +302,16 @@ keybind = cmd+shift+i=prompt_surface_title
 keybind = cmd+up=jump_to_prompt:-1
 keybind = cmd+down=jump_to_prompt:1
 
-# Tabs by number: GONE (2026-09-07). Multiplexing is tmux's — sessions,
-# windows and the Claude popups — so Ghostty's own tabs go unused and ⌘1..⌘9
-# only ever landed on a surface that was not there. The titlebar above still
-# carries the tab strip; this is about the shortcuts, not about hiding it.
-#
-# These have to be `unbind`, not merely deleted: ⌘1..⌘9 → goto_tab are
-# GHOSTTY DEFAULTS (`ghostty +list-keybinds --default`), so removing our
-# lines would leave the behaviour exactly as it was.
-#
-# And BOTH spellings need their own line. Ghostty ships each of these keys
-# twice — `super+1` (the logical character) and `super+digit_1` (the physical
-# key) — and an `unbind` only clears the spelling it names. Unbinding just
-# `cmd+one` takes the count from 17 to 8, which looks like it worked until ⌘1
-# still switches tabs. Verify with `ghostty +list-keybinds | grep goto_tab`:
-# it must print nothing. The chords then fall through to the terminal, where
-# tmux can have them.
-keybind = cmd+one=unbind
-keybind = cmd+two=unbind
-keybind = cmd+three=unbind
-keybind = cmd+four=unbind
-keybind = cmd+five=unbind
-keybind = cmd+six=unbind
-keybind = cmd+seven=unbind
-keybind = cmd+eight=unbind
-keybind = cmd+nine=unbind
-keybind = cmd+digit_1=unbind
-keybind = cmd+digit_2=unbind
-keybind = cmd+digit_3=unbind
-keybind = cmd+digit_4=unbind
-keybind = cmd+digit_5=unbind
-keybind = cmd+digit_6=unbind
-keybind = cmd+digit_7=unbind
-keybind = cmd+digit_8=unbind
-keybind = cmd+digit_9=unbind
+# Tabs by number: ⌘1..⌘9 jumps straight to that tab.
+keybind = cmd+one=goto_tab:1
+keybind = cmd+two=goto_tab:2
+keybind = cmd+three=goto_tab:3
+keybind = cmd+four=goto_tab:4
+keybind = cmd+five=goto_tab:5
+keybind = cmd+six=goto_tab:6
+keybind = cmd+seven=goto_tab:7
+keybind = cmd+eight=goto_tab:8
+keybind = cmd+nine=goto_tab:9
 
 # ═══════════════════════════════════════════════════════════════
 #  PACKAGE 5 — dock icon: the built-in `xray` style
