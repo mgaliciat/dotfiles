@@ -135,7 +135,24 @@ adjust-cell-height = 3%
 # and titlebar. The color is inherited from the theme's background.
 # Alternatives: transparent (titlebar blends with the background, separate
 # tab bar) · native (standard macOS look) · hidden (no titlebar).
+# NOT `hidden`, minimalism notwithstanding: that removes the tab strip, and
+# the ⌘1..⌘9 `goto_tab` binds in PACKAGE 4 would then be jumping between
+# tabs nothing on screen shows.
 macos-titlebar-style = tabs
+
+# ─── titlebar chrome (2026-09-07) ─────────────────────────────
+# What the titlebar keeps: the tab strip. What it loses:
+#
+# The traffic lights. ⌘W closes, ⌘M minimises, ⌘↩ is fullscreen
+# (macos-non-native-fullscreen, below) — three buttons for three shortcuts
+# already bound, sitting in the corner of every window. Dragging the
+# titlebar still moves the window.
+macos-window-buttons = hidden
+
+# The document proxy icon — the little file glyph macOS puts beside the
+# title, meant for dragging a *document* somewhere. A terminal has no
+# document, so it is decoration with no drag target.
+macos-titlebar-proxy-icon = hidden
 
 # craftzdog's "glass" look, values verbatim from his dotfiles-public ghostty
 # config: opacity 0.9 + blur 20 (his key is the legacy `background-blur-radius`;
@@ -273,9 +290,12 @@ notify-on-command-finish-action = no-bell,notify
 # Unfocused splits dim to 85% — you see instantly where you're typing.
 unfocused-split-opacity = 0.85
 
-# Shows the dimensions (cols×rows) when resizing the window.
-resize-overlay = always
-resize-overlay-position = center
+# Dimensions (cols×rows) while resizing: OFF (2026-09-07). It is a panel
+# in the middle of the screen reporting a number you can already see, and
+# `always` fired it on every drag. `after-first` (the Ghostty default)
+# still pops it on manual resizes; `never` is the only value that is quiet.
+# Turn it back to `after-first` when a layout has to hit an exact width.
+resize-overlay = never
 
 # ═══════════════════════════════════════════════════════════════
 #  PACKAGE 4 — Productive keybinds
@@ -342,7 +362,6 @@ macos-icon = xray
 # Other options: false (native), true (non-native without menubar).
 macos-non-native-fullscreen = visible-menu
 
-# If you prefer to hide the traffic lights (red/yellow/green) when
-# you enter fullscreen for a cleaner view, uncomment:
-# macos-window-buttons = hidden
+# (The traffic lights are already hidden globally — see the titlebar
+# chrome block in the window section, not just in fullscreen.)
 
