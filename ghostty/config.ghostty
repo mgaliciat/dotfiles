@@ -149,10 +149,10 @@ macos-titlebar-style = tabs
 # titlebar still moves the window.
 macos-window-buttons = hidden
 
-# The document proxy icon — the little file glyph macOS puts beside the
-# title, meant for dragging a *document* somewhere. A terminal has no
-# document, so it is decoration with no drag target.
-macos-titlebar-proxy-icon = hidden
+# No `macos-titlebar-proxy-icon` here: Ghostty only draws that icon under
+# the `native` titlebar style, so with `tabs` above the setting is a no-op
+# and there is nothing to hide. It would only start mattering if this file
+# ever went back to `native`.
 
 # craftzdog's "glass" look, values verbatim from his dotfiles-public ghostty
 # config: opacity 0.9 + blur 20 (his key is the legacy `background-blur-radius`;
