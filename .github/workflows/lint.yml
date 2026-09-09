@@ -83,8 +83,11 @@ jobs:
         run: |
           allow='terminalTitleFromRename'   # tmux owns the tab title on mac/Linux; no tmux on Windows
           missing=0
-          for key in $(grep -oE "_settings_set_if_absent +'\.[A-Za-z.]+'" claude/install/settings.sh \
-                       | sed -E "s/.*'\.([A-Za-z.]+)'/\1/" | awk -F. '{print $NF}' | sort -u); do
+          # The class carries `_` for the env.CLAUDE_CODE_* keys: without it the
+          # pattern simply fails to match those lines and they go unchecked —
+          # a silent hole, not a failure.
+          for key in $(grep -oE "_settings_set_if_absent +'\.[A-Za-z._]+'" claude/install/settings.sh \
+                       | sed -E "s/.*'\.([A-Za-z._]+)'/\1/" | awk -F. '{print $NF}' | sort -u); do
             # Quoted, so a key named in a comment does not count as mirrored.
             if grep -q "\"$key\"" install-windows.ps1; then echo "ok    $key"
             elif grep -qw "$key" <<<"$allow"; then echo "skip  $key (documented divergence)"

@@ -9,8 +9,8 @@
 #     git/.gitignore_global
 #   - statusLine (+ refreshInterval), base permissions, attribution,
 #     outputStyle, fallbackModel, autoContinueAtUsageLimit,
-#     preferredNotifChannel, the PowerShell-tool env var and the logbook
-#     PostToolUse hook in settings.json (CI checks this list against
+#     preferredNotifChannel, the PowerShell-tool and experimental-feature env
+#     vars, and the logbook PostToolUse hook in settings.json (CI checks this list against
 #     settings.sh; terminalTitleFromRename is the one deliberate omission)
 #     (equivalent to the jq blocks in install.sh/install-linux.sh, native JSON here)
 #   - rtk (no official installer for Windows — we download the release zip) and
@@ -411,6 +411,31 @@ if ($Settings.env -isnot [PSCustomObject]) {
 } else {
     $Settings.env | Add-Member -NotePropertyName "CLAUDE_CODE_USE_POWERSHELL_TOOL" -NotePropertyValue "1"
     Write-Host "OK  env.CLAUDE_CODE_USE_POWERSHELL_TOOL added to settings.json (1)"
+}
+
+# ─── env.CLAUDE_CODE_EXPERIMENTAL_* (mirror of settings.sh) ─────
+# Agent teams and observer agents, both off unless the var is set. Read as plain
+# truthiness, so the value is any non-empty STRING and there is no "off" value:
+# to disable one you delete the key rather than setting "0". Both are also gated
+# server-side, so the var is necessary and not sufficient -- on an account
+# without the gate this is an ignored key, which is why there is no version
+# guard. Full rationale in claude/install/settings.sh.
+#
+# Shares the `env` object created by the PowerShell-tool block above -- hence
+# the -is guard here, which is that block's `-isnot` branch seen from the other
+# side: if `env` is not an object we touch nothing.
+if ($Settings.env -is [PSCustomObject]) {
+    foreach ($EnvVar in @(
+        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS",
+        "CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS"
+    )) {
+        if ($Settings.env.PSObject.Properties.Name -contains $EnvVar) {
+            Write-Host "OK  env.$EnvVar already set -- leaving it alone"
+        } else {
+            $Settings.env | Add-Member -NotePropertyName $EnvVar -NotePropertyValue "1"
+            Write-Host "OK  env.$EnvVar added to settings.json (1)"
+        }
+    }
 }
 
 # ─── PostToolUse hook: logbook entry after a commit ─────────────

@@ -50,7 +50,7 @@ Everything this repo does to `~/.claude/` lives here, split by **who writes to `
 
 | | File | Who writes `settings.json` | Idempotency | Currently |
 |---|---|---|---|---|
-| **1** | `settings.sh` | **We do**, with `jq` | Our guard (only if the key is absent) | `statusLine`, `permissions.*`, `attribution.*`, `outputStyle`, the logbook `PostToolUse` hook, stale-hook cleanup, symlinks for `statusline.sh` + `CLAUDE.md` + `hooks/logbook.sh` + the `logbook` skill plugin |
+| **1** | `settings.sh` | **We do**, with `jq` | Our guard (only if the key is absent) | `statusLine`, `permissions.*`, `attribution.*`, `outputStyle`, `env.*`, the logbook `PostToolUse` hook, stale-hook cleanup, symlinks for `statusline.sh` + `CLAUDE.md` + `hooks/logbook.sh` + the `logbook` skill plugin |
 | **2** | `binaries.sh` | The **external binary**, in its own setup command | The binary handles it | `rtk`, `codebase-memory-mcp`, `context7` and `open-knowledge` (endpoint-only, credentials from env), the `gh-stack` skill |
 | **3** | `plugins.sh` | The **CLI** (`claude plugin`) | The CLI handles it | *(nothing — the helper stays)* |
 

@@ -266,6 +266,36 @@ _settings_set_if_absent '.preferredNotifChannel' \
   '.preferredNotifChannel = "terminal_bell"' \
   'preferredNotifChannel (terminal_bell)'
 
+# ── env.CLAUDE_CODE_EXPERIMENTAL_* : agent teams + observer agents ──
+# Two experimental features that are OFF unless their env var is set: agent
+# teams (teammate agents you can message, `--agent-teams` is the CLI twin of
+# the var) and observer agents (the fan-out that reviews a subagent's work).
+# Verified against the 2.1.267 binary, which reads both as plain truthiness —
+# the value is any non-empty STRING ("1" here; `env` is documented as string
+# pairs, an integer is the wrong type), and there is no `false` value: to turn
+# one off you remove the key, you don't set it to "0".
+#
+# Both are ALSO gated server-side (`tengu_amber_flint`, `tengu_observer_agents_enabled`),
+# so the var is necessary and not sufficient — on an account without the gate,
+# or on a CLI too old to know the name, this degrades to an ignored key. That's
+# why there is no version guard, same as outputStyle.
+#
+# Written into settings.json's `env` and not exported from `.zshenv`, for the
+# reason that file's own rules give: `.zshenv` is sourced by every zsh, so an
+# export there hands the flag to every process the shell spawns. `env` scopes it
+# to Claude Code and needs no new terminal.
+#
+# Keyed per FIELD, like attribution.* above: `env` may already exist on a machine
+# (Windows sets CLAUDE_CODE_USE_POWERSHELL_TOOL in it), and a guard on `.env`
+# would be satisfied by that and never write these.
+_settings_set_if_absent '.env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS' \
+  '.env //= {} | .env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1"' \
+  'env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS'
+
+_settings_set_if_absent '.env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS' \
+  '.env //= {} | .env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS = "1"' \
+  'env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS'
+
 # ── convergent cleanup: the pre-rename bitacora hook entry (sep-2026) ──
 # Must run BEFORE the block that registers the new one, or the guard below sees a
 # settings.json with no "hooks/logbook" string, appends ours, and leaves the dead
