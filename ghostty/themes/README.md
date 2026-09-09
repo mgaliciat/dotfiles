@@ -59,8 +59,34 @@ script. Not to be confused with `MicrochipImage`, the green board.
 fg, comments the brightest thing on screen. He never shipped a theme, so the
 source is his editor's own colour-slot table at
 <https://vegard.wiki/w/Jon_Blow_emacs_colorscheme>. **The nvim and VS Code ports
-each re-interpret it and are not a valid source.** Red, blue and magenta do not
-exist in his palette and are derived on its own `0x40/0x80/0xb0/0xc0/0xf0` grid.
+each re-interpret it and are not a valid source.** Blue does not exist in his
+palette and is derived on its own `0x40/0x80/0xb0/0xc0/0xf0` grid.
+
+That table is 18 slots of canvas and literals — `Background`, `Default`,
+`Comment`, `Str_Constant`, `Int_Constant`, `Preproc`, `Cursor`, `Highlight`,
+`Bar`, `Margin`, `Ghost_Character`, `Paste`, `Pop1`, … — and says **nothing about
+keywords, types, functions or directives**. Left to itself a tokyonight base
+invents a hierarchy he doesn't have, which is what makes every port of this theme
+look wrong. Those roles come from a **secondary source**: `jblowtorch`, a builtin
+theme of [Focus](https://github.com/focus-editor/focus), the editor written in
+Jai — `config/themes/jblowtorch.focus-theme`, introduced by Focus's own author
+Ivan Ivanov (`77114c51`, dec-2023), **not by Blow**. So it is a third party's
+reading like the ports, and it earns its vote only by converging independently on
+the anchors: bg `#072626`, fg `#d3b58d`, comment `#3ddf23`, cursor `#90ee90`,
+selection `#0000ff`.
+
+The rule that keeps the two straight: **jblowtorch fills gaps, it never overrides
+a slot the table defines.** Strings stay `Str_Constant #40b0a0` and numbers stay
+`Int_Constant #80f0e0` even though jblowtorch reads them as `#0fdfaf` / `#d699b5`.
+What it does supply is `code_keyword #ffffff`, `code_type #98fb98`,
+`code_directive #e67d74`, `code_macro #e0ad82`, `code_identifier #bfc9db`,
+`code_builtin_variable #d699b5` — plus the two ANSI slots where an observed hex
+beats a constructed one, red `#e64d4d` (its `code_deletion`) and magenta
+`#d699b5` (its `code_number`).
+
+The other half of the port problem is **flatness**: functions, calls, operators
+and punctuation are all plain `Default` in his editor, so nothing competes with
+the comments. `naysayer.lua` collapses those groups back onto `fg` explicitly.
 
 **`neon-noir`** · True black `#000` noir canvas + a cool neon spectrum — magenta
 keywords `#ff4d9d`, cyan types, electric-blue functions, mint strings, amber the

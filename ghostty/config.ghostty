@@ -20,7 +20,7 @@
 # the file is versioned, a `git pull` propagates the theme to the other
 # machines. To change the look: edit this line (and the equivalent lines
 # in nvim and tmux — they share the id) and commit. There's no switcher and no pointer.
-theme = solarized-osaka
+theme = naysayer
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -65,9 +65,9 @@ theme = solarized-osaka
 # looks like it never applied (only its ANSI/cursor change). Re-enable it only
 # together with `theme = solarized-osaka`; leave it commented for everything else.
 #
-# ON (2026-09-06) — solarized-osaka is active again. Comment it out the day
-# `theme =` points anywhere else.
-background = #031219
+# OFF (2026-09-09) — `naysayer` is active and brings its own canvas (#052329).
+# Re-enable this line the day `theme =` points back at solarized-osaka.
+# background = #031219
 
 # Display P3 wide-gamut — orange and cream saturate more on
 # M-chip / Retina screens. No downside on non-P3 machines.
@@ -82,11 +82,12 @@ window-colorspace = display-p3
 #         paper, solarized-light).
 #   4.5 = WCAG AA body text. Rescues every gray but DISTORTS brand
 #         colors: Claude orange ends up nearly black. Not recommended.
-# At 1.1 (2026-09-06) for solarized-osaka: craftzdog's config has no
-# minimum-contrast at all, and the dimmed base01 comments over the glass are
-# part of that look. It was 3.0 under solarized-dark (2026-08-13), where the
-# only tone below the floor was base01 #586e75 at 2.79:1 — go back to 3.0
-# if a light theme (light-2026, paper, solarized-light) becomes active.
+# Still 1.1 (2026-09-09) under naysayer, and here it is load-bearing rather than
+# neutral: his Ghost_Character #46494d over #052329 is deliberately near-invisible
+# ("present but inert"), and any enforcement would rescue exactly the tone the
+# scheme wants buried. It was 1.1 for solarized-osaka too (2026-09-06, craftzdog
+# sets no minimum-contrast at all) and 3.0 under solarized-dark (2026-08-13) —
+# go back to 3.0 if a light theme (light-2026, paper, solarized-light) becomes active.
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
@@ -171,6 +172,12 @@ macos-titlebar-style = tabs
 # built for a wallpaper showing through the deep ocean, and nvim's
 # solarized-osaka spec sets `transparent = true` to inherit exactly this.
 # Back to 1.0 / 0 (solid) with any other theme.
+#
+# KEPT ON (2026-09-09) under naysayer, by preference rather than by the rule
+# above: the glass is wanted on this machine regardless of the palette. His deep
+# teal was designed as an opaque canvas, so the comment green and the pure-blue
+# selection lose some contrast against whatever shows through — that is the
+# tradeoff being accepted here, not an oversight.
 background-opacity = 0.9
 background-blur = 20
 

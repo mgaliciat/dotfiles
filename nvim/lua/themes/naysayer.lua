@@ -15,8 +15,16 @@
 --           "comments are noise, dim them" convention. He reads his comments.
 --   #90c090 cursor · #d8b488 statusline · #46494d line numbers (Ghost_Character)
 --
--- Slots he has no colour for (red, blue, magenta) are derived on his own
--- 0x40/0x80/0xb0/0xc0/0xf0 grid — see ghostty/themes/naysayer for the reasoning.
+-- The table is 18 slots of canvas and literals; it says nothing about keywords,
+-- types, functions or directives, which is exactly where a tokyonight base would
+-- otherwise invent a hierarchy he doesn't have. Those come from `jblowtorch`, a
+-- builtin theme of Focus (the editor written in Jai) — a SECONDARY source, Ivan
+-- Ivanov's reading rather than Blow's own file, so it fills gaps and never
+-- overrides a slot the table defines (strings stay Str_Constant #40b0a0, numbers
+-- stay Int_Constant #80f0e0, both of which jblowtorch reads differently).
+--
+-- Slots he has no colour for (blue) are derived on his own 0x40/0x80/0xb0/0xc0/0xf0
+-- grid; red and magenta take jblowtorch's observed hex — see ghostty/themes/naysayer.
 --
 -- tokyonight base: variant `night`.
 -- No bold/italics in his setup; we keep bold only where nvim needs a structural
@@ -38,11 +46,11 @@ local palette = {
   fg_gutter     = "#46494d",       -- Ghost_Character — his slot for inert text
 
   black         = "#183848",       -- ansi0  Margin
-  red           = "#c04040",       -- ansi1  derived (channel-swap of comment green)
+  red           = "#e64d4d",       -- ansi1  jblowtorch code_deletion
   green         = "#40c040",       -- ansi2  Comment
   yellow        = "#ffbb00",       -- ansi3  Paste
   blue          = "#4080c0",       -- ansi4  derived
-  magenta       = "#c040c0",       -- ansi5  derived
+  magenta       = "#d699b5",       -- ansi5  jblowtorch code_number
   cyan          = "#40b0a0",       -- ansi6  Str_Constant
   white         = "#d0c0a0",       -- ansi7  Default
 
@@ -51,7 +59,7 @@ local palette = {
   bright_green   = "#b0ffb0",      -- ansi10 Preproc
   bright_yellow  = "#ffd040",      -- ansi11 derived
   bright_blue    = "#80b0f0",      -- ansi12 derived
-  bright_magenta = "#f080f0",      -- ansi13 derived
+  bright_magenta = "#f0b0d0",      -- ansi13 derived
   bright_cyan    = "#80f0e0",      -- ansi14 Int_Constant
   bright_white   = "#f0e8d0",      -- ansi15 derived
 
@@ -60,6 +68,15 @@ local palette = {
   cursor        = "#90c090",       -- Cursor
   accent        = "#20d0e0",       -- Pop1 — his "stand out" slot
   bar           = "#d8b488",       -- Bar — statusline fg
+
+  -- Syntax roles the slot table has no colour for. jblowtorch's values, kept
+  -- under their Focus names so the mapping back to the source stays checkable.
+  syn_keyword   = "#ffffff",       -- code_keyword — the loudest thing after comments
+  syn_type      = "#98fb98",       -- code_type
+  syn_directive = "#e67d74",       -- code_directive / code_modifier / code_attribute
+  syn_macro     = "#e0ad82",       -- code_macro / code_builtin_function / code_note
+  syn_ident     = "#bfc9db",       -- code_identifier — cool gray, the only non-warm text
+  syn_builtin   = "#d699b5",       -- code_builtin_variable
 }
 
 return {
@@ -129,6 +146,57 @@ return {
     hl.GitSignsAdd    = { fg = c.green }
     hl.GitSignsChange = { fg = c.yellow }
     hl.GitSignsDelete = { fg = c.red }
+
+    -- Syntax. The point of his scheme is how FLAT it is: functions, calls,
+    -- operators and punctuation are all plain Default, so nothing competes with
+    -- the comments. tokyonight paints all of those separately by default, which
+    -- is what made every port of this theme look wrong — collapsing them back
+    -- onto `fg` is most of the work here.
+    local flat = { fg = c.fg }
+    for _, group in ipairs({
+      "@function", "@function.call", "@function.method", "@function.method.call",
+      "@operator", "@punctuation.bracket", "@punctuation.delimiter",
+      "@punctuation.special", "@constructor", "@property", "@field", "@label",
+    }) do
+      hl[group] = flat
+    end
+
+    hl["@keyword"]                = { fg = palette.syn_keyword }
+    hl["@keyword.function"]       = { fg = palette.syn_keyword }
+    hl["@keyword.operator"]       = { fg = palette.syn_keyword }
+    hl["@keyword.return"]         = { fg = palette.syn_keyword }
+    hl["@keyword.conditional"]    = { fg = palette.syn_keyword }
+    hl["@keyword.repeat"]         = { fg = palette.syn_keyword }
+    hl["@keyword.exception"]      = { fg = palette.syn_keyword }
+    hl["@keyword.import"]         = { fg = palette.syn_directive }
+    hl["@keyword.directive"]      = { fg = palette.syn_directive }
+    hl["@keyword.directive.define"] = { fg = palette.syn_directive }
+
+    hl["@type"]                   = { fg = palette.syn_type }
+    hl["@type.builtin"]           = { fg = palette.syn_type }
+    hl["@type.definition"]        = { fg = palette.syn_type }
+    hl["@module"]                 = { fg = palette.syn_type }
+
+    hl["@variable"]               = { fg = palette.syn_ident }
+    hl["@variable.parameter"]     = { fg = palette.syn_ident }
+    hl["@variable.member"]        = { fg = c.fg }
+    hl["@variable.builtin"]       = { fg = palette.syn_builtin }
+
+    hl["@attribute"]              = { fg = palette.syn_directive }
+    hl["@function.macro"]         = { fg = palette.syn_macro }
+    hl["@function.builtin"]       = { fg = palette.syn_macro }
+    hl["@constant.macro"]         = { fg = palette.syn_macro }
+
+    -- Literals keep the primary table: Str_Constant and Int_Constant are two of
+    -- the 18 slots he actually defined, so jblowtorch's brighter readings lose.
+    hl["@string"]                 = { fg = palette.cyan }
+    hl["@string.escape"]          = { fg = palette.accent }
+    hl["@character"]              = { fg = palette.cyan }
+    hl["@number"]                 = { fg = palette.bright_cyan }
+    hl["@number.float"]           = { fg = palette.bright_cyan }
+    hl["@boolean"]                = { fg = palette.bright_cyan }
+    hl["@constant"]               = { fg = palette.bright_cyan }
+    hl["@constant.builtin"]       = { fg = palette.bright_cyan }
 
     -- Inline code: Margin as the raised bg + Str_Constant teal, since a code
     -- span is a literal — same family as a string in his palette.
