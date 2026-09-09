@@ -83,6 +83,17 @@ return {
   style = "night",
   palette = palette,
 
+  -- Inherit Ghostty's glass (opacity 0.9 + blur 20), the way solarized-osaka
+  -- does from its own plugin spec. Without this nvim paints an opaque #052329
+  -- over a translucent terminal and the seam is visible at every split edge.
+  --
+  -- It costs something and that is accepted: his palette assumes an opaque
+  -- canvas, so the comment green and the pure-blue selection lose contrast
+  -- against whatever shows through. `bg_float` / `bg_statusline` stay opaque
+  -- (tokyonight's `floats = "dark"`, `sidebars = "dark"`), which is also what
+  -- incline.lua's fallback to NormalFloat relies on.
+  transparent = true,
+
   on_colors = function(c)
     c.bg            = palette.bg
     c.bg_dark       = palette.bg_dark

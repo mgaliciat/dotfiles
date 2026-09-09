@@ -7,6 +7,13 @@
 --   palette        table with all the hex values
 --   on_colors(c)   overrides tokyonight's internal palette
 --   on_highlights(hl, c)   tweaks for specific groups
+--   transparent    optional, defaults false — drop nvim's own canvas so
+--                  Ghostty's translucency shows through (see below)
+--
+-- `transparent` is per-theme and not a global switch on purpose: it only makes
+-- sense while Ghostty runs `background-opacity < 1`, and a light theme (paper,
+-- light-2026, solarized-light) over that glass is unreadable. The theme that
+-- wants it declares it; everything else keeps its opaque canvas.
 --
 -- Themes currently available (all on top of tokyonight; except
 -- obsidian, each one has a Ghostty + tmux mirror — the stack family):
@@ -57,7 +64,7 @@ return {
   priority = 1000,
   opts = {
     style = theme.style,
-    transparent = false,
+    transparent = theme.transparent or false,
     terminal_colors = true,
     styles = {
       comments  = { italic = true },
