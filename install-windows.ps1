@@ -414,12 +414,13 @@ if ($Settings.env -isnot [PSCustomObject]) {
 }
 
 # ─── env.CLAUDE_CODE_EXPERIMENTAL_* (mirror of settings.sh) ─────
-# Agent teams and observer agents, both off unless the var is set. Read as plain
-# truthiness, so the value is any non-empty STRING and there is no "off" value:
-# to disable one you delete the key rather than setting "0". Both are also gated
-# server-side, so the var is necessary and not sufficient -- on an account
-# without the gate this is an ignored key, which is why there is no version
-# guard. Full rationale in claude/install/settings.sh.
+# Agent teams and observer agents, both off unless the var is set. The CLI's
+# boolean env parser accepts exactly `1` / `true` / `yes` / `on` and reads
+# anything else as false, so "0" is a real off switch and a plausible value like
+# "enabled" silently disables the feature. Both are also gated server-side, so
+# the var is necessary and not sufficient -- on an account without the gate this
+# is an ignored key, which is why there is no version guard. Observer agents are
+# undocumented (binary only). Full rationale in claude/install/settings.sh.
 #
 # Shares the `env` object created by the PowerShell-tool block above -- hence
 # the -is guard here, which is that block's `-isnot` branch seen from the other

@@ -270,15 +270,23 @@ _settings_set_if_absent '.preferredNotifChannel' \
 # Two experimental features that are OFF unless their env var is set: agent
 # teams (teammate agents you can message, `--agent-teams` is the CLI twin of
 # the var) and observer agents (the fan-out that reviews a subagent's work).
-# Verified against the 2.1.267 binary, which reads both as plain truthiness —
-# the value is any non-empty STRING ("1" here; `env` is documented as string
-# pairs, an integer is the wrong type), and there is no `false` value: to turn
-# one off you remove the key, you don't set it to "0".
+# Both go through the CLI's boolean env parser, which accepts EXACTLY
+# `1` / `true` / `yes` / `on` (lowercased and trimmed) and reads everything
+# else as false — so "0" and "false" are real off switches, and a plausible
+# value like "enabled" silently disables the feature. The value is a STRING:
+# `env` is documented as string pairs, an integer is the wrong type.
 #
 # Both are ALSO gated server-side (`tengu_amber_flint`, `tengu_observer_agents_enabled`),
 # so the var is necessary and not sufficient — on an account without the gate,
 # or on a CLI too old to know the name, this degrades to an ignored key. That's
 # why there is no version guard, same as outputStyle.
+#
+# Agent teams are documented (code.claude.com/docs/en/agent-teams, which shows
+# this exact `env` block). Observer agents are NOT: the name appears in the
+# 2.1.267 binary and nowhere in the docs — not the env-var reference, not the
+# settings reference. Undocumented means unsupported, so expect it to change or
+# vanish without a deprecation note, and re-check it against the binary rather
+# than against the docs.
 #
 # Written into settings.json's `env` and not exported from `.zshenv`, for the
 # reason that file's own rules give: `.zshenv` is sourced by every zsh, so an
