@@ -39,8 +39,9 @@
 # What is still deliberately ABSENT vs install.sh, and why: zsh/tmux/nvim/ghostty
 # and their symlinks (do not run natively), the shell tools behind their aliases
 # (eza/bat/fd/gomi/zoxide/fzf — no zsh to alias them from), 1password-cli
-# (nothing in this repo references `op`), and Paper Mono (the ghostty font-family;
-# no ghostty here, and the NF families below are what Windows Terminal needs).
+# (nothing in this repo references `op`), and Paper Mono (a former ghostty
+# font-family with no cask; no ghostty here, and the NF families below are what
+# Windows Terminal needs).
 # Note the theme block reads ghostty/themes/ anyway — that dir is just where the
 # palettes are versioned, and needing them here is not the same as running ghostty.
 #
@@ -992,11 +993,13 @@ function Install-FontFromRelease {
 
 Install-FontFromRelease -Repo "yuru7/PlemolJP" -AssetPattern '^PlemolJP_NF_.*\.zip$' -Label "PlemolJP NF"
 
-# The mac primary since `250235e`, and the reason this box gets it too: it is
-# what $WtFont below points at. NOT a Nerd Font — the powerline/devicon glyphs
-# (and the statusline's nf-fa-microchip) come from DirectWrite falling back to
-# the NF families above, exactly as ghostty falls back on the Mac. That is why
-# the PlemolJP/Maple/Monaspace installs stay even when nothing selects them.
+# A former mac primary, kept installed as fallback coverage. It STOPPED being
+# what $WtFont points at when the Mac moved to PlemolJP (2026-09-08) — the
+# install stays because it is one line away from returning on either box, and
+# because it is a reasonable DirectWrite fallback. NOT a Nerd Font, so while it
+# WAS the primary the powerline/devicon glyphs (and the statusline's
+# nf-fa-microchip) came from DirectWrite falling back to the NF families above.
+# That is no longer load-bearing: the current primary is itself a Nerd Font.
 # The desktop zip, NOT the -Android one, which ships a different name table.
 Install-FontFromRelease -Repo "googlefonts/googlesans-code" -AssetPattern '^GoogleSansCode-v[\d.]+\.zip$' -Label "Google Sans Code"
 
@@ -1029,18 +1032,31 @@ $WtTheme = "solarized-osaka"
 # the repo's rule is to verify the family name, never to trust the config).
 # $WtFonts is what we are allowed to overwrite: the families this installer
 # itself puts on the box. Anything else in that field was chosen by hand.
-# ⚠️ NOT "Google Sans Code" — that family does not exist on Windows, and asking
-# for it renders the fallback with no error at all. The GitHub release ships ONE
-# variable font with a `MONO` axis, and DirectWrite splits its named instances
-# into TWO families: `Google Sans Code Monospace` and `... Proportional`. The Mac
-# gets away with the bare name because brew's cask is a different build. Enumerated,
-# not guessed: `[System.Windows.Media.Fonts]::SystemFontFamilies` is the DirectWrite
-# view, i.e. what WT actually resolves against — GDI+ (System.Drawing) reports a
-# third set of names ("Google Sans Code ExtraBold Mono") and is the wrong oracle here.
-# Naming the Monospace instance also settles the mono/proportional choice explicitly,
-# which is not something to leave to a fallback in a terminal.
-$WtFont  = "Google Sans Code Monospace"
-$WtFonts = @("Google Sans Code Monospace", "Google Sans Code", "Maple Mono NF", "PlemolJP Console NF", "PlemolJP35 Console NF", "Monaspace Neon", "MonaspiceNe NF")
+# PlemolJP since 2026-09-08, tracking ghostty's move off Google Sans Code.
+# The bare family name is right HERE and would have been wrong for the font it
+# replaced: Google Sans Code needed "Google Sans Code Monospace", because that
+# release ships ONE variable font with a `MONO` axis and DirectWrite splits its
+# named instances into TWO families (`… Monospace` / `… Proportional`), so the
+# bare name renders the fallback with no error at all. PlemolJP has no such
+# axis — it ships plain static ttfs whose typographic family (name ID 16) is
+# "PlemolJP Console NF" for every weight, which is the name DirectWrite groups
+# them under. Not inferred from the Mac's cask either: brew's
+# `font-plemol-jp-nf` and the `Install-FontFromRelease` call above pull the
+# SAME asset from the SAME repo (yuru7/PlemolJP, `PlemolJP_NF_*.zip`), so the
+# name tables on the two boxes are byte-identical.
+# ⚠️ Still verify on the box when changing this: the oracle is
+# `[System.Windows.Media.Fonts]::SystemFontFamilies`, the DirectWrite view that
+# WT actually resolves against — GDI+ (System.Drawing) reports a different set
+# and is the wrong one to ask. A family that does not exist falls back SILENTLY.
+# ⚠️ NOT "PlemolJP35 Console NF", which also lands from that zip: it is the 3:5
+# width cut for JP text, a different family, not a style of this one.
+# $WtFontWeight is the second half of tracking the Mac. ghostty picks the weight
+# with `font-style = Medium`; WT has no style field, it has `font.weight`, so
+# the same 500 is spelled differently. Without it the face would resolve at
+# Regular and the two boxes would disagree while both looking "correct".
+$WtFont       = "PlemolJP Console NF"
+$WtFontWeight = "medium"
+$WtFonts = @("PlemolJP Console NF", "PlemolJP35 Console NF", "Google Sans Code Monospace", "Google Sans Code", "Maple Mono NF", "Monaspace Neon", "MonaspiceNe NF")
 
 # Claude launchers -- the moral equivalent of tmux's `M-c` / `M-C`
 # (utility.conf), on the one layer this box shares with the rest of the stack.
@@ -1083,7 +1099,7 @@ $ThemesDir    = Join-Path $Dotfiles "ghostty\themes"
 $GhosttyTheme = Join-Path $ThemesDir $WtTheme
 
 Write-Host ""
-Write-Host "-> Windows Terminal: scheme $WtTheme, font $WtFont"
+Write-Host "-> Windows Terminal: scheme $WtTheme, font $WtFont ($WtFontWeight)"
 
 # Anchored on the key NAMES, so a `#`-comment line can never match: every line
 # of prose in those files starts with `#`, and `#001419` only ever appears after
@@ -1201,10 +1217,21 @@ if (-not (Test-Path $GhosttyTheme)) {
             $CurrentFace = $Wt.profiles.defaults.font.face
             if ($CurrentFace -and ($WtFonts -notcontains $CurrentFace)) {
                 Write-Host "i   $WtPath keeps its own font ('$CurrentFace') -- not applied"
-            } elseif ($Wt.profiles.defaults.font.PSObject.Properties.Name -contains "face") {
-                $Wt.profiles.defaults.font.face = $WtFont
             } else {
-                $Wt.profiles.defaults.font | Add-Member -NotePropertyName "face" -NotePropertyValue $WtFont
+                if ($Wt.profiles.defaults.font.PSObject.Properties.Name -contains "face") {
+                    $Wt.profiles.defaults.font.face = $WtFont
+                } else {
+                    $Wt.profiles.defaults.font | Add-Member -NotePropertyName "face" -NotePropertyValue $WtFont
+                }
+                # Weight rides with the face, never on its own: a weight left
+                # behind on someone else's family is how a hand-picked font ends
+                # up rendering at a thickness nobody chose. Inside this branch it
+                # is always OUR face being written, so the pair stays coherent.
+                if ($Wt.profiles.defaults.font.PSObject.Properties.Name -contains "weight") {
+                    $Wt.profiles.defaults.font.weight = $WtFontWeight
+                } else {
+                    $Wt.profiles.defaults.font | Add-Member -NotePropertyName "weight" -NotePropertyValue $WtFontWeight
+                }
             }
         }
 

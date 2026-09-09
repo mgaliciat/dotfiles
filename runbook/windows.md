@@ -80,7 +80,8 @@ fallback for symlinks, and scoop refuses to run under it.
    - Nerd Fonts: Maple Mono NF and Monaspace NF via scoop, PlemolJP Console NF
      by direct download (per-user registry entry, no logout needed);
    - a Windows Terminal colour scheme generated from `ghostty/themes/<$WtTheme>`,
-     the font `$WtFont`, and the keybindings `ctrl+shift+l` → `claude`,
+     the font `$WtFont` at weight `$WtFontWeight`, and the keybindings
+     `ctrl+shift+l` → `claude`,
      `ctrl+shift+y` → `claude --dangerously-skip-permissions`.
 
 3. Bring the per-machine `~\.gitconfig` (identity, signing). Not versioned.
@@ -133,9 +134,15 @@ If a mac/Linux change looks missing here, that is where to look.
   `colorScheme` when the current value is a member of the family
   (`ghostty/themes/`). A scheme you picked by hand in the WT UI is reported and
   left alone. Switch it to the family in the UI once, then the installer owns it.
-- **Google Sans Code looks like the fallback font.** On Windows the family is
-  `Google Sans Code Monospace`, not `Google Sans Code`. The oracle is
-  `[System.Windows.Media.Fonts]::SystemFontFamilies`, not GDI.
+- **The font looks like the fallback.** A family WT cannot resolve falls back
+  silently. The oracle is `[System.Windows.Media.Fonts]::SystemFontFamilies`,
+  not GDI. Two names bite here: Google Sans Code is `Google Sans Code Monospace`
+  on Windows, not the bare name (DirectWrite splits its `MONO` axis into two
+  families); and `PlemolJP35 Console NF` is a separate 3:5-width family, not a
+  style of `PlemolJP Console NF`.
+- **The font is the right family but too light.** WT has no style field — the
+  weight is `font.weight` (`$WtFontWeight`), separate from `font.face`. It is
+  only written when the installer also owns the face.
 - **Graph UI on `localhost:9749` is dead** after `codebase-memory-mcp update`.
   The self-update pulls the headless build. Compare `--version` with the stamp
   file; re-run the installer to get the `-ui-` asset back.
