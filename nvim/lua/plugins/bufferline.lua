@@ -75,6 +75,22 @@ return {
         -- out amber against an orange name. Off, because the palette here is
         -- already derived from the active theme — this table IS the theming.
         themable = false,
+        -- bufferline's setup forces `showtabline = 2`, so the row is reserved
+        -- permanently — with a single tab that is one blank line above the
+        -- buffer carrying nothing but the `▎` indicator. In `mode = "tabs"` a
+        -- lone tab conveys nothing anyway: the filename is already in incline's
+        -- float and the statusline. The row comes back the moment a second tab
+        -- exists, which is the only time it says something.
+        always_show_bufferline = false,
+        -- oil buffers are named `oil:///path/to/dir/`, and the default label is
+        -- `fnamemodify(name, ":t")` — which returns "" for anything ending in a
+        -- slash. That is why an oil tab rendered as an icon with no text at all.
+        name_formatter = function(buf)
+          local dir = (buf.path or ""):match("^oil://(.*)$")
+          if dir then
+            return vim.fn.fnamemodify((dir:gsub("/$", "")), ":t") .. "/"
+          end
+        end,
         separator_style = "thin",
         indicator = { style = "icon", icon = "▎" },
         show_buffer_close_icons = false,
