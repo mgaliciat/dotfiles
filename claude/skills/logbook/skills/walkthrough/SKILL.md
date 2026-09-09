@@ -162,16 +162,14 @@ One table, every node in every diagram, no exceptions:
 `write` for a new file (`content` + `frontmatter` in one call), `edit` for one
 that exists — a `write` at a live path replaces the whole body.
 
-```yaml
-type: flow
-title: …
-description: …                 # one sentence, entrypoint → terminus
-resource: …                    # the repo, ideally the permalink at this commit
-commit: a1b2c3d4               # full or short SHA — the pin
-branch: main
-tags: [repo/<name>, flow, …]
-timestamp: YYYY-MM-DD
-```
+Frontmatter per AUTHORING.md: `type: flow`, `title`, one-sentence `description`
+running entrypoint → terminus, `resource` pointing at the repo — ideally the
+permalink at this commit, `tags` including `repo/<name>` and `flow`, `timestamp`,
+and `sources` when the trace leaned on a `sources/` capture.
+
+Two fields are this skill's alone and are what make the document
+re-verifiable: **`commit`** (full or short SHA — the pin every anchor is true at)
+and **`branch`**.
 
 Body shape:
 
