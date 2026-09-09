@@ -90,38 +90,64 @@ window-colorspace = display-p3
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
-# Google Sans Code — back as primary (2026-08-22) after Paper Mono (2026-08-19),
-# Google Sans Code itself (2026-08-13), the PlemolJP Console NF trial
-# (2026-08-03), Paper Mono (2026-07-30), Google Sans Code (2026-07-29) and
-# 0xProto (2026-07-28).
-# Two variable ttfs on a `wght` axis (Light→ExtraBold), Roman + Italic, so the
-# italics are REAL here (Paper Mono ships no italic file and gets obliqued).
-# Not installed by brew — install.sh downloads it from the GitHub release.
-# NOT a Nerd Font: every powerline/devicon glyph comes from the NF families in
-# install.sh's cask list (PlemolJP NF, Maple NF, 0xProto NF, Monaspace NF) via
-# Ghostty's automatic fallback. Don't prune them while this is the primary.
-# To go back: font-family = "Paper Mono", "PlemolJP Console NF",
+# PlemolJP Console NF — primary (2026-09-08) after Google Sans Code
+# (2026-08-22), Paper Mono (2026-08-19), Google Sans Code (2026-08-13), the
+# first PlemolJP Console NF trial (2026-08-03), Paper Mono (2026-07-30), Google
+# Sans Code (2026-07-29) and 0xProto (2026-07-28).
+# IS a Nerd Font, so it carries its own powerline/devicon glyphs instead of
+# leaning on Ghostty's fallback into the other NF families. It also has real
+# italic files, no obliquing (Paper Mono ships none and gets slanted).
+# Installed by brew (`font-plemol-jp-nf`, already in install.sh's cask list) —
+# nothing to add there.
+# To go back: font-family = "Google Sans Code", "Paper Mono",
 # "0xProto Nerd Font Mono" or "Maple Mono NF".
-# Name cross-checked against `ghostty +list-fonts` — the family reports as
-# plain "Google Sans Code" (the styles read "Google Sans Code Regular <weight>"
-# / "Google Sans Code Italic <weight> Italic", those are style names, not
-# families). +validate-config does NOT catch a missing family, it falls back
-# silently.
-font-family = "Google Sans Code"
-font-size = 16
+# Cross-checked against `ghostty +list-fonts` — the family reports as
+# "PlemolJP Console NF". Note the SEPARATE "PlemolJP35 Console NF" family that
+# also ships in the cask: that is the 3:5 width cut for JP text, not this one.
+# +validate-config does NOT catch a missing family, it falls back silently.
+font-family = "PlemolJP Console NF"
 
-# Standard ligatures — Google Sans Code ships no `liga` feature either (its
-# GSUB is aalt/ccmp/locl/ss01), so this stays a no-op; kept so a future font
-# with +liga just works. No `zero` here, unlike Paper Mono: `font-feature =
-# zero` would be dead. `ss01` is the one stylistic set it does have.
+# Weight lives in the STYLE here, not in a variation axis (2026-09-08).
+# PlemolJP is not a variable font — it has no `fvar` at all, so a
+# `font-variation = wght=…` line would be read and silently ignored. What it
+# ships instead is eight drawn weights, which Ghostty groups as styles of the
+# one family: Thin 100 · ExtraLight 200 · Light 300 · Regular 400 · Text 450 ·
+# Medium 500 · SemiBold 600 · Bold 700.
+# Medium (500) is the pick, settled after trying Text (450, too light) and
+# SemiBold (600, heavy enough to collapse against bold — 700 is one step away,
+# so the roman and bold stop reading as different). 500 keeps two steps of
+# separation, which is what makes bold still look bold.
+# Ghostty matches `font-style` against the style string the font advertises;
+# these four are its nameID 17/2 values verbatim, confirmed with
+# `ghostty +list-fonts --family="PlemolJP Console NF" --style=Medium`.
+font-style = Medium
+font-style-italic = Medium Italic
+font-style-bold = Bold
+font-style-bold-italic = Bold Italic
+
+# 19, up from the 16 that Google Sans Code sat at. The three points are not a
+# preference drift — PlemolJP's Latin is drawn on a JP half-width body and is
+# markedly smaller per point: x-height 0.501 em against Google Sans Code's
+# 0.523, advance 0.528 em against 0.600. At 16 it read as a visible shrink in
+# both directions. 17 was the number that merely restored the old x-height;
+# 19 goes past that on purpose (9.52px of x-height against the old 8.38, and
+# 10.03px of column against 9.6), settled by eye at the terminal.
+font-size = 19
+
+# Standard ligatures — and here they are REAL. Unlike Google Sans Code (whose
+# GSUB has no `liga` at all, so this line was inert for months), PlemolJP ships
+# an actual `liga`, so this one does something.
+# It also has a real `zero` feature, which Google Sans Code did not: add
+# `font-feature = zero` on its own line to get the slashed zero.
 font-feature = +liga
 
 # Off on Retina (2026-08-26). This exists to compensate 1x panels; on a 2x
 # display `true` implies the max `font-thicken-strength = 255` (that's the
-# default when thickening is on, NOT a mild setting), which fattens Google
-# Sans Code's Regular into something that reads like Medium with smeared
-# contours. On a non-Retina external monitor turn it back on — or keep it on
-# with `font-thicken-strength = 40` for a bit of body without the smear.
+# default when thickening is on, NOT a mild setting), which reads like a
+# heavier weight but with smeared contours. Doubly pointless here: the weight
+# is already picked by `font-style` above, from a drawn cut. On a non-Retina
+# external monitor turn it back on — or keep it on with
+# `font-thicken-strength = 40` for a bit of body without the smear.
 font-thicken = false
 
 # Compact line spacing — a touch over the default so that
