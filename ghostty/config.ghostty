@@ -165,21 +165,19 @@ adjust-cell-height = 3%
 # tab bar) · native (standard macOS look) · hidden (no titlebar).
 macos-titlebar-style = tabs
 
-# craftzdog's "glass" look, values verbatim from his dotfiles-public ghostty
-# config: opacity 0.9 + blur 20 (his key is the legacy `background-blur-radius`;
-# Ghostty ≥ 1.1 renamed it to `background-blur`, same meaning). It BELONGS TO
-# solarized-osaka, like the `background =` override above — the palette was
-# built for a wallpaper showing through the deep ocean, and nvim's
-# solarized-osaka spec sets `transparent = true` to inherit exactly this.
-# Back to 1.0 / 0 (solid) with any other theme.
+# SOLID (2026-09-09). The terminal is opaque and there is no blur anywhere in
+# the stack — nvim's side is off too (no theme declares `transparent`).
 #
-# KEPT ON (2026-09-09) under naysayer, by preference rather than by the rule
-# above: the glass is wanted on this machine regardless of the palette. His deep
-# teal was designed as an opaque canvas, so the comment green and the pure-blue
-# selection lose some contrast against whatever shows through — that is the
-# tradeoff being accepted here, not an oversight.
-background-opacity = 0.9
-background-blur = 20
+# What this used to be: craftzdog's "glass", opacity 0.9 + blur 20 verbatim from
+# his dotfiles-public, which belonged to solarized-osaka the way the `background =`
+# override above does. It was kept on for a few days under naysayer as a
+# preference before being dropped here.
+#
+# Turning it back on is these two values plus `transparent = true` on the active
+# theme's spec, or nvim paints an opaque canvas over the glass and the seam shows
+# at every split edge. Ghostty's key was `background-blur-radius` before 1.1.
+background-opacity = 1.0
+background-blur = 0
 
 # breathe sideways — generous padding so that Claude Code's dense
 # output (tool calls, diffs, trees) doesn't feel cramped.

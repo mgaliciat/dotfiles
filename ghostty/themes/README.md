@@ -123,15 +123,20 @@ changes its palette, re-extract and re-sync both mirrors.
   shell and a `:terminal` inside nvim look identical.
 - **tmux is our own semantic derivation** (`@thm_*`). No upstream osaka tmux
   theme exists to mirror.
-- **It is the only theme in the family that carries transparency**, with
-  craftzdog's exact values from his dotfiles-public: Ghostty
-  `background-opacity = 0.9` + `background-blur = 20` + the `background =
-  #031219` canvas override, `transparent = true` in the nvim spec,
-  `minimum-contrast` back to 1.1. All of that lives **in the shared files** with
-  an "osaka only" note beside each line, not in the palette — so **activating
-  any other theme means also putting opacity back to 1.0, blur to 0, and
-  commenting the `background =` line**, or the new theme ships with a glass it
-  was not designed for.
+- **It was the only theme in the family that carried transparency** — and as of
+  2026-09-09 nothing in the repo does. The glass is off stack-wide: Ghostty runs
+  `background-opacity = 1.0` / `background-blur = 0`, the `background = #031219`
+  canvas override is commented out, and no nvim spec sets `transparent = true`.
+  What survives is the mechanism, not the setting: `colorscheme.lua` still reads
+  an optional per-theme `transparent`, and craftzdog's own values are recorded
+  beside each line for whoever turns it back on.
+
+  **Turning it on is all-or-nothing across two layers.** Ghostty's opacity and
+  blur, plus `transparent = true` on the active theme's spec — one without the
+  other means nvim paints an opaque canvas over the glass and the seam shows at
+  every split edge. The values live **in the shared files**, not in a palette,
+  so they do not follow a theme around; craftzdog's set is opacity 0.9, blur 20,
+  the `#031219` canvas and `minimum-contrast` at 1.1.
 
 Sub-flavours `solarized-osaka-day`, `-moon` and `-storm` are nvim-only and not
 members of the family. `obsidian` is likewise a valid nvim theme that sits

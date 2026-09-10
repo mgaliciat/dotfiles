@@ -28,10 +28,11 @@
 -- The angled edge was tried and reverted. A slant is not a glyph drawn
 -- in the foreground: it is a powerline wedge whose fg is one tab's
 -- BACKGROUND and whose bg is its neighbour's, so the diagonal is the
--- boundary between two filled blocks. This stack has no filled blocks —
--- solarized-osaka runs `transparent = true` over Ghostty's glass, so
--- every bufferline group resolves with `bg = nil` and the wedges come
--- out as unfilled shapes floating over the wallpaper.
+-- boundary between two filled blocks. This stack has no filled blocks:
+-- every group below sets `bg = NONE`, so the wedges come out as unfilled
+-- shapes. That was first noticed under solarized-osaka's `transparent =
+-- true` over Ghostty's glass, but it does not depend on it — the glass is
+-- gone (2026-09-09) and the `bg = NONE` table is still the reason.
 --
 -- Giving the tabs a solid background to slice would put an opaque strip
 -- back over the glass, which is the same thing the tmux statusline was

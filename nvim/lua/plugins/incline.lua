@@ -25,9 +25,11 @@
 -- because that is the one theme he ships; here `vim.g.theme` selects
 -- from a whole matrix (see lua/config/options.lua), so the palette is
 -- pulled out of highlight groups every theme is guaranteed to define.
--- `Normal` has no bg under a transparent theme (osaka sets
--- `transparent = true`), hence the fallback to `NormalFloat`, which the
--- `floats = "dark"` style keeps opaque.
+-- `Normal` has no bg under a transparent theme, hence the fallback to
+-- `NormalFloat`, which the `floats = "dark"` style keeps opaque. No theme
+-- sets `transparent` since the glass was dropped (2026-09-09), so the
+-- fallback is currently unused — it stays because it costs one `or` and is
+-- exactly what breaks if transparency comes back.
 
 local function hl_hex(group, attr)
   local hl = vim.api.nvim_get_hl(0, { name = group, link = false })

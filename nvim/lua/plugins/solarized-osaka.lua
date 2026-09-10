@@ -28,12 +28,14 @@ return {
   lazy = false,
   priority = 1000,
   opts = {
-    -- Inherits Ghostty's transparency (craftzdog style): Normal with no bg,
-    -- the wallpaper/blur shows through the editor. Sidebars and floats, on the
-    -- other hand, stay "dark" (opaque base04) — that's craftzdog's real look:
-    -- panels as solid "islands" over the see-through background, not everything
-    -- transparent. Italic keywords = the plugin's default.
-    transparent = true,
+    -- Off since 2026-09-09, when the glass was dropped stack-wide: Ghostty runs
+    -- opacity 1.0 / blur 0, and `transparent = true` against a solid terminal
+    -- just hands Normal a nil bg with nothing behind it to show.
+    --
+    -- craftzdog's real look, if the glass ever comes back: this true, with
+    -- sidebars and floats still "dark" (opaque base04) — panels as solid
+    -- "islands" over a see-through background, not everything transparent.
+    transparent = false,
     terminal_colors = true,
     styles = {
       comments  = { italic = true },
