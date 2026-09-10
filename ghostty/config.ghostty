@@ -126,15 +126,13 @@ font-style-italic = Medium Italic
 font-style-bold = Bold
 font-style-bold-italic = Bold Italic
 
-# 17, up from the 16 that Google Sans Code sat at. The extra point is not a
-# preference drift — PlemolJP's Latin is drawn on a JP half-width body and is
-# markedly smaller per point: x-height 0.501 em against Google Sans Code's
-# 0.523, advance 0.528 em against 0.600. At 16 it read as a visible shrink in
-# both directions, and 17 is the number that restores the old x-height almost
-# exactly (0.501 × 17 = 8.52px against 8.38). 19 was tried first and came back
-# down: it overshot in both axes (9.52px of x-height, 10.03px of column against
-# the old 9.6) and cost too many columns.
-font-size = 17
+# 16, back down from 17. PlemolJP's Latin is drawn on a JP half-width body and
+# is smaller per point than the Google Sans Code this replaced (x-height 0.501
+# em against 0.523, advance 0.528 against 0.600), so 17 was the size that
+# matched the old x-height on paper (0.501 × 17 = 8.52px against 8.38) — but on
+# screen it read as too big. 16 gives up ~0.5px of x-height and buys back the
+# columns; 19 was tried earliest and overshot in both axes.
+font-size = 16
 
 # Standard ligatures — and here they are REAL. Unlike Google Sans Code (whose
 # GSUB has no `liga` at all, so this line was inert for months), PlemolJP ships
