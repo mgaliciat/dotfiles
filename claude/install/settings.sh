@@ -67,6 +67,30 @@ link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 # files first is a cost neither would earn back.
 link "$DOTFILES/claude/skills/logbook" "$HOME/.claude/skills/logbook"
 
+# `team` is a plain skill, not a plugin — one SKILL.md, so it invokes bare as
+# `/team` with no colon namespace. It orchestrates agent teams (teammates that
+# message each other over a shared task list) and documents the background
+# observers below, both of which need the env flags this file also writes.
+link "$DOTFILES/claude/skills/team" "$HOME/.claude/skills/team"
+
+# ── agent definitions → ~/.claude/agents/ ──
+# Per-ITEM links again, and for the same reason as the skills: ~/.claude/agents/
+# is a real per-machine dir, so we add ours beside whatever else lives there.
+#
+# `observer:` / `observerMessage:` / `observeSubagents:` are UNDOCUMENTED
+# frontmatter — they exist in the CLI binary (verified against 2.1.267) and on no
+# docs page. A field the loader doesn't know is ignored in silence, so when an
+# observer stops appearing, check the binary before assuming the file is wrong.
+#
+# teammate-base sets `observeSubagents: false` on purpose. Observers are agents
+# too and they count against CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS below; letting
+# each teammate's own subagents inherit an observer multiplies the count until
+# the harness starts refusing spawns.
+for _agent in scope-guard regression-watch teammate-base; do
+  link "$DOTFILES/claude/agents/$_agent.md" "$HOME/.claude/agents/$_agent.md"
+done
+unset _agent
+
 # The logbook's event half. A skill cannot fire on a git event — it only
 # self-activates on what the user says — so the "log after a commit lands" trigger
 # is a PostToolUse hook (registered further down) pointing at this script.
@@ -303,6 +327,29 @@ _settings_set_if_absent '.env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS' \
 _settings_set_if_absent '.env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS' \
   '.env //= {} | .env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS = "1"' \
   'env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS'
+
+# ── env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS: the ceiling on the two above ──
+# The harness default is 20 concurrent agents. With agent teams on, every named
+# subagent becomes a teammate and every observed agent drags an observer along,
+# so 20 is a stampede waiting for a prompt that says "in parallel".
+#
+# 6 is the ceiling, not the target: the `team` skill plans for at most 4
+# teammates, which with their observers already reaches it. The two spare slots
+# are what keeps ordinary work — a three-way Explore fan-out in a session that
+# has nothing to do with teams — from hitting the wall, since this cap is global
+# and not scoped to teams.
+#
+# It is genuinely ENFORCED, unlike a budget written in a prompt: past the limit
+# the Agent call is refused with "Concurrent subagent limit reached. Do not
+# retry." Verified in the 2.1.267 binary, which also names the variable in that
+# message.
+#
+# Its plausible sibling `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` appears in the
+# binary's env-name registry and has NO reader — setting it is a silent no-op.
+# Don't add it.
+_settings_set_if_absent '.env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS' \
+  '.env //= {} | .env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS = "6"' \
+  'env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS (6)'
 
 # ── convergent cleanup: the pre-rename bitacora hook entry (sep-2026) ──
 # Must run BEFORE the block that registers the new one, or the guard below sees a

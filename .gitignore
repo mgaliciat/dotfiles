@@ -30,6 +30,7 @@ claude/memory/
 claude/RTK.md
 claude/skills/*
 !claude/skills/logbook/
+!claude/skills/team/
 
 # Git config — per-machine (each Mac has its own credentials, 1Password vaults,
 # signing keys). Only .gitignore_global is versioned.

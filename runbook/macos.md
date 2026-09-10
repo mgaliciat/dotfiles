@@ -65,8 +65,9 @@ per-machine files and the two silent guards.
    - installs the missing Homebrew formulae and casks (fonts included) and Paper
      Mono by direct download, since it has no cask;
    - configures Claude Code: `settings.json` keys (additive, guarded), the
-     `CLAUDE.md` / statusline / hook / skill symlinks, `rtk`,
-     `codebase-memory-mcp`, the two MCP endpoints, the `gh-stack` skill;
+     `CLAUDE.md` / statusline / hook / skill symlinks, the three agent
+     definitions into `~/.claude/agents/`, `rtk`, `codebase-memory-mcp`, the two
+     MCP endpoints, the `gh-stack` skill;
    - clones tpm, pins `tmux-claude-session-manager`, reloads a running tmux;
    - installs the `gh-stack` extension;
    - registers VS Code as the default app for `.ghostty` files, if installed.
