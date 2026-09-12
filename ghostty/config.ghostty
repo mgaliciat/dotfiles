@@ -20,7 +20,7 @@
 # the file is versioned, a `git pull` propagates the theme to the other
 # machines. To change the look: edit this line (and the equivalent lines
 # in nvim and tmux — they share the id) and commit. There's no switcher and no pointer.
-theme = naysayer
+theme = solarized-osaka
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -65,9 +65,9 @@ theme = naysayer
 # looks like it never applied (only its ANSI/cursor change). Re-enable it only
 # together with `theme = solarized-osaka`; leave it commented for everything else.
 #
-# OFF (2026-09-09) — `naysayer` is active and brings its own canvas (#052329).
-# Re-enable this line the day `theme =` points back at solarized-osaka.
-# background = #031219
+# ON (2026-09-11) — `theme = solarized-osaka` is active, so the override is the
+# one craftzdog actually runs. Comment it out again the day another theme wins.
+background = #031219
 
 # Display P3 wide-gamut — orange and cream saturate more on
 # M-chip / Retina screens. No downside on non-P3 machines.
@@ -82,12 +82,12 @@ window-colorspace = display-p3
 #         paper, solarized-light).
 #   4.5 = WCAG AA body text. Rescues every gray but DISTORTS brand
 #         colors: Claude orange ends up nearly black. Not recommended.
-# Still 1.1 (2026-09-09) under naysayer, and here it is load-bearing rather than
-# neutral: his Ghost_Character #46494d over #052329 is deliberately near-invisible
-# ("present but inert"), and any enforcement would rescue exactly the tone the
-# scheme wants buried. It was 1.1 for solarized-osaka too (2026-09-06, craftzdog
-# sets no minimum-contrast at all) and 3.0 under solarized-dark (2026-08-13) —
-# go back to 3.0 if a light theme (light-2026, paper, solarized-light) becomes active.
+# Still 1.1 (2026-09-11) under solarized-osaka, which is also what craftzdog runs:
+# he sets no minimum-contrast at all, so anything above 1.1 would already be a
+# departure from his look. It was 1.1 under naysayer too (2026-09-09, where it was
+# load-bearing — his near-invisible Ghost_Character depends on no enforcement) and
+# 3.0 under solarized-dark (2026-08-13) — go back to 3.0 if a light theme
+# (light-2026, paper, solarized-light) becomes active.
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
@@ -126,13 +126,17 @@ font-style-italic = Medium Italic
 font-style-bold = Bold
 font-style-bold-italic = Bold Italic
 
-# 16, back down from 17. PlemolJP's Latin is drawn on a JP half-width body and
-# is smaller per point than the Google Sans Code this replaced (x-height 0.501
-# em against 0.523, advance 0.528 against 0.600), so 17 was the size that
-# matched the old x-height on paper (0.501 × 17 = 8.52px against 8.38) — but on
-# screen it read as too big. 16 gives up ~0.5px of x-height and buys back the
-# columns; 19 was tried earliest and overshot in both axes.
-font-size = 16
+# 17 — the one place this config does NOT follow craftzdog (2026-09-11). He sets no
+# font-size at all, which means Ghostty's default of 13 (verified with
+# `ghostty +show-config --default`, and his file has never had the key: 2 commits,
+# both feb-2025). That reads far too small here, because PlemolJP's Latin sits on a
+# JP half-width body — x-height 0.501 em, advance 0.528 — so 13 in this family is
+# optically smaller than 13 in most monos.
+# 17 is the size that matches the x-height of the Google Sans Code this replaced
+# (0.501 × 17 = 8.52px against 8.38), i.e. the right value on paper. It was dropped
+# to 16 on 2026-09-08 for reading a touch big, and came back today. 19 was the
+# earliest try and overshot in both axes; 16 is the step down if 17 crowds the columns.
+font-size = 17
 
 # Standard ligatures — and here they are REAL. Unlike Google Sans Code (whose
 # GSUB has no `liga` at all, so this line was inert for months), PlemolJP ships
@@ -163,19 +167,16 @@ adjust-cell-height = 3%
 # tab bar) · native (standard macOS look) · hidden (no titlebar).
 macos-titlebar-style = tabs
 
-# SOLID (2026-09-09). The terminal is opaque and there is no blur anywhere in
-# the stack — nvim's side is off too (no theme declares `transparent`).
+# GLASS (2026-09-11). craftzdog's two values verbatim from his dotfiles-public,
+# back on together with solarized-osaka — they belong to that theme the way the
+# `background =` override above does. Off between 2026-09-09 and today.
 #
-# What this used to be: craftzdog's "glass", opacity 0.9 + blur 20 verbatim from
-# his dotfiles-public, which belonged to solarized-osaka the way the `background =`
-# override above does. It was kept on for a few days under naysayer as a
-# preference before being dropped here.
-#
-# Turning it back on is these two values plus `transparent = true` on the active
-# theme's spec, or nvim paints an opaque canvas over the glass and the seam shows
-# at every split edge. Ghostty's key was `background-blur-radius` before 1.1.
-background-opacity = 1.0
-background-blur = 0
+# The other half of this lives in nvim: `transparent = true` in
+# lua/plugins/solarized-osaka.lua. Without it nvim paints an opaque canvas over
+# the glass and the seam shows at every split edge, so the two move together.
+# Ghostty's key was `background-blur-radius` before 1.1.
+background-opacity = 0.9
+background-blur = 20
 
 # breathe sideways — generous padding so that Claude Code's dense
 # output (tool calls, diffs, trees) doesn't feel cramped.
@@ -193,18 +194,16 @@ window-padding-color = extend
 window-save-state = always
 
 # ─── cursor ───────────────────────────────────────────────────
-# Bar — the thin vertical caret, same shape as any text field. Note this is
-# NOT Ghostty's own default: that is `block`, which is what used to be here.
-# The color still comes from the active theme (cursor-color + cursor-text);
-# under osaka that is the magenta #d23681, and `cursor-text` stops mattering
-# with a bar since it no longer covers the glyph. Other options: block,
-# block_hollow, underline.
-cursor-style = bar
+# Block + blink — craftzdog's pair, and also Ghostty's own default shape. The
+# color comes from the active theme (cursor-color + cursor-text); under osaka
+# that is the magenta #d23681, and with a block `cursor-text` matters again
+# because the cursor covers the glyph underneath. Other options: bar (a thin
+# caret, what was here between 2026-08 and today), block_hollow, underline.
+cursor-style = block
 
-# no blinking — a steady cursor, more sober and less distracting. Matters
-# more with a bar than it did with a block: a thin caret that also blinks is
-# the most attention-grabbing combination of the two axes.
-cursor-style-blink = false
+# Blinking, his setting too. A block that blinks is the loudest combination of
+# the two axes — set this false for a steady cursor if it gets distracting.
+cursor-style-blink = true
 
 # ─── selection and copying ────────────────────────────────────
 # selecting already copies (fast workflow)
@@ -277,6 +276,15 @@ keybind = shift+enter=text:\n
 # stays free for special characters with an ES keyboard (⌥+ñ, ⌥+5 = €,
 # ⌥+8 = •, ⌥+e = ´, etc.). Better than `true` (both) if you type specials.
 macos-option-as-alt = left
+
+# Give ⌥← / ⌥→ back to the running program. Ghostty binds them by default to
+# `esc:b` / `esc:f` (readline word-jump, confirmed with
+# `ghostty +list-keybinds --default`), which it then sends INSTEAD of the raw
+# key — so tmux, nvim and any TUI that wants ⌥+arrow never sees it. craftzdog
+# unbinds both; his spelling is `alt+left` / `alt+right`, this is the same two
+# keys under the names Ghostty itself prints.
+keybind = alt+arrow_left=unbind
+keybind = alt+arrow_right=unbind
 
 # Shell integration: enables the stand-by cursor with sudo,
 # injects the path for opening files by click, etc.

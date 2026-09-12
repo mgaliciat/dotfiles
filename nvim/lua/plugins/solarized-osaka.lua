@@ -28,14 +28,15 @@ return {
   lazy = false,
   priority = 1000,
   opts = {
-    -- Off since 2026-09-09, when the glass was dropped stack-wide: Ghostty runs
-    -- opacity 1.0 / blur 0, and `transparent = true` against a solid terminal
-    -- just hands Normal a nil bg with nothing behind it to show.
+    -- On since 2026-09-11, with the glass back in Ghostty (opacity 0.9 + blur 20).
+    -- The two move together: transparent here against a SOLID terminal hands
+    -- Normal a nil bg with nothing behind it, and a solid nvim over a glass
+    -- terminal shows a seam at every split edge.
     --
-    -- craftzdog's real look, if the glass ever comes back: this true, with
-    -- sidebars and floats still "dark" (opaque base04) — panels as solid
-    -- "islands" over a see-through background, not everything transparent.
-    transparent = false,
+    -- This plus sidebars/floats still "dark" (opaque base04) below is craftzdog's
+    -- actual look — panels as solid "islands" over a see-through background,
+    -- not everything transparent.
+    transparent = true,
     terminal_colors = true,
     styles = {
       comments  = { italic = true },
