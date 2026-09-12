@@ -224,11 +224,23 @@ macos-titlebar-style = tabs
 # the glass and the seam shows at every split edge, so the two move together
 # (craftzdog's nvim spec carries the same `transparent = true`).
 #
-# `background-blur-radius` is his spelling — the pre-1.1 name of the key, kept as
-# an alias and still accepted (checked with `+validate-config`, it parses clean).
-# The modern name is `background-blur`; either works, this one matches his file.
+# NATIVE GLASS instead of his blur (2026-09-11). His line is
+# `background-blur-radius = 20` — the pre-1.1 name of the key, still accepted as an
+# alias, and 20 is simply what `true` means, so he picked the plain default rather
+# than a tuned radius. That is a gaussian blur Ghostty applies itself.
+#
+# `macos-glass-regular` is the system's own glass material, available since
+# macOS 26 and therefore impossible in his config (feb-2025). Written with the
+# modern key name on purpose: the value is a material, not a radius.
+# The other value is `macos-glass-clear`, considerably more transparent.
+#
+# To go back to his exact pair: `background-blur-radius = 20` on this line.
+#
+# `background-opacity` still applies underneath — the glass carries its own
+# opacity, so if the result reads too washed out this is the number to raise
+# before touching the material.
 background-opacity = 0.9
-background-blur-radius = 20
+background-blur = macos-glass-regular
 
 # Without this the glass is only half on. `background-opacity` applies to the
 # WINDOW background alone, so any cell carrying an explicit background colour
