@@ -229,10 +229,11 @@ macos-titlebar-style = tabs
 # alias, and 20 is simply what `true` means, so he picked the plain default rather
 # than a tuned radius. That is a gaussian blur Ghostty applies itself.
 #
-# `macos-glass-regular` is the system's own glass material, available since
+# `macos-glass-clear` is the system's own glass material, available since
 # macOS 26 and therefore impossible in his config (feb-2025). Written with the
 # modern key name on purpose: the value is a material, not a radius.
-# The other value is `macos-glass-clear`, considerably more transparent.
+# The other value is `macos-glass-regular`, the standard cut — this one is the
+# highly transparent of the two, so the desktop behind reads through much more.
 #
 # To go back to his exact pair: `background-blur-radius = 20` on this line.
 #
@@ -240,7 +241,7 @@ macos-titlebar-style = tabs
 # opacity, so if the result reads too washed out this is the number to raise
 # before touching the material.
 background-opacity = 0.9
-background-blur = macos-glass-regular
+background-blur = macos-glass-clear
 
 # Without this the glass is only half on. `background-opacity` applies to the
 # WINDOW background alone, so any cell carrying an explicit background colour
