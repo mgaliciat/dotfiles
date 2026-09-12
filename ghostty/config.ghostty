@@ -208,12 +208,20 @@ faint-opacity = 0.7
 bold-color = bright
 
 # ─── window ───────────────────────────────────────────────────
-# tabs integrated into the titlebar (Chrome/Arc style): frees up ~1
-# vertical line of terminal and looks cleaner than having a separate tab bar
-# and titlebar. The color is inherited from the theme's background.
-# Alternatives: transparent (titlebar blends with the background, separate
-# tab bar) · native (standard macOS look) · hidden (no titlebar).
-macos-titlebar-style = tabs
+# `transparent` (2026-09-11), which is also Ghostty's own default. It was `tabs`
+# — the Chrome/Arc style that integrates the tab bar into the titlebar and frees
+# ~1 vertical line — and that style is incompatible with the glass: the binary's
+# docs describe it as a fully custom titlebar that ALWAYS matches the terminal's
+# background colour, so it paints an opaque strip while the body below is
+# translucent. Visible as a hard band across the top of the window.
+# `transparent` lets the window background through instead, at the cost of the
+# tab bar becoming its own row again.
+# Alternatives: tabs (opaque, integrated) · native (standard macOS, opaque) ·
+# hidden (no titlebar; the top area then can't drag the window).
+#
+# NOTE this one does NOT apply on reload — the docs say changing it at runtime
+# only affects NEW windows. ⌘N after ⌘⇧R, or the old titlebar stays.
+macos-titlebar-style = transparent
 
 # GLASS (2026-09-11). Back on after being off between 2026-09-09 and today, when
 # it returned as craftzdog's pair — but neither value is still his.
