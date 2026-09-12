@@ -100,4 +100,26 @@ return {
       lualine_z = { "location" },
     },
   },
+
+  -- The colorscheme's lualine theme bakes `bg_statusline` into section `c`
+  -- (the filler that spans the bar) and into every inactive section. Over a
+  -- transparent colorscheme that is an opaque strip on Ghostty's glass — the
+  -- same seam tmux avoids with `bg=default` in statusline.conf. `Normal`
+  -- without a bg IS the transparency signal, so this costs nothing on an
+  -- opaque theme. The `a`/`b` blocks keep theirs: the mode badge and the
+  -- branch are meant to read as colored blocks.
+  config = function(_, opts)
+    if vim.api.nvim_get_hl(0, { name = "Normal", link = false }).bg == nil then
+      local theme = vim.deepcopy(require("lualine.themes.auto"))
+      for name, mode in pairs(theme) do
+        for section, colors in pairs(mode) do
+          if section == "c" or name == "inactive" then
+            colors.bg = nil
+          end
+        end
+      end
+      opts.options.theme = theme
+    end
+    require("lualine").setup(opts)
+  end,
 }

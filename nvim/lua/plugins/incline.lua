@@ -26,10 +26,9 @@
 -- from a whole matrix (see lua/config/options.lua), so the palette is
 -- pulled out of highlight groups every theme is guaranteed to define.
 -- `Normal` has no bg under a transparent theme, hence the fallback to
--- `NormalFloat`, which the `floats = "dark"` style keeps opaque. No theme
--- sets `transparent` since the glass was dropped (2026-09-09), so the
--- fallback is currently unused — it stays because it costs one `or` and is
--- exactly what breaks if transparency comes back.
+-- `NormalFloat`, which the `floats = "dark"` style keeps opaque. That
+-- fallback is the live path under solarized-patched: without it the
+-- inactive label would paint its text in the fg colour on its own bg.
 
 local function hl_hex(group, attr)
   local hl = vim.api.nvim_get_hl(0, { name = group, link = false })

@@ -58,23 +58,40 @@ if not ok then
   theme = require("themes.obsidian")
 end
 
+local transparent = theme.transparent or false
+
 return {
   "folke/tokyonight.nvim",
   lazy = false,
   priority = 1000,
   opts = {
     style = theme.style,
-    transparent = theme.transparent or false,
+    transparent = transparent,
     terminal_colors = true,
     styles = {
       comments  = { italic = true },
       keywords  = { italic = false },
       functions = {},
       variables = {},
-      sidebars  = "dark",
+      -- `transparent` only drops the canvas of `Normal`; sidebars and floats
+      -- are resolved apart from it. With "dark" the sidebar (neo-tree) keeps
+      -- an opaque patch over the glass, so it follows the theme's flag.
+      -- Floats stay "dark" on purpose: incline reads NormalFloat as its
+      -- fallback canvas and needs a real bg there.
+      sidebars  = transparent and "transparent" or "dark",
       floats    = "dark",
     },
-    on_colors     = theme.on_colors,
+    on_colors = function(c)
+      if theme.on_colors then
+        theme.on_colors(c)
+      end
+      -- The theme modules assign bg_sidebar a solid hex, and on_colors runs
+      -- AFTER tokyonight resolved `styles.sidebars` — so the override would
+      -- put the opaque patch back.
+      if transparent then
+        c.bg_sidebar = c.none
+      end
+    end,
     on_highlights = theme.on_highlights,
   },
   config = function(_, opts)

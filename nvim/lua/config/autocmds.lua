@@ -10,9 +10,18 @@ autocmd("TextYankPost", {
 })
 
 -- Trim whitespace on save. Restores the cursor to avoid jumps.
+-- Two guards, both for buffers this has no business touching:
+--   · `modifiable` off — `:w <file>` from a help/checkhealth/qf buffer fires
+--     BufWritePre too, and there the substitute aborts the write with E21.
+--   · markdown — two trailing spaces are a hard line break, not dirt. The
+--     match covers `markdown.mdx` as well (see the filetype table in
+--     options.lua).
 autocmd("BufWritePre", {
   group = augroup("trim_whitespace", { clear = true }),
-  callback = function()
+  callback = function(ev)
+    if not vim.bo[ev.buf].modifiable or vim.bo[ev.buf].filetype:match("markdown") then
+      return
+    end
     local pos = vim.api.nvim_win_get_cursor(0)
     vim.cmd([[%s/\s\+$//e]])
     pcall(vim.api.nvim_win_set_cursor, 0, pos)
