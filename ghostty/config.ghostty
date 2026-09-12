@@ -215,32 +215,35 @@ bold-color = bright
 # tab bar) · native (standard macOS look) · hidden (no titlebar).
 macos-titlebar-style = tabs
 
-# GLASS (2026-09-11). craftzdog's two values verbatim from his dotfiles-public,
-# back on together with solarized-osaka — they belong to that theme the way the
-# `background =` override above does. Off between 2026-09-09 and today.
+# GLASS (2026-09-11). Back on after being off between 2026-09-09 and today, when
+# it returned as craftzdog's pair — but neither value is still his.
 #
-# The other half of this lives in nvim: `transparent = true` in
-# lua/plugins/solarized-osaka.lua. Without it nvim paints an opaque canvas over
-# the glass and the seam shows at every split edge, so the two move together
-# (craftzdog's nvim spec carries the same `transparent = true`).
+# The other half of this lives in nvim: `transparent = true` on the ACTIVE theme's
+# spec, which today is lua/themes/solarized-patched.lua. Without it nvim paints an
+# opaque canvas over the glass and the seam shows at every split edge, so the two
+# move together — and the setting does not follow a theme around, so a theme swap
+# means checking the new spec carries it.
 #
-# NATIVE GLASS instead of his blur (2026-09-11). His line is
-# `background-blur-radius = 20` — the pre-1.1 name of the key, still accepted as an
-# alias, and 20 is simply what `true` means, so he picked the plain default rather
-# than a tuned radius. That is a gaussian blur Ghostty applies itself.
+# NATIVE GLASS instead of his blur. His line is `background-blur-radius = 20` —
+# the pre-1.1 name of the key, still accepted as an alias, and 20 is simply what
+# `true` means, so he picked the plain default rather than a tuned radius. That is
+# a gaussian blur Ghostty computes itself.
 #
-# `macos-glass-clear` is the system's own glass material, available since
-# macOS 26 and therefore impossible in his config (feb-2025). Written with the
-# modern key name on purpose: the value is a material, not a radius.
-# The other value is `macos-glass-regular`, the standard cut — this one is the
-# highly transparent of the two, so the desktop behind reads through much more.
+# `macos-glass-clear` is the system's own glass material, available since macOS 26
+# and therefore impossible in his config (feb-2025). Written with the modern key
+# name on purpose: the value is a material, not a radius. The other material is
+# `macos-glass-regular`, the standard cut; this is the highly transparent one, so
+# the desktop behind reads through much more. Both were looked at before picking.
 #
-# To go back to his exact pair: `background-blur-radius = 20` on this line.
+# 0.95, up from his 0.9. The glass carries its own opacity on top of this one, and
+# `background-opacity-cells` below pushes both down onto cells that set their own
+# background — so with the clear material the compounding was enough to make
+# lazygit panels and diff hunks feel thin. Raising this is the first knob, before
+# going back to `regular`.
 #
-# `background-opacity` still applies underneath — the glass carries its own
-# opacity, so if the result reads too washed out this is the number to raise
-# before touching the material.
-background-opacity = 0.9
+# To restore his exact pair: `background-opacity = 0.9` and
+# `background-blur-radius = 20`.
+background-opacity = 0.95
 background-blur = macos-glass-clear
 
 # Without this the glass is only half on. `background-opacity` applies to the

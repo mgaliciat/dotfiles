@@ -28,6 +28,10 @@
 #   - the stack theme on that same layer: a Windows Terminal colour scheme
 #     GENERATED from ghostty/themes/<id> (its `schemes` are the same 16 ANSI +
 #     bg/fg/cursor/selection), with its own versioned selection line, $WtTheme.
+#   - the REST of the ghostty look ported to WT's spelling — font size, the
+#     fg/bg overrides, opacity + acrylic, cursor shape, padding, bell, history,
+#     contrast ($WtAppearance). Additive-only, and the list of what has no WT
+#     equivalent at all is beside it.
 #   - Windows Terminal keybindings for Claude (ctrl+shift+l / ctrl+shift+y), the
 #     moral equivalent of tmux's M-c / M-C on the one layer this box shares.
 #     ctrl+shift+ is the ONLY safe family in a terminal — see $WtBinds.
@@ -1106,7 +1110,50 @@ $WtTheme = "solarized-patched"
 # Regular and the two boxes would disagree while both looking "correct".
 $WtFont       = "PlemolJP Console NF"
 $WtFontWeight = "medium"
+$WtFontSize   = 17
 $WtFonts = @("PlemolJP Console NF", "PlemolJP35 Console NF", "Google Sans Code Monospace", "Google Sans Code", "Maple Mono NF", "Monaspace Neon", "MonaspiceNe NF")
+
+# The rest of the look, ported from config.ghostty so the two boxes disagree as
+# little as the platforms allow. Every key name below was read off Microsoft's
+# own settings reference, not guessed -- an unknown key in settings.json is a
+# silent no-op, the same failure this repo keeps hitting elsewhere.
+#
+# ADDITIVE-ONLY, unlike colorScheme and font.face above. Those two get a bounded
+# clobber because there is a list of values we could have written (the theme
+# family, $WtFonts) so ours can be told apart from a hand-picked one. For an
+# opacity or a padding no such list exists: any number is plausibly deliberate.
+# So these are written when the key is ABSENT and reported when it is present.
+#
+# ghostty → WT, with the spelling differences that matter:
+#   background-opacity 0.95   → opacity is an INTEGER percent, not a float
+#   background-blur           → useAcrylic, Windows' own blur material. `false`
+#                               would be unblurred transparency, but that is
+#                               Windows 11 only, so the blur is the safe one.
+#   cursor-style = block      → "filledBox"; WT's own default is "bar"
+#   scrollback-limit 100000   → historySize CAPS AT 32767 (documented maximum).
+#                               Parity is not available; this is the ceiling.
+#   minimum-contrast = 1.1    → "never", i.e. no contrast enforcement
+#   bell-features = no-…      → bellStyle "none"
+#
+# Deliberately NOT ported:
+#   bold-color = bright       → intenseTextStyle ALREADY defaults to "bright".
+#                               Writing it would be noise that looks load-bearing.
+#   background-opacity-cells  → no equivalent; WT has no such concept.
+#   faint-opacity             → no equivalent.
+#   alpha-blending            → antialiasingMode is a different knob (grayscale /
+#                               cleartype / aliased), not a colour space. Not a port.
+#   cursor-style-blink        → WT exposes no blink toggle.
+$WtAppearance = [ordered]@{
+    foreground                    = "#ffffff"
+    background                    = "#031219"
+    opacity                       = 95
+    useAcrylic                    = $true
+    cursorShape                   = "filledBox"
+    padding                       = "22, 18, 22, 18"
+    bellStyle                     = "none"
+    historySize                   = 32767
+    adjustIndistinguishableColors = "never"
+}
 
 # Claude launchers -- the moral equivalent of tmux's `M-c` / `M-C`
 # (utility.conf), on the one layer this box shares with the rest of the stack.
@@ -1149,7 +1196,7 @@ $ThemesDir    = Join-Path $Dotfiles "ghostty\themes"
 $GhosttyTheme = Join-Path $ThemesDir $WtTheme
 
 Write-Host ""
-Write-Host "-> Windows Terminal: scheme $WtTheme, font $WtFont ($WtFontWeight)"
+Write-Host "-> Windows Terminal: scheme $WtTheme, font $WtFont ($WtFontWeight, ${WtFontSize}pt)"
 
 # Anchored on the key NAMES, so a `#`-comment line can never match: every line
 # of prose in those files starts with `#`, and `#001419` only ever appears after
@@ -1273,15 +1320,37 @@ if (-not (Test-Path $GhosttyTheme)) {
                 } else {
                     $Wt.profiles.defaults.font | Add-Member -NotePropertyName "face" -NotePropertyValue $WtFont
                 }
-                # Weight rides with the face, never on its own: a weight left
-                # behind on someone else's family is how a hand-picked font ends
-                # up rendering at a thickness nobody chose. Inside this branch it
-                # is always OUR face being written, so the pair stays coherent.
-                if ($Wt.profiles.defaults.font.PSObject.Properties.Name -contains "weight") {
-                    $Wt.profiles.defaults.font.weight = $WtFontWeight
-                } else {
-                    $Wt.profiles.defaults.font | Add-Member -NotePropertyName "weight" -NotePropertyValue $WtFontWeight
+                # Weight, size and features ride with the face, never on their
+                # own: any of them left behind on someone else's family is how a
+                # hand-picked font ends up rendering at a thickness, a size or a
+                # shaping nobody chose. Inside this branch it is always OUR face
+                # being written, so the set stays coherent.
+                #
+                # `features` is ghostty's `font-feature = +liga` in WT's spelling
+                # (`1` enables, `0` disables). It is real here for the same reason
+                # it is real there: PlemolJP ships an actual `liga` table.
+                $FontProps = [ordered]@{
+                    weight   = $WtFontWeight
+                    size     = $WtFontSize
+                    features = [PSCustomObject]@{ liga = 1 }
                 }
+                foreach ($FontKey in $FontProps.Keys) {
+                    if ($Wt.profiles.defaults.font.PSObject.Properties.Name -contains $FontKey) {
+                        $Wt.profiles.defaults.font.$FontKey = $FontProps[$FontKey]
+                    } else {
+                        $Wt.profiles.defaults.font | Add-Member -NotePropertyName $FontKey -NotePropertyValue $FontProps[$FontKey]
+                    }
+                }
+            }
+        }
+
+        # The rest of the appearance. Additive-only -- see $WtAppearance above for
+        # why these do not get the bounded clobber that colorScheme and font.face do.
+        foreach ($WtKey in $WtAppearance.Keys) {
+            if ($Wt.profiles.defaults.PSObject.Properties.Name -contains $WtKey) {
+                Write-Host "i   $WtPath keeps its own '$WtKey' ($($Wt.profiles.defaults.$WtKey)) -- not applied"
+            } else {
+                $Wt.profiles.defaults | Add-Member -NotePropertyName $WtKey -NotePropertyValue $WtAppearance[$WtKey]
             }
         }
 

@@ -82,9 +82,14 @@ fallback for symlinks, and scoop refuses to run under it.
    - Nerd Fonts: Maple Mono NF and Monaspace NF via scoop, PlemolJP Console NF
      by direct download (per-user registry entry, no logout needed);
    - a Windows Terminal colour scheme generated from `ghostty/themes/<$WtTheme>`,
-     the font `$WtFont` at weight `$WtFontWeight`, and the keybindings
-     `ctrl+shift+l` → `claude`,
+     the font `$WtFont` at weight `$WtFontWeight` and size `$WtFontSize` with
+     `liga` on, the rest of the ghostty look in WT's spelling (`$WtAppearance`:
+     fg/bg overrides, `opacity` + `useAcrylic`, `cursorShape`, `padding`,
+     `bellStyle`, `historySize`, `adjustIndistinguishableColors`), and the
+     keybindings `ctrl+shift+l` → `claude`,
      `ctrl+shift+y` → `claude --dangerously-skip-permissions`.
+     `$WtAppearance` is **additive-only**: a key already present in
+     `profiles.defaults` is reported and left alone.
 
 3. Bring the per-machine `~\.gitconfig` (identity, signing). Not versioned.
 
@@ -142,9 +147,19 @@ If a mac/Linux change looks missing here, that is where to look.
   on Windows, not the bare name (DirectWrite splits its `MONO` axis into two
   families); and `PlemolJP35 Console NF` is a separate 3:5-width family, not a
   style of `PlemolJP Console NF`.
-- **The font is the right family but too light.** WT has no style field — the
-  weight is `font.weight` (`$WtFontWeight`), separate from `font.face`. It is
-  only written when the installer also owns the face.
+- **The font is the right family but too light, or the wrong size.** WT has no
+  style field — weight, size and `features` are `font.weight` / `font.size` /
+  `font.features`, separate from `font.face`, and all three are only written when
+  the installer also owns the face.
+- **Transparency, padding or cursor shape did not change.** `$WtAppearance` is
+  additive-only: any of those keys already in `profiles.defaults` is kept and
+  reported (`i … keeps its own '<key>'`). Delete the key by hand and re-run for
+  the installer to own it. Note `opacity` is an **integer percent** (95), not a
+  float, and `useAcrylic: false` — unblurred transparency — is Windows 11 only,
+  which is why the blur is what gets written.
+- **Scrollback is shorter than on the Mac.** It is, and it cannot match:
+  `historySize` maxes out at **32767** by documentation, against ghostty's
+  `scrollback-limit = 100000`. The installer writes the ceiling.
 - **Graph UI on `localhost:9749` is dead** after `codebase-memory-mcp update`.
   The self-update pulls the headless build. Compare `--version` with the stamp
   file; re-run the installer to get the `-ui-` asset back.
