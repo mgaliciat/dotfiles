@@ -288,10 +288,99 @@ add-zsh-hook precmd _prompt_git
 PROMPT='%F{blue}%(5~|%-1~/…/%3~|%~)%f %(?..%F{red}%?%f )%F{white}$%f '
 [[ -n "$SSH_CONNECTION" ]] && PROMPT="%F{white}%n@%m%f $PROMPT"
 
-# Right side, so the branch costs the command no width at all — and
+# ─── how long the last command took ───────────────────────────
+# `zsh/datetime` is a builtin module, not a subprocess — it exists to give
+# EPOCHREALTIME, a float clock readable with no fork. $SECONDS would also work
+# but is an integer unless globally retyped, and retyping a shell global to get
+# one prompt field is the worse trade.
+#
+# Under 2s prints nothing. The point is spotting the command that took a minute
+# while you were elsewhere, not annotating every `ls` with `0.0s`.
+zmodload zsh/datetime
+
+typeset -g _prompt_timer=
+typeset -g _prompt_duration_str=
+
+_prompt_timer_begin() { _prompt_timer=$EPOCHREALTIME }
+add-zsh-hook preexec _prompt_timer_begin
+
+_prompt_timer_end() {
+  _prompt_duration_str=
+  [[ -n $_prompt_timer ]] || return
+  local -F secs=$(( EPOCHREALTIME - _prompt_timer ))
+  _prompt_timer=
+  (( secs >= 2 )) || return
+  # The decimal earns its place only near the threshold, where 2.4s and 2.9s are
+  # different answers. Past ten seconds it is noise: `47.3s` says nothing `47s`
+  # doesn't, and the extra glyph moves everything to its left on every redraw.
+  local -i whole=$secs
+  if (( whole >= 3600 )); then
+    printf -v _prompt_duration_str '%dh%dm' $(( whole / 3600 )) $(( whole % 3600 / 60 ))
+  elif (( whole >= 60 )); then
+    printf -v _prompt_duration_str '%dm%ds' $(( whole / 60 )) $(( whole % 60 ))
+  elif (( whole >= 10 )); then
+    printf -v _prompt_duration_str '%ds' $whole
+  else
+    printf -v _prompt_duration_str '%.1fs' $secs
+  fi
+}
+add-zsh-hook precmd _prompt_timer_end
+
+# ─── dirty marker, asynchronous ───────────────────────────────
+# THE ONE PLACE the no-subprocess-per-prompt rule above is relaxed, and it is
+# only survivable because it is off the critical path. A dirty flag needs the
+# git index — that is the 26ms `_prompt_git` exists to avoid, and no amount of
+# cleverness reads it in pure zsh. So the cost is paid where it cannot be felt:
+# the prompt draws immediately without the marker, `git status` runs in the
+# background, and the marker appears on its own when the answer arrives.
+#
+# The mechanism is zsh's own: `exec {fd}< <(…)` opens a process substitution on
+# a numbered fd, `zle -F` asks ZLE to call a handler when that fd is readable,
+# and the handler redraws with `zle reset-prompt`. No framework, no polling, no
+# temp files. Registering the watcher from precmd (before ZLE is reading) is
+# the supported order — ZLE installs it and fires once the line editor is live.
+#
+# `head -n 1` is what keeps this cheap on a large tree: git gets SIGPIPE after
+# the first changed path, so it stops walking instead of enumerating everything.
+# We only ever needed "is there at least one".
+#
+# The PWD guard is the correctness half: `cd` while a check is in flight would
+# otherwise paint the old directory's answer next to the new directory's branch.
+typeset -g _prompt_dirty_str=
+typeset -g _prompt_dirty_pwd=
+
+_prompt_dirty_done() {
+  local fd=$1 line
+  IFS= read -r line <&$fd
+  zle -F $fd
+  exec {fd}<&-
+  [[ $_prompt_dirty_pwd == $PWD ]] || return
+  _prompt_dirty_str=${line:+•}
+  zle && zle reset-prompt
+}
+
+_prompt_dirty() {
+  _prompt_dirty_str=
+  _prompt_dirty_pwd=$PWD
+  # No repo, no question to ask — `_prompt_git` already told us, for free.
+  [[ -n $_prompt_git_str ]] || return
+  local fd
+  exec {fd}< <(command git status --porcelain --ignore-submodules=dirty 2>/dev/null | head -n 1)
+  zle -F $fd _prompt_dirty_done
+}
+add-zsh-hook precmd _prompt_dirty
+
+# Right side, so none of this costs the command any width — and
 # TRANSIENT_RPROMPT above erases it once the line is accepted, keeping
 # the scrollback (and anything copied out of it) clean.
-RPROMPT='%F{white}${_prompt_git_str}%f'
+#
+# Four fields, each one conditional, in the order they answer "what is going on
+# here": background jobs, how long that took, is the tree dirty, which branch.
+# `%(1j.…​.)` = ternary on "are there jobs", so the count is absent at zero
+# rather than printed as 0. The marker is amber and everything else is 7, the
+# theme's foreground — see the palette note at the top of this section for why
+# 8 is not available as a dim grey here.
+RPROMPT='%(1j.%F{white}✳%j%f  .)%F{white}${_prompt_duration_str}%f${_prompt_duration_str:+  }%F{yellow}${_prompt_dirty_str}%f${_prompt_dirty_str:+ }%F{white}${_prompt_git_str}%f'
 
 # ─── window title + cwd reporting ─────────────────────────────
 # Two things on every prompt, both via precmd:
