@@ -97,6 +97,12 @@ if command -v brew >/dev/null 2>&1; then
     pyenv
     neovim
     tree-sitter-cli       # parser generator used by nvim-treesitter's `main` branch
+    # SQL formatter conform points at for `sql` (<leader>cf). Brew and not
+    # mason-tool-installer like every other formatter: mason installs it into
+    # a pip venv and refuses the system python3 (3.9.6 < the 3.10 it needs),
+    # so the mason route leaves the formatter permanently uninstalled. The
+    # brew bottle carries its own interpreter.
+    sqlfluff
     tmux
     lazygit
     rtk                   # token-reducing proxy CLI for Claude Code — see the rtk section below

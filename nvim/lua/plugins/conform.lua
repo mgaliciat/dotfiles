@@ -5,7 +5,7 @@
 --
 -- Format on save enabled for languages where the formatter is
 -- canonical (gofmt, rustfmt). Disabled for the debatable ones
--- (markdown, sql, php) — use <leader>cf manually.
+-- (markdown, sql) — use <leader>cf manually.
 
 return {
   "stevearc/conform.nvim",
@@ -43,7 +43,12 @@ return {
       lua    = { "stylua" },
       go     = { "goimports", "gofumpt" },
       rust   = { "rustfmt" },
-      php    = { "php_cs_fixer" },
+      -- No php entry: mason's php-cs-fixer is a wrapper that `exec php`s, and
+      -- PHP is not on this host (runtimes live in Dockerfiles). It "installs"
+      -- and then dies with `exec: php: not found`, which is worse than absent
+      -- — conform sees an executable wrapper and reports the formatter as
+      -- available. Without the entry, `<leader>cf` falls through to
+      -- intelephense via `lsp_format = "fallback"`.
       python = { "ruff_organize_imports", "ruff_format" },  -- ruff does both
       sql    = { "sqlfluff" },
 
