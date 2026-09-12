@@ -1072,7 +1072,7 @@ Install-FontFromRelease -Repo "googlefonts/googlesans-code" -AssetPattern '^Goog
 # layers -- following ghostty would mean a mac theme change silently repainting a
 # machine that has no ghostty installed. Change the look by editing this line
 # and re-running -- no switcher, no pointer.
-$WtTheme = "solarized-osaka"
+$WtTheme = "solarized-patched"
 
 # $WtFont is the font half of the same idea, and it DOES track the Mac: it is
 # ghostty's `font-family` (`250235e`). Kept as its own line rather than parsed

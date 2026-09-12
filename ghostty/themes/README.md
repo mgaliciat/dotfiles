@@ -26,6 +26,24 @@ Solarized. base03 `#002b36` canvas, published accents, the canonical ANSI 16
 shared between the two. The *original*, not the osaka fork: no re-tuned hex, no
 `background =` override in Ghostty.
 
+**`solarized-patched`** · The "Solarized Dark Patched" cut. Hex copied verbatim
+from the theme **Ghostty itself ships**, at
+`Ghostty.app/Contents/Resources/ghostty/themes/Solarized Dark Patched` — that
+file is the source of truth, and it is where to re-extract from. Nothing here is
+derived, and **canonical Solarized is not a valid source for it**: the patched cut
+re-tunes every value (canvas `#001e27` against base03 `#002b36`, red `#d11c24`
+against `#dc322f`, blue `#2176c7` against `#268bd2`). Two themes, not two
+spellings of one — don't merge them.
+
+It exists because **craftzdog's Ghostty selects this theme by name**, and a
+built-in cannot be mirrored: it lives inside the app bundle, where nvim, tmux and
+Windows Terminal cannot read it. Porting it is what lets the id mean the same
+thing in all four layers instead of Ghostty diverging from the rest.
+
+His own line spells it `theme = "Solarized Dark - Patched"`, with a hyphen, and
+that string does not resolve in current Ghostty — his terminal has been falling
+back to the default palette since feb-2025. The port is the theme he meant.
+
 **`anthropic-brand`** · The seven official brand colours placed literally.
 Source of truth is `skills/brand-guidelines/SKILL.md` in github.com/anthropics/skills
 — Anthropic's own, and the only normative publication of them: Dark `#141413`,

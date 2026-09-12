@@ -1,0 +1,61 @@
+# solarized-patched — the "Solarized Dark Patched" cut, ported into the family.
+# Mirror of nvim/lua/themes/solarized-patched.lua and
+# tmux/themes/solarized-patched.conf.
+#
+# Why it exists: craftzdog's Ghostty selects this theme by name. It is a Ghostty
+# built-in (`ghostty +list-themes` lists it as "Solarized Dark Patched
+# (resources)"), which means the other three layers had nothing to point at —
+# nvim, tmux and Windows Terminal cannot read a file inside Ghostty.app. Porting
+# it is what lets one id mean the same thing in every layer.
+#
+# Source of truth is that shipped file, copied verbatim:
+#   /Applications/Ghostty.app/Contents/Resources/ghostty/themes/Solarized Dark Patched
+# Every hex below is from it, none derived. Re-extract from there if it ever
+# changes; do NOT re-derive it from canonical Solarized, which is a different
+# palette (see below).
+#
+# NOT the same thing as `solarized-dark`, the canonical scheme also in this
+# family. The patched cut re-tunes every value: canvas #001e27 against base03
+# #002b36, red #d11c24 against #dc322f, blue #2176c7 against #268bd2, white
+# #eae3cb against #eee8d5. Same design, different numbers — they are two themes,
+# not two spellings of one.
+#
+# NOTE craftzdog's own config spells it `theme = "Solarized Dark - Patched"`, with
+# a hyphen, and that string does not resolve in current Ghostty. His terminal has
+# been falling back to the default palette. This is the theme he meant.
+
+# background and text
+background = #001e27
+foreground = #708284
+
+# cursor — same tone as the body text, which is how the shipped file has it
+cursor-color = #708284
+cursor-text  = #002831
+
+# selection — the darkest slot (palette 0), emphasized ink on top
+selection-background = #002831
+selection-foreground = #819090
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# normals (0-7)
+palette = 0=#002831
+palette = 1=#d11c24
+palette = 2=#738a05
+palette = 3=#a57706
+palette = 4=#2176c7
+palette = 5=#c61c6f
+palette = 6=#259286
+palette = 7=#eae3cb
+
+# brights (8-15): the Solarized convention — base tones in 8/10/11/12/14, with
+# orange and violet taking the two slots that would otherwise repeat. So 9 and 13
+# are the only "colours" here; the rest read as low-contrast UI grays on purpose.
+# 10 repeats 8 verbatim in the shipped file — upstream's value, kept as-is.
+palette = 8=#475b62
+palette = 9=#bd3613
+palette = 10=#475b62
+palette = 11=#536870
+palette = 12=#708284
+palette = 13=#5956ba
+palette = 14=#819090
+palette = 15=#fcf4dc

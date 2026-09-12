@@ -11,6 +11,9 @@
 --   "light-2026"       clone of "2026 Light", its light companion
 --   "carbon"           minimal true-black, high contrast, Claude orange accent
 --   "solarized-osaka"  craftzdog deep-ocean ← separate plugin
+--   "solarized-patched" the "Solarized Dark Patched" cut, ported from the
+--                       Ghostty built-in craftzdog's terminal names
+--   "solarized-dark"   canonical Solarized Dark (Schoonover's, re-tuned by neither)
 --   "neon-noir"        true black noir canvas + neon spectrum (derived from
 --                       Xcode 27's "Neon Noir" preset — not a literal port)
 --   "naysayer"         Jonathan Blow's editor: deep teal bg, sand fg, loud comments
@@ -21,7 +24,7 @@
 --   "solarized-light"  canonical Solarized Light
 -- (The solarized-osaka-{day,moon,storm} variants and "obsidian" are still
 --  valid themes here, but outside the matrix.)
-vim.g.theme = "solarized-osaka"
+vim.g.theme = "solarized-patched"
 
 -- ─── remote-plugin providers ──────────────────────────────────
 -- Nothing here is a remote plugin (every plugin is Lua), so the Python,

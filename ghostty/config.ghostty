@@ -20,7 +20,27 @@
 # the file is versioned, a `git pull` propagates the theme to the other
 # machines. To change the look: edit this line (and the equivalent lines
 # in nvim and tmux — they share the id) and commit. There's no switcher and no pointer.
-theme = solarized-osaka
+#
+# craftzdog's theme, ported into the family (2026-09-11). His line reads
+# `theme = "Solarized Dark - Patched"` and that string DOES NOT RESOLVE — the
+# built-in is named "Solarized Dark Patched", no hyphen:
+#
+#   theme "Solarized Dark - Patched" not found, tried path
+#   .../Ghostty.app/Contents/Resources/ghostty/themes/Solarized Dark - Patched
+#
+# His file is from feb-2025 with two commits total, so the line has been dead a
+# while and he is really looking at Ghostty's default palette. This is the theme
+# he MEANT.
+#
+# Selected here as `solarized-patched`, a versioned copy in ghostty/themes/, and
+# NOT by the built-in name. The built-in lives inside Ghostty.app, where nvim,
+# tmux and Windows Terminal cannot reach it — naming it there would leave the
+# other three layers with nothing to mirror and break the one-id rule. The port is
+# hex-verbatim from the shipped file; provenance is in the theme file itself.
+#
+# A different palette from `solarized-dark`, also in this family: that one is
+# Schoonover's canonical scheme, this cut re-tunes every value.
+theme = solarized-patched
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -52,6 +72,9 @@ theme = solarized-osaka
 #   · solarized-light — Ethan Schoonover's canonical Solarized Light.
 #   · solarized-dark — its dark companion, the canonical one (base03 canvas,
 #     published accents) — the original, not the osaka fork above.
+#   · solarized-patched — the "Solarized Dark Patched" cut, ported hex-verbatim
+#     from the Ghostty built-in of that name because craftzdog's config selects
+#     it. Darker canvas (#001e27) and every accent re-tuned against canonical.
 #   · xray — the palette of the `xray` dock icon (PACKAGE 5): monochrome PCB
 #     canvas (#101010), silver ghost text (#cdcecf), one cool "film blue"
 #     accent, ANSI kept but desaturated. Grays sampled from the icon itself.
@@ -173,10 +196,14 @@ macos-titlebar-style = tabs
 #
 # The other half of this lives in nvim: `transparent = true` in
 # lua/plugins/solarized-osaka.lua. Without it nvim paints an opaque canvas over
-# the glass and the seam shows at every split edge, so the two move together.
-# Ghostty's key was `background-blur-radius` before 1.1.
+# the glass and the seam shows at every split edge, so the two move together
+# (craftzdog's nvim spec carries the same `transparent = true`).
+#
+# `background-blur-radius` is his spelling — the pre-1.1 name of the key, kept as
+# an alias and still accepted (checked with `+validate-config`, it parses clean).
+# The modern name is `background-blur`; either works, this one matches his file.
 background-opacity = 0.9
-background-blur = 20
+background-blur-radius = 20
 
 # breathe sideways — generous padding so that Claude Code's dense
 # output (tool calls, diffs, trees) doesn't feel cramped.
@@ -280,11 +307,18 @@ macos-option-as-alt = left
 # Give ⌥← / ⌥→ back to the running program. Ghostty binds them by default to
 # `esc:b` / `esc:f` (readline word-jump, confirmed with
 # `ghostty +list-keybinds --default`), which it then sends INSTEAD of the raw
-# key — so tmux, nvim and any TUI that wants ⌥+arrow never sees it. craftzdog
-# unbinds both; his spelling is `alt+left` / `alt+right`, this is the same two
-# keys under the names Ghostty itself prints.
-keybind = alt+arrow_left=unbind
-keybind = alt+arrow_right=unbind
+# key — so tmux, nvim and any TUI that wants ⌥+arrow never sees it.
+# `alt+left` / `alt+right` is craftzdog's spelling verbatim; `arrow_left` /
+# `arrow_right` is what Ghostty prints in `+list-keybinds`, and both parse.
+keybind = alt+left=unbind
+keybind = alt+right=unbind
+
+# Global show/hide of every Ghostty window from any app — his line, the only one
+# in his config we didn't already have. Note it is COMMENTED OUT in his repo, so
+# this is one step past copying him: he wrote it and chose not to run it.
+# Distinct from the quick terminal below (⌥` ), which summons a separate floating
+# surface instead of toggling the real windows.
+keybind = global:cmd+ctrl+shift+j=toggle_visibility
 
 # Shell integration: enables the stand-by cursor with sudo,
 # injects the path for opening files by click, etc.
