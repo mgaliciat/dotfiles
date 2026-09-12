@@ -78,19 +78,31 @@ theme = solarized-patched
 #   · xray — the palette of the `xray` dock icon (PACKAGE 5): monochrome PCB
 #     canvas (#101010), silver ghost text (#cdcecf), one cool "film blue"
 #     accent, ANSI kept but desaturated. Grays sampled from the icon itself.
-# Canvas override — BELONGS TO solarized-osaka, not to the stack in general.
-# craftzdog's Ghostty uses the built-in "Solarized Dark - Patched" but overrides
-# the background with #031219 (deep ocean, near-black blue, a touch lighter than
-# the plugin's base04 #001419).
+# ─── craftzdog's two overrides ────────────────────────────────
+# Both WIN over the theme's own values regardless of order, so they are the pair
+# that decides what the terminal actually looks like.
 #
-# A `background =` here WINS over the theme's, regardless of order — so with any
-# other theme active this line silently pins osaka's canvas and the new theme
-# looks like it never applied (only its ANSI/cursor change). Re-enable it only
-# together with `theme = solarized-osaka`; leave it commented for everything else.
+# `background = #031219` is his, verbatim: a deep ocean near-black blue, over the
+# patched cut's own #001e27. Comment it out the day a theme should own its canvas.
 #
-# ON (2026-09-11) — `theme = solarized-osaka` is active, so the override is the
-# one craftzdog actually runs. Comment it out again the day another theme wins.
+# `foreground = #ffffff` is ALSO what he reads, but by accident rather than by a
+# line in his file. His `theme =` doesn't resolve (see above), so his foreground
+# falls back to Ghostty's default — and that default is pure white, confirmed with
+# `ghostty +show-config --default`. Pinning it here reproduces his text tone on
+# top of a theme that actually loads.
+#
+# It is a big departure from Solarized, which is the point of writing it down:
+# white on #031219 is 19.01:1 contrast against 4.72:1 for the patched cut's own
+# #708284. Solarized deliberately keeps body text muted so the accents carry the
+# meaning; this makes the text the loudest thing on screen instead.
+# Drop this line to get the theme's real foreground back. Intermediate options if
+# white is too harsh: #819090 (the cut's base1, 5.73:1) or #eae3cb (its ANSI
+# white, warmer).
+#
+# Only the terminal. His nvim is NOT white — it runs solarized-osaka.nvim with
+# that theme's own muted fg — so nvim and tmux keep the patched palette here.
 background = #031219
+foreground = #ffffff
 
 # Display P3 wide-gamut — orange and cream saturate more on
 # M-chip / Retina screens. No downside on non-P3 machines.
@@ -182,6 +194,19 @@ font-thicken = false
 # Raise to 10-15% if you want more air, drop to 0% for Iosevka's native.
 adjust-cell-height = 3%
 
+# Faint (SGR 2) text at 70% instead of the default 50%. Claude Code leans on
+# faint constantly — paths, timestamps, hints, the dimmed half of a diff — and
+# half opacity over a near-black canvas puts all of it near the floor of what is
+# readable. 0.7 keeps the hierarchy without making faint compete with body text.
+faint-opacity = 0.7
+
+# Bold uses the bright half of the palette rather than the same colour at a
+# heavier weight. It earns its place now that `foreground` is pure white: against
+# white body text a bold glyph in the same colour reads as barely different, and
+# the drawn Bold cut (font-style-bold above) is doing all the work alone.
+# In this palette the brights are the Solarized base greys plus orange and violet.
+bold-color = bright
+
 # ─── window ───────────────────────────────────────────────────
 # tabs integrated into the titlebar (Chrome/Arc style): frees up ~1
 # vertical line of terminal and looks cleaner than having a separate tab bar
@@ -205,6 +230,23 @@ macos-titlebar-style = tabs
 background-opacity = 0.9
 background-blur-radius = 20
 
+# Without this the glass is only half on. `background-opacity` applies to the
+# WINDOW background alone, so any cell carrying an explicit background colour
+# stays fully opaque — Ghostty's own docs call out Neovim and tmux as the programs
+# that repaint cell backgrounds and therefore "may not respect
+# background-opacity (by design)". In practice that is every diff hunk, selection,
+# fzf row and lazygit panel landing as a solid block over a translucent window.
+# `true` extends the opacity to those cells too.
+background-opacity-cells = true
+
+# Blend alpha in linear space with the correction step. macOS defaults to
+# `native` (Display P3); `linear-corrected` removes the darkening artifacts around
+# glyph edges — worst on red/green pairs — while keeping text the same weight,
+# which plain `linear` does not (it thins dark text and fattens light text).
+# Only matters because there is transparency behind the glyphs; with a solid
+# background the two are indistinguishable.
+alpha-blending = linear-corrected
+
 # breathe sideways — generous padding so that Claude Code's dense
 # output (tool calls, diffs, trees) doesn't feel cramped.
 window-padding-x = 22
@@ -219,6 +261,13 @@ window-padding-color = extend
 
 # restores the session when reopening Ghostty
 window-save-state = always
+
+# `always`, not the default `true`. `true` asks only when shell integration
+# reports a process still running, which is exactly the case tmux defeats: the
+# pane's foreground process is the shell, and the Claude Code sessions live in
+# tmux sessions the terminal knows nothing about. `always` confirms every close,
+# so a stray ⌘W cannot take a surface down without a prompt.
+confirm-close-surface = always
 
 # ─── cursor ───────────────────────────────────────────────────
 # Block + blink — craftzdog's pair, and also Ghostty's own default shape. The
@@ -270,6 +319,13 @@ quick-terminal-position = top
 # set 40% or 50%.
 quick-terminal-size = 100%
 quick-terminal-animation-duration = 0.15
+
+# Stay open when focus moves to another app (macOS default is to hide). The
+# premise of this surface here is a persistent tmux session — claude, lazygit,
+# REPLs — so vanishing the moment you click a browser to read something is the
+# opposite of what it is for. Closing is ⌥` again, deliberately.
+quick-terminal-autohide = false
+
 keybind = global:alt+grave_accent=toggle_quick_terminal
 
 # ─── splits ───────────────────────────────────────────────────
