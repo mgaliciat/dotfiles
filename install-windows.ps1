@@ -1108,9 +1108,12 @@ $WtTheme = "solarized-patched"
 # with `font-style = Medium`; WT has no style field, it has `font.weight`, so
 # the same 500 is spelled differently. Without it the face would resolve at
 # Regular and the two boxes would disagree while both looking "correct".
+# $WtFontSize is the one that does NOT track the Mac: ghostty's `font-size = 17`
+# renders on a Retina panel, and the same number on a 1x Windows display comes
+# out visibly larger. 14 is the size that matches it by eye, not by value.
 $WtFont       = "PlemolJP Console NF"
 $WtFontWeight = "medium"
-$WtFontSize   = 17
+$WtFontSize   = 14
 $WtFonts = @("PlemolJP Console NF", "PlemolJP35 Console NF", "Google Sans Code Monospace", "Google Sans Code", "Maple Mono NF", "Monaspace Neon", "MonaspiceNe NF")
 
 # The rest of the look, ported from config.ghostty so the two boxes disagree as
