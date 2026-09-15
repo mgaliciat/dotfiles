@@ -60,9 +60,11 @@ aug-2026, so **neither supersedes the other**.
 
 ## Sampled or derived — no published hex exists
 
-**`xray`** · The palette of Ghostty's own `xray` dock icon, which
-`config.ghostty` selects with `macos-icon = xray`, so the Dock icon and the
-terminal are one object. Grays **sampled from the icon**, not guessed: board
+**`xray`** · The palette of Ghostty's own `xray` dock icon. `config.ghostty`
+selected that icon with `macos-icon = xray` when the theme was made, so the Dock
+icon and the terminal were one object; the icon is `official` since 2026-09-15,
+so pair this theme with `macos-icon = xray` again to get that back. Grays
+**sampled from the icon**, not guessed: board
 `#101010` canvas, traces `#202020`/`#303030`, chip legs `#4c4c4c`, ghost
 `#cdcecf` fg, highlight `#f0f0f0`. The icon's only chroma is a faint cool cast
 on its light grays; pushed to usable it becomes the single accent, `#a3b5c6`

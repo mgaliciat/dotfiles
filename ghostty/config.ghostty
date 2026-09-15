@@ -75,7 +75,7 @@ theme = solarized-patched
 #   · solarized-patched — the "Solarized Dark Patched" cut, ported hex-verbatim
 #     from the Ghostty built-in of that name because craftzdog's config selects
 #     it. Darker canvas (#001e27) and every accent re-tuned against canonical.
-#   · xray — the palette of the `xray` dock icon (PACKAGE 5): monochrome PCB
+#   · xray — the palette of the `xray` dock icon: monochrome PCB
 #     canvas (#101010), silver ghost text (#cdcecf), one cool "film blue"
 #     accent, ANSI kept but desaturated. Grays sampled from the icon itself.
 # ─── craftzdog's two overrides ────────────────────────────────
@@ -466,23 +466,38 @@ keybind = cmd+eight=goto_tab:8
 keybind = cmd+nine=goto_tab:9
 
 # ═══════════════════════════════════════════════════════════════
-#  PACKAGE 5 — dock icon: the built-in `xray` style
+#  PACKAGE 5 — dock icon: the built-in `official` style
 # ═══════════════════════════════════════════════════════════════
 
-# The white ghost over a monochrome PCB, one of Ghostty's shipped styles — no
-# custom asset to version and nothing to draw. Not `microchip`, which is the
-# GREEN board with an orange trace; the names are easy to swap and the only
-# way to tell is to look (the PNGs live in Assets.car, `MicrochipImage` /
-# `XrayImage`). The icon never followed `theme =` anyway (Ghostty has no such
-# binding), so a `custom-style` icon would be a second palette to keep in sync
-# by hand for a 128px square you glance at; a stock style sidesteps that.
+# `official` (2026-09-15) — Ghostty's own icon: a blue CRT gradient behind the
+# glowing ghost and its `>_` prompt, in a dark chrome frame. It is the only style
+# that carries the project's real colours, and the one the update dialog always
+# shows regardless of this setting, so dock and updater stop disagreeing.
 #
-# Other built-in styles: official (the default), blueprint, chalkboard, glass,
-# holographic, paper, retro, microchip. And `custom-style`, the only one that takes
-# colors — it then REQUIRES macos-icon-frame (aluminum|beige|plastic|chrome),
+# Third icon of the day. `xray` (white ghost over a monochrome PCB) read too
+# industrial next to a Tahoe dock; `glass` was the macOS 26 answer to that and
+# went too far the other way — the material is so clear that the icon reads as an
+# empty slot in the dock. Colour beats matching the OS material here.
+#
+# Still a stock style on purpose. The icon never followed `theme =` (Ghostty has no
+# such binding), so a `custom-style` icon would be a second palette to keep in sync
+# by hand for a 128px square you glance at. If the blue ever has to go, that is the
+# escape hatch — e.g. the terminal's own canvas as the screen:
+#   macos-icon = custom-style
+#   macos-icon-frame = aluminum
+#   macos-icon-ghost-color = #ffffff
+#   macos-icon-screen-color = #031219,#001e27
+#
+# Other built-in styles: glass (translucent), blueprint, chalkboard, xray,
+# holographic, paper, retro, microchip. Note microchip is the GREEN board with an
+# orange trace and xray the monochrome one — the names are easy to swap and the
+# only way to tell is to look (the PNGs live in Assets.car, `MicrochipImage` /
+# `XrayImage`). And `custom-style`, the only one that takes colors — it then
+# REQUIRES macos-icon-frame (aluminum|beige|plastic|chrome),
 # macos-icon-ghost-color and macos-icon-screen-color (a linear vertical
 # gradient, first color = bottom). `macos-custom-icon` takes a PNG/ICNS path.
-macos-icon = xray
+# Enumerated from `ghostty +show-config --default --docs` on 1.3.1.
+macos-icon = official
 
 # ═══════════════════════════════════════════════════════════════
 #  PACKAGE 6 — Fullscreen pro (macOS)
