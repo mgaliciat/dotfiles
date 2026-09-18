@@ -40,7 +40,7 @@
 #
 # A different palette from `solarized-dark`, also in this family: that one is
 # Schoonover's canonical scheme, this cut re-tunes every value.
-theme = solarized-patched
+theme = typesafe
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -78,6 +78,9 @@ theme = solarized-patched
 #   · xray — the palette of the `xray` dock icon: monochrome PCB
 #     canvas (#101010), silver ghost text (#cdcecf), one cool "film blue"
 #     accent, ANSI kept but desaturated. Grays sampled from the icon itself.
+#   · typesafe — the sage canvas of typesafe.ai (#abbab9, from the page's own
+#     CSS) + black text and its #09aea1 teal; the ANSI derived on those hues,
+#     darkened to read over a light canvas. Light theme.
 # ─── craftzdog's two overrides ────────────────────────────────
 # Both WIN over the theme's own values regardless of order, so they are the pair
 # that decides what the terminal actually looks like.
@@ -101,12 +104,22 @@ theme = solarized-patched
 #
 # Only the terminal. His nvim is NOT white — it runs solarized-osaka.nvim with
 # that theme's own muted fg — so nvim and tmux keep the patched palette here.
-background = #031219
-foreground = #ffffff
+#
+# Both OFF since 2026-09-18: `typesafe` owns its canvas (#abbab9, the page's own
+# background) and white text on it would be invisible. Uncomment the pair when
+# solarized-patched comes back.
+# background = #031219
+# foreground = #ffffff
 
-# Display P3 wide-gamut — orange and cream saturate more on
-# M-chip / Retina screens. No downside on non-P3 machines.
-window-colorspace = display-p3
+# sRGB since 2026-09-18, under typesafe. `display-p3` reads every hex as a P3
+# coordinate, which on a wide-gamut screen pushes the sage #abbab9 greener and
+# more saturated than the browser paints it — CSS `rgb()` is sRGB, and the
+# theme's whole point is matching that page. The Ghostty doc for this key names
+# `srgb` as the default. Was `display-p3` (orange and cream saturate more on
+# M-chip screens); go back to it under a dark theme whose palette was never
+# matched against a browser.
+window-colorspace = srgb
+# window-colorspace = display-p3
 
 # Automatic minimum contrast. Fine tradeoff:
 #   1.1 = no enforcement (friendly default). Dim grays evaporate
@@ -121,8 +134,14 @@ window-colorspace = display-p3
 # he sets no minimum-contrast at all, so anything above 1.1 would already be a
 # departure from his look. It was 1.1 under naysayer too (2026-09-09, where it was
 # load-bearing — his near-invisible Ghost_Character depends on no enforcement) and
-# 3.0 under solarized-dark (2026-08-13) — go back to 3.0 if a light theme
-# (light-2026, paper, solarized-light) becomes active.
+# 3.0 under solarized-dark (2026-08-13).
+#
+# 1.1 under typesafe (2026-09-18) even though it is a light theme. The "3.0 for
+# light themes" rule above assumes a cream or white canvas, where Claude orange
+# clears 3:1 untouched; over the sage #abbab9 the brand set sits at 1.1–1.8:1
+# (orange 1.55, blue 1.46, green 1.83) and 3.0 rewrote all of it, so Claude
+# Code's spinner and accents came out as dark mud. The theme's own 16 slots are
+# tuned above 3:1 by construction and need no enforcement.
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
@@ -223,14 +242,16 @@ bold-color = bright
 # only affects NEW windows. ⌘N after ⌘⇧R, or the old titlebar stays.
 macos-titlebar-style = transparent
 
-# GLASS (2026-09-11). Back on after being off between 2026-09-09 and today, when
-# it returned as craftzdog's pair — but neither value is still his.
+# GLASS (2026-09-11, off again 2026-09-18 — see the values below). It returned as
+# craftzdog's pair, but neither value is still his.
 #
 # The other half of this lives in nvim: `transparent = true` on the ACTIVE theme's
-# spec, which today is lua/themes/solarized-patched.lua. Without it nvim paints an
+# spec (lua/themes/solarized-patched.lua carries it). Without it nvim paints an
 # opaque canvas over the glass and the seam shows at every split edge, so the two
 # move together — and the setting does not follow a theme around, so a theme swap
-# means checking the new spec carries it.
+# means checking the new spec carries it. `typesafe` (active since 2026-09-18)
+# does NOT: it is a light theme and a light canvas over the glass is unreadable
+# (see colorscheme.lua), so nvim stays opaque under it and the seam is accepted.
 #
 # NATIVE GLASS instead of his blur. His line is `background-blur-radius = 20` —
 # the pre-1.1 name of the key, still accepted as an alias, and 20 is simply what
@@ -251,8 +272,15 @@ macos-titlebar-style = transparent
 #
 # To restore his exact pair: `background-opacity = 0.9` and
 # `background-blur-radius = 20`.
-background-opacity = 0.95
-background-blur = macos-glass-clear
+#
+# OFF since 2026-09-18, under `typesafe`: the desktop bleeding through a light
+# sage canvas muddied it, and a light theme cannot take `transparent = true` in
+# nvim anyway. The material pair is kept below, commented, for the next dark
+# theme. With opacity at 1.0 `background-opacity-cells` is inert and stays.
+background-opacity = 1.0
+background-blur = 0
+# background-opacity = 0.95
+# background-blur = macos-glass-clear
 
 # Without this the glass is only half on. `background-opacity` applies to the
 # WINDOW background alone, so any cell carrying an explicit background colour

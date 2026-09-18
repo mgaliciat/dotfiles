@@ -122,6 +122,19 @@ re-extract from its bundled `.xccolortheme` under
 `Xcode.app/Contents/SharedFrameworks/DVTUserInterfaceKit.framework/…/FontAndColorThemes/`
 and this becomes a real port.
 
+**`typesafe`** · The sage canvas of typesafe.ai. Source is the page's own CSS,
+read from the served HTML of
+<https://typesafe.ai/blog/introducing-system-one-models-and-jev> (2026-09-18):
+`html body { background: rgb(171, 186, 185) }` → `#abbab9`, plus the Framer
+colour tokens `#1e1e1e` ink, `#09aea1` teal, `#03aa5c` green, `#d45bb6` magenta,
+`#f386a1` pink, `#858585` gray, `#000`. Canvas, cursor teal, ANSI 7 (`#1e1e1e`)
+and the text (`#000`, not the ink — chosen for bite over sage) are verbatim. **Everything else is derived**: the site ships no 16-colour set, and
+its accents sit at 1.2–1.8:1 over the canvas, readable as a button and not as
+text, so each ANSI slot keeps the page's hue and is darkened until it clears
+3:1 (normals) and 4.3:1 (brights). Yellow and blue have no page value and are
+built on the same grid. A screenshot or a colour picker is not a valid source:
+the served CSS is, and it is where to re-extract from.
+
 **`carbon`** (minimal true-black, high contrast, Claude-orange accent),
 **`anthropic-warm`**, **`prism-night`**, **`paper`**, **`gray`** (neutral grey
 canvas, near-black ink — the low-saturation light option beside `paper`) carry

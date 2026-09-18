@@ -29,7 +29,7 @@ parsed (they need their plugins to load). Runtime validation is running the inst
 | `ghostty/` | `config.ghostty` + `themes/` |
 | `nvim/` | lazy.nvim, `lua/plugins/*` one file per plugin, `lua/themes/*` |
 | `tmux/` | `tmux.conf` + `macos.conf` / `theme.conf` / `statusline.conf` / `utility.conf` / `themes/` |
-| `claude/` | User-level Claude Code: `CLAUDE.md`, `statusline.{sh,ps1}`, `hooks/`, `agents/`, `skills/`, `install/` |
+| `claude/` | User-level Claude Code: `CLAUDE.md`, `statusline.{sh,ps1}`, `hooks/`, `agents/`, `skills/`, `themes/`, `install/` |
 | `scripts/` | `lib.sh` (shared by both bash installers), `ide`, `claude-api-env` |
 | `runbook/` | Operator bring-up per OS |
 
@@ -67,10 +67,14 @@ fourth layer. Selection is a direct versioned value in each config:
 - `vim.g.theme = "<id>"` in `nvim/lua/config/options.lua`
 - `source ~/.config/tmux/themes/<id>.conf` in `tmux/tmux.conf`
 - `$WtTheme` in `install-windows.ps1` (generated from `ghostty/themes/<id>` at install time)
+- `theme = "custom:<id>"` in `~/.claude/settings.json` (per-machine, guarded by
+  `settings.sh`), pointing at `claude/themes/<id>.json`, a Claude Code custom theme
 
 Adding a theme = its three definitions (`ghostty/themes/<id>`,
 `nvim/lua/themes/<id>.lua`, `tmux/themes/<id>.conf`). Provenance of each palette is in
-`ghostty/themes/README.md`.
+`ghostty/themes/README.md`. The Claude Code theme is optional and exists only for a canvas
+the brand colours cannot read on: `base: light-ansi`/`dark-ansi` makes the TUI take its
+colours from the terminal's ANSI slots, and `overrides.claude` re-tunes the spinner.
 
 ### The per-machine split
 

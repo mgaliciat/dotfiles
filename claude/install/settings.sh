@@ -91,6 +91,23 @@ for _agent in scope-guard regression-watch teammate-base; do
 done
 unset _agent
 
+# ── Claude Code colour theme → ~/.claude/themes/ ──
+# The stack theme's fifth layer. Claude Code paints its spinner and accents in
+# the brand colours by truecolor, and over a canvas they were never tuned for
+# they wash out (Claude orange sits at 1.55:1 over typesafe's sage). A custom
+# theme is the only lever: `base: light-ansi` makes the TUI take its colours
+# from the terminal's own 16 ANSI slots — the ones each ghostty/themes/<id>
+# already tunes — and `overrides.claude` keeps the spinner on-brand, darkened
+# until it clears 3:1. The file is JSON, so there is no `.conf`/`.lua` twin.
+#
+# One theme per canvas that needs one, named after the stack id. Per-ITEM link
+# for the same reason as the agents: ~/.claude/themes/ is a real per-machine dir
+# (`/theme` → "New custom theme…" writes there too). Claude Code hot-reloads the
+# dir; only its CREATION needs one restart. ACTIVATION is per-machine and
+# guarded below (`.theme`), like the statusline.
+mkdir -p "$HOME/.claude/themes"
+link "$DOTFILES/claude/themes/typesafe.json" "$HOME/.claude/themes/typesafe.json"
+
 # The logbook's event half. A skill cannot fire on a git event — it only
 # self-activates on what the user says — so the "log after a commit lands" trigger
 # is a PostToolUse hook (registered further down) pointing at this script.
@@ -167,6 +184,16 @@ _settings_set_if_absent '.statusLine' \
 _settings_set_if_absent '.statusLine.refreshInterval' \
   '.statusLine.refreshInterval = 60' \
   'statusLine.refreshInterval'
+
+# ── theme ──
+# The custom theme linked above, selected. `custom:<slug>` is what `/theme`
+# stores when a ~/.claude/themes/<slug>.json is picked (slug = filename). Guarded
+# like everything else: a machine where `/theme` already chose something keeps
+# its choice — on a dark stack theme this one would be wrong, and the light/dark
+# split is exactly what differs per host.
+_settings_set_if_absent '.theme' \
+  '.theme = "custom:typesafe"' \
+  'theme (custom:typesafe)'
 
 # ── permissions.allow / deny ──
 # The lists live in claude/install/permissions.json — single source of truth

@@ -22,9 +22,10 @@
 --   "prism-night"      midnight blue + prism arc
 --   "paper"            light cream + sepia ink
 --   "solarized-light"  canonical Solarized Light
+--   "typesafe"         sage canvas of typesafe.ai (#abbab9) + near-black ink
 -- (The solarized-osaka-{day,moon,storm} variants and "obsidian" are still
 --  valid themes here, but outside the matrix.)
-vim.g.theme = "solarized-patched"
+vim.g.theme = "typesafe"
 
 -- ─── remote-plugin providers ──────────────────────────────────
 -- Nothing here is a remote plugin (every plugin is Lua), so the Python,

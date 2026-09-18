@@ -82,7 +82,7 @@ One theme id spans Ghostty, nvim and tmux (and Windows Terminal, derived from th
 - `nvim/lua/config/options.lua` → `vim.g.theme = "<id>"`
 - `tmux/tmux.conf` → `source ~/.config/tmux/themes/<id>.conf`
 
-Currently `solarized-osaka`. The family and each theme's provenance are documented in `CLAUDE.md` ("The stack theme"); the palettes live in `ghostty/themes/`, `nvim/lua/themes/`, `tmux/themes/`.
+Currently `typesafe`. The family and each theme's provenance are documented in `CLAUDE.md` ("The stack theme"); the palettes live in `ghostty/themes/`, `nvim/lua/themes/`, `tmux/themes/`.
 
 ## Claude Code through an API gateway
 

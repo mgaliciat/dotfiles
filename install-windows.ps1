@@ -205,6 +205,14 @@ foreach ($Agent in @("scope-guard", "regression-watch", "teammate-base")) {
     Set-DotfileSymlink (Join-Path $Dotfiles "claude\agents\$Agent.md") (Join-Path $AgentsDir "$Agent.md")
 }
 
+# Claude Code colour theme, the stack theme's fifth layer (rationale in
+# claude/install/settings.sh). Linked only: its ACTIVATION (`theme` in
+# settings.json) is per-machine, and on Windows the canvas is whatever
+# $WtTheme generated, so `/theme` inside Claude Code is where it gets picked.
+$ThemesDir = Join-Path $ClaudeDir "themes"
+New-Item -ItemType Directory -Path $ThemesDir -Force | Out-Null
+Set-DotfileSymlink (Join-Path $Dotfiles "claude\themes\typesafe.json") (Join-Path $ThemesDir "typesafe.json")
+
 # The logbook's event half: a skill cannot fire on a git event, so the "log after
 # a commit lands" trigger is a PostToolUse hook (registered in the settings block
 # below) pointing at this script. The .PS1, not the .sh, for the same reason as
@@ -1076,7 +1084,7 @@ Install-FontFromRelease -Repo "googlefonts/googlesans-code" -AssetPattern '^Goog
 # layers -- following ghostty would mean a mac theme change silently repainting a
 # machine that has no ghostty installed. Change the look by editing this line
 # and re-running -- no switcher, no pointer.
-$WtTheme = "solarized-patched"
+$WtTheme = "typesafe"
 
 # $WtFont is the font half of the same idea, and it DOES track the Mac: it is
 # ghostty's `font-family` (`250235e`). Kept as its own line rather than parsed

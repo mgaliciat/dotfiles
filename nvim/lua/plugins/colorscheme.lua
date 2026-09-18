@@ -26,6 +26,7 @@
 --   anthropic-warm   warm charcoal + Claude palette (terracotta, olive, amber)
 --   prism-night      deep night-blue + spectrum accents
 --   paper            light cream + sepia ink
+--   typesafe         sage canvas of typesafe.ai (#abbab9) + near-black ink
 --   solarized-light  canonical Solarized Light
 --   solarized-dark   canonical Solarized Dark (the original, not the osaka fork)
 --   retta            Eclipse "Retta" port (true black + pumpkin/cream, high contrast)
