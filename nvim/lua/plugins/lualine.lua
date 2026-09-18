@@ -90,7 +90,7 @@ return {
         { harpoon_slot },
       },
       lualine_x = {
-        { macro, color = { fg = "#e35f5f" } },
+        { macro, color = "DiagnosticError" },
         { lsp_clients },
         { linters },
         { formatters },

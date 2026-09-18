@@ -196,16 +196,19 @@ _load_zsh_plugin zsh-autosuggestions
 _load_zsh_plugin zsh-syntax-highlighting
 _load_zsh_plugin zsh-history-substring-search
 
-# ─── highlight: valid commands in olive green ─────────────────
-# The plugin's default is `fg=green`, which lands on the theme's ANSI
-# green (#50fa7b laser). We tone it down to the olive of the Anthropic
-# Warm palette — it still reads as "valid" without the neon. It MUST come
-# after loading the plugin, otherwise the ZSH_HIGHLIGHT_STYLES array
-# doesn't exist.
-ZSH_HIGHLIGHT_STYLES[command]='fg=#87a96b'
-ZSH_HIGHLIGHT_STYLES[builtin]='fg=#87a96b'
-ZSH_HIGHLIGHT_STYLES[alias]='fg=#87a96b'
-ZSH_HIGHLIGHT_STYLES[function]='fg=#87a96b'
+# ─── highlight: valid commands in the theme's green ───────────
+# `fg=green` is the plugin's own default, restated here on purpose. Until
+# 2026-09-18 this was a literal `#87a96b`, the olive of the Anthropic Warm
+# palette, picked to tone down a laser ANSI green that no theme in the family
+# has any more — and over a light canvas (typesafe's sage) that olive sat at
+# 1.3:1, so every command you typed was nearly invisible. ANSI 2 is whatever
+# the active stack theme tuned it to be, which is the only value that stays
+# readable across the family. MUST come after loading the plugin, otherwise
+# the ZSH_HIGHLIGHT_STYLES array doesn't exist.
+ZSH_HIGHLIGHT_STYLES[command]='fg=green'
+ZSH_HIGHLIGHT_STYLES[builtin]='fg=green'
+ZSH_HIGHLIGHT_STYLES[alias]='fg=green'
+ZSH_HIGHLIGHT_STYLES[function]='fg=green'
 
 # ─── prompt ───────────────────────────────────────────────────
 # Starship was removed (aug-2026): the terminal's width belongs to the

@@ -30,8 +30,18 @@ export PYENV_ROOT="$HOME/.pyenv"
 [[ -d "$PYENV_ROOT/bin" ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 
 # ─── CLI tool env vars ────────────────────────────────────────
-# bat — uses the terminal's colors (Anthropic Warm) instead of its own theme.
+# bat — uses the terminal's 16 ANSI colors instead of its own theme, so it
+# follows whatever stack theme is active.
 export BAT_THEME="ansi"
+
+# fzf — same idea. Its default scheme on a 256-color terminal is `dark`:
+# fixed 256-color values (current line = #e4e4e4 on #303030, matches in a
+# dark-tuned green) that ignore the theme and read as a dark slab over a
+# light canvas. `16` maps every role onto the ANSI slots the theme tunes.
+# `bg+:-1` drops the current-line block entirely (base16 would paint it in
+# ANSI 8, the comment gray) and `fg+` bold marks the line instead — the same
+# no-blocks rule the tmux statusline follows; the red pointer still points.
+export FZF_DEFAULT_OPTS="--color=16,bg+:-1,fg+:-1:bold"
 
 # man pages through bat — syntax-highlighted, line numbers off. `col -bx`
 # strips the backspace-overstrike bold/underline that groff emits (bat would

@@ -6,30 +6,32 @@ gui:
   # Mouse off: in tmux popups the mouse sometimes does weird things
   # (Ghostty's selection interferes with lazygit's clicks).
   mouseEvents: false
-  # Hand-mirror of the ACTIVE stack theme (`solarized-osaka`, see
-  # ghostty/themes/solarized-osaka). Both entry points — the tmux popup (Alt+g)
+  # Hand-mirror of the ACTIVE stack theme (`typesafe`, see
+  # ghostty/themes/typesafe). Both entry points — the tmux popup (Alt+g)
   # and the nvim float (snacks, `configure = false` so it never overlays its own
   # theme) — read this file, so it paints the same in both. It is the one mirror
   # that does NOT follow the three selection lines on its own: when the stack
-  # theme changes, re-copy the hex here.
+  # theme changes, re-copy the hex here. (It sat on solarized-osaka's hex
+  # through two theme swaps; over the sage canvas that meant a #839395 default
+  # text at 1.9:1 and a navy selection slab.)
   theme:
     activeBorderColor:
-      - "#d23681" # magenta — craftzdog's signature accent
+      - "#06655e" # ansi6 — the page teal darkened to read as a line, same as tmux's accent
       - bold
     inactiveBorderColor:
-      - "#576d74" # base01 — separators / borders
+      - "#7d8c8b" # @thm_subtle — separators / borders
     optionsTextColor:
-      - "#268bd3" # ansi4 blue
+      - "#1f5f8c" # ansi4 blue
     selectedLineBgColor:
-      - "#063540" # base02 — selection bg
+      - "#8fa09f" # selection-background — the canvas one step darker
     cherryPickedCommitBgColor:
-      - "#b28500" # ansi3
+      - "#7a5d08" # ansi3
     cherryPickedCommitFgColor:
-      - "#001419" # base04 — the canvas
+      - "#abbab9" # the canvas
     unstagedChangesColor:
-      - "#db302d" # ansi1
+      - "#a8283f" # ansi1
     defaultFgColor:
-      - "#839395" # plugin Normal fg (same as ghostty's `foreground`)
+      - "#000000" # ghostty's `foreground`
   # showFileTree: shows the change organized as a tree (default true).
   showFileTree: true
   showCommandLog: false # more room for the main panels
@@ -62,9 +64,13 @@ git:
   # Auto-fetch disabled (doesn't hang if the network is slow).
   autoFetch: false
   # Paginate diffs with delta if it's installed (you have it via brew).
+  # `--light` travels with the hex above: delta's defaults for hunk backgrounds
+  # and line numbers assume a dark canvas unless told, and it cannot detect one
+  # here — lazygit captures its stdout, so the terminal query behind
+  # `--detect-dark-light` has nothing to talk to. Flip it with the theme.
   diffRenderers:
     - colorArg: always
-      command: delta --paging=never --syntax-theme=base16-256
+      command: delta --paging=never --light --syntax-theme=base16-256
 # ─── custom commands ──────────────────────────────────────────
 # `?` inside lazygit shows ALL the available shortcuts.
 customCommands:
