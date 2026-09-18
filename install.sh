@@ -24,6 +24,10 @@ if [[ -f "$GHOSTTY_DIR/config" && ! -L "$GHOSTTY_DIR/config" ]]; then
   echo "→ stale ghostty config moved to config.backup.$TS"
 fi
 link "$DOTFILES/ghostty/config.ghostty" "$GHOSTTY_DIR/config.ghostty"
+# Shaders sit BESIDE the config, not in the XDG dir the themes use: a relative
+# `custom-shader = shaders/<name>.glsl` resolves against the config file's own
+# directory, and Application Support is where that file lives.
+link "$DOTFILES/ghostty/shaders"        "$GHOSTTY_DIR/shaders"
 # Custom themes (wallpaper sampling, own palettes). CAREFUL: Ghostty looks for
 # themes in ~/.config/ghostty/themes/ (XDG path), NOT in the same Application
 # Support dir where the config lives — they are different dirs. If you put them

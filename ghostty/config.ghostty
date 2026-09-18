@@ -299,6 +299,23 @@ background-opacity-cells = true
 # background the two are indistinguishable.
 alpha-blending = linear-corrected
 
+# ─── shaders ──────────────────────────────────────────────────
+# Post-process passes over the rendered terminal, Shadertoy-style GLSL from
+# ghostty/shaders/ (symlinked beside this file by install.sh; the path is
+# relative to this file's directory). Repeat the key to chain passes.
+#
+# `crt` (2026-09-18): a still CRT — scanlines, aperture grille, faint bloom,
+# vignette. No curvature, no rolling band: the shader never reads iTime, so
+# the animation loop below is off and the pass only re-renders when the
+# terminal does. Strengths are tuned for the light typesafe canvas and live
+# as constants at the top of the file.
+#
+# A shader that fails to compile is silently skipped — the error goes to the
+# system log, not to `+show-config`:
+#   log show --predicate 'process == "ghostty"' --last 5m | grep -i shader
+custom-shader = shaders/crt.glsl
+custom-shader-animation = false
+
 # breathe sideways — generous padding so that Claude Code's dense
 # output (tool calls, diffs, trees) doesn't feel cramped.
 window-padding-x = 22
