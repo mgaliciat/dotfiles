@@ -15,8 +15,8 @@ Convention: `prefix x` = you press `Ctrl+t`, release, then `x`.
 | `Alt+c` | **Claude Code in a 90% popup** — persistent "default" session per project |
 | `Alt+C` | **Claude YOLO** — same as `Alt+c` but with `--dangerously-skip-permissions` (separate session) ⚠️ |
 | `Alt+a` / `Alt+A` | **Same two popups, through the API gateway** — reads `~/.claude/claude-api.env` via `claude-api-env`; separate sessions from `Alt+c`/`Alt+C`. Needs the env file, otherwise the popup shows the error and waits for a key |
-| `Alt+u` | **Central picker of Claude sessions** (session-manager plugin) — ALL sessions, live working/waiting/idle state + preview |
-| `Alt+y` | **Claude launcher per directory** (session-manager plugin) |
+| `Alt+u` | **Central picker of Claude sessions** (tmux-claude-hatch plugin) — ALL sessions, live working/waiting/idle state + preview |
+| `Alt+y` | **Claude launcher per directory** (tmux-claude-hatch plugin) |
 | `Alt+d` | **Close the Claude popup** (safe detach — only if you're inside a `claude*` session) |
 | `Alt+g` | **lazygit in a 90% popup** — floating git UI in the cwd |
 | `Alt+Enter` | Quick shell in a 90% popup — for one-off commands without taking up a pane |
@@ -149,7 +149,7 @@ Current plugins:
 - `tmux-pain-control` — `prefix h/j/k/l` to navigate, `prefix H/J/K/L` to resize
 - `tmux-resurrect` — `prefix Ctrl+s` save, `prefix Ctrl+r` restore (survives reboots)
 - `tmux-continuum` — auto-save of resurrect every 15 min + auto-restore on start
-- `tmux-claude-session-manager` — picker/launcher of Claude sessions (rebound to `Alt+u` / `Alt+y`, see above)
+- `tmux-claude-hatch` (was `tmux-claude-session-manager`) — picker/launcher of Claude sessions (rebound to `Alt+u` / `Alt+y`, see above)
 
 ---
 

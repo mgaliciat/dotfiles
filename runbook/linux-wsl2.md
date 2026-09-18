@@ -64,7 +64,7 @@ Windows side, so also run [`windows.md`](windows.md) there.
      the renamed binaries — the `cat` alias in `.zshrc` is unguarded, so
      without the shim every `cat` breaks;
    - configures Claude Code (same three scripts as macOS);
-   - clones tpm, pins `tmux-claude-session-manager`;
+   - clones tpm, pins `tmux-claude-hatch`;
    - GitHub release binaries for what apt lacks or ships too old: lazygit,
      **nvim 0.10+** (tarball, no FUSE), delta (`.deb`), eza fallback, gomi,
      tree-sitter-cli; zoxide and pyenv via their official curl installers;
@@ -110,7 +110,7 @@ echo $SHELL                                   # /usr/bin/zsh after re-login
 nvim --version | head -1                      # v0.10 or newer
 command -v fd bat eza zoxide lazygit delta gomi tree-sitter rtk
 claude mcp list
-git -C ~/.config/tmux/plugins/tmux-claude-session-manager rev-parse --short HEAD
+git -C ~/.config/tmux/plugins/tmux-claude-hatch rev-parse --short HEAD
 ```
 
 `fd` and `bat` should resolve to `~/.local/bin/` shims on Ubuntu, not to the

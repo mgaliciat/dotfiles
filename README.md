@@ -51,7 +51,7 @@ cd ~/dotfiles
 1. **Symlinks** `.zshrc`, `.zshenv`, `.gitignore_global`, ghostty (config + themes), nvim, tmux, lazygit, `~/.local/bin/{ide,claude-api-env}`, and the Claude pieces (`~/.claude/CLAUDE.md`, `statusline.sh`, `hooks/logbook.sh`, `skills/logbook`).
 2. **Installs missing Homebrew deps** (see `REQUIRED_FORMULAE` / `REQUIRED_CASKS` in the script): the zsh plugins, `eza`, `bat`, `fd`, `ripgrep`, `gomi`, `zoxide`, `fzf`, `jq`, `gh`, `git-delta`, `pyenv`, `neovim`, `tree-sitter-cli`, `tmux`, `lazygit`, `rtk`; casks `ghostty`, `1password-cli` and the fonts `config.ghostty` names. Paper Mono has no cask and is fetched from its GitHub release.
 3. **Configures Claude Code** — all additive-only, nothing you set by hand on that machine is clobbered. Split by who writes `~/.claude/settings.json` (`claude/install/README.md`): our `jq` merges (statusline, base permissions, no attribution trailer, the logbook `PostToolUse` hook), the external binaries' own setup ([`rtk`](https://github.com/rtk-ai/rtk), [`codebase-memory-mcp`](https://github.com/DeusData/codebase-memory-mcp), the `context7` and `open-knowledge` MCP endpoints, the `gh-stack` skill), and the plugin CLI (currently nothing).
-4. **Bootstraps tmux** — clones tpm if missing, pins `tmux-claude-session-manager` to a commit, reloads the config if a server is running. Inside tmux: `prefix + I` installs the rest of the plugins the first time.
+4. **Bootstraps tmux** — clones tpm if missing, pins `tmux-claude-hatch` to a commit, reloads the config if a server is running. Inside tmux: `prefix + I` installs the rest of the plugins the first time.
 5. Installs the `gh-stack` extension for `gh`.
 6. Registers VS Code as the default app for `.ghostty` files (if VS Code is installed).
 

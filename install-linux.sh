@@ -57,7 +57,7 @@ if command -v apt-get >/dev/null 2>&1; then
     fd-find                       # the binary is 'fdfind' — apt names it that way because of a clash with another 'fd'
     bat                           # on Ubuntu 20.04 it was 'batcat'; 22.04+ it is 'bat'
     fzf
-    jq                            # required by tmux-claude-session-manager (parses `claude agents --json`)
+    jq                            # required by tmux-claude-hatch (parses `claude agents --json`)
     gh                            # GitHub CLI — universe on Ubuntu 23.10+/Debian 13; older releases fail here and bootstrap_gh_stack skips itself
     eza                           # apt 23.10+; on older versions it fails → GH release fallback below
     zsh-syntax-highlighting

@@ -91,7 +91,7 @@ if command -v brew >/dev/null 2>&1; then
     gomi                  # `rm` with trash + interactive restore (alias `gm`)
     zoxide
     fzf
-    jq                    # required by tmux-claude-session-manager (parses `claude agents --json`)
+    jq                    # required by tmux-claude-hatch (parses `claude agents --json`)
     gh                    # GitHub CLI — host for the gh-stack extension (bootstrap_gh_stack below)
     git-delta
     pyenv

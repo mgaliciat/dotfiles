@@ -68,7 +68,7 @@ per-machine files and the two silent guards.
      `CLAUDE.md` / statusline / hook / skill symlinks, the three agent
      definitions into `~/.claude/agents/`, `rtk`, `codebase-memory-mcp`, the two
      MCP endpoints, the `gh-stack` skill;
-   - clones tpm, pins `tmux-claude-session-manager`, reloads a running tmux;
+   - clones tpm, pins `tmux-claude-hatch`, reloads a running tmux;
    - installs the `gh-stack` extension;
    - registers VS Code as the default app for `.ghostty` files, if installed.
 
@@ -112,7 +112,7 @@ readlink ~/.claude/CLAUDE.md ~/.claude/skills/logbook ~/.claude/hooks/logbook.sh
 claude mcp list                                                     # context7, open-knowledge, codebase-memory
 rtk --version && rtk config                                         # config path under ~/Library/Application Support/rtk
 tgrep --version                                                     # brew formula; index/serve are per-repo, opt-in
-tmux -V && git -C ~/.config/tmux/plugins/tmux-claude-session-manager rev-parse --short HEAD
+tmux -V && git -C ~/.config/tmux/plugins/tmux-claude-hatch rev-parse --short HEAD
 nvim --headless '+Lazy! sync' +qa                                   # first plugin install, non-interactive
 ```
 
