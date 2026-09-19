@@ -127,15 +127,14 @@ read from the served HTML of
 <https://typesafe.ai/blog/introducing-system-one-models-and-jev> (2026-09-18):
 `html body { background: rgb(171, 186, 185) }` → `#abbab9`, plus the Framer
 colour tokens `#1e1e1e` ink, `#09aea1` teal, `#03aa5c` green, `#d45bb6` magenta,
-`#f386a1` pink, `#858585` gray, `#000`. Cursor teal, ANSI 7 (`#1e1e1e`) and the
-text (`#000`, not the ink — chosen for bite over sage) are verbatim. The canvas is
-the page's `#abbab9` **scaled to 89%, `#98a6a5`**, by taste the same day: the literal
-value read too bright across a full terminal, so the page's colour is the source and
-the 11% is the one deliberate departure from it. **Everything else is derived**: the
-site ships no 16-colour set, and its accents sit at 1.2–1.8:1 over the canvas,
-readable as a button and not as text, so each ANSI slot keeps the page's hue and is
-darkened until it clears 3:1 (normals) and 3.5:1 (brights) over `#98a6a5`. Yellow
-and blue have no page value and are
+`#f386a1` pink, `#858585` gray, `#000`. Canvas, cursor teal, ANSI 7 (`#1e1e1e`) and
+the text (`#000`, not the ink — chosen for bite over sage) are verbatim. (The canvas
+was scaled to 93% and then 89% for an hour on 2026-09-18 and put back: the literal
+page colour is the point of the theme.) **Everything else is derived**: the site
+ships no 16-colour set, and its accents sit at 1.2–1.8:1 over the canvas, readable
+as a button and not as text, so each ANSI slot keeps the page's hue and is darkened
+until it clears 3:1 (normals) and 4.3:1 (brights). Yellow and blue have no page
+value and are
 built on the same grid. A screenshot or a colour picker is not a valid source:
 the served CSS is, and it is where to re-extract from.
 

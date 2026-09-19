@@ -78,9 +78,9 @@ theme = typesafe
 #   · xray — the palette of the `xray` dock icon: monochrome PCB
 #     canvas (#101010), silver ghost text (#cdcecf), one cool "film blue"
 #     accent, ANSI kept but desaturated. Grays sampled from the icon itself.
-#   · typesafe — the sage canvas of typesafe.ai (the page's #abbab9 at 89%,
-#     #98a6a5) + black text and its #09aea1 teal; the ANSI derived on those
-#     hues, darkened to read over a light canvas. Light theme.
+#   · typesafe — the sage canvas of typesafe.ai (#abbab9, from the page's own
+#     CSS) + black text and its #09aea1 teal; the ANSI derived on those hues,
+#     darkened to read over a light canvas. Light theme.
 # ─── craftzdog's two overrides ────────────────────────────────
 # Both WIN over the theme's own values regardless of order, so they are the pair
 # that decides what the terminal actually looks like.
@@ -160,6 +160,14 @@ minimum-contrast = 1.1
 # "PlemolJP Console NF". Note the SEPARATE "PlemolJP35 Console NF" family that
 # also ships in the cask: that is the 3:5 width cut for JP text, not this one.
 # +validate-config does NOT catch a missing family, it falls back silently.
+#
+# Tried and dropped the same day (2026-09-18): the typography of typesafe.ai,
+# the page the `typesafe` theme is built on. Its body is "Die Grotesk C
+# Regular" at 17px / 400 / 0.05em tracking / 120% leading — proportional and
+# commercial, so it cannot come to a terminal grid. JetBrains Mono (its caption
+# face, 12px/300) and Geist Mono (a grotesk mono stand-in, at the body's
+# recipe, then at Medium) were both tried and rejected on sight: neither
+# carries the page's stroke. Nothing of that round survives here.
 font-family = "PlemolJP Console NF"
 
 # Weight lives in the STYLE here, not in a variation axis (2026-09-08).

@@ -14,7 +14,7 @@
 // text row at the current font size. iResolution is the surface size in the
 // same units.
 //
-// Tuned on typesafe's sage canvas (#98a6a5). Every effect darkens, so on a
+// Tuned on typesafe's sage canvas (#abbab9). Every effect darkens, so on a
 // light background the strengths sit lower than a dark-theme CRT would use;
 // raise SCANLINE and MASK first if a dark theme comes back.
 //

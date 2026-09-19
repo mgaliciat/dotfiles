@@ -3,8 +3,8 @@
 -- theme `typesafe` and tmux/themes/typesafe.conf.
 -- tokyonight base: variant `day` (the plugin's light one).
 --
--- The canvas is the page's #abbab9 at 89% (#98a6a5, by taste); the black
--- text (#000 token) and the teal #09aea1 accent are the page's own values. The site is a Framer build with no 16-colour
+-- Canvas #abbab9 and the black text (#000 token) are the page's own CSS,
+-- verbatim; the teal #09aea1 is its accent token. The site is a Framer build with no 16-colour
 -- set and its accents are too light to read as text on the canvas, so the
 -- ANSI slots are derived: same hue, darkened past 3:1 (normals) / 4.3:1
 -- (brights). Provenance and the contrast figures are in the ghostty file.
@@ -13,30 +13,30 @@
 -- normal ones (more contrast over a light background).
 
 local palette = {
-  bg          = "#98a6a5",       -- page canvas at 89%
-  bg_dark     = "#8f9c9b",       -- canvas half a step down — ANSI 0 dimmed / code bg
-  bg_highlight= "#93a1a0",       -- cursorline
-  bg_visual   = "#849090",       -- selection, one full step down
-  bg_float    = "#93a1a0",
-  bg_popup    = "#93a1a0",
-  bg_search   = "#b3af7b",       -- muted yellow over sage
-  bg_sidebar  = "#93a1a0",
-  bg_statusline = "#93a1a0",
+  bg          = "#abbab9",       -- page canvas
+  bg_dark     = "#9dabaa",       -- canvas half a step down — ANSI 0 dimmed / code bg
+  bg_highlight= "#a3b2b1",       -- cursorline
+  bg_visual   = "#8fa09f",       -- selection, one full step down
+  bg_float    = "#a3b2b1",
+  bg_popup    = "#a3b2b1",
+  bg_search   = "#c9c58a",       -- muted yellow over sage
+  bg_sidebar  = "#a3b2b1",
+  bg_statusline = "#a3b2b1",
 
   fg          = "#000000",       -- the page's #000 token; #1e1e1e ink stays in ANSI 7
   fg_dark     = "#3f4b4a",
   fg_gutter   = "#7d8c8b",
 
   black       = "#3d4746",
-  red         = "#9c2339",
-  green       = "#045f33",
-  yellow      = "#654c06",
-  blue        = "#1b567f",
-  magenta     = "#8e2b76",
-  cyan        = "#055c55",
+  red         = "#a8283f",
+  green       = "#046637",
+  yellow      = "#7a5d08",
+  blue        = "#1f5f8c",
+  magenta     = "#9a2f80",
+  cyan        = "#06655e",
   white       = "#1e1e1e",
 
-  bright_black   = "#4a5655",   -- comment color
+  bright_black   = "#4f5b5a",   -- comment color
   bright_red     = "#8a1a30",
   bright_green   = "#034d2a",
   bright_yellow  = "#5e4705",
@@ -45,7 +45,7 @@ local palette = {
   bright_cyan    = "#044f49",
   bright_white   = "#000000",
 
-  comment     = "#4a5655",
+  comment     = "#4f5b5a",
   border      = "#7d8c8b",
   cursor      = "#09aea1",       -- the page's teal, verbatim
   accent      = "#09aea1",
