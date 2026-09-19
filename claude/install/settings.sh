@@ -100,13 +100,18 @@ unset _agent
 # already tunes — and `overrides.claude` keeps the spinner on-brand, darkened
 # until it clears 3:1. The file is JSON, so there is no `.conf`/`.lua` twin.
 #
-# One theme per canvas that needs one, named after the stack id. Per-ITEM link
+# One theme per canvas that needs one, named after the stack id. Per-ITEM links
 # for the same reason as the agents: ~/.claude/themes/ is a real per-machine dir
-# (`/theme` → "New custom theme…" writes there too). Claude Code hot-reloads the
-# dir; only its CREATION needs one restart. ACTIVATION is per-machine and
-# guarded below (`.theme`), like the statusline.
+# (`/theme` → "New custom theme…" writes there too). Every JSON in the repo dir
+# is linked, so adding a theme is one file. Claude Code hot-reloads the dir;
+# only its CREATION needs one restart. ACTIVATION follows the stack theme, see
+# the `theme` block further down.
 mkdir -p "$HOME/.claude/themes"
-link "$DOTFILES/claude/themes/typesafe.json" "$HOME/.claude/themes/typesafe.json"
+for _theme in "$DOTFILES"/claude/themes/*.json; do
+  [[ -f "$_theme" ]] || continue
+  link "$_theme" "$HOME/.claude/themes/$(basename "$_theme")"
+done
+unset _theme
 
 # The logbook's event half. A skill cannot fire on a git event — it only
 # self-activates on what the user says — so the "log after a commit lands" trigger
@@ -185,15 +190,36 @@ _settings_set_if_absent '.statusLine.refreshInterval' \
   '.statusLine.refreshInterval = 60' \
   'statusLine.refreshInterval'
 
-# ── theme ──
-# The custom theme linked above, selected. `custom:<slug>` is what `/theme`
-# stores when a ~/.claude/themes/<slug>.json is picked (slug = filename). Guarded
-# like everything else: a machine where `/theme` already chose something keeps
-# its choice — on a dark stack theme this one would be wrong, and the light/dark
-# split is exactly what differs per host.
-_settings_set_if_absent '.theme' \
-  '.theme = "custom:typesafe"' \
-  'theme (custom:typesafe)'
+# ── theme: follows the stack theme ──
+# The ONE key here that is convergent rather than guarded. The stack theme is a
+# versioned selection by design — `theme =` in config.ghostty is the source of
+# truth and a `git pull` is meant to repaint every machine — and Claude Code is
+# a layer of it, so a value `/theme` picked on one host is exactly the drift
+# the other four layers refuse to carry. The id is READ from ghostty's line, not
+# repeated here, so a theme swap stays a change to the selection lines alone.
+#
+# `custom:<slug>` is what `/theme` itself stores for a ~/.claude/themes/<slug>.json
+# (slug = filename). Only acts when the repo carries a JSON for the active id:
+# a stack theme without one — every dark theme today, where Claude Code's own
+# brand colours read fine — leaves whatever the machine had.
+_stack_theme="$(sed -nE 's/^theme = (.+)$/\1/p' "$DOTFILES/ghostty/config.ghostty" | head -n 1)"
+if [[ -n "$_stack_theme" && -f "$DOTFILES/claude/themes/$_stack_theme.json" ]]; then
+  if [[ "$(jq -r '.theme // ""' "$SETTINGS")" == "custom:$_stack_theme" ]]; then
+    echo "✓ theme already custom:$_stack_theme (follows ghostty's theme line)"
+  else
+    SETTINGS_TMP="$(mktemp)"
+    if jq --arg t "custom:$_stack_theme" '.theme = $t' "$SETTINGS" > "$SETTINGS_TMP"; then
+      mv "$SETTINGS_TMP" "$SETTINGS"
+      echo "✓ theme set to custom:$_stack_theme (follows ghostty's theme line)"
+    else
+      rm -f "$SETTINGS_TMP"
+      echo "⚠️  could not set theme — settings.json left untouched"
+    fi
+  fi
+else
+  echo "i   no claude/themes/${_stack_theme:-?}.json — Claude Code theme left as is"
+fi
+unset _stack_theme
 
 # ── permissions.allow / deny ──
 # The lists live in claude/install/permissions.json — single source of truth

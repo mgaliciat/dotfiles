@@ -22,7 +22,7 @@
 --   "prism-night"      midnight blue + prism arc
 --   "paper"            light cream + sepia ink
 --   "solarized-light"  canonical Solarized Light
---   "typesafe"         sage canvas of typesafe.ai (#abbab9) + near-black ink
+--   "typesafe"         sage canvas of typesafe.ai (#98a6a5) + black text
 -- (The solarized-osaka-{day,moon,storm} variants and "obsidian" are still
 --  valid themes here, but outside the matrix.)
 vim.g.theme = "typesafe"

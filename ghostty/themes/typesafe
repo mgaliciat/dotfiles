@@ -1,16 +1,19 @@
-# typesafe — the sage canvas of typesafe.ai + near-black ink. Mirror of
+# typesafe — the sage canvas of typesafe.ai + black text. Mirror of
 # nvim/lua/themes/typesafe.lua and tmux/themes/typesafe.conf.
 #
 # Source: the page's own CSS, read from the served HTML of
 # https://typesafe.ai/blog/introducing-system-one-models-and-jev (2026-09-18):
-#   html body { background: rgb(171, 186, 185) }   → #abbab9, the canvas
+#   html body { background: rgb(171, 186, 185) }   → #abbab9
 #   Framer colour tokens: #1e1e1e ink, #09aea1 teal, #03aa5c green,
 #   #d45bb6 magenta, #f386a1 pink, #858585 gray, #dedede, #fefefe, #000.
-# Canvas, ink, cursor teal and bright white are those values verbatim. The site
-# is a Framer build with no 16-colour set and its accents sit at 1.2–1.8:1 over
-# the canvas — fine for a button, unreadable as text — so every other ANSI slot
-# is DERIVED: same hue, darkened until it clears 3:1 (normals) / 4.3:1 (brights).
-# Yellow and blue have no page value at all and are built on the same grid.
+# The canvas is that #abbab9 scaled to 89% — #98a6a5 — by taste, the same
+# day: the literal value read too bright in a full-screen terminal.
+# Text (#000), cursor teal and ANSI 7 (#1e1e1e) stay verbatim. The site is a
+# Framer build with no 16-colour set and its accents sit at 1.2–1.8:1 over the
+# canvas — fine for a button, unreadable as text — so every other ANSI slot is
+# DERIVED: same hue, darkened until it clears 3:1 (normals) / 3.5:1 (brights)
+# over #98a6a5. Yellow and blue have no page value and are built on the same
+# grid.
 #
 # Light convention: the "brights" (8-15) are DARKER than the normals — more
 # contrast over a light canvas, the reverse of the dark themes.
@@ -21,33 +24,33 @@
 # Ghostty rewrites them into dark mud. The palette here is tuned above 3:1 by
 # construction, so it needs no enforcement.
 
-# background and text — the page's canvas verbatim; text is pure black (its
-# `#000` token), not the #1e1e1e ink, for the extra bite over sage (10.5:1).
+# background and text — the page's canvas at 89%; text is pure black (its
+# `#000` token), not the #1e1e1e ink, for the extra bite over sage (8.3:1).
 # #1e1e1e stays in ANSI 7 so the two whites are still distinct slots.
-background = #abbab9
+background = #98a6a5
 foreground = #000000
 
 # cursor — the site's teal accent (#09aea1 verbatim); black on top reads at 7.3:1
 cursor-color = #09aea1
 cursor-text  = #000000
 
-# selection — the canvas darkened one step, black stays readable (7.4:1)
-selection-background = #8fa09f
+# selection — the canvas at 87%, black stays readable (6.4:1)
+selection-background = #849090
 selection-foreground = #000000
 
 # ─── ANSI 16 ─────────────────────────────────────────────────
-# normals (0-7) — all ≥ 3:1 over #abbab9
+# normals (0-7) — all ≥ 3:1 over #98a6a5
 palette = 0=#3d4746
-palette = 1=#a8283f
-palette = 2=#046637
-palette = 3=#7a5d08
-palette = 4=#1f5f8c
-palette = 5=#9a2f80
-palette = 6=#06655e
+palette = 1=#9c2339
+palette = 2=#045f33
+palette = 3=#654c06
+palette = 4=#1b567f
+palette = 5=#8e2b76
+palette = 6=#055c55
 palette = 7=#1e1e1e
 
-# brights (8-15): DARKER (light theme) — all ≥ 4.3:1. 8 is the comment gray.
-palette = 8=#4f5b5a
+# brights (8-15): DARKER (light theme) — all ≥ 3.5:1. 8 is the comment gray.
+palette = 8=#4a5655
 palette = 9=#8a1a30
 palette = 10=#034d2a
 palette = 11=#5e4705

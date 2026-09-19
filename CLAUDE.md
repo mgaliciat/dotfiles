@@ -67,8 +67,9 @@ fourth layer. Selection is a direct versioned value in each config:
 - `vim.g.theme = "<id>"` in `nvim/lua/config/options.lua`
 - `source ~/.config/tmux/themes/<id>.conf` in `tmux/tmux.conf`
 - `$WtTheme` in `install-windows.ps1` (generated from `ghostty/themes/<id>` at install time)
-- `theme = "custom:<id>"` in `~/.claude/settings.json` (per-machine, guarded by
-  `settings.sh`), pointing at `claude/themes/<id>.json`, a Claude Code custom theme
+- `theme = "custom:<id>"` in `~/.claude/settings.json`, written by `settings.sh` from
+  ghostty's `theme =` line whenever `claude/themes/<id>.json` exists (convergent, the one
+  settings key that is), pointing at that Claude Code custom theme
 
 Adding a theme = its three definitions (`ghostty/themes/<id>`,
 `nvim/lua/themes/<id>.lua`, `tmux/themes/<id>.conf`). Provenance of each palette is in

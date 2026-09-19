@@ -78,9 +78,9 @@ theme = typesafe
 #   · xray — the palette of the `xray` dock icon: monochrome PCB
 #     canvas (#101010), silver ghost text (#cdcecf), one cool "film blue"
 #     accent, ANSI kept but desaturated. Grays sampled from the icon itself.
-#   · typesafe — the sage canvas of typesafe.ai (#abbab9, from the page's own
-#     CSS) + black text and its #09aea1 teal; the ANSI derived on those hues,
-#     darkened to read over a light canvas. Light theme.
+#   · typesafe — the sage canvas of typesafe.ai (the page's #abbab9 at 89%,
+#     #98a6a5) + black text and its #09aea1 teal; the ANSI derived on those
+#     hues, darkened to read over a light canvas. Light theme.
 # ─── craftzdog's two overrides ────────────────────────────────
 # Both WIN over the theme's own values regardless of order, so they are the pair
 # that decides what the terminal actually looks like.
@@ -313,7 +313,12 @@ alpha-blending = linear-corrected
 # A shader that fails to compile is silently skipped — the error goes to the
 # system log, not to `+show-config`:
 #   log show --predicate 'process == "ghostty"' --last 5m | grep -i shader
-custom-shader = shaders/crt.glsl
+#
+# OFF since 2026-09-18, the same day it landed: tried for an afternoon and
+# taken out by taste. The file and the symlink stay; uncomment the one line to
+# get it back. `custom-shader-animation` is left set — it is inert without a
+# shader and the CRT wants it false.
+# custom-shader = shaders/crt.glsl
 custom-shader-animation = false
 
 # breathe sideways — generous padding so that Claude Code's dense

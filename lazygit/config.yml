@@ -16,20 +16,20 @@ gui:
   # text at 1.9:1 and a navy selection slab.)
   theme:
     activeBorderColor:
-      - "#06655e" # ansi6 — the page teal darkened to read as a line, same as tmux's accent
+      - "#055c55" # ansi6 — the page teal darkened to read as a line, same as tmux's accent
       - bold
     inactiveBorderColor:
       - "#7d8c8b" # @thm_subtle — separators / borders
     optionsTextColor:
-      - "#1f5f8c" # ansi4 blue
+      - "#1b567f" # ansi4 blue
     selectedLineBgColor:
-      - "#8fa09f" # selection-background — the canvas one step darker
+      - "#849090" # selection-background — the canvas one step darker
     cherryPickedCommitBgColor:
-      - "#7a5d08" # ansi3
+      - "#654c06" # ansi3
     cherryPickedCommitFgColor:
-      - "#abbab9" # the canvas
+      - "#98a6a5" # the canvas
     unstagedChangesColor:
-      - "#a8283f" # ansi1
+      - "#9c2339" # ansi1
     defaultFgColor:
       - "#000000" # ghostty's `foreground`
   # showFileTree: shows the change organized as a tree (default true).

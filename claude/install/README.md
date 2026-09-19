@@ -17,12 +17,14 @@ from the parent, and that `jq` is already installed.
 | **3** | `plugins.sh` | The **Claude Code CLI** (`claude plugin`) | Handled by the CLI |
 
 **1 — `settings.sh`.** The only thing we write by hand: `statusLine` (+ `refreshInterval`),
-`theme`, `permissions.allow/deny`, `attribution.commit/pr`, the logbook `PostToolUse` hook, and
+`permissions.allow/deny`, `attribution.commit/pr`, the logbook `PostToolUse` hook, and
 the convergent cleanups (the obsolete `tmux-claude-session-manager` hooks, and the pre-rename
 `bitacora`/`wiki` symlinks and hook entry). Additive-only, with a guard: if the key already
-exists on that machine, it is not touched. It also symlinks the versioned pieces of `claude/` —
-`statusline.sh`, the user-level `CLAUDE.md`, `hooks/logbook.sh`, the Claude Code colour theme
-(`themes/typesafe.json`, the stack theme's fifth layer), and the skill plugin we author
+exists on that machine, it is not touched. The one exception is `theme`: it is a layer of the
+versioned stack theme, so it is written from ghostty's `theme =` line on every run whenever a
+`claude/themes/<id>.json` exists for that id. It also symlinks the versioned pieces of `claude/` —
+`statusline.sh`, the user-level `CLAUDE.md`, `hooks/logbook.sh`, every Claude Code colour theme
+in `themes/` (the stack theme's fifth layer), and the skill plugin we author
 (`skills/logbook`), one `link` per item and never the parent dir.
 
 The logbook hook is the one entry here that cannot use the `_settings_set_if_absent` helper:
