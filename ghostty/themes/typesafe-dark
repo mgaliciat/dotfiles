@@ -1,0 +1,62 @@
+# typesafe-dark — the sage of typesafe.ai taken down to a night canvas. Mirror
+# of nvim/lua/themes/typesafe-dark.lua and tmux/themes/typesafe-dark.conf.
+# Dark companion of `typesafe`, built from the same page tokens.
+#
+# Source: the page's own CSS, read from the served HTML of
+# https://typesafe.ai/blog/introducing-system-one-models-and-jev (2026-09-18):
+#   html body { background: rgb(171, 186, 185) }   → #abbab9, hsl(176, 10%, 70%)
+#   Framer colour tokens: #1e1e1e ink, #09aea1 teal, #03aa5c green,
+#   #d45bb6 magenta, #f386a1 pink, #858585 gray, #dedede, #fefefe, #000.
+# The page has no dark mode, so the canvas is DERIVED: the same hue, lightness
+# 70% → 11%. Saturation is raised from the page's 10% to 17% on purpose — at
+# that depth 10% reads as plain gray and the sage tint is the whole point.
+# Everything else is built on top of that canvas.
+#
+# The reversal from the light theme: over #abbab9 the page's accents sat at
+# 1.2–1.8:1 and every slot had to be darkened; over this canvas they clear
+# 4.5:1 AS THEY ARE, so teal, green, magenta, pink, gray and the two whites
+# are the page's own values verbatim. Only red, yellow and blue (no page
+# value) and the lighter brights are constructed, on the same grid.
+#
+# Dark convention: the "brights" (8-15) are LIGHTER than the normals. Every
+# normal ≥ 4.5:1, every bright ≥ 6.7:1 over the canvas (measured, sRGB).
+#
+# `minimum-contrast = 1.1` in config.ghostty is fine here too: Claude Code's
+# brand colours land at 4.4–5.6:1 over this canvas (orange #d97757 at 5.2),
+# so nothing needs rescuing and nothing gets rewritten.
+
+# background and text — the derived canvas; text is the page's #dedede token,
+# not #fefefe, because pure white glares on a canvas this dark (12.1:1 as is).
+# #fefefe stays in ANSI 15 so the two whites are still distinct slots.
+background = #182221
+foreground = #dedede
+
+# cursor — the site's teal accent (#09aea1 verbatim); black on top reads at 7.6:1
+cursor-color = #09aea1
+cursor-text  = #000000
+
+# selection — the canvas two steps up, text stays readable (8.8:1)
+selection-background = #2c3a39
+selection-foreground = #dedede
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# normals (0-7) — all ≥ 4.5:1 over #182221 (0 is a background tone, not text)
+palette = 0=#34403f
+palette = 1=#e05a6a
+palette = 2=#03aa5c
+palette = 3=#d9a72a
+palette = 4=#4d9fd6
+palette = 5=#d45bb6
+palette = 6=#09aea1
+palette = 7=#dedede
+
+# brights (8-15): LIGHTER (dark theme) — all ≥ 6.7:1 except 8, the page's
+# comment gray, verbatim at 4.4:1. 9 is the page's pink, the red's bright.
+palette = 8=#858585
+palette = 9=#f386a1
+palette = 10=#3fc98a
+palette = 11=#ecc457
+palette = 12=#7fbde6
+palette = 13=#e58ccf
+palette = 14=#4fd0c4
+palette = 15=#fefefe

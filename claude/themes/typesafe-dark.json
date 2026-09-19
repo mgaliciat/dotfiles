@@ -1,0 +1,14 @@
+{
+  "name": "typesafe-dark",
+  "base": "dark-ansi",
+  "overrides": {
+    "claude": "#d97757",
+    "claudeShimmer": "#e8956f",
+    "text": "#dedede",
+    "userMessageBackground": "#2c3a39",
+    "userMessageBackgroundHover": "#34403f",
+    "bashMessageBackgroundColor": "#1f2b2a",
+    "memoryBackgroundColor": "#1f2b2a",
+    "selectionBg": "#34403f"
+  }
+}

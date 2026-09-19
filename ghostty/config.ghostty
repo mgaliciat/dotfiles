@@ -40,7 +40,7 @@
 #
 # A different palette from `solarized-dark`, also in this family: that one is
 # Schoonover's canonical scheme, this cut re-tunes every value.
-theme = typesafe
+theme = typesafe-dark
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -81,6 +81,9 @@ theme = typesafe
 #   · typesafe — the sage canvas of typesafe.ai (#abbab9, from the page's own
 #     CSS) + black text and its #09aea1 teal; the ANSI derived on those hues,
 #     darkened to read over a light canvas. Light theme.
+#   · typesafe-dark — its dark companion: the same sage hue at 11% lightness
+#     (#182221, derived — the page has no dark mode) and the page's accents
+#     verbatim, since over a night canvas they read as text unchanged.
 # ─── craftzdog's two overrides ────────────────────────────────
 # Both WIN over the theme's own values regardless of order, so they are the pair
 # that decides what the terminal actually looks like.
