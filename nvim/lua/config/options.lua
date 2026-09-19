@@ -23,8 +23,8 @@
 --   "paper"            light cream + sepia ink
 --   "solarized-light"  canonical Solarized Light
 --   "typesafe"         sage canvas of typesafe.ai (#abbab9) + black text
---   "typesafe-dark"    its dark companion: the same sage at 11% (#182221) + the
---                       page's accents verbatim
+--   "typesafe-dark"    its dark companion: the same sage at 11% (#182221), the
+--                       rest tuned to it in OKLCH on the page's hues
 -- (The solarized-osaka-{day,moon,storm} variants and "obsidian" are still
 --  valid themes here, but outside the matrix.)
 vim.g.theme = "typesafe-dark"

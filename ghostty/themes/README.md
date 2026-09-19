@@ -141,12 +141,17 @@ the served CSS is, and it is where to re-extract from.
 **`typesafe-dark`** · The dark companion, from the same page tokens. The page has
 no dark mode, so the canvas is **derived**: `#abbab9` is hsl(176, 10%, 70%) and the
 canvas keeps the hue at 11% lightness, `#182221`, with saturation raised to 17%
-because at that depth 10% reads as plain gray. The reversal from the light theme:
-over this canvas the page's accents clear 4.5:1 as they are, so teal `#09aea1`,
-green `#03aa5c`, magenta `#d45bb6`, pink `#f386a1` (as bright red), gray `#858585`
-(comments) and the whites `#dedede` (text) / `#fefefe` (ANSI 15) go in verbatim.
-Only red, yellow, blue and the lighter brights are constructed. Every normal
-≥ 4.5:1, every bright ≥ 6.7:1, measured in sRGB.
+because at that depth 10% reads as plain gray. **Everything else is tuned to that
+canvas in OKLCH** (second pass, 2026-09-18): the page's tokens contribute their
+hues only. Normals sit at L 0.70 (yellow 0.76, since a yellow at 0.70 is mustard),
+brights at 0.80, chroma 0.10–0.15 clipped to the sRGB gamut; every neutral, text
+included, carries the canvas hue at a small chroma instead of being pure gray,
+which reads pink against a teal-tinted canvas; and the background ladder climbs
+in even L steps (0.20 / 0.242 / 0.285 / 0.33 / 0.375). The first cut used the
+page's hex verbatim because they cleared 4.5:1, and it was uneven, red at 4.5:1
+beside yellow at 7.4:1. Now normals land at 5.7–7.5:1 and brights at 8.3–10.7:1,
+measured in sRGB. The Claude Code JSON and `lazygit/config.yml` mirror the same
+values.
 
 **`carbon`** (minimal true-black, high contrast, Claude-orange accent),
 **`anthropic-warm`**, **`prism-night`**, **`paper`**, **`gray`** (neutral grey

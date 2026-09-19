@@ -6,50 +6,50 @@
 --
 -- The page has no dark mode, so the canvas #182221 is derived: the sage hue of
 -- #abbab9 at 11% lightness, saturation raised 10% → 17% so it does not read as
--- plain gray. Over this canvas the page's own accents (teal #09aea1, green
--- #03aa5c, magenta #d45bb6, pink #f386a1, gray #858585, whites #dedede/#fefefe)
--- clear 4.5:1 as they are and go in verbatim; red, yellow, blue and the
--- lighter brights are constructed. Contrast figures are in the ghostty file.
+-- plain gray. Everything else is tuned to that canvas in OKLCH: the page's
+-- tokens give the HUES, lightness and chroma are set per role (normals L 0.70,
+-- brights 0.80, neutrals carry the canvas hue, the bg ladder climbs in even
+-- steps). Figures and rationale are in the ghostty file.
 --
 -- Dark theme convention: the "bright" colors are LIGHTER than the normal ones.
 
 local palette = {
-  bg          = "#182221",       -- derived night canvas
-  bg_dark     = "#111818",       -- canvas one step down — code bg
-  bg_highlight= "#1f2b2a",       -- cursorline, one step up
-  bg_visual   = "#2c3a39",       -- selection, two steps up
-  bg_float    = "#1f2b2a",
-  bg_popup    = "#1f2b2a",
-  bg_search   = "#5a4a15",       -- dark amber over the night sage
-  bg_sidebar  = "#1f2b2a",
-  bg_statusline = "#1f2b2a",
+  bg          = "#182221",       -- derived night canvas, L 0.242
+  bg_dark     = "#0f1817",       -- ladder step down, L 0.20 — code bg
+  bg_highlight= "#212d2c",       -- L 0.285 — cursorline
+  bg_visual   = "#2b3837",       -- L 0.33 — selection
+  bg_float    = "#212d2c",
+  bg_popup    = "#212d2c",
+  bg_search   = "#5b4404",       -- the yellow hue at L 0.40
+  bg_sidebar  = "#212d2c",
+  bg_statusline = "#212d2c",
 
-  fg          = "#dedede",       -- the page's #dedede token; #fefefe stays in ANSI 15
-  fg_dark     = "#a9b5b4",
-  fg_gutter   = "#5f6f6e",
+  fg          = "#d8e0df",       -- sage-tinted white, L 0.90
+  fg_dark     = "#a8b4b3",       -- L 0.76
+  fg_gutter   = "#667574",       -- L 0.55, 3.4:1
 
-  black       = "#34403f",
-  red         = "#e05a6a",
-  green       = "#03aa5c",
-  yellow      = "#d9a72a",
-  blue        = "#4d9fd6",
-  magenta     = "#d45bb6",
-  cyan        = "#09aea1",
-  white       = "#dedede",
+  black       = "#364443",
+  red         = "#ec737e",
+  green       = "#42b970",
+  yellow      = "#daa932",
+  blue        = "#50a7e2",
+  magenta     = "#d977bf",
+  cyan        = "#17b6a8",
+  white       = "#cbd3d2",
 
-  bright_black   = "#858585",   -- comment color, the page's gray
-  bright_red     = "#f386a1",   -- the page's pink
-  bright_green   = "#3fc98a",
-  bright_yellow  = "#ecc457",
-  bright_blue    = "#7fbde6",
-  bright_magenta = "#e58ccf",
-  bright_cyan    = "#4fd0c4",
-  bright_white   = "#fefefe",
+  bright_black   = "#8a9594",   -- comment color, L 0.66 (5.3:1)
+  bright_red     = "#fe9ead",   -- the page's pink hue
+  bright_green   = "#7ad59c",
+  bright_yellow  = "#f2cd6f",
+  bright_blue    = "#80c7f8",
+  bright_magenta = "#ef9fda",
+  bright_cyan    = "#69d3c7",
+  bright_white   = "#f1f6f6",
 
-  comment     = "#858585",
-  border      = "#3f4f4e",
-  cursor      = "#09aea1",       -- the page's teal, verbatim
-  accent      = "#09aea1",
+  comment     = "#8a9594",
+  border      = "#445352",       -- L 0.43
+  cursor      = "#17b6a8",       -- the page's teal hue at the normals' L
+  accent      = "#17b6a8",
 }
 
 return {

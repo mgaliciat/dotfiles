@@ -27,7 +27,7 @@
 --   prism-night      deep night-blue + spectrum accents
 --   paper            light cream + sepia ink
 --   typesafe         sage canvas of typesafe.ai (#abbab9) + black text
---   typesafe-dark    its dark companion (same sage at 11%, #182221, page accents verbatim)
+--   typesafe-dark    its dark companion (same sage at 11%, #182221, OKLCH-tuned on the page's hues)
 --   solarized-light  canonical Solarized Light
 --   solarized-dark   canonical Solarized Dark (the original, not the osaka fork)
 --   retta            Eclipse "Retta" port (true black + pumpkin/cream, high contrast)

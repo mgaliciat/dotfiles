@@ -82,8 +82,8 @@ theme = typesafe-dark
 #     CSS) + black text and its #09aea1 teal; the ANSI derived on those hues,
 #     darkened to read over a light canvas. Light theme.
 #   · typesafe-dark — its dark companion: the same sage hue at 11% lightness
-#     (#182221, derived — the page has no dark mode) and the page's accents
-#     verbatim, since over a night canvas they read as text unchanged.
+#     (#182221, derived — the page has no dark mode); every other value tuned
+#     to that canvas in OKLCH, the page's tokens giving only the hues.
 # ─── craftzdog's two overrides ────────────────────────────────
 # Both WIN over the theme's own values regardless of order, so they are the pair
 # that decides what the terminal actually looks like.
