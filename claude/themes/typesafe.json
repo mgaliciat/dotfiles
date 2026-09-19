@@ -9,6 +9,12 @@
     "userMessageBackgroundHover": "#849594",
     "bashMessageBackgroundColor": "#9dabaa",
     "memoryBackgroundColor": "#9dabaa",
-    "selectionBg": "#849594"
+    "selectionBg": "#849594",
+    "diffAdded": "#79a192",
+    "diffRemoved": "#aa8e94",
+    "diffAddedDimmed": "#94aea7",
+    "diffRemovedDimmed": "#aba6a8",
+    "diffAddedWord": "#4f8c72",
+    "diffRemovedWord": "#a96a76"
   }
 }
