@@ -3,50 +3,51 @@
 -- theme `typesafe` and tmux/themes/typesafe.conf.
 -- tokyonight base: variant `day` (the plugin's light one).
 --
--- Canvas #abbab9 and the black text (#000 token) are the page's own CSS,
--- verbatim; the teal #09aea1 is its accent token. The site is a Framer build with no 16-colour
--- set and its accents are too light to read as text on the canvas, so the
--- ANSI slots are derived: same hue, darkened past 3:1 (normals) / 4.3:1
--- (brights). Provenance and the contrast figures are in the ghostty file.
+-- Canvas #abbab9 and the teal #09aea1 (cursor, borders) are the page's own
+-- CSS, verbatim. Everything else is tuned to that canvas in OKLCH, same recipe
+-- as typesafe-dark: the page's tokens give the HUES, lightness and chroma are
+-- set per role (normals L 0.43, brights 0.34, neutrals carry the canvas hue,
+-- the bg ladder steps down evenly). Figures and rationale are in the ghostty
+-- file.
 --
 -- Light theme convention: the "bright" colors are DARKER than the
 -- normal ones (more contrast over a light background).
 
 local palette = {
-  bg          = "#abbab9",       -- page canvas
-  bg_dark     = "#9dabaa",       -- canvas half a step down — ANSI 0 dimmed / code bg
-  bg_highlight= "#a3b2b1",       -- cursorline
-  bg_visual   = "#8fa09f",       -- selection, one full step down
-  bg_float    = "#a3b2b1",
-  bg_popup    = "#a3b2b1",
-  bg_search   = "#c9c58a",       -- muted yellow over sage
-  bg_sidebar  = "#a3b2b1",
-  bg_statusline = "#a3b2b1",
+  bg          = "#abbab9",       -- page canvas, L 0.777
+  bg_dark     = "#a1b0af",       -- L 0.745 — code bg
+  bg_highlight= "#a4b3b2",       -- L 0.755 — cursorline
+  bg_visual   = "#94a4a3",       -- L 0.705 — selection
+  bg_float    = "#a4b3b2",
+  bg_popup    = "#a4b3b2",
+  bg_search   = "#d5ba82",       -- the yellow hue at L 0.80
+  bg_sidebar  = "#a4b3b2",
+  bg_statusline = "#a4b3b2",
 
-  fg          = "#000000",       -- the page's #000 token; #1e1e1e ink stays in ANSI 7
-  fg_dark     = "#3f4b4a",
-  fg_gutter   = "#7d8c8b",
+  fg          = "#0a1110",       -- sage-tinted near-black, L 0.17
+  fg_dark     = "#303a3a",       -- L 0.34
+  fg_gutter   = "#697877",       -- L 0.56
 
-  black       = "#3d4746",
-  red         = "#a8283f",
-  green       = "#046637",
-  yellow      = "#7a5d08",
-  blue        = "#1f5f8c",
-  magenta     = "#9a2f80",
-  cyan        = "#06655e",
-  white       = "#1e1e1e",
+  black       = "#2f3b3a",
+  red         = "#901c32",
+  green       = "#026031",
+  yellow      = "#735601",
+  blue        = "#005581",
+  magenta     = "#80246c",
+  cyan        = "#065d55",
+  white       = "#1a2120",
 
-  bright_black   = "#4f5b5a",   -- comment color
-  bright_red     = "#8a1a30",
-  bright_green   = "#034d2a",
-  bright_yellow  = "#5e4705",
-  bright_blue    = "#164a70",
-  bright_magenta = "#7a2064",
-  bright_cyan    = "#044f49",
-  bright_white   = "#000000",
+  bright_black   = "#45504f",   -- comment color, L 0.42 (4.2:1)
+  bright_red     = "#6c0027",
+  bright_green   = "#004424",
+  bright_yellow  = "#533f03",
+  bright_blue    = "#033c5b",
+  bright_magenta = "#610951",
+  bright_cyan    = "#03413c",
+  bright_white   = "#020505",
 
-  comment     = "#4f5b5a",
-  border      = "#7d8c8b",
+  comment     = "#45504f",
+  border      = "#748483",       -- L 0.60
   cursor      = "#09aea1",       -- the page's teal, verbatim
   accent      = "#09aea1",
 }

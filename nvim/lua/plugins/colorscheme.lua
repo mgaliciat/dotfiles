@@ -26,7 +26,7 @@
 --   anthropic-warm   warm charcoal + Claude palette (terracotta, olive, amber)
 --   prism-night      deep night-blue + spectrum accents
 --   paper            light cream + sepia ink
---   typesafe         sage canvas of typesafe.ai (#abbab9) + black text
+--   typesafe         sage canvas of typesafe.ai (#abbab9), OKLCH-tuned on the page's hues
 --   typesafe-dark    its dark companion (same sage at 11%, #182221, OKLCH-tuned on the page's hues)
 --   solarized-light  canonical Solarized Light
 --   solarized-dark   canonical Solarized Dark (the original, not the osaka fork)

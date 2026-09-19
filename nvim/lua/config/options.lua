@@ -22,7 +22,7 @@
 --   "prism-night"      midnight blue + prism arc
 --   "paper"            light cream + sepia ink
 --   "solarized-light"  canonical Solarized Light
---   "typesafe"         sage canvas of typesafe.ai (#abbab9) + black text
+--   "typesafe"         sage canvas of typesafe.ai (#abbab9), OKLCH-tuned on the page's hues
 --   "typesafe-dark"    its dark companion: the same sage at 11% (#182221), the
 --                       rest tuned to it in OKLCH on the page's hues
 -- (The solarized-osaka-{day,moon,storm} variants and "obsidian" are still

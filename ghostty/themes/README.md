@@ -127,16 +127,20 @@ read from the served HTML of
 <https://typesafe.ai/blog/introducing-system-one-models-and-jev> (2026-09-18):
 `html body { background: rgb(171, 186, 185) }` → `#abbab9`, plus the Framer
 colour tokens `#1e1e1e` ink, `#09aea1` teal, `#03aa5c` green, `#d45bb6` magenta,
-`#f386a1` pink, `#858585` gray, `#000`. Canvas, cursor teal, ANSI 7 (`#1e1e1e`) and
-the text (`#000`, not the ink — chosen for bite over sage) are verbatim. (The canvas
-was scaled to 93% and then 89% for an hour on 2026-09-18 and put back: the literal
-page colour is the point of the theme.) **Everything else is derived**: the site
-ships no 16-colour set, and its accents sit at 1.2–1.8:1 over the canvas, readable
-as a button and not as text, so each ANSI slot keeps the page's hue and is darkened
-until it clears 3:1 (normals) and 4.3:1 (brights). Yellow and blue have no page
-value and are
-built on the same grid. A screenshot or a colour picker is not a valid source:
-the served CSS is, and it is where to re-extract from.
+`#f386a1` pink, `#858585` gray, `#000`. Canvas and cursor teal are verbatim. (The
+canvas was scaled to 93% and then 89% for an hour on 2026-09-18 and put back: the
+literal page colour is the point of the theme.) **Everything else is tuned to that
+canvas in OKLCH** (second pass, 2026-09-18, the same recipe as `typesafe-dark`):
+the site ships no 16-colour set, and its accents sit at 1.2–1.8:1 over the canvas,
+readable as a button and not as text, so the page's tokens contribute only their
+hues. Normals sit at L 0.43 (yellow 0.47), brights at 0.34, chroma clipped to the
+sRGB gamut; the text is a sage-tinted near-black (L 0.17) rather than the pure
+`#000` of the first cut, and every gray carries the canvas hue; the background
+ladder steps down in even L (0.777 / 0.755 / 0.745 / 0.705 / 0.665). A mid-light
+canvas caps what a saturated colour can reach: normals land at 3.4–4.4:1, brights
+at 5.0–6.3:1, measured in sRGB. Yellow and blue have no page value and sit on the
+same grid. A screenshot or a colour picker is not a valid source: the served CSS
+is, and it is where to re-extract from.
 
 **`typesafe-dark`** · The dark companion, from the same page tokens. The page has
 no dark mode, so the canvas is **derived**: `#abbab9` is hsl(176, 10%, 70%) and the
