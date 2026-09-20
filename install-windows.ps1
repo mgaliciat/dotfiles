@@ -187,7 +187,12 @@ Set-DotfileSymlink (Join-Path $Dotfiles "claude\CLAUDE.md")      (Join-Path $Cla
 # assignment above the symlinks, not inside them.
 $SkillsDir = Join-Path $ClaudeDir "skills"
 New-Item -ItemType Directory -Path $SkillsDir -Force | Out-Null
-Set-DotfileSymlink (Join-Path $Dotfiles "claude\skills\logbook") (Join-Path $SkillsDir "logbook")
+Set-DotfileSymlink (Join-Path $Dotfiles "plugins\logbook") (Join-Path $SkillsDir "logbook")
+
+# Antigravity plugin discovery: ~/.gemini/config/plugins/
+$AgyPluginsDir = Join-Path $HOME ".gemini\config\plugins"
+New-Item -ItemType Directory -Path $AgyPluginsDir -Force | Out-Null
+Set-DotfileSymlink (Join-Path $Dotfiles "plugins\logbook") (Join-Path $AgyPluginsDir "logbook")
 
 # `team` is a plain skill (one SKILL.md), so it invokes bare as /team -- no colon
 # namespace, unlike the logbook plugin above. It orchestrates agent teams and
@@ -221,7 +226,7 @@ Set-DotfileSymlink (Join-Path $Dotfiles "claude\themes\typesafe-dark.json") (Joi
 # (codebase-memory-mcp writes its own hooks there), hence a per-ITEM link again.
 $HooksDir = Join-Path $ClaudeDir "hooks"
 New-Item -ItemType Directory -Path $HooksDir -Force | Out-Null
-Set-DotfileSymlink (Join-Path $Dotfiles "claude\hooks\logbook.ps1") (Join-Path $HooksDir "logbook.ps1")
+Set-DotfileSymlink (Join-Path $Dotfiles "plugins\logbook\hooks\logbook.ps1") (Join-Path $HooksDir "logbook.ps1")
 
 # Convergent cleanup of the pre-rename names (sep-2026): the plugin was `wiki` and
 # capture was a separate plain skill, `bitacora`. A machine that ran the old
@@ -653,8 +658,8 @@ $CbmExe = Join-Path $CbmDir "codebase-memory-mcp.exe"
 # what catches that on the next run.
 $CbmStamp = Join-Path $CbmDir ".codebase-memory-mcp-ui"
 
-$CbmCmd = Get-Command codebase-memory-mcp -ErrorAction SilentlyContinue
-$CbmHave = if ($CbmCmd) { (& $CbmCmd.Source --version) -replace '^\S+\s+', '' } else { $null }
+$CbmCmd = if (Test-Path $CbmExe) { $CbmExe } else { (Get-Command codebase-memory-mcp -ErrorAction SilentlyContinue).Source }
+$CbmHave = if ($CbmCmd) { (& $CbmCmd --version) -replace '^\S+\s+', '' } else { $null }
 $CbmStamped = if (Test-Path $CbmStamp) { (Get-Content $CbmStamp -Raw).Trim() } else { $null }
 
 if (-not $CbmCmd -or $CbmStamped -ne $CbmHave) {
@@ -866,6 +871,38 @@ if ((Get-Command claude -ErrorAction SilentlyContinue) -and $env:OPENKNOWLEDGE_M
     Write-Host "i   open-knowledge: skipped (needs OPENKNOWLEDGE_MCP_URL + the two CF-Access env vars -- setx)"
 }
 
+# ─── open-knowledge MCP in Antigravity (~/.gemini/config/mcp_config.json) ───
+$AgyConfigDir  = Join-Path $HOME ".gemini\config"
+$AgyConfigFile = Join-Path $AgyConfigDir "mcp_config.json"
+if (-not (Test-Path $AgyConfigDir)) {
+    New-Item -ItemType Directory -Path $AgyConfigDir -Force | Out-Null
+}
+try {
+    $AgyConfig = [PSCustomObject]@{ mcpServers = [PSCustomObject]@{} }
+    if (Test-Path $AgyConfigFile) {
+        $RawAgy = Get-Content -Raw $AgyConfigFile
+        if (-not [string]::IsNullOrWhiteSpace($RawAgy)) {
+            $AgyConfig = $RawAgy | ConvertFrom-Json
+        }
+    }
+    if (-not ($AgyConfig.PSObject.Properties.Name -contains "mcpServers")) {
+        $AgyConfig | Add-Member -NotePropertyName "mcpServers" -NotePropertyValue ([PSCustomObject]@{})
+    }
+    if (-not ($AgyConfig.mcpServers.PSObject.Properties.Name -contains "open-knowledge")) {
+        $AgyOkScript = "# ok-mcp-win-v1`nif (`$env:PATHEXT -notmatch 'CMD') { `$env:PATHEXT = '.COM;.EXE;.BAT;.CMD;' + `$env:PATHEXT }`nif (`$env:APPDATA) {`n  `$shim = Join-Path `$env:APPDATA 'npm\ok.cmd'`n  if (Test-Path -LiteralPath `$shim -PathType Leaf) { & `$shim mcp; exit `$LASTEXITCODE }`n}`n`$ok = Get-Command ok.cmd -CommandType Application -ErrorAction SilentlyContinue`nif (`$ok) { & `$ok.Source mcp; exit `$LASTEXITCODE }`n`$npx = Get-Command npx.cmd -CommandType Application -ErrorAction SilentlyContinue`nif (`$npx) { & `$npx.Source -y '@inkeep/open-knowledge@latest' mcp; exit `$LASTEXITCODE }`n`$dirs = @()`nif (`$env:ProgramFiles) { `$dirs += Join-Path `$env:ProgramFiles 'nodejs' }`nif (`$env:NVM_SYMLINK) { `$dirs += `$env:NVM_SYMLINK }`nif (`$env:LOCALAPPDATA) {`n  `$dirs += Join-Path `$env:LOCALAPPDATA 'fnm\aliases\default'`n  `$dirs += Join-Path `$env:LOCALAPPDATA 'Volta\\bin'`n  `$dirs += Join-Path `$env:LOCALAPPDATA 'pnpm'`n}`nif (`$env:USERPROFILE) { `$dirs += Join-Path `$env:USERPROFILE 'scoop\\shims' }`nforeach (`$d in `$dirs) {`n  `$probe = Join-Path `$d 'npx.cmd'`n  if (Test-Path -LiteralPath `$probe -PathType Leaf) { & `$probe -y '@inkeep/open-knowledge@latest' mcp; exit `$LASTEXITCODE }`n}`n[Console]::Error.WriteLine('OpenKnowledge: install Node.js 24+ (npm i -g @inkeep/open-knowledge), then restart your editor')`nexit 127"
+        $AgyConfig.mcpServers | Add-Member -NotePropertyName "open-knowledge" -NotePropertyValue ([PSCustomObject]@{
+            command = "powershell"
+            args    = @("-NoProfile", "-NonInteractive", "-Command", $AgyOkScript)
+        })
+        $AgyConfig | ConvertTo-Json -Depth 10 | Set-Content -Path $AgyConfigFile -Encoding utf8
+        Write-Host "OK  open-knowledge: MCP server registered in Antigravity (mcp_config.json)"
+    } else {
+        Write-Host "OK  open-knowledge: already configured in Antigravity"
+    }
+} catch {
+    Write-Host "!!  could not configure Antigravity mcp_config.json: $($_.Exception.Message)" -ForegroundColor Yellow
+}
+
 # No plugins installed right now: ponytail and andrej-karpathy-skills lived here
 # until aug-2026 and were dropped. Install-ClaudePlugin stays for the next one --
 # same reasoning as the bash side (claude/install/plugins.sh).
@@ -1049,8 +1086,8 @@ function Install-FontFromRelease {
         Write-Host "!!  $Label install failed: $_" -ForegroundColor Yellow
         Write-Host "    Get it by hand: https://github.com/$Repo/releases" -ForegroundColor Yellow
     } finally {
-        if ($Zip) { Remove-Item $Zip -Force -ErrorAction SilentlyContinue }
-        if ($Dst) { Remove-Item $Dst -Recurse -Force -ErrorAction SilentlyContinue }
+        try { if ($Zip) { Remove-Item $Zip -Force -ErrorAction SilentlyContinue } } catch {}
+        try { if ($Dst) { Remove-Item $Dst -Recurse -Force -ErrorAction SilentlyContinue } } catch {}
     }
 }
 

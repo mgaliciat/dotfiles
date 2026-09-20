@@ -1,0 +1,120 @@
+---
+name: entry
+description: Write one immutable per-invocation work-log note (entries/YYYY-MM-DD-HHMM-<repo>) into the OpenKnowledge vault, recording what changed and why, tagged by repo so a day spanning many agents and services can be read, cross-referenced, and later synthesized by /logbook:ingest. Use when the user says "logbook", "bitácora", "guarda resumen", "resumen del día", or after landing a git commit / opening a PR.
+---
+
+# logbook · entry
+
+Deliberately **self-contained**: unlike its three siblings this skill does not
+read `~/.claude/skills/logbook/ENGINE.md` first. It fires after every commit, and
+capture is write-only — everything it needs is below. Read the engine only when
+something here is ambiguous.
+
+Working across many agents and services in parallel and losing the thread of what
+got done where. This skill drops **one immutable note per invocation** — a small,
+atomic log entry written as it happens. Reassembly is `/logbook:ingest`'s job: it
+reads these notes and synthesizes cross-linked pages, linking together the ones
+that share a topic.
+
+Why one file per invocation (not one shared daily note): each note is written once
+and never touched again. That immutability is what lets `ingest` track exactly
+what it has already processed — a note that shows up after an ingest is always a
+*new* file, never an edit to an already-read one, so nothing falls in the crack a
+same-day-appended note had.
+
+The summary is yours to write from the session context — nothing else can generate
+it. Keep it to the *reasoning* git won't preserve, not a commit-log dump.
+
+## When to log
+
+- After you land a `git commit` or open a PR — one note per **meaningful unit of
+  work**, not per WIP commit. (A `PostToolUse` hook fires on every commit and
+  reminds you; the judgment of whether *this* commit is a unit of work is still
+  yours. Say so and skip when it isn't.)
+- Whenever the user says "logbook" / "bitácora" / "guarda resumen" / "resumen del
+  día", or invokes `/logbook:entry`.
+
+## Where
+
+One file **per invocation**: **`entries/YYYY-MM-DD-HHMM-<repo>`** in the
+OpenKnowledge vault, written with the `open-knowledge` MCP's `write` tool
+(`document`). `<repo>` is the primary repo/service slug — the **repository** name,
+not the product's and not the org's; the vault's `wiki/CLAUDE.md` keeps the alias
+table, and a raw note is never re-tagged after the fact.
+
+- The path carries **no extension**: `write` appends `.md` itself.
+- Date and time are in your context — don't guess them. `HHMM` (no colon — it's a
+  filename), so the name sorts chronologically.
+- **Check the path first** with `exec` (`ls entries/ | grep <YYYY-MM-DD-HHMM>`).
+  If that exact name exists (same repo, same minute), suffix `-2`, `-3`, … A
+  `write` at an existing path with `position: replace` **destroys** the note that
+  was there — the one failure this whole layer is built to prevent.
+- **MCP down → say so and stop.** No `curl` at the endpoint, no writing the note
+  to a local file "for later". The user reconnects with `/mcp`, then the note gets
+  written. (A note that only lives in this session's context is not persisted
+  work — that is the vault's own recorded lesson.)
+
+## Note format
+
+Follows the vault's `entry-note` template. Frontmatter plus the four
+sections — pass `content` and `frontmatter` to `write` in one call:
+
+```yaml
+type: log-entry           # required by OKF; what the 170+ existing notes use (not `log`)
+date: 2026-09-02          # ISO 8601
+repo: dotfiles            # the repository slug, bare
+title: …                  # the note's headline — this is the document's H1
+description: …            # one line; it is what shows in every listing of entries/
+tags: [repo/dotfiles]     # plus a shared #topic when one applies
+```
+
+```markdown
+## What changed
+
+## Why
+
+## Notes
+
+## Follow-up
+```
+
+**Blank lines around every block.** One before and after each list, table and
+fenced block, and one after every `##`. The shape that violates it constantly is a
+bold lead-in glued to its items — a `**…**` line with a `-` directly beneath it,
+which is MD032 on every bullet. Table separator rows are spaced too:
+`| --- | --- |`, never `|---|---|` (MD060, one warning per pipe). A note is
+immutable, so a warning written here is permanent; there is no fix pass later.
+
+**The body has no `#` heading** — `title:` is the H1, and a second one is an MD025
+violation on every note. Sections start at `##`. (The ~196 notes before 2026-09-06
+carry no `title:` and open with a `# YYYY-MM-DD HH:MM — <repo>` line instead; four
+notes from that day carry both and are the vault's only standing lint warnings.
+They are raw and immutable — read them, never "fix" them.)
+
+Those older notes also carry the Spanish headings (`Qué cambió` / `Por qué` /
+`Notas` / `Seguimiento`) the template used to have. Same rule: leave them.
+
+- **`Why` is the section that earns the note.** What changed is in the diff;
+  the decision, the alternative rejected, and the constraint that forced it are not.
+- The `repo/<name>` tag is what lets `ingest` and `lint` slice by service.
+- When one problem spans several services or sessions, give the notes a **shared
+  topic tag** — that shared tag is what makes `ingest` link them together into (or
+  across) the same wiki page. That's the payoff: several invocations on one topic
+  come out linked after ingestion.
+
+## Language
+
+**Write the note in English**, whatever language the session is being conducted
+in — same rule as the repo, and since 2026-09-06 the vault's too, paths and prose
+alike. The 199 older notes are Spanish and stay that way: raw is immutable, so
+never "fix" one.
+
+## What this skill does NOT do
+
+Write to `wiki/`, `sources/` or `specs/`, update `index.md`, or touch `log.md`.
+Capture is write-only and deliberately dumb; synthesis is `/logbook:ingest`. Raw
+stays messy on purpose.
+
+The vault's folders are `entries/` (raw) and `wiki/` (synthesized); `logbook` is
+the name of the plugin that reads and writes them, never a path. `entries/` was
+`bitacora/` until 2026-09-06.

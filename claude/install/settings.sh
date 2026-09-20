@@ -65,7 +65,11 @@ link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 # the four authoring skills follow. `entry` and `task` are deliberately outside
 # both and self-contained: each writes one short thing, so reading three spec
 # files first is a cost neither would earn back.
-link "$DOTFILES/claude/skills/logbook" "$HOME/.claude/skills/logbook"
+link "$DOTFILES/plugins/logbook" "$HOME/.claude/skills/logbook"
+
+# Antigravity plugin discovery: ~/.gemini/config/plugins/
+mkdir -p "$HOME/.gemini/config/plugins"
+link "$DOTFILES/plugins/logbook" "$HOME/.gemini/config/plugins/logbook"
 
 # `team` is a plain skill, not a plugin — one SKILL.md, so it invokes bare as
 # `/team` with no colon namespace. It orchestrates agent teams (teammates that
@@ -118,7 +122,7 @@ unset _theme
 # is a PostToolUse hook (registered further down) pointing at this script.
 # ~/.claude/hooks/ is a real per-machine dir (codebase-memory-mcp writes its own
 # hooks there), so this is a per-ITEM link for the same reason as the skills above.
-link "$DOTFILES/claude/hooks/logbook.sh" "$HOME/.claude/hooks/logbook.sh"
+link "$DOTFILES/plugins/logbook/hooks/logbook.sh" "$HOME/.claude/hooks/logbook.sh"
 
 # ── convergent cleanup: the pre-rename `bitacora` + `wiki` names (sep-2026) ──
 # The plugin was `wiki` and capture was a separate plain skill, `bitacora`; both
