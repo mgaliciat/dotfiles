@@ -83,11 +83,11 @@ return {
   style = "night",
   palette = palette,
 
-  -- No `transparent` here on purpose: Ghostty is solid (opacity 1.0, blur 0), so
-  -- nvim paints its own #052329. That also restores what his palette assumes —
-  -- an opaque canvas, which the comment green and the pure-blue selection need
-  -- to hold their contrast. Set it back to true only alongside a translucent
-  -- Ghostty, never on its own.
+  -- No `transparent` here on purpose: nvim paints its own #052329, which is what
+  -- his palette assumes — an opaque canvas, which the comment green and the
+  -- pure-blue selection need to hold their contrast. Activating this theme means
+  -- setting Ghostty solid (opacity 1.0, blur 0) alongside it; the glass pair is
+  -- per active theme, see config.ghostty.
 
   on_colors = function(c)
     c.bg            = palette.bg

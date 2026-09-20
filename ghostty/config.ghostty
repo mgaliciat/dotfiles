@@ -253,45 +253,44 @@ bold-color = bright
 # only affects NEW windows. ⌘N after ⌘⇧R, or the old titlebar stays.
 macos-titlebar-style = transparent
 
-# GLASS (2026-09-11, off again 2026-09-18 — see the values below). It returned as
-# craftzdog's pair, but neither value is still his.
+# GLASS (2026-09-11, off 2026-09-18 under the light `typesafe`, back on 2026-09-20
+# under `typesafe-dark`). It returned as craftzdog's pair, but neither value is
+# still his.
 #
 # The other half of this lives in nvim: `transparent = true` on the ACTIVE theme's
-# spec (lua/themes/solarized-patched.lua carries it). Without it nvim paints an
-# opaque canvas over the glass and the seam shows at every split edge, so the two
-# move together — and the setting does not follow a theme around, so a theme swap
-# means checking the new spec carries it. `typesafe` (active since 2026-09-18)
-# does NOT: it is a light theme and a light canvas over the glass is unreadable
-# (see colorscheme.lua), so nvim stays opaque under it and the seam is accepted.
+# spec (lua/themes/typesafe-dark.lua and solarized-patched.lua carry it). Without
+# it nvim paints an opaque canvas over the glass and the seam shows at every split
+# edge, so the two move together — and the setting does not follow a theme around,
+# so a theme swap means checking the new spec carries it. `typesafe` (light) does
+# NOT: a light canvas over the glass is unreadable (see colorscheme.lua), so
+# switching to it means turning the pair below off again.
 #
 # NATIVE GLASS instead of his blur. His line is `background-blur-radius = 20` —
 # the pre-1.1 name of the key, still accepted as an alias, and 20 is simply what
 # `true` means, so he picked the plain default rather than a tuned radius. That is
 # a gaussian blur Ghostty computes itself.
 #
-# `macos-glass-clear` is the system's own glass material, available since macOS 26
-# and therefore impossible in his config (feb-2025). Written with the modern key
+# `macos-glass-regular` is the system's own glass material, available since macOS
+# 26 and therefore impossible in his config (feb-2025). Written with the modern key
 # name on purpose: the value is a material, not a radius. The other material is
-# `macos-glass-regular`, the standard cut; this is the highly transparent one, so
-# the desktop behind reads through much more. Both were looked at before picking.
+# `macos-glass-clear`, the highly transparent cut: it ran from 2026-09-11 to
+# 2026-09-20 and let the desktop read through too much over the sage canvas, so
+# this is the standard cut — the closest analogue to Windows Terminal's acrylic.
 #
 # 0.95, up from his 0.9. The glass carries its own opacity on top of this one, and
 # `background-opacity-cells` below pushes both down onto cells that set their own
-# background — so with the clear material the compounding was enough to make
-# lazygit panels and diff hunks feel thin. Raising this is the first knob, before
-# going back to `regular`.
+# background — with the clear material the compounding made lazygit panels and
+# diff hunks feel thin, which is the other reason for `regular`.
 #
 # To restore his exact pair: `background-opacity = 0.9` and
 # `background-blur-radius = 20`.
 #
-# OFF since 2026-09-18, under `typesafe`: the desktop bleeding through a light
+# The solid pair for a light theme is `background-opacity = 1.0` and
+# `background-blur = 0`: under `typesafe` the desktop bleeding through the light
 # sage canvas muddied it, and a light theme cannot take `transparent = true` in
-# nvim anyway. The material pair is kept below, commented, for the next dark
-# theme. With opacity at 1.0 `background-opacity-cells` is inert and stays.
-background-opacity = 1.0
-background-blur = 0
-# background-opacity = 0.95
-# background-blur = macos-glass-clear
+# nvim anyway. With opacity at 1.0 `background-opacity-cells` goes inert.
+background-opacity = 0.95
+background-blur = macos-glass-regular
 
 # Without this the glass is only half on. `background-opacity` applies to the
 # WINDOW background alone, so any cell carrying an explicit background colour

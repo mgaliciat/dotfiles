@@ -56,6 +56,12 @@ return {
   style = "night",
   palette = palette,
 
+  -- Drop nvim's own canvas so Ghostty's glass (opacity 0.95 + macos-glass-regular)
+  -- shows through; otherwise nvim paints an opaque #182221 over the translucent
+  -- terminal and the seam is visible at every split edge. Set false if the glass
+  -- ever comes off — never on its own, the two move together (config.ghostty).
+  transparent = true,
+
   on_colors = function(c)
     c.bg            = palette.bg
     c.bg_dark       = palette.bg_dark
