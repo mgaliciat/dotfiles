@@ -5,11 +5,12 @@ description: Trace a process through the real code and write it up as a flow doc
 
 # logbook · walkthrough
 
-**Read three files first, in this order**: `~/.claude/skills/logbook/ENGINE.md`
-(the layers, the MCP tools, the link rule), the vault's own `wiki/CLAUDE.md`
-(the per-vault contract — it outranks everything), and
-`~/.claude/skills/logbook/AUTHORING.md` (the evidence rule, the four channels,
-the frontmatter and the closing loop). Then run this workflow.
+**Read three files first, in this order**: `ENGINE.md` at the plugin root (two
+directories above this SKILL.md: `~/.claude/skills/logbook/` under Claude Code,
+`~/.gemini/config/plugins/logbook/` under Antigravity — the layers, the MCP tools,
+the link rule), the vault's own `wiki/CLAUDE.md` (the per-vault contract — it
+outranks everything), and `AUTHORING.md` beside the engine (the evidence rule, the
+four channels, the frontmatter and the closing loop). Then run this workflow.
 
 **A walkthrough answers one question: how does this process actually execute?**
 It follows one flow — a request, a job, a command, a feature — from its

@@ -9,8 +9,9 @@
 #
 # Installed by claude/install/settings.sh as ~/.claude/hooks/logbook.sh (symlink)
 # and invoked as `bash ~/.claude/hooks/logbook.sh` — through bash on purpose, so
-# a fresh clone with no exec bit still runs. Windows has its own .ps1 twin
-# (install-windows.ps1 registers that one); this file never runs there.
+# a fresh clone with no exec bit still runs. Windows has its own .ps1 twin beside
+# this file (install-windows.ps1 registers that one); this file never runs there.
+# Claude Code only: Antigravity loads the plugin's skills and rules, not this hook.
 #
 # Contract: hook input arrives as JSON on stdin, and stdout is read back as JSON.
 # `hookSpecificOutput.additionalContext` is the field that reaches the model —

@@ -29,7 +29,8 @@ parsed (they need their plugins to load). Runtime validation is running the inst
 | `ghostty/` | `config.ghostty` + `themes/` |
 | `nvim/` | lazy.nvim, `lua/plugins/*` one file per plugin, `lua/themes/*` |
 | `tmux/` | `tmux.conf` + `macos.conf` / `theme.conf` / `statusline.conf` / `utility.conf` / `themes/` |
-| `claude/` | User-level Claude Code: `CLAUDE.md`, `statusline.{sh,ps1}`, `hooks/`, `agents/`, `skills/`, `themes/`, `install/` |
+| `claude/` | User-level Claude Code: `CLAUDE.md`, `statusline.{sh,ps1}`, `agents/`, `skills/`, `themes/`, `install/` |
+| `plugins/` | Plugins shared by Claude Code and Antigravity. `logbook/` carries two manifests (`.claude-plugin/plugin.json`, `plugin.json`), `skills/`, `rules/`, `hooks/` |
 | `scripts/` | `lib.sh` (shared by both bash installers), `ide`, `claude-api-env` |
 | `runbook/` | Operator bring-up per OS |
 

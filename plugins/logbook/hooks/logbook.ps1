@@ -1,6 +1,6 @@
 # ─── PostToolUse hook: remind to write the logbook entry after a commit ───
 #
-# Windows twin of claude/hooks/logbook.sh — same contract, same output, rewritten
+# Windows twin of logbook.sh beside it — same contract, same output, rewritten
 # because native Windows has no bash to run the .sh (the statusline.sh /
 # statusline.ps1 split, for the same reason). The two are hand-kept in sync;
 # nothing checks that automatically.

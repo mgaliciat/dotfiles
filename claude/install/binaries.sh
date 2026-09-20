@@ -221,6 +221,47 @@ elif command -v claude >/dev/null 2>&1; then
   echo "→ open-knowledge: skipped (needs OPENKNOWLEDGE_MCP_URL + the two CF-Access vars in ~/.zshenv.local)"
 fi
 
+# The SAME server for Antigravity, which reads ~/.gemini/config/mcp_config.json
+# (antigravity.google/docs/mcp: `serverUrl` + `headers` for a remote server; the
+# `url` key is rejected, and nothing documents env-var interpolation). The logbook
+# plugin is linked into Antigravity by settings.sh and its rules mandate this MCP,
+# so a host with the plugin but no server would fail at every vault call. It could
+# ship an mcp_config.json inside the plugin, but that file would carry the URL and
+# the CF-Access token into a public repo — hence written here from the same three
+# env vars, same all-or-nothing guard. Not gated on Antigravity being installed:
+# writing the file costs nothing and the app picks it up whenever it arrives.
+# Idempotent on the server name; a rotated token means deleting the entry first.
+if [[ -n "${OPENKNOWLEDGE_MCP_URL:-}" ]] \
+   && [[ -n "${OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID:-}" ]] \
+   && [[ -n "${OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET:-}" ]]; then
+  AGY_MCP="$HOME/.gemini/config/mcp_config.json"
+  mkdir -p "$(dirname "$AGY_MCP")"
+  [[ -s "$AGY_MCP" ]] || echo '{}' > "$AGY_MCP"
+  if jq -e '.mcpServers["open-knowledge"]' "$AGY_MCP" >/dev/null 2>&1; then
+    echo "✓ open-knowledge: already registered in Antigravity"
+  else
+    AGY_TMP="$(mktemp)"
+    if jq --arg url "$OPENKNOWLEDGE_MCP_URL" \
+          --arg id "$OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID" \
+          --arg secret "$OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET" \
+          '.mcpServers //= {}
+           | .mcpServers["open-knowledge"] = {
+               serverUrl: $url,
+               headers: {
+                 "CF-Access-Client-Id": $id,
+                 "CF-Access-Client-Secret": $secret
+               }
+             }' "$AGY_MCP" > "$AGY_TMP"; then
+      mv "$AGY_TMP" "$AGY_MCP"
+      echo "✓ open-knowledge: registered in Antigravity ($AGY_MCP)"
+    else
+      rm -f "$AGY_TMP"
+      echo "⚠️  open-knowledge: could not write $AGY_MCP — check it by hand"
+    fi
+  fi
+  unset AGY_MCP AGY_TMP
+fi
+
 # ─── gh-stack skill (stacked PRs) ─────────────────────────────
 # Mechanism 2 with a twist: the external tool here is not a binary we install but
 # `npx skills` (skills.sh / vercel-labs), which resolves the skill from a repo and

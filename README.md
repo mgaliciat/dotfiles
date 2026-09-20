@@ -21,7 +21,8 @@ The design rationale (what is versioned vs. per-machine, and why every non-obvio
 | `lazygit/config.yml` | lazygit theme + custom commands |
 | `git/.gitignore_global` | Global gitignore — macOS noise, editor files, build dirs, **and AI-agent scratch** (`.claude/`, `.cursor/`, `.aider*`, …), excluded in every repo |
 | `scripts/` | `ide` (4-pane tmux layout, `prefix + g`), `claude-api-env` (runs a command with the gateway env), `lib.sh` (shared by both bash installers). The first two are symlinked onto `~/.local/bin` |
-| `claude/` | User-level Claude Code pieces — `CLAUDE.md` (→ `~/.claude/CLAUDE.md`), `statusline.{sh,ps1}`, `hooks/logbook.{sh,ps1}`, the `logbook` skill plugin, and `install/` (everything the installers do to `~/.claude/`, see its README) |
+| `claude/` | User-level Claude Code pieces — `CLAUDE.md` (→ `~/.claude/CLAUDE.md`), `statusline.{sh,ps1}`, `agents/`, the `team` skill, `themes/`, and `install/` (everything the installers do to `~/.claude/`, see its README) |
+| `plugins/` | Agent plugins shared by Claude Code and Antigravity. `logbook/`: the OpenKnowledge vault skills, its post-commit hook and both manifests; linked into `~/.claude/skills/` and `~/.gemini/config/plugins/` |
 | `install.sh` | macOS entry point — symlinks + Homebrew deps + Claude Code setup |
 | `install-linux.sh` | Ubuntu/Debian/WSL2 — same symlinks minus Ghostty; apt + GitHub release binaries |
 | `install-windows.ps1` | Native Windows — Claude Code pieces, Nerd Fonts and the theme for Windows Terminal only |

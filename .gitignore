@@ -12,7 +12,9 @@
 # skills/ is per-machine EXCEPT the skills we hand-author and version — those are
 # symlinked per-item into ~/.claude/skills/ (settings.sh) and must be tracked here.
 # So: ignore everything under skills/, then whitelist ours by name. Anything not
-# listed (`learned`, `codebase-memory`, …) stays per-machine.
+# listed (`learned`, `codebase-memory`, …) stays per-machine. The `logbook` plugin
+# is NOT here: it lives in plugins/ (top level, nothing ignored) because it is
+# shared with Antigravity and no longer belongs to claude/.
 #
 # RENAMING A VERSIONED SKILL MEANS EDITING THE WHITELIST IN THE SAME COMMIT. The
 # entry is a literal name, so `git mv` on a skill dir drops the old path from the
@@ -29,7 +31,6 @@ claude/settings.json
 claude/memory/
 claude/RTK.md
 claude/skills/*
-!claude/skills/logbook/
 !claude/skills/team/
 
 # Git config — per-machine (each Mac has its own credentials, 1Password vaults,

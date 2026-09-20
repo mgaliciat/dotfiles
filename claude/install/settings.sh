@@ -67,8 +67,12 @@ link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 # files first is a cost neither would earn back.
 link "$DOTFILES/plugins/logbook" "$HOME/.claude/skills/logbook"
 
-# Antigravity plugin discovery: ~/.gemini/config/plugins/
-mkdir -p "$HOME/.gemini/config/plugins"
+# The same dir, linked a second time where Antigravity scans for global plugins
+# (antigravity.google/docs/plugins: ~/.gemini/config/plugins/<name>/, manifest
+# `plugin.json` at the root, `skills/` and `rules/` beside it). That is why the
+# plugin carries two manifests: `.claude-plugin/plugin.json` for Claude Code and
+# a plain `plugin.json` for Antigravity. Its MCP server is registered per host in
+# binaries.sh, next to the Claude Code one, because the URL and token are secrets.
 link "$DOTFILES/plugins/logbook" "$HOME/.gemini/config/plugins/logbook"
 
 # `team` is a plain skill, not a plugin — one SKILL.md, so it invokes bare as
@@ -433,7 +437,8 @@ fi
 # The one thing a SKILL cannot do is fire on an event: it self-activates on what
 # the user says, and "write the entry after you commit" has no user utterance to
 # hang on. So the trigger is a hook and the how-to stays in the skill —
-# claude/hooks/logbook.sh only detects the commit and returns one line of context.
+# plugins/logbook/hooks/logbook.sh only detects the commit and returns one line of
+# context.
 #
 # `matcher` covers BOTH tool names: settings.json sets CLAUDE_CODE_USE_POWERSHELL_TOOL
 # on Windows, and any session that inherits it routes commits through PowerShell

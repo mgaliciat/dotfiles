@@ -5,7 +5,9 @@ description: Synthesize the raw entries/ per-invocation notes into cross-linked 
 
 # logbook · ingest
 
-**First read `~/.claude/skills/logbook/ENGINE.md`** (the shared engine: where the
+**First read `ENGINE.md` at the plugin root** — two directories above this
+SKILL.md: `~/.claude/skills/logbook/` under Claude Code,
+`~/.gemini/config/plugins/logbook/` under Antigravity (the shared engine: where the
 contract lives, which MCP tools to use, the layers, the link rule, the watermark).
 Then read the vault's own `wiki/CLAUDE.md`. Then run this workflow.
 

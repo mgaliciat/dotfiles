@@ -109,6 +109,7 @@ per-machine files and the two silent guards.
 ```bash
 readlink ~/.zshrc ~/.config/nvim ~/.config/tmux ~/.local/bin/ide     # all into the repo
 readlink ~/.claude/CLAUDE.md ~/.claude/skills/logbook ~/.claude/hooks/logbook.sh
+readlink ~/.gemini/config/plugins/logbook && jq '.mcpServers | keys' ~/.gemini/config/mcp_config.json   # Antigravity: same plugin, open-knowledge
 claude mcp list                                                     # context7, open-knowledge, codebase-memory
 rtk --version && rtk config                                         # config path under ~/Library/Application Support/rtk
 tgrep --version                                                     # brew formula; index/serve are per-repo, opt-in

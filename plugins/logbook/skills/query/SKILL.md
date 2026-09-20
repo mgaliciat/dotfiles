@@ -5,7 +5,9 @@ description: Answer a question from the OpenKnowledge wiki without re-deriving i
 
 # logbook · query
 
-**First read `~/.claude/skills/logbook/ENGINE.md`** (the shared engine: where the
+**First read `ENGINE.md` at the plugin root** — two directories above this
+SKILL.md: `~/.claude/skills/logbook/` under Claude Code,
+`~/.gemini/config/plugins/logbook/` under Antigravity (the shared engine: where the
 contract lives, which MCP tools to use, the layers, the link rule). Then read the
 vault's own `wiki/CLAUDE.md`. Then run this workflow.
 

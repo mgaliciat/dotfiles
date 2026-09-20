@@ -5,11 +5,12 @@ description: Author a long-form technical document (docs/<topic>, type document)
 
 # logbook · document
 
-**Read three files first, in this order**: `~/.claude/skills/logbook/ENGINE.md`
-(the layers, the MCP tools, the link rule), the vault's own `wiki/CLAUDE.md`
-(the per-vault contract — it outranks everything), and
-`~/.claude/skills/logbook/AUTHORING.md` (the evidence rule, the four channels,
-the frontmatter and the closing loop). Then run this workflow.
+**Read three files first, in this order**: `ENGINE.md` at the plugin root (two
+directories above this SKILL.md: `~/.claude/skills/logbook/` under Claude Code,
+`~/.gemini/config/plugins/logbook/` under Antigravity — the layers, the MCP tools,
+the link rule), the vault's own `wiki/CLAUDE.md` (the per-vault contract — it
+outranks everything), and `AUTHORING.md` beside the engine (the evidence rule, the
+four channels, the frontmatter and the closing loop). Then run this workflow.
 
 **A document is the long form**: a design doc, an architecture explanation, a
 deep analysis of how something actually works, a comparison behind a decision, a

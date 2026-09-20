@@ -6,7 +6,7 @@ description: Write one immutable per-invocation work-log note (entries/YYYY-MM-D
 # logbook · entry
 
 Deliberately **self-contained**: unlike its three siblings this skill does not
-read `~/.claude/skills/logbook/ENGINE.md` first. It fires after every commit, and
+read the plugin root's `ENGINE.md` first. It fires after every commit, and
 capture is write-only — everything it needs is below. Read the engine only when
 something here is ambiguous.
 

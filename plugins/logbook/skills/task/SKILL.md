@@ -7,8 +7,8 @@ description: Capture, list and close pending work on a per-repo board (tasks/<re
 
 Deliberately **self-contained**, like `/logbook:entry`: everything needed is
 below, and reading three spec files before writing one task line is a cost the
-skill would never earn back. Read `~/.claude/skills/logbook/ENGINE.md` only when
-something here is ambiguous.
+skill would never earn back. Read the plugin root's `ENGINE.md` (two directories
+above this SKILL.md) only when something here is ambiguous.
 
 **Pending work, wherever it comes from** — something you decided to defer,
 something the review turned up, something agreed with someone else, something

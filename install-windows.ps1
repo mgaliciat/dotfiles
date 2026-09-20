@@ -4,9 +4,9 @@
 # Intentionally narrow scope: zsh/tmux/nvim do not run natively on Windows, so
 # this script is NOT a port of the rest of the dotfiles — see CLAUDE.md, the
 # "per-machine split" section. It covers only:
-#   - symlinks for claude/statusline.ps1, claude/CLAUDE.md, the per-item skill
-#     plugin we author (logbook), claude/hooks/logbook.ps1, and
-#     git/.gitignore_global
+#   - symlinks for claude/statusline.ps1, claude/CLAUDE.md, the plugin we author
+#     (plugins/logbook, into ~/.claude/skills/ and Antigravity's
+#     ~/.gemini/config/plugins/), its hooks/logbook.ps1, and git/.gitignore_global
 #   - statusLine (+ refreshInterval), base permissions, attribution,
 #     outputStyle, fallbackModel, autoContinueAtUsageLimit,
 #     preferredNotifChannel, the PowerShell-tool and experimental-feature env
@@ -189,7 +189,9 @@ $SkillsDir = Join-Path $ClaudeDir "skills"
 New-Item -ItemType Directory -Path $SkillsDir -Force | Out-Null
 Set-DotfileSymlink (Join-Path $Dotfiles "plugins\logbook") (Join-Path $SkillsDir "logbook")
 
-# Antigravity plugin discovery: ~/.gemini/config/plugins/
+# The same dir, linked a second time where Antigravity scans for global plugins
+# (~/.gemini/config/plugins/<name>/, plain `plugin.json` at the root -- see the
+# twin block in settings.sh). mklink does not create the parent, hence New-Item.
 $AgyPluginsDir = Join-Path $HOME ".gemini\config\plugins"
 New-Item -ItemType Directory -Path $AgyPluginsDir -Force | Out-Null
 Set-DotfileSymlink (Join-Path $Dotfiles "plugins\logbook") (Join-Path $AgyPluginsDir "logbook")
@@ -871,36 +873,45 @@ if ((Get-Command claude -ErrorAction SilentlyContinue) -and $env:OPENKNOWLEDGE_M
     Write-Host "i   open-knowledge: skipped (needs OPENKNOWLEDGE_MCP_URL + the two CF-Access env vars -- setx)"
 }
 
-# ─── open-knowledge MCP in Antigravity (~/.gemini/config/mcp_config.json) ───
-$AgyConfigDir  = Join-Path $HOME ".gemini\config"
-$AgyConfigFile = Join-Path $AgyConfigDir "mcp_config.json"
-if (-not (Test-Path $AgyConfigDir)) {
+# ─── the SAME open-knowledge server for Antigravity (twin of binaries.sh) ───
+# Antigravity reads ~/.gemini/config/mcp_config.json: `serverUrl` + `headers` for
+# a remote server (its docs reject `url`, and document no env-var interpolation),
+# so the URL and the CF-Access token are written in literally -- which is why this
+# is not an mcp_config.json shipped inside the public plugin dir. Same three env
+# vars, same all-or-nothing guard as the Claude Code block above, so both agents
+# write into ONE vault. Not gated on Antigravity being installed: the file costs
+# nothing and is picked up whenever the app arrives. Idempotent on the server
+# name; a rotated token means removing the entry first.
+if ($env:OPENKNOWLEDGE_MCP_URL -and $env:OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID -and $env:OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET) {
+    $AgyConfigDir  = Join-Path $HOME ".gemini\config"
+    $AgyConfigFile = Join-Path $AgyConfigDir "mcp_config.json"
     New-Item -ItemType Directory -Path $AgyConfigDir -Force | Out-Null
-}
-try {
-    $AgyConfig = [PSCustomObject]@{ mcpServers = [PSCustomObject]@{} }
-    if (Test-Path $AgyConfigFile) {
-        $RawAgy = Get-Content -Raw $AgyConfigFile
-        if (-not [string]::IsNullOrWhiteSpace($RawAgy)) {
-            $AgyConfig = $RawAgy | ConvertFrom-Json
+    try {
+        $AgyConfig = [PSCustomObject]@{ mcpServers = [PSCustomObject]@{} }
+        if (Test-Path $AgyConfigFile) {
+            $RawAgy = Get-Content -Raw $AgyConfigFile
+            if (-not [string]::IsNullOrWhiteSpace($RawAgy)) { $AgyConfig = $RawAgy | ConvertFrom-Json }
         }
+        if (-not ($AgyConfig.PSObject.Properties.Name -contains "mcpServers")) {
+            $AgyConfig | Add-Member -NotePropertyName "mcpServers" -NotePropertyValue ([PSCustomObject]@{})
+        }
+        if ($AgyConfig.mcpServers.PSObject.Properties.Name -contains "open-knowledge") {
+            Write-Host "OK  open-knowledge: already registered in Antigravity"
+        } else {
+            $AgyConfig.mcpServers | Add-Member -NotePropertyName "open-knowledge" -NotePropertyValue ([PSCustomObject]@{
+                serverUrl = $env:OPENKNOWLEDGE_MCP_URL
+                headers   = [PSCustomObject]@{
+                    "CF-Access-Client-Id"     = $env:OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID
+                    "CF-Access-Client-Secret" = $env:OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET
+                }
+            })
+            # -Depth 10: the default of 2 truncates the nested headers object.
+            $AgyConfig | ConvertTo-Json -Depth 10 | Set-Content -Path $AgyConfigFile -Encoding utf8
+            Write-Host "OK  open-knowledge: registered in Antigravity ($AgyConfigFile)"
+        }
+    } catch {
+        Write-Host "!!  open-knowledge: could not write $AgyConfigFile -- $($_.Exception.Message)" -ForegroundColor Yellow
     }
-    if (-not ($AgyConfig.PSObject.Properties.Name -contains "mcpServers")) {
-        $AgyConfig | Add-Member -NotePropertyName "mcpServers" -NotePropertyValue ([PSCustomObject]@{})
-    }
-    if (-not ($AgyConfig.mcpServers.PSObject.Properties.Name -contains "open-knowledge")) {
-        $AgyOkScript = "# ok-mcp-win-v1`nif (`$env:PATHEXT -notmatch 'CMD') { `$env:PATHEXT = '.COM;.EXE;.BAT;.CMD;' + `$env:PATHEXT }`nif (`$env:APPDATA) {`n  `$shim = Join-Path `$env:APPDATA 'npm\ok.cmd'`n  if (Test-Path -LiteralPath `$shim -PathType Leaf) { & `$shim mcp; exit `$LASTEXITCODE }`n}`n`$ok = Get-Command ok.cmd -CommandType Application -ErrorAction SilentlyContinue`nif (`$ok) { & `$ok.Source mcp; exit `$LASTEXITCODE }`n`$npx = Get-Command npx.cmd -CommandType Application -ErrorAction SilentlyContinue`nif (`$npx) { & `$npx.Source -y '@inkeep/open-knowledge@latest' mcp; exit `$LASTEXITCODE }`n`$dirs = @()`nif (`$env:ProgramFiles) { `$dirs += Join-Path `$env:ProgramFiles 'nodejs' }`nif (`$env:NVM_SYMLINK) { `$dirs += `$env:NVM_SYMLINK }`nif (`$env:LOCALAPPDATA) {`n  `$dirs += Join-Path `$env:LOCALAPPDATA 'fnm\aliases\default'`n  `$dirs += Join-Path `$env:LOCALAPPDATA 'Volta\\bin'`n  `$dirs += Join-Path `$env:LOCALAPPDATA 'pnpm'`n}`nif (`$env:USERPROFILE) { `$dirs += Join-Path `$env:USERPROFILE 'scoop\\shims' }`nforeach (`$d in `$dirs) {`n  `$probe = Join-Path `$d 'npx.cmd'`n  if (Test-Path -LiteralPath `$probe -PathType Leaf) { & `$probe -y '@inkeep/open-knowledge@latest' mcp; exit `$LASTEXITCODE }`n}`n[Console]::Error.WriteLine('OpenKnowledge: install Node.js 24+ (npm i -g @inkeep/open-knowledge), then restart your editor')`nexit 127"
-        $AgyConfig.mcpServers | Add-Member -NotePropertyName "open-knowledge" -NotePropertyValue ([PSCustomObject]@{
-            command = "powershell"
-            args    = @("-NoProfile", "-NonInteractive", "-Command", $AgyOkScript)
-        })
-        $AgyConfig | ConvertTo-Json -Depth 10 | Set-Content -Path $AgyConfigFile -Encoding utf8
-        Write-Host "OK  open-knowledge: MCP server registered in Antigravity (mcp_config.json)"
-    } else {
-        Write-Host "OK  open-knowledge: already configured in Antigravity"
-    }
-} catch {
-    Write-Host "!!  could not configure Antigravity mcp_config.json: $($_.Exception.Message)" -ForegroundColor Yellow
 }
 
 # No plugins installed right now: ponytail and andrej-karpathy-skills lived here

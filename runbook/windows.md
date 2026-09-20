@@ -59,8 +59,9 @@ fallback for symlinks, and scoop refuses to run under it.
    ```
 
    What it does, in order:
-   - symlinks `claude/CLAUDE.md`, `statusline.ps1`, `hooks/logbook.ps1`, the
-     `logbook` skill plugin and the `team` skill (directory symlinks), the three
+   - symlinks `claude/CLAUDE.md`, `statusline.ps1`, `plugins/logbook/hooks/logbook.ps1`,
+     the `logbook` plugin (into `~/.claude/skills/` and `~/.gemini/config/plugins/`
+     for Antigravity) and the `team` skill (directory symlinks), the three
      `claude/agents/*.md` definitions and `git/.gitignore_global`, removing the
      pre-rename `bitacora`/`wiki` links if they are still there;
    - writes the `settings.json` keys `settings.sh` writes on mac/Linux
