@@ -53,8 +53,8 @@ gui:
   switchTabsWithPanelJumpKeys: true
   # ↑N ↓M against the base branch in the branches panel.
   showDivergenceFromBaseBranch: arrowAndNumber
-  # Nerd Font icons for files/branches/commits. Snacks sets the same value for
-  # the nvim float; this is for the tmux popup, whose font is a NF too.
+  # Nerd Font icons for files/branches/commits. With `configure = false` snacks
+  # writes no config of its own, so the nvim float reads this line too.
   nerdFontsVersion: "3"
 git:
   # No `pull.mode` here: lazygit dropped the key and now honours git's own
@@ -64,13 +64,24 @@ git:
   # Auto-fetch disabled (doesn't hang if the network is slow).
   autoFetch: false
   # Paginate diffs with delta if it's installed (you have it via brew).
-  # `--light` travels with the hex above: delta's defaults for hunk backgrounds
-  # and line numbers assume a dark canvas unless told, and it cannot detect one
-  # here — lazygit captures its stdout, so the terminal query behind
-  # `--detect-dark-light` has nothing to talk to. Flip it with the theme.
+  # `--dark` travels with the hex above: the canvas has to be stated because
+  # delta cannot detect it here — lazygit captures its stdout, so the terminal
+  # query behind `--detect-dark-light` has nothing to talk to, and the hunk
+  # backgrounds and line numbers fall back to the wrong end. Flip it with the
+  # theme (`base16-256` is a dark syntax theme and flips with it).
   diffRenderers:
     - colorArg: always
-      command: delta --paging=never --light --syntax-theme=base16-256
+      command: delta --paging=never --dark --syntax-theme=base16-256
+os:
+  # `e` on a file. Without this lazygit guesses the editor from
+  # `git config core.editor` (per-machine, and it can be anything), so state it.
+  # Safe for both entry points although only one of them is nvim: the preset's
+  # template guards on $NVIM itself —
+  #   [ -z "$NVIM" ] && (nvim -- file) || (nvim --server "$NVIM" --remote-tab file)
+  # so the tmux popup opens a plain nvim and the snacks float hands the file to
+  # the nvim that launched it instead of nesting a second one. `suspend` is
+  # likewise decided at runtime from $NVIM.
+  editPreset: nvim-remote
 # ─── custom commands ──────────────────────────────────────────
 # `?` inside lazygit shows ALL the available shortcuts.
 customCommands:

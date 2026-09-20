@@ -15,11 +15,11 @@
 --                `:LspRestart`'s client pick. (`vim.ui.select` is
 --                telescope-ui-select's, in telescope.lua — a list wants a
 --                picker, a one-liner wants an input box.)
+--   lazygit    → the git porcelain (status, stage, commit, push, log), as a
+--                float. Replaced Neogit in sep-2026 — see its block below.
 --
 -- Intentionally off:
 --   scroll        → smooth scroll fought the trackpad (see its block below).
---   lazygit    → the git porcelain (status, stage, commit, push, log), as a
---                float. Replaced Neogit in sep-2026 — see its block below.
 --   notifier      → we already have nvim-notify via noice.nvim. Enabling it
 --                   duplicates the message sink and breaks the routing to
 --                   notify_send that noice does when you lose focus.
