@@ -92,6 +92,9 @@ fallback for symlinks, and scoop refuses to run under it.
      `profiles.defaults` is reported and left alone.
 
 3. Bring the per-machine `~\.gitconfig` (identity, signing). Not versioned.
+   Set `git config --global pull.rebase true` here too. **Not** `core.editor
+   nvim` — nvim is one of the things this entry point deliberately leaves out,
+   so that key is whatever editor this box actually has.
 
 4. **Restart the terminal** (PATH changed) and **restart Claude Code**.
 

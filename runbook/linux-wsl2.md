@@ -72,7 +72,13 @@ Windows side, so also run [`windows.md`](windows.md) there.
      password; it takes effect on the **next login**, not the current shell.
 
 3. Per-machine git config: `~/.gitconfig` with `[include] path = ~/.gitconfig.local`
-   as its last line; identity and signing in the `.local`.
+   as its last line; identity and signing in the `.local`. Plus the two keys the
+   repo leans on and cannot ship (same as macOS):
+
+   ```bash
+   git config --global core.editor nvim
+   git config --global pull.rebase true
+   ```
 
 4. Optional gateway file, same as macOS:
 

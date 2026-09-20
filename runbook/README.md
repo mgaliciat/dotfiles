@@ -27,7 +27,7 @@ installers do not create any of these.
 
 | File | Holds | Who reads it |
 |---|---|---|
-| `~/.gitconfig` + `~/.gitconfig.local` | git identity, signing key, 1Password vault | git |
+| `~/.gitconfig` + `~/.gitconfig.local` | git identity, signing key, 1Password vault, `core.editor` and `pull.rebase` | git, and lazygit for `pull.rebase` |
 | `~/.zshenv.local` | secrets and tokens as `export` lines (`CONTEXT7_API_KEY`, `OPENKNOWLEDGE_MCP_URL`, `OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID`, `OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET`) | every zsh, and the installers |
 | `~/.zshrc.local` | aliases and functions for this machine only | interactive zsh |
 | `~/.claude/claude-api.env` | the API-gateway credential (`ANTHROPIC_BASE_URL=…`, `chmod 600`) | `claude --api`, `code --api`, tmux `Alt+a` |

@@ -75,6 +75,20 @@ per-machine files and the two silent guards.
    `~/.gitconfig.local` as its **last** line, identity and signing in the
    `.local`. Neither file is in the repo.
 
+   Two keys the repo leans on and no installer can set, since nothing here owns
+   that file:
+
+   ```bash
+   git config --global core.editor nvim
+   git config --global pull.rebase true
+   ```
+
+   `pull.rebase` is where rebase-by-default lives: lazygit dropped its own
+   `git.pull.mode` and now honours git's, so `lazygit/config.yml` documents the
+   key but cannot carry it. `core.editor` is what `git commit` without `-m` and
+   an interactive rebase open — lazygit itself no longer depends on it, it
+   states `os.editPreset` outright.
+
 4. If this machine talks to an API gateway:
 
    ```bash
