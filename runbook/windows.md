@@ -84,9 +84,9 @@ fallback for symlinks, and scoop refuses to run under it.
    - a Windows Terminal colour scheme generated from `ghostty/themes/<$WtTheme>`,
      the font `$WtFont` at weight `$WtFontWeight` and size `$WtFontSize` with
      `liga` on, the rest of the ghostty look in WT's spelling (`$WtAppearance`:
-     fg/bg overrides, `opacity` + `useAcrylic`, `cursorShape`, `padding`,
-     `bellStyle`, `historySize`, `adjustIndistinguishableColors`), and the
-     keybindings `ctrl+shift+l` → `claude`,
+     `opacity` + `useAcrylic`, `cursorShape`, `padding`, `bellStyle`,
+     `historySize`, `adjustIndistinguishableColors`; craftzdog fg/bg overrides
+     are off under typesafe), and the keybindings `ctrl+shift+l` → `claude`,
      `ctrl+shift+y` → `claude --dangerously-skip-permissions`.
      `$WtAppearance` is **additive-only**: a key already present in
      `profiles.defaults` is reported and left alone.

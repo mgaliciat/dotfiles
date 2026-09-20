@@ -1155,9 +1155,11 @@ $WtFonts = @("PlemolJP Console NF", "PlemolJP35 Console NF", "Google Sans Code M
 #   alpha-blending            → antialiasingMode is a different knob (grayscale /
 #                               cleartype / aliased), not a colour space. Not a port.
 #   cursor-style-blink        → WT exposes no blink toggle.
+# Both OFF since 2026-09-18 (tracking config.ghostty): `typesafe` / `typesafe-dark`
+# owns its canvas and text. Uncomment the pair when solarized-patched comes back.
 $WtAppearance = [ordered]@{
-    foreground                    = "#ffffff"
-    background                    = "#031219"
+    # foreground                    = "#ffffff"
+    # background                    = "#031219"
     opacity                       = 95
     useAcrylic                    = $true
     cursorShape                   = "filledBox"
@@ -1354,6 +1356,19 @@ if (-not (Test-Path $GhosttyTheme)) {
                     }
                 }
             }
+        }
+
+        # Convergent cleanup: craftzdog's fg/bg overrides were turned off (2026-09-18)
+        # when typesafe became the theme, because typesafe owns its canvas.
+        # If profiles.defaults still has the exact pair written by our earlier installer,
+        # strip them so the active colorScheme can own its background/foreground.
+        if ($Wt.profiles.defaults.PSObject.Properties.Name -contains "background" -and $Wt.profiles.defaults.background -eq "#031219") {
+            $Wt.profiles.defaults.PSObject.Properties.Remove("background")
+            Write-Host "OK  removed craftzdog background override (#031219) from $WtPath"
+        }
+        if ($Wt.profiles.defaults.PSObject.Properties.Name -contains "foreground" -and $Wt.profiles.defaults.foreground -eq "#ffffff") {
+            $Wt.profiles.defaults.PSObject.Properties.Remove("foreground")
+            Write-Host "OK  removed craftzdog foreground override (#ffffff) from $WtPath"
         }
 
         # The rest of the appearance. Additive-only -- see $WtAppearance above for
