@@ -80,7 +80,17 @@ export VISUAL="nvim"
 # starting a session and keeps the conversation in the native scrollback.
 export CLAUDE_CODE_NO_FLICKER=1
 
-# Claude Code — disable CFC (context-free composition) mode.
+# Claude Code — CFC is Claude For Chrome: the browser-extension integration,
+# not "context-free composition" (what this comment used to claim). Verified
+# against the 2.1.278 binary, where CFC_TOOL_PREFIX sits beside
+# CLAUDE_IN_CHROME_MCP_SERVER_NAME and openInChrome; UNDOCUMENTED — it appears
+# on no docs page, so re-check it against the binary and not against the docs.
+#
+# The parser is triBool, NOT bool: `1|true|yes|on` forces on, `0|false|no|off`
+# forces off, and anything else (including unset) is undefined and falls back to
+# the server-side default `claudeInChromeDefaultEnabled`. So `false` is a real
+# off switch — it wins over that default — and a plausible value like "disabled"
+# would read as undefined and hand the decision back to the server.
 export CLAUDE_CODE_ENABLE_CFC=false
 
 # ─── local overrides (not versioned) ──────────────────────────
