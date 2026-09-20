@@ -252,6 +252,31 @@ if ! command -v gomi >/dev/null 2>&1; then
   fi
 fi
 
+# ghq — clone manager for the $GHQ_ROOT tree (.zshenv). A brew formula on mac
+# with no apt equivalent; upstream documents brew/scoop/nixpkgs/Void/Guix and
+# `go install`, but nothing for Debian/Ubuntu, so the release binary it is
+# (no Go toolchain required — same reasoning as the cargo tombstone above).
+# WITHOUT IT THE Ctrl+F WIDGET LOSES ITS REPO LIST: functions.zsh guards the
+# call with `command -v ghq`, which is precisely the kind of silent degradation
+# that left the old hardcoded find contributing nothing for months.
+# The asset is a ZIP (not a tarball like lazygit/gomi) and nests everything
+# under ghq_linux_<arch>/, hence `unzip -j` to flatten the one file out.
+if ! command -v ghq >/dev/null 2>&1; then
+  echo ""
+  echo "→ Installing ghq (GH release)"
+  GHQ_VER=$(_gh_latest_tag x-motemen/ghq)
+  GHQ_ARCH=$(_arch_x86_arm amd64 arm64)
+  if [[ -n "$GHQ_VER" && -n "$GHQ_ARCH" ]]; then
+    curl -fsSL "https://github.com/x-motemen/ghq/releases/download/v${GHQ_VER}/ghq_linux_${GHQ_ARCH}.zip" -o /tmp/ghq.zip \
+      && unzip -q -j -o /tmp/ghq.zip "*/ghq" -d /tmp \
+      && install /tmp/ghq "$HOME/.local/bin/" \
+      && rm -f /tmp/ghq.zip /tmp/ghq \
+      || echo "⚠️  ghq install failed"
+  else
+    echo "⚠️  Could not resolve ghq version/arch (GHQ_VER=$GHQ_VER GHQ_ARCH=$GHQ_ARCH)"
+  fi
+fi
+
 # tree-sitter-cli — nvim-treesitter's `main` branch shells out to it to generate
 # parsers, so nvim is degraded without it. This replaces the old `cargo install`
 # (see the tombstone above). The asset is a gzipped BARE BINARY, not a tarball:

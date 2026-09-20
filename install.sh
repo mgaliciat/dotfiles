@@ -97,6 +97,7 @@ if command -v brew >/dev/null 2>&1; then
     fzf
     jq                    # required by tmux-claude-hatch (parses `claude agents --json`)
     gh                    # GitHub CLI — host for the gh-stack extension (bootstrap_gh_stack below)
+    ghq                   # clone manager — $GHQ_ROOT tree, and the source the Ctrl+F widget lists
     git-delta
     pyenv
     neovim

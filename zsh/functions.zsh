@@ -103,10 +103,10 @@ dprune-all() {
 # ─── fuzzy cd (craftzdog style) ───────────────────────────────
 #
 # Ctrl+F → fzf with a curated list of "interesting" directories:
-# configs, dotfiles, repos in conventional locations and subdirs of
-# the cwd. More opinionated than `zoxide` (which goes by frequency) —
-# useful when you start from scratch and want to jump to "that project
-# I know exists in some folder".
+# configs, dotfiles, every ghq-managed clone and subdirs of the cwd.
+# More opinionated than `zoxide` (which goes by frequency) — useful
+# when you start from scratch and want to jump to "that project I know
+# exists in some folder".
 #
 # Trade-off: Ctrl+F by default in emacs-mode is `forward-char` (cursor
 # forward 1 char). If you need it, you can use the → arrow or rebind to
@@ -120,10 +120,16 @@ _fzf_cd_widget() {
   dir=$({
     echo "$HOME/.config"
     echo "$_DOTFILES_ROOT"
-    for parent in "$HOME/projects" "$HOME/code" "$HOME/work" "$HOME/Developments"; do
-      [[ -d "$parent" ]] && find "$parent" -maxdepth 3 -type d -name ".git" \
-        -exec dirname {} \; 2>/dev/null
-    done
+    # Every clone ghq knows about, which is every clone: $GHQ_ROOT (.zshenv) is
+    # the one place they live. This replaced a `find -maxdepth 3 -name .git`
+    # over a hardcoded list of four parents ($HOME/projects, code, work,
+    # Developments) — NONE of which existed on any machine here, so the loop
+    # silently contributed nothing and Ctrl+F only ever offered .config,
+    # dotfiles and the cwd. That is the failure mode to avoid repeating: the
+    # `[[ -d $parent ]]` guard turned a wrong path into a no-op instead of an
+    # error. Asking ghq cannot drift the same way — it reports what is on disk
+    # rather than where we guessed it would be, and it is not depth-limited.
+    command -v ghq >/dev/null && ghq list --full-path
     # Subdirs of the cwd (not recursive).
     ls -1d "$PWD"/*/ 2>/dev/null | sed 's:/$::'
   } | awk '!a[$0]++' | fzf \

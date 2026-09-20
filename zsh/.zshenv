@@ -49,6 +49,26 @@ export FZF_DEFAULT_OPTS="--color=16,bg+:-1,fg+:-1:bold"
 # without bat (e.g. WSL2 without a full install) we leave man's default pager.
 command -v bat >/dev/null && export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 
+# ghq — clones live in a tree derived from the remote URL
+# ($GHQ_ROOT/github.com/<owner>/<repo>), so the path says where a checkout came
+# from instead of relying on whatever the folder was named by hand.
+#
+# THIS ENV VAR, NOT `git config ghq.root`, IS THE VERSIONED ROUTE. ghq reads
+# both, and GHQ_ROOT wins: when it is non-empty it becomes the ONLY root and the
+# git config is not consulted at all (local_repository.go, `Roots()`). That
+# matters here because ~/.gitconfig is deliberately not symlinked — it is 100%
+# per-machine — so a `ghq.root` there would have to be re-set by hand on every
+# box. One line in .zshenv travels with the clone and covers mac and Linux
+# alike.
+#
+# ~/Developer and not the ~/ghq default: that is where the checkouts already
+# were, and a second top-level repo dir is exactly the sprawl ghq is here to
+# end. Repos that predate this (flat `~/Developer/<name>`) were moved in with
+# `ghq migrate`, which reads each remote and derives the path — so a local
+# folder whose name had drifted from its repo (`diagramb` → `diagramas`) now
+# matches the remote.
+export GHQ_ROOT="$HOME/Developer"
+
 # Default editor — nvim for everything that respects $EDITOR/$VISUAL:
 # `edit-command-line` (Alt+e at the prompt), `crontab -e`, `less` (v key).
 # git uses its own core.editor, so this does NOT override it.
