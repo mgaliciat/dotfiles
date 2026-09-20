@@ -30,9 +30,10 @@ return {
   },
   opts = {
     diff = {
-      layout = "side-by-side",
-      -- Old on the left, new on the right: the reading order of every
-      -- other diff tool in the stack (delta, GitHub, diffview before it).
+      layout = "inline",
+      -- Only read when the layout is side-by-side (`t` toggles it per
+      -- session): old on the left, new on the right — the reading order of
+      -- every other diff tool in the stack (delta, GitHub, diffview before it).
       original_position = "left",
     },
     explorer = {

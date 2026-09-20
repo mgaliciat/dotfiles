@@ -270,17 +270,19 @@ macos-titlebar-style = transparent
 # `true` means, so he picked the plain default rather than a tuned radius. That is
 # a gaussian blur Ghostty computes itself.
 #
-# `macos-glass-regular` is the system's own glass material, available since macOS
+# `macos-glass-clear` is the system's own glass material, available since macOS
 # 26 and therefore impossible in his config (feb-2025). Written with the modern key
-# name on purpose: the value is a material, not a radius. The other material is
-# `macos-glass-clear`, the highly transparent cut: it ran from 2026-09-11 to
-# 2026-09-20 and let the desktop read through too much over the sage canvas, so
-# this is the standard cut — the closest analogue to Windows Terminal's acrylic.
+# name on purpose: the value is a material, not a radius. This is the highly
+# transparent cut; the other material is `macos-glass-regular`, the standard one
+# and the closest analogue to Windows Terminal's acrylic, which held the slot for
+# part of 2026-09-20. Clear ran from 2026-09-11 and was dropped for letting the
+# desktop read through too much — over the LIGHT sage canvas. The stack has been
+# on `typesafe-dark` since, which is the canvas it comes back on.
 #
 # 0.95, up from his 0.9. The glass carries its own opacity on top of this one, and
 # `background-opacity-cells` below pushes both down onto cells that set their own
-# background — with the clear material the compounding made lazygit panels and
-# diff hunks feel thin, which is the other reason for `regular`.
+# background — with the clear material that compounding is what can leave lazygit
+# panels and diff hunks looking thin, and the cells key below is the dial for it.
 #
 # To restore his exact pair: `background-opacity = 0.9` and
 # `background-blur-radius = 20`.
@@ -290,7 +292,7 @@ macos-titlebar-style = transparent
 # sage canvas muddied it, and a light theme cannot take `transparent = true` in
 # nvim anyway. With opacity at 1.0 `background-opacity-cells` goes inert.
 background-opacity = 0.95
-background-blur = macos-glass-regular
+background-blur = macos-glass-clear
 
 # Without this the glass is only half on. `background-opacity` applies to the
 # WINDOW background alone, so any cell carrying an explicit background colour
