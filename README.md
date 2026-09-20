@@ -21,7 +21,7 @@ The design rationale (what is versioned vs. per-machine, and why every non-obvio
 | `lazygit/config.yml` | lazygit theme + custom commands |
 | `git/.gitignore_global` | Global gitignore — macOS noise, editor files, build dirs, **and AI-agent scratch** (`.claude/`, `.cursor/`, `.aider*`, …), excluded in every repo |
 | `scripts/` | `ide` (4-pane tmux layout, `prefix + g`), `claude-api-env` (runs a command with the gateway env), `lib.sh` (shared by both bash installers). The first two are symlinked onto `~/.local/bin` |
-| `claude/` | User-level Claude Code pieces — `CLAUDE.md` (→ `~/.claude/CLAUDE.md`), `statusline.{sh,ps1}`, `agents/`, the `team` skill, `themes/`, and `install/` (everything the installers do to `~/.claude/`, see its README) |
+| `claude/` | User-level Claude Code pieces — `CLAUDE.md` (→ `~/.claude/CLAUDE.md`), `statusline.{sh,ps1}`, `themes/`, and `install/` (everything the installers do to `~/.claude/`, see its README) |
 | `plugins/` | Agent plugins shared by Claude Code and Antigravity. `logbook/`: the OpenKnowledge vault skills, its post-commit hook and both manifests; linked into `~/.claude/skills/` and `~/.gemini/config/plugins/` |
 | `install.sh` | macOS entry point — symlinks + Homebrew deps + Claude Code setup |
 | `install-linux.sh` | Ubuntu/Debian/WSL2 — same symlinks minus Ghostty; apt + GitHub release binaries |
@@ -104,7 +104,7 @@ The env file holds a credential: per-machine, `chmod 600`, never versioned, and 
   ```
 
 - **`~/.claude/claude-api.env`** — the gateway credential (see above). Deliberately *not* in `.zshenv.local`: that file is exported into every process the shell spawns, this one is read by a single launch.
-- **`~/.claude/settings.json`**, **`~/.claude/skills/`** (except the two we version), **`~/.claude/projects/*/memory/`** — Claude Code state. Permissions and UI prefs diverge per host; skills and memories are written by Claude Code and its binaries at runtime. `install.sh` only does guarded, additive merges into `settings.json`. If you delete `~/.claude` entirely, re-running `./install.sh` rebuilds everything the binaries install; your permissions and memories don't come back — they never lived in the repo.
+- **`~/.claude/settings.json`**, **`~/.claude/skills/`** (except `logbook`, which we version), **`~/.claude/projects/*/memory/`** — Claude Code state. Permissions and UI prefs diverge per host; skills and memories are written by Claude Code and its binaries at runtime. `install.sh` only does guarded, additive merges into `settings.json`. If you delete `~/.claude` entirely, re-running `./install.sh` rebuilds everything the binaries install; your permissions and memories don't come back — they never lived in the repo.
 
 ## License
 

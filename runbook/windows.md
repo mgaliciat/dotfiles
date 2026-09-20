@@ -61,15 +61,14 @@ fallback for symlinks, and scoop refuses to run under it.
    What it does, in order:
    - symlinks `claude/CLAUDE.md`, `statusline.ps1`, `plugins/logbook/hooks/logbook.ps1`,
      the `logbook` plugin (into `~/.claude/skills/` and `~/.gemini/config/plugins/`
-     for Antigravity) and the `team` skill (directory symlinks), the three
-     `claude/agents/*.md` definitions and `git/.gitignore_global`, removing the
-     pre-rename `bitacora`/`wiki` links if they are still there;
+     for Antigravity, directory symlinks) and `git/.gitignore_global`, removing
+     the pre-rename `bitacora`/`wiki` links and the retired `team` skill and
+     `agents/*.md` links if they are still there;
    - writes the `settings.json` keys `settings.sh` writes on mac/Linux
      (statusline, permissions from `permissions.json`, attribution, output
-     style, fallback model, the PowerShell-tool env var, the agent-team and
-     observer flags with their concurrency cap, the logbook hook), each only if
-     absent. `terminalTitleFromRename` is deliberately not mirrored — no tmux
-     here;
+     style, fallback model, the PowerShell-tool env var, the logbook hook), each
+     only if absent, and removes the retired agent-team env keys.
+     `terminalTitleFromRename` is deliberately not mirrored — no tmux here;
    - `rtk` from its release zip plus its versioned `config.toml`, copied;
    - `codebase-memory-mcp` — the **`-ui-`** release asset, sha256-checked, not
      the official installer (which ships the headless build). A stamp file

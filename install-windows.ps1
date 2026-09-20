@@ -196,20 +196,33 @@ $AgyPluginsDir = Join-Path $HOME ".gemini\config\plugins"
 New-Item -ItemType Directory -Path $AgyPluginsDir -Force | Out-Null
 Set-DotfileSymlink (Join-Path $Dotfiles "plugins\logbook") (Join-Path $AgyPluginsDir "logbook")
 
-# `team` is a plain skill (one SKILL.md), so it invokes bare as /team -- no colon
-# namespace, unlike the logbook plugin above. It orchestrates agent teams and
-# documents the observers linked just below.
-Set-DotfileSymlink (Join-Path $Dotfiles "claude\skills\team") (Join-Path $SkillsDir "team")
-
-# Agent definitions. ~/.claude/agents/ is a real per-machine dir like skills/, so
-# these are per-ITEM links too. The `observer:` / `observerMessage:` /
-# `observeSubagents:` frontmatter they carry is UNDOCUMENTED -- binary-verified
-# only -- and an unknown field is ignored in silence, so check the binary before
-# blaming the file when an observer stops showing up.
+# ─── convergent cleanup: the agent-teams skill and agents (sep-2026) ───
+# Twin of the block in settings.sh. The `team` skill and the three agent
+# definitions went with the CLAUDE_CODE_EXPERIMENTAL_* env keys this installer no
+# longer writes: no flags means no teammate is ever spawned and no `observer:`
+# field is read, so the files were dead weight. They were symlinks, so deleting
+# them from the repo leaves a DANGLING link on every box that ran the old
+# version -- and a dangling skill dir is one Claude Code tries to load and
+# cannot. $AgentsDir is no longer created, only swept.
+#
+# ReparsePoint-guarded and .Delete() rather than Remove-Item, for the same two
+# reasons the pre-rename cleanup further down gives: a real per-machine file of
+# that name is left alone, and Remove-Item on a directory symlink recurses into
+# the target and would wipe the repo's own files.
+#
+# TEMPORARY: delete once every machine has run this version.
 $AgentsDir = Join-Path $ClaudeDir "agents"
-New-Item -ItemType Directory -Path $AgentsDir -Force | Out-Null
-foreach ($Agent in @("scope-guard", "regression-watch", "teammate-base")) {
-    Set-DotfileSymlink (Join-Path $Dotfiles "claude\agents\$Agent.md") (Join-Path $AgentsDir "$Agent.md")
+foreach ($StaleAgentPath in @(
+    (Join-Path $SkillsDir "team"),
+    (Join-Path $AgentsDir "scope-guard.md"),
+    (Join-Path $AgentsDir "regression-watch.md"),
+    (Join-Path $AgentsDir "teammate-base.md")
+)) {
+    $StaleAgentItem = Get-Item -LiteralPath $StaleAgentPath -Force -ErrorAction SilentlyContinue
+    if ($StaleAgentItem -and $StaleAgentItem.Attributes -band [IO.FileAttributes]::ReparsePoint) {
+        $StaleAgentItem.Delete()
+        Write-Host "OK  removed agent-teams symlink $StaleAgentPath"
+    }
 }
 
 # Claude Code colour theme, the stack theme's fifth layer (rationale in
@@ -449,36 +462,26 @@ if ($Settings.env -isnot [PSCustomObject]) {
     Write-Host "OK  env.CLAUDE_CODE_USE_POWERSHELL_TOOL added to settings.json (1)"
 }
 
-# ─── env.CLAUDE_CODE_EXPERIMENTAL_* (mirror of settings.sh) ─────
-# Agent teams and observer agents, both off unless the var is set. The CLI's
-# boolean env parser accepts exactly `1` / `true` / `yes` / `on` and reads
-# anything else as false, so "0" is a real off switch and a plausible value like
-# "enabled" silently disables the feature. Both are also gated server-side, so
-# the var is necessary and not sufficient -- on an account without the gate this
-# is an ignored key, which is why there is no version guard. Observer agents are
-# undocumented (binary only). Full rationale in claude/install/settings.sh.
+# ─── convergent cleanup: the agent-teams env block (sep-2026) ───
+# Twin of the jq removal block in settings.sh, and there for the same reason:
+# this installer used to WRITE these three keys, every guard in it is additive,
+# so a box that already ran the old version keeps them unless something removes
+# them. Removing the flags turns the features off rather than merely undeclaring
+# them, and MAX_CONCURRENT_SUBAGENTS reverts to the harness default of 20.
 #
-# Shares the `env` object created by the PowerShell-tool block above -- hence
-# the -is guard here, which is that block's `-isnot` branch seen from the other
-# side: if `env` is not an object we touch nothing.
+# `env` itself is never dropped here, unlike on the bash side: this box always
+# has CLAUDE_CODE_USE_POWERSHELL_TOOL in it, written a few lines above.
+#
+# TEMPORARY: delete once every machine has run this version.
 if ($Settings.env -is [PSCustomObject]) {
-    foreach ($EnvVar in @(
-        @{ Name = "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS";     Value = "1" },
-        @{ Name = "CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS"; Value = "1" },
-        # The ceiling on the two above: the harness default is 20 concurrent
-        # agents, and with teams on every named subagent is a teammate and every
-        # observed agent carries an observer. 6 is enforced by the harness (the
-        # Agent call is refused past it), global rather than team-scoped, and
-        # sized so a 4-teammate team plus observers fits with room for an
-        # ordinary Explore fan-out. Its sibling MAX_SUBAGENTS_PER_SESSION has no
-        # reader in the binary -- don't add it.
-        @{ Name = "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS";     Value = "6" }
+    foreach ($StaleEnv in @(
+        "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS",
+        "CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS",
+        "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS"
     )) {
-        if ($Settings.env.PSObject.Properties.Name -contains $EnvVar.Name) {
-            Write-Host "OK  env.$($EnvVar.Name) already set -- leaving it alone"
-        } else {
-            $Settings.env | Add-Member -NotePropertyName $EnvVar.Name -NotePropertyValue $EnvVar.Value
-            Write-Host "OK  env.$($EnvVar.Name) added to settings.json ($($EnvVar.Value))"
+        if ($Settings.env.PSObject.Properties.Name -contains $StaleEnv) {
+            $Settings.env.PSObject.Properties.Remove($StaleEnv)
+            Write-Host "OK  env.$StaleEnv removed from settings.json"
         }
     }
 }

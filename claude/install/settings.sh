@@ -75,29 +75,31 @@ link "$DOTFILES/plugins/logbook" "$HOME/.claude/skills/logbook"
 # binaries.sh, next to the Claude Code one, because the URL and token are secrets.
 link "$DOTFILES/plugins/logbook" "$HOME/.gemini/config/plugins/logbook"
 
-# `team` is a plain skill, not a plugin — one SKILL.md, so it invokes bare as
-# `/team` with no colon namespace. It orchestrates agent teams (teammates that
-# message each other over a shared task list) and documents the background
-# observers below, both of which need the env flags this file also writes.
-link "$DOTFILES/claude/skills/team" "$HOME/.claude/skills/team"
-
-# ── agent definitions → ~/.claude/agents/ ──
-# Per-ITEM links again, and for the same reason as the skills: ~/.claude/agents/
-# is a real per-machine dir, so we add ours beside whatever else lives there.
+# ── convergent cleanup: the agent-teams skill and agents (sep-2026) ──
+# The `team` skill and the three agent definitions (scope-guard,
+# regression-watch, teammate-base) went with the CLAUDE_CODE_EXPERIMENTAL_* env
+# keys this file no longer writes: without those flags a teammate is never
+# spawned and an `observer:` field is read by nobody, so the files were dead
+# weight the loader still parses on every start.
 #
-# `observer:` / `observerMessage:` / `observeSubagents:` are UNDOCUMENTED
-# frontmatter — they exist in the CLI binary (verified against 2.1.267) and on no
-# docs page. A field the loader doesn't know is ignored in silence, so when an
-# observer stops appearing, check the binary before assuming the file is wrong.
+# They were symlinks, and deleting the repo dirs alone leaves a DANGLING one on
+# every machine that ran the old installer — which for a skill is worse than
+# having it, since Claude Code tries to load the dir and cannot.
 #
-# teammate-base sets `observeSubagents: false` on purpose. Observers are agents
-# too and they count against CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS below; letting
-# each teammate's own subagents inherit an observer multiplies the count until
-# the harness starts refusing spawns.
-for _agent in scope-guard regression-watch teammate-base; do
-  link "$DOTFILES/claude/agents/$_agent.md" "$HOME/.claude/agents/$_agent.md"
+# Guarded on -L, like the pre-rename cleanup below: a real per-machine file or
+# dir that happens to carry one of these names is never touched.
+#
+# TEMPORARY: delete once every machine has run this version.
+for _stale in "$HOME/.claude/skills/team" \
+              "$HOME/.claude/agents/scope-guard.md" \
+              "$HOME/.claude/agents/regression-watch.md" \
+              "$HOME/.claude/agents/teammate-base.md"; do
+  if [ -L "$_stale" ]; then
+    rm -f "$_stale"
+    echo "✓ removed agent-teams symlink $_stale"
+  fi
 done
-unset _agent
+unset _stale
 
 # ── Claude Code colour theme → ~/.claude/themes/ ──
 # The stack theme's fifth layer. Claude Code paints its spinner and accents in
@@ -351,66 +353,43 @@ _settings_set_if_absent '.preferredNotifChannel' \
   '.preferredNotifChannel = "terminal_bell"' \
   'preferredNotifChannel (terminal_bell)'
 
-# ── env.CLAUDE_CODE_EXPERIMENTAL_* : agent teams + observer agents ──
-# Two experimental features that are OFF unless their env var is set: agent
-# teams (teammate agents you can message, `--agent-teams` is the CLI twin of
-# the var) and observer agents (the fan-out that reviews a subagent's work).
-# Both go through the CLI's boolean env parser, which accepts EXACTLY
-# `1` / `true` / `yes` / `on` (lowercased and trimmed) and reads everything
-# else as false — so "0" and "false" are real off switches, and a plausible
-# value like "enabled" silently disables the feature. The value is a STRING:
-# `env` is documented as string pairs, an integer is the wrong type.
+# ── convergent cleanup: the agent-teams env block (sep-2026) ──
+# Until sep-2026 this file wrote three keys into `env`:
+# CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS, CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS
+# and CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS (the ceiling the first two needed,
+# since the harness default of 20 concurrent agents is a stampede once every
+# named subagent is a teammate and every observed one drags an observer along).
 #
-# Both are ALSO gated server-side (`tengu_amber_flint`, `tengu_observer_agents_enabled`),
-# so the var is necessary and not sufficient — on an account without the gate,
-# or on a CLI too old to know the name, this degrades to an ignored key. That's
-# why there is no version guard, same as outputStyle.
+# Dropping the writer blocks alone would only stop NEW machines from getting
+# them: every guard in this file is additive, so a box that already ran the old
+# installer keeps all three forever. Hence a removal block rather than a
+# deletion, same shape as the stale-hook cleanups below.
 #
-# Agent teams are documented (code.claude.com/docs/en/agent-teams, which shows
-# this exact `env` block). Observer agents are NOT: the name appears in the
-# 2.1.267 binary and nowhere in the docs — not the env-var reference, not the
-# settings reference. Undocumented means unsupported, so expect it to change or
-# vanish without a deprecation note, and re-check it against the binary rather
-# than against the docs.
+# Removing the flags turns the features off, it does not merely stop declaring
+# them: both are off unless their var is set. MAX_CONCURRENT_SUBAGENTS goes back
+# to the harness default of 20.
 #
-# Written into settings.json's `env` and not exported from `.zshenv`, for the
-# reason that file's own rules give: `.zshenv` is sourced by every zsh, so an
-# export there hands the flag to every process the shell spawns. `env` scopes it
-# to Claude Code and needs no new terminal.
+# `.env` is dropped only when it is EXACTLY {} — Windows keeps
+# CLAUDE_CODE_USE_POWERSHELL_TOOL in there, and a per-machine key someone added
+# by hand is none of our business.
 #
-# Keyed per FIELD, like attribution.* above: `env` may already exist on a machine
-# (Windows sets CLAUDE_CODE_USE_POWERSHELL_TOOL in it), and a guard on `.env`
-# would be satisfied by that and never write these.
-_settings_set_if_absent '.env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS' \
-  '.env //= {} | .env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1"' \
-  'env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS'
-
-_settings_set_if_absent '.env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS' \
-  '.env //= {} | .env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS = "1"' \
-  'env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS'
-
-# ── env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS: the ceiling on the two above ──
-# The harness default is 20 concurrent agents. With agent teams on, every named
-# subagent becomes a teammate and every observed agent drags an observer along,
-# so 20 is a stampede waiting for a prompt that says "in parallel".
-#
-# 6 is the ceiling, not the target: the `team` skill plans for at most 4
-# teammates, which with their observers already reaches it. The two spare slots
-# are what keeps ordinary work — a three-way Explore fan-out in a session that
-# has nothing to do with teams — from hitting the wall, since this cap is global
-# and not scoped to teams.
-#
-# It is genuinely ENFORCED, unlike a budget written in a prompt: past the limit
-# the Agent call is refused with "Concurrent subagent limit reached. Do not
-# retry." Verified in the 2.1.267 binary, which also names the variable in that
-# message.
-#
-# Its plausible sibling `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` appears in the
-# binary's env-name registry and has NO reader — setting it is a silent no-op.
-# Don't add it.
-_settings_set_if_absent '.env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS' \
-  '.env //= {} | .env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS = "6"' \
-  'env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS (6)'
+# TEMPORARY: delete once every machine has run this version.
+if jq -e '(.env | objects) // {}
+          | has("CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS")
+            or has("CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS")
+            or has("CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS")' "$SETTINGS" >/dev/null 2>&1; then
+  SETTINGS_TMP="$(mktemp)"
+  if jq 'del(.env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS,
+             .env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS,
+             .env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS)
+         | if .env == {} then del(.env) else . end' "$SETTINGS" > "$SETTINGS_TMP"; then
+    mv "$SETTINGS_TMP" "$SETTINGS"
+    echo "✓ agent-teams env keys removed from settings.json"
+  else
+    rm -f "$SETTINGS_TMP"
+    echo "⚠️  agent-teams env cleanup failed — settings.json left untouched"
+  fi
+fi
 
 # ── convergent cleanup: the pre-rename bitacora hook entry (sep-2026) ──
 # Must run BEFORE the block that registers the new one, or the guard below sees a
