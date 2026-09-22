@@ -37,12 +37,14 @@ fallback for symlinks, and scoop refuses to run under it.
 
    ```powershell
    setx CONTEXT7_API_KEY "…"
-   setx OPENKNOWLEDGE_MCP_URL "https://<host>/mcp"
-   setx OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID "<id>.access"
-   setx OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET "…"
+   setx LOGMD_MCP_URL "https://<host>/mcp"
    ```
 
-   All three `OPENKNOWLEDGE_*` or none.
+   And the Access token as `op://` references in
+   `~\.config\claude\logmd-headers.json.op` — the same one-line JSON template
+   `macos.md` shows. Claude Code runs `op inject` over it on every connection, so
+   `op` must be installed and signed in; without the URL, the template or `op`
+   the `logmd` registration is skipped.
 
 2. Clone and run, in the new terminal:
 
@@ -76,7 +78,7 @@ fallback for symlinks, and scoop refuses to run under it.
    - `tgrep` from its release zip into `%LOCALAPPDATA%\Programs\tgrep`, added to
      the user PATH. No hash check: the release's `checksums.txt` lists only the
      `.tar.gz` assets, never the Windows `.zip`;
-   - registers the `context7` and `open-knowledge` MCP endpoints from the env
+   - registers the `context7` and `logmd` MCP endpoints from the env
      vars;
    - the `gh-stack` extension and skill, if `gh` / `npx` are present;
    - Nerd Fonts: Maple Mono NF and Monaspace NF via scoop, PlemolJP Console NF
@@ -166,9 +168,9 @@ If a mac/Linux change looks missing here, that is where to look.
 - **Graph UI on `localhost:9749` is dead** after `codebase-memory-mcp update`.
   The self-update pulls the headless build. Compare `--version` with the stamp
   file; re-run the installer to get the `-ui-` asset back.
-- **`i context7: skipped` / `i open-knowledge: skipped`.** The `setx` vars are
+- **`i context7: skipped` / `i logmd: skipped`.** The `setx` vars are
   not visible in this terminal — it predates them. Open a new one, re-run.
-- **Rotated token.** `claude mcp remove open-knowledge -s user`, then re-run.
+- **Rotated token.** `logmd` reads it from 1Password on every connection, so rotating it there is enough; re-run only to refresh Antigravity's copy. For `context7`: `claude mcp remove context7 -s user`, then re-run.
 - **A skill dir shows up twice or as `.backup`.** An old copy from a
   no-Developer-Mode run. Delete the `.backup.<ts>` directory under
   `~\.claude\skills\`; re-runs do not create new ones.

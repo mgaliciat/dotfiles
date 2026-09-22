@@ -1,4 +1,4 @@
-# Logbook (OpenKnowledge) — authoring engine
+# Logbook (logmd) — authoring engine
 
 Shared spec for the `logbook` plugin's **document-writing** skills —
 `/logbook:guide`, `/logbook:runbook`, `/logbook:document`, `/logbook:walkthrough`.

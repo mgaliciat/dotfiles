@@ -1,6 +1,6 @@
 ---
 name: entry
-description: Write one immutable per-invocation work-log note (entries/YYYY-MM-DD-HHMM-<repo>) into the OpenKnowledge vault, recording what changed and why, tagged by repo so a day spanning many agents and services can be read, cross-referenced, and later synthesized by /logbook:ingest. Use when the user says "logbook", "bitácora", "guarda resumen", "resumen del día", or after landing a git commit / opening a PR.
+description: Write one immutable per-invocation work-log note (entries/YYYY-MM-DD-HHMM-<repo>) into the logmd vault, recording what changed and why, tagged by repo so a day spanning many agents and services can be read, cross-referenced, and later synthesized by /logbook:ingest. Use when the user says "logbook", "bitácora", "guarda resumen", "resumen del día", or after landing a git commit / opening a PR.
 ---
 
 # logbook · entry
@@ -37,7 +37,7 @@ it. Keep it to the *reasoning* git won't preserve, not a commit-log dump.
 ## Where
 
 One file **per invocation**: **`entries/YYYY-MM-DD-HHMM-<repo>`** in the
-OpenKnowledge vault, written with the `open-knowledge` MCP's `write` tool
+logmd vault, written with the `logmd` MCP's `write` tool
 (`document`). `<repo>` is the primary repo/service slug — the **repository** name,
 not the product's and not the org's; the vault's `wiki/CLAUDE.md` keeps the alias
 table, and a raw note is never re-tagged after the fact.

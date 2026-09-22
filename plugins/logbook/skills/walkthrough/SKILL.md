@@ -1,6 +1,6 @@
 ---
 name: walkthrough
-description: Trace a process through the real code and write it up as a flow document (flows/<repo>-<process>, type flow) in the OpenKnowledge vault — mermaid diagrams whose every node carries a code anchor (symbol + file:line), pinned to a commit SHA so the document can be mechanically re-verified later. Use when the user says "walkthrough", "flujo", "cómo funciona X por dentro", "traza el proceso", "/logbook:walkthrough", or asks how a service, repo or feature actually executes end to end.
+description: Trace a process through the real code and write it up as a flow document (flows/<repo>-<process>, type flow) in the logmd vault — mermaid diagrams whose every node carries a code anchor (symbol + file:line), pinned to a commit SHA so the document can be mechanically re-verified later. Use when the user says "walkthrough", "flujo", "cómo funciona X por dentro", "traza el proceso", "/logbook:walkthrough", or asks how a service, repo or feature actually executes end to end.
 ---
 
 # logbook · walkthrough

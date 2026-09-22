@@ -1,6 +1,6 @@
 ---
 name: ingest
-description: Synthesize the raw entries/ per-invocation notes into cross-linked wiki/ pages (OKF v0.2) in the OpenKnowledge vault — one per service, concept, decision or entity, linking notes that share a topic. Use when the user says "ingest", "sintetiza la bitácora", "logbook ingest", "/logbook:ingest", or asks to process the logbook into the wiki.
+description: Synthesize the raw entries/ per-invocation notes into cross-linked wiki/ pages (OKF v0.2) in the logmd vault — one per service, concept, decision or entity, linking notes that share a topic. Use when the user says "ingest", "sintetiza la bitácora", "logbook ingest", "/logbook:ingest", or asks to process the logbook into the wiki.
 ---
 
 # logbook · ingest

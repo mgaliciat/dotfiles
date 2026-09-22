@@ -38,15 +38,21 @@ Windows side, so also run [`windows.md`](windows.md) there.
    ```bash
    cat > ~/.zshenv.local <<'EOF'
    export CONTEXT7_API_KEY="…"
-   export OPENKNOWLEDGE_MCP_URL="https://<host>/mcp"
-   export OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID="<id>.access"
-   export OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET="…"
+   export LOGMD_MCP_URL="https://<host>/mcp"
    EOF
    source ~/.zshenv.local
+   mkdir -p ~/.config/claude
+   cat > ~/.config/claude/logmd-headers.json.op <<'EOF'
+   {"CF-Access-Client-Id": "{{ op://<vault>/<item>/CF_ACCESS_CLIENT_ID }}", "CF-Access-Client-Secret": "{{ op://<vault>/<item>/CF_ACCESS_CLIENT_SECRET }}"}
+   EOF
    ```
 
-   This is bash at this point — `source` works the same. All three
-   `OPENKNOWLEDGE_*` or none.
+   The template holds `op://` references, not the token: Claude Code runs
+   `op inject` over it on every connection (`headersHelper`), so `op` must be
+   installed and signed in. Missing the URL, the template or `op` skips the
+   `logmd` registration with a `→ skipped` line.
+
+   This is bash at this point — `source` works the same.
 
 2. Clone and run:
 
@@ -152,7 +158,7 @@ remove it from `~/.local/bin` and re-run.
   pyenv itself. Building a Python needs the build dependencies pyenv
   documents (libssl-dev, zlib1g-dev, libbz2-dev, libreadline-dev, libsqlite3-dev,
   libffi-dev, liblzma-dev…) — apt-get them, then retry.
-- **`→ context7: skipped` / `→ open-knowledge: skipped`.** Env var not in the
+- **`→ context7: skipped` / `→ logmd: skipped`.** Env var not in the
   shell that ran the installer. Fix `~/.zshenv.local`, `exec zsh`, re-run.
 - **Rotated token.** `claude mcp remove <name> -s user`, then re-run.
 - **tmux config not reloaded.** No server was running, which is normal on a

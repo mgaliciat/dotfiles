@@ -173,94 +173,84 @@ elif [[ -z "${CONTEXT7_API_KEY:-}" ]]; then
   echo "→ context7: skipped (no CONTEXT7_API_KEY — add it to ~/.zshenv.local)"
 fi
 
-# ─── open-knowledge (the vault behind the logbook skills) ──────
+# ─── logmd (the vault behind the logbook skills) ──────────────
 # Same shape as context7: a hosted HTTP endpoint we only register — no binary,
-# nothing to install, no local port. It is the OpenKnowledge server
-# (github.com/inkeep/open-knowledge) holding the personal knowledge base the
-# `logbook` skills read and write. Doc + skills: `okf-knowledge-base`
-# (OKF v0.2 semantics) ships with the server, not from here.
+# nothing to install, no local port. It is a logmd server (open-logmd/logmd-server)
+# holding the personal knowledge base the `logbook` skills read and write. It
+# replaced an OpenKnowledge server on 2026-09-22 and speaks the same tools, so the
+# skills did not change shape — only the server's name.
 #
-# EVERY value comes from the ENVIRONMENT — including the URL, which is the one
-# difference from context7. The endpoint is a personal host and this repo is
-# PUBLIC; hardcoding it would leak where the vault lives for the sake of saving
-# one env var. So ~/.zshenv.local (gitignored) carries all three:
+# Two inputs, neither of them in this PUBLIC repo:
 #
-#   export OPENKNOWLEDGE_MCP_URL="https://<host>/mcp"
-#   export OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID="<id>.access"
-#   export OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET="<secret>"
+#   ~/.zshenv.local                       export LOGMD_MCP_URL="https://<host>/mcp"
+#   ~/.config/claude/logmd-headers.json.op
+#     {"CF-Access-Client-Id": "{{ op://<vault>/<item>/CF_ACCESS_CLIENT_ID }}",
+#      "CF-Access-Client-Secret": "{{ op://<vault>/<item>/CF_ACCESS_CLIENT_SECRET }}"}
 #
-# The two CF-Access headers are a Cloudflare Access service token — the endpoint
-# sits behind Zero Trust, so without them every call gets an HTML login page
-# instead of JSON-RPC, which surfaces as a server that connects and has no tools.
-# A machine missing any of the three skips cleanly: install.sh must not fail
-# there, and a HALF-registered server (URL, no token) is worse than none — it
-# looks configured and fails at call time.
+# The endpoint sits behind Cloudflare Access, and the two headers are a service
+# token. They reach Claude Code through `headersHelper`: a command it runs on every
+# connection, here `op inject` over that template, so the token lives in 1Password
+# and never in ~/.claude.json. The template holds only `op://` references, which is
+# why it can sit in plain sight — but they name a vault and an item, so it stays
+# out of this repo. Missing the URL, the template or `op` skips cleanly: a server
+# registered without its headers connects to an Access login page and looks broken.
 #
-# `--scope user` is load-bearing for the same reason as context7: the CLI default
-# `local` would bind the server to the dotfiles directory, and the entire point of
-# a vault is that a note written from one repo is readable from every other.
-#
-# Idempotence is ours (`claude mcp add` errors if the name exists), so a ROTATED
-# token needs `claude mcp remove open-knowledge -s user` before a re-run.
+# The OpenKnowledge-era `open-knowledge` entry is removed on the way: it points at
+# a stopped server, and a stale name beside the live one is how an agent writes to
+# the wrong vault. `--scope user` for the same reason as context7.
+LOGMD_HEADERS="$HOME/.config/claude/logmd-headers.json.op"
 if command -v claude >/dev/null 2>&1 \
-   && [[ -n "${OPENKNOWLEDGE_MCP_URL:-}" ]] \
-   && [[ -n "${OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID:-}" ]] \
-   && [[ -n "${OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET:-}" ]]; then
+   && [[ -n "${LOGMD_MCP_URL:-}" ]] \
+   && [[ -f "$LOGMD_HEADERS" ]] \
+   && command -v op >/dev/null 2>&1; then
   if claude mcp get open-knowledge >/dev/null 2>&1; then
-    echo "✓ open-knowledge: already registered"
-  elif claude mcp add --transport http open-knowledge "$OPENKNOWLEDGE_MCP_URL" \
-      --scope user \
-      --header "CF-Access-Client-Id: $OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID" \
-      --header "CF-Access-Client-Secret: $OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET" \
-      >/dev/null 2>&1 </dev/null; then
-    echo "✓ open-knowledge: MCP server registered (user scope)"
+    claude mcp remove open-knowledge -s user >/dev/null 2>&1 \
+      && echo "✓ open-knowledge: removed (replaced by logmd)"
+  fi
+  if claude mcp get logmd >/dev/null 2>&1; then
+    echo "✓ logmd: already registered"
+  elif claude mcp add-json logmd \
+      "$(jq -n --arg url "$LOGMD_MCP_URL" --arg helper "op inject -i $LOGMD_HEADERS" \
+          '{type: "http", url: $url, headersHelper: $helper}')" \
+      --scope user >/dev/null 2>&1 </dev/null; then
+    echo "✓ logmd: MCP server registered (user scope, headers from 1Password)"
   else
-    echo "⚠️  open-knowledge registration failed — check by hand (claude mcp add ...)"
+    echo "⚠️  logmd registration failed — check by hand (claude mcp add-json logmd ...)"
   fi
 elif command -v claude >/dev/null 2>&1; then
-  echo "→ open-knowledge: skipped (needs OPENKNOWLEDGE_MCP_URL + the two CF-Access vars in ~/.zshenv.local)"
+  echo "→ logmd: skipped (needs LOGMD_MCP_URL in ~/.zshenv.local, $LOGMD_HEADERS and op)"
 fi
 
 # The SAME server for Antigravity, which reads ~/.gemini/config/mcp_config.json
 # (antigravity.google/docs/mcp: `serverUrl` + `headers` for a remote server; the
-# `url` key is rejected, and nothing documents env-var interpolation). The logbook
-# plugin is linked into Antigravity by settings.sh and its rules mandate this MCP,
-# so a host with the plugin but no server would fail at every vault call. It could
-# ship an mcp_config.json inside the plugin, but that file would carry the URL and
-# the CF-Access token into a public repo — hence written here from the same three
-# env vars, same all-or-nothing guard. Not gated on Antigravity being installed:
+# `url` key is rejected, and it has no headersHelper). So here the template IS
+# resolved, once, at install time, and the token lands in that file literally —
+# the one place it does, and the reason this is not an mcp_config.json shipped
+# inside the public plugin. A rotated token means re-running install.sh; the entry
+# is rewritten every run for that reason. Not gated on Antigravity being installed:
 # writing the file costs nothing and the app picks it up whenever it arrives.
-# Idempotent on the server name; a rotated token means deleting the entry first.
-if [[ -n "${OPENKNOWLEDGE_MCP_URL:-}" ]] \
-   && [[ -n "${OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID:-}" ]] \
-   && [[ -n "${OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET:-}" ]]; then
+if [[ -n "${LOGMD_MCP_URL:-}" ]] && [[ -f "$LOGMD_HEADERS" ]] \
+   && command -v op >/dev/null 2>&1; then
   AGY_MCP="$HOME/.gemini/config/mcp_config.json"
   mkdir -p "$(dirname "$AGY_MCP")"
   [[ -s "$AGY_MCP" ]] || echo '{}' > "$AGY_MCP"
-  if jq -e '.mcpServers["open-knowledge"]' "$AGY_MCP" >/dev/null 2>&1; then
-    echo "✓ open-knowledge: already registered in Antigravity"
-  else
-    AGY_TMP="$(mktemp)"
-    if jq --arg url "$OPENKNOWLEDGE_MCP_URL" \
-          --arg id "$OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID" \
-          --arg secret "$OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET" \
+  AGY_TMP="$(mktemp)"
+  if AGY_HEADERS="$(op inject -i "$LOGMD_HEADERS" 2>/dev/null)" \
+     && jq --arg url "$LOGMD_MCP_URL" --argjson headers "$AGY_HEADERS" \
           '.mcpServers //= {}
-           | .mcpServers["open-knowledge"] = {
-               serverUrl: $url,
-               headers: {
-                 "CF-Access-Client-Id": $id,
-                 "CF-Access-Client-Secret": $secret
-               }
-             }' "$AGY_MCP" > "$AGY_TMP"; then
-      mv "$AGY_TMP" "$AGY_MCP"
-      echo "✓ open-knowledge: registered in Antigravity ($AGY_MCP)"
-    else
-      rm -f "$AGY_TMP"
-      echo "⚠️  open-knowledge: could not write $AGY_MCP — check it by hand"
-    fi
+           | del(.mcpServers["open-knowledge"])
+           | .mcpServers["logmd"] = { serverUrl: $url, headers: $headers }' \
+          "$AGY_MCP" > "$AGY_TMP"; then
+    mv "$AGY_TMP" "$AGY_MCP"
+    chmod 600 "$AGY_MCP"
+    echo "✓ logmd: registered in Antigravity ($AGY_MCP)"
+  else
+    rm -f "$AGY_TMP"
+    echo "⚠️  logmd: could not write $AGY_MCP — is 1Password unlocked?"
   fi
-  unset AGY_MCP AGY_TMP
+  unset AGY_MCP AGY_TMP AGY_HEADERS
 fi
+unset LOGMD_HEADERS
 
 # ─── gh-stack skill (stacked PRs) ─────────────────────────────
 # Mechanism 2 with a twist: the external tool here is not a binary we install but

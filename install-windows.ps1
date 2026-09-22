@@ -17,8 +17,8 @@
 #     its versioned config.toml, COPIED like on mac/Linux
 #   - codebase-memory-mcp — the `-ui-` release asset, NOT the official
 #     install.ps1 (which hardcodes the headless build; see that block)
-#   - HTTP-endpoint MCPs (context7, open-knowledge) — mechanism 2, credentials
-#     (and, for open-knowledge, the URL itself) from env vars
+#   - HTTP-endpoint MCPs (context7, logmd) — mechanism 2, credentials from env
+#     vars (context7) or 1Password through `op` (logmd, whose URL is env too)
 #   - gh-stack: the `gh` extension + its skill (npx skills) — mirror of
 #     bootstrap_gh_stack in scripts/lib.sh and the block in binaries.sh
 #   - Nerd Fonts (the ONE stack layer that DOES exist on Windows: Windows
@@ -166,7 +166,7 @@ Set-DotfileSymlink (Join-Path $Dotfiles "claude\CLAUDE.md")      (Join-Path $Cla
 
 # The per-ITEM skill plugin we author (logbook) -- mirror of settings.sh's
 # per-item symlinks. NOT the whole skills/ dir: that stays per-machine (`learned`,
-# `codebase-memory`, the OpenKnowledge ones) and versioning it risks leaking
+# `codebase-memory`) and versioning it risks leaking
 # personal state. This one we control and version, so it symlinks in beside the
 # others. `logbook` is a skills-dir plugin (.claude-plugin/plugin.json) but
 # installs by THIS symlink alone -- referenced in place, so `git pull` propagates
@@ -176,8 +176,7 @@ Set-DotfileSymlink (Join-Path $Dotfiles "claude\CLAUDE.md")      (Join-Path $Cla
 # skills/ may not exist yet (codebase-memory-mcp creates it later), so make it
 # first.
 #
-# Runtime note: all nine read and write through the `open-knowledge` MCP, wired
-# below.
+# Runtime note: all nine read and write through the `logmd` MCP, wired below.
 #
 # $SkillsDir is also read by the gh-stack block far below. It was defined HERE,
 # and when these symlinks were dropped in aug-2026 the definition went with them
@@ -840,56 +839,70 @@ if ((Get-Command claude -ErrorAction SilentlyContinue) -and $env:CONTEXT7_API_KE
     Write-Host "i   context7: skipped (no CONTEXT7_API_KEY env var -- setx CONTEXT7_API_KEY <key>)"
 }
 
-# ─── open-knowledge MCP (mechanism 2 — twin of binaries.sh) ─────
-# The OpenKnowledge server holding the personal knowledge base that the `logbook`
-# skills (symlinked far above) read and write. Hosted HTTP endpoint:
-# register it, nothing to install.
+# ─── logmd MCP (mechanism 2 — twin of binaries.sh) ──────────────
+# The logmd server holding the personal knowledge base that the `logbook` skills
+# (symlinked far above) read and write. It replaced an OpenKnowledge server on
+# 2026-09-22 with the same tools. Hosted HTTP endpoint: register it, nothing to
+# install.
 #
-# EVERY value comes from the environment, the URL included -- Windows user env
-# vars here, since native Windows has no ~/.zshenv.local:
+# Two inputs, neither in this PUBLIC repo:
 #
-#   setx OPENKNOWLEDGE_MCP_URL "https://<host>/mcp"
-#   setx OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID "<id>.access"
-#   setx OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET "<secret>"
+#   setx LOGMD_MCP_URL "https://<host>/mcp"
+#   ~\.config\claude\logmd-headers.json.op   -- the Cloudflare Access service token
+#     as `op://` references, the same file binaries.sh documents
 #
-# The URL is env-sourced rather than hardcoded (unlike context7's public endpoint)
-# because it is a PERSONAL host and this repo is public. The two CF-Access headers
-# are a Cloudflare Access service token: without them the endpoint answers with an
-# HTML login page instead of JSON-RPC, which surfaces as a server that connects
-# and has no tools. All three or none -- a half-registered server looks configured
-# and fails at call time, which is far worse to diagnose than an absent one.
+# Claude Code gets the headers from `headersHelper`, which runs `op inject` over
+# that template on every connection, so the token stays in 1Password and never
+# lands in ~/.claude.json. Missing the URL, the template or `op` skips cleanly --
+# a server registered without its headers connects to an Access login page.
 #
-# Writes ~/.claude.json, not settings.json, so its position relative to the
-# WriteAllText above does not matter -- only `claude` being on PATH does.
-# Idempotent via `claude mcp get`; a ROTATED token needs
-# `claude mcp remove open-knowledge -s user` first.
-if ((Get-Command claude -ErrorAction SilentlyContinue) -and $env:OPENKNOWLEDGE_MCP_URL `
-    -and $env:OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID -and $env:OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET) {
+# The JSON goes to `claude mcp add-json` as one argument, and PowerShell 5.1 (and
+# 7.x in Legacy mode) strip embedded double quotes when calling a native exe, so
+# they are escaped there and only there -- escaping under 7.3's Standard mode would
+# double them. The OpenKnowledge-era `open-knowledge` entry is removed on the way.
+$LogmdHeaders = Join-Path $HOME ".config\claude\logmd-headers.json.op"
+$HaveLogmdInputs = $env:LOGMD_MCP_URL -and (Test-Path $LogmdHeaders) -and (Get-Command op -ErrorAction SilentlyContinue)
+if ((Get-Command claude -ErrorAction SilentlyContinue) -and $HaveLogmdInputs) {
     if ((Invoke-Native { claude mcp get open-knowledge }) -eq 0) {
-        Write-Host "OK  open-knowledge: already registered"
-    } elseif ((Invoke-Native { $null | claude mcp add --transport http open-knowledge $env:OPENKNOWLEDGE_MCP_URL -s user --header "CF-Access-Client-Id: $env:OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID" --header "CF-Access-Client-Secret: $env:OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET" }) -eq 0) {
-        Write-Host "OK  open-knowledge: MCP server registered (user scope)"
+        if ((Invoke-Native { claude mcp remove open-knowledge -s user }) -eq 0) {
+            Write-Host "OK  open-knowledge: removed (replaced by logmd)"
+        }
+    }
+    if ((Invoke-Native { claude mcp get logmd }) -eq 0) {
+        Write-Host "OK  logmd: already registered"
     } else {
-        Write-Host "!!  open-knowledge registration failed -- check by hand (claude mcp add ...)" -ForegroundColor Yellow
+        $LogmdJson = [PSCustomObject]@{
+            type          = "http"
+            url           = $env:LOGMD_MCP_URL
+            headersHelper = "op inject -i `"$LogmdHeaders`""
+        } | ConvertTo-Json -Compress
+        $StandardPassing = $PSVersionTable.PSVersion.Major -ge 7 -and $PSNativeCommandArgumentPassing -ne "Legacy"
+        if (-not $StandardPassing) { $LogmdJson = $LogmdJson.Replace('"', '\"') }
+        if ((Invoke-Native { $null | claude mcp add-json logmd $LogmdJson -s user }) -eq 0) {
+            Write-Host "OK  logmd: MCP server registered (user scope, headers from 1Password)"
+        } else {
+            Write-Host "!!  logmd registration failed -- check by hand (claude mcp add-json logmd ...)" -ForegroundColor Yellow
+        }
     }
 } elseif (Get-Command claude -ErrorAction SilentlyContinue) {
-    Write-Host "i   open-knowledge: skipped (needs OPENKNOWLEDGE_MCP_URL + the two CF-Access env vars -- setx)"
+    Write-Host "i   logmd: skipped (needs LOGMD_MCP_URL -- setx --, $LogmdHeaders and op)"
 }
 
-# ─── the SAME open-knowledge server for Antigravity (twin of binaries.sh) ───
+# ─── the SAME logmd server for Antigravity (twin of binaries.sh) ───
 # Antigravity reads ~/.gemini/config/mcp_config.json: `serverUrl` + `headers` for
-# a remote server (its docs reject `url`, and document no env-var interpolation),
-# so the URL and the CF-Access token are written in literally -- which is why this
-# is not an mcp_config.json shipped inside the public plugin dir. Same three env
-# vars, same all-or-nothing guard as the Claude Code block above, so both agents
-# write into ONE vault. Not gated on Antigravity being installed: the file costs
-# nothing and is picked up whenever the app arrives. Idempotent on the server
-# name; a rotated token means removing the entry first.
-if ($env:OPENKNOWLEDGE_MCP_URL -and $env:OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID -and $env:OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET) {
+# a remote server, and no headersHelper. So the template is resolved once, here,
+# and the token is written in literally -- the one file that holds it, and why this
+# is not an mcp_config.json shipped inside the public plugin dir. The entry is
+# rewritten on every run, so a rotated token is one re-run away. Not gated on
+# Antigravity being installed: the file costs nothing and is picked up whenever the
+# app arrives.
+if ($HaveLogmdInputs) {
     $AgyConfigDir  = Join-Path $HOME ".gemini\config"
     $AgyConfigFile = Join-Path $AgyConfigDir "mcp_config.json"
     New-Item -ItemType Directory -Path $AgyConfigDir -Force | Out-Null
     try {
+        $AgyHeaders = (& op inject -i $LogmdHeaders) -join "`n" | ConvertFrom-Json
+        if ($LASTEXITCODE -ne 0) { throw "op inject failed -- is 1Password unlocked?" }
         $AgyConfig = [PSCustomObject]@{ mcpServers = [PSCustomObject]@{} }
         if (Test-Path $AgyConfigFile) {
             $RawAgy = Get-Content -Raw $AgyConfigFile
@@ -898,22 +911,16 @@ if ($env:OPENKNOWLEDGE_MCP_URL -and $env:OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID -and 
         if (-not ($AgyConfig.PSObject.Properties.Name -contains "mcpServers")) {
             $AgyConfig | Add-Member -NotePropertyName "mcpServers" -NotePropertyValue ([PSCustomObject]@{})
         }
-        if ($AgyConfig.mcpServers.PSObject.Properties.Name -contains "open-knowledge") {
-            Write-Host "OK  open-knowledge: already registered in Antigravity"
-        } else {
-            $AgyConfig.mcpServers | Add-Member -NotePropertyName "open-knowledge" -NotePropertyValue ([PSCustomObject]@{
-                serverUrl = $env:OPENKNOWLEDGE_MCP_URL
-                headers   = [PSCustomObject]@{
-                    "CF-Access-Client-Id"     = $env:OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID
-                    "CF-Access-Client-Secret" = $env:OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET
-                }
-            })
-            # -Depth 10: the default of 2 truncates the nested headers object.
-            $AgyConfig | ConvertTo-Json -Depth 10 | Set-Content -Path $AgyConfigFile -Encoding utf8
-            Write-Host "OK  open-knowledge: registered in Antigravity ($AgyConfigFile)"
-        }
+        $AgyConfig.mcpServers.PSObject.Properties.Remove("open-knowledge")
+        $AgyConfig.mcpServers | Add-Member -Force -NotePropertyName "logmd" -NotePropertyValue ([PSCustomObject]@{
+            serverUrl = $env:LOGMD_MCP_URL
+            headers   = $AgyHeaders
+        })
+        # -Depth 10: the default of 2 truncates the nested headers object.
+        $AgyConfig | ConvertTo-Json -Depth 10 | Set-Content -Path $AgyConfigFile -Encoding utf8
+        Write-Host "OK  logmd: registered in Antigravity ($AgyConfigFile)"
     } catch {
-        Write-Host "!!  open-knowledge: could not write $AgyConfigFile -- $($_.Exception.Message)" -ForegroundColor Yellow
+        Write-Host "!!  logmd: could not write $AgyConfigFile -- $($_.Exception.Message)" -ForegroundColor Yellow
     }
 }
 

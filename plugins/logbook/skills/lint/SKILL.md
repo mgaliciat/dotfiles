@@ -1,6 +1,6 @@
 ---
 name: lint
-description: Health-check the OpenKnowledge wiki for rot — OKF conformance, broken links, orphans, contradictions, stale claims, missing cross-refs, gaps. Report, don't fix without confirming. Use when the user says "lint wiki", "lint logbook", "/logbook:lint", or asks to check the vault for rot.
+description: Health-check the logmd wiki for rot — OKF conformance, broken links, orphans, contradictions, stale claims, missing cross-refs, gaps. Report, don't fix without confirming. Use when the user says "lint wiki", "lint logbook", "/logbook:lint", or asks to check the vault for rot.
 ---
 
 # logbook · lint

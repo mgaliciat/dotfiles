@@ -1,4 +1,4 @@
-# Logbook (OpenKnowledge) — engine
+# Logbook (logmd) — engine
 
 Shared spec for every `logbook` skill except the capture gate — the synthesis
 three (`/logbook:ingest`, `/logbook:query`, `/logbook:lint`) and the authoring
@@ -59,7 +59,7 @@ Two things it defers to in turn:
 
 ## Tools: use the MCP, not the filesystem
 
-The vault is remote (an HTTP OpenKnowledge server). There is no local copy, so
+The vault is remote (an HTTP logmd server behind Cloudflare Access). There is no local copy, so
 `Read`/`Grep`/`Glob` cannot reach it at all — and even where a project has an
 `.ok/` on disk, the native tools skip the frontmatter, backlinks, unresolved
 comments and attribution that `exec` returns per file. The mapping:
@@ -144,8 +144,8 @@ wrong for consistency, not because the form is invalid.
 
 A page with no backlink to the raw note(s) it synthesizes is unfinished.
 
-Links are not decoration here. OpenKnowledge retrieval is a **lexical loop** —
-BM25 plus recency plus graph traversal, with semantic search off — so links,
+Links are not decoration here. Retrieval here is a **lexical loop** —
+BM25 plus recency plus graph traversal, with no semantic search — so links,
 folders, titles and folder descriptions *are* the index. Every link shortens the
 next agent's loop.
 
@@ -169,9 +169,10 @@ index makes pages unreachable for anyone reading the bundle without listing the
 directory. `wiki/log.md` is **newest-first**, one `## YYYY-MM-DD: <op> | <summary>`
 heading per operation.
 
-**Do not turn on the `okf` plugin's index generation.** Generated indexes are
-machine-owned and OpenKnowledge replaces their contents, taking every
-hand-written one with them — `wiki/`'s two and the per-folder `index.md` each
+**Never let anything generate them.** logmd generates no index, and nothing
+should: a generated index is machine-owned and replaces its file's contents,
+taking every hand-written one with it — OpenKnowledge's `okf` plugin did exactly
+that, and would again if the vault were ever opened there — `wiki/`'s two and the per-folder `index.md` each
 authored layer keeps.
 
 ### The watermark

@@ -38,15 +38,19 @@ per-machine files and the two silent guards.
    ```bash
    cat > ~/.zshenv.local <<'EOF'
    export CONTEXT7_API_KEY="…"
-   export OPENKNOWLEDGE_MCP_URL="https://<host>/mcp"
-   export OPENKNOWLEDGE_CF_ACCESS_CLIENT_ID="<id>.access"
-   export OPENKNOWLEDGE_CF_ACCESS_CLIENT_SECRET="…"
+   export LOGMD_MCP_URL="https://<host>/mcp"
    EOF
    source ~/.zshenv.local
+   mkdir -p ~/.config/claude
+   cat > ~/.config/claude/logmd-headers.json.op <<'EOF'
+   {"CF-Access-Client-Id": "{{ op://<vault>/<item>/CF_ACCESS_CLIENT_ID }}", "CF-Access-Client-Secret": "{{ op://<vault>/<item>/CF_ACCESS_CLIENT_SECRET }}"}
+   EOF
    ```
 
-   All three `OPENKNOWLEDGE_*` vars or none — a half-registered server looks
-   configured and fails at call time.
+   The template holds `op://` references, not the token: Claude Code runs
+   `op inject` over it on every connection (`headersHelper`), so `op` must be
+   installed and signed in. Missing the URL, the template or `op` skips the
+   `logmd` registration with a `→ skipped` line.
 
 2. Clone and run. Any path works (the scripts locate themselves); `~/dotfiles`
    is the convention the docs assume.
@@ -122,8 +126,8 @@ per-machine files and the two silent guards.
 ```bash
 readlink ~/.zshrc ~/.config/nvim ~/.config/tmux ~/.local/bin/ide     # all into the repo
 readlink ~/.claude/CLAUDE.md ~/.claude/skills/logbook ~/.claude/hooks/logbook.sh
-readlink ~/.gemini/config/plugins/logbook && jq '.mcpServers | keys' ~/.gemini/config/mcp_config.json   # Antigravity: same plugin, open-knowledge
-claude mcp list                                                     # context7, open-knowledge, codebase-memory
+readlink ~/.gemini/config/plugins/logbook && jq '.mcpServers | keys' ~/.gemini/config/mcp_config.json   # Antigravity: same plugin, logmd
+claude mcp list                                                     # context7, logmd, codebase-memory
 rtk --version && rtk config                                         # config path under ~/Library/Application Support/rtk
 tgrep --version                                                     # brew formula; index/serve are per-repo, opt-in
 tmux -V && git -C ~/.config/tmux/plugins/tmux-claude-hatch rev-parse --short HEAD
@@ -144,12 +148,12 @@ file does nothing on screen until `Cmd+Shift+R`.
 
 ## Troubleshooting
 
-- **`→ context7: skipped` / `→ open-knowledge: skipped`.** The env var was not
+- **`→ context7: skipped` / `→ logmd: skipped`.** The env var was not
   in the shell that ran the installer. Add it to `~/.zshenv.local`, `exec zsh`,
   re-run.
 - **Rotated token.** `claude mcp add` errors if the name exists, so the
   installer will report "already registered" with the old header. Remove first:
-  `claude mcp remove open-knowledge -s user` (or `context7`), then re-run.
+  `claude mcp remove context7 -s user`, then re-run. `logmd` reads its token from 1Password on every connection, so rotating it there is enough; re-run only to refresh Antigravity's copy.
 - **Ghostty "theme not found".** Themes must be under `~/.config/ghostty/themes`,
   not beside the config. `readlink ~/.config/ghostty/themes` should point into
   the repo; re-run the installer if not.

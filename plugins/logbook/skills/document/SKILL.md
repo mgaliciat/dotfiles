@@ -1,6 +1,6 @@
 ---
 name: document
-description: Author a long-form technical document (docs/<topic>, type document) in the OpenKnowledge vault — a design doc, an architecture explanation, a deep analysis or a comparison — researched from verified sources (the code and the tools themselves, the vault, and gated web research), never from the conversation's own context. Use when the user says "document", "documento", "design doc", "documenta X a fondo", "/logbook:document", or asks for a detailed written treatment of a system or decision.
+description: Author a long-form technical document (docs/<topic>, type document) in the logmd vault — a design doc, an architecture explanation, a deep analysis or a comparison — researched from verified sources (the code and the tools themselves, the vault, and gated web research), never from the conversation's own context. Use when the user says "document", "documento", "design doc", "documenta X a fondo", "/logbook:document", or asks for a detailed written treatment of a system or decision.
 ---
 
 # logbook · document

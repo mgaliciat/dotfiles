@@ -1,6 +1,6 @@
 ---
 name: guide
-description: Author a detailed reference or usage guide (guides/<topic>, type guide) in the OpenKnowledge vault — a cheatsheet, a keymap table, how a tool is used day to day — built from verified sources (the code and the binary itself, the vault, and gated web research), never from the conversation's own context. Use when the user says "guide", "guía", "cheatsheet", "/logbook:guide", or asks for reference documentation on a tool or config.
+description: Author a detailed reference or usage guide (guides/<topic>, type guide) in the logmd vault — a cheatsheet, a keymap table, how a tool is used day to day — built from verified sources (the code and the binary itself, the vault, and gated web research), never from the conversation's own context. Use when the user says "guide", "guía", "cheatsheet", "/logbook:guide", or asks for reference documentation on a tool or config.
 ---
 
 # logbook · guide

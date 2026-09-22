@@ -15,10 +15,11 @@ The skills invoke as `/logbook:<name>` on both hosts: `entry`, `ingest`, `query`
 and, for authoring, `AUTHORING.md` (the evidence rule) from this root first, so
 the spec is single-source.
 
-Everything writes through the `open-knowledge` MCP server. Its URL and Cloudflare
-Access token are secrets, so no `mcp_config.json` ships here: `claude/install/binaries.sh`
-and `install-windows.ps1` register the same server for both hosts from the three
-`OPENKNOWLEDGE_*` environment variables.
+Everything writes through the `logmd` MCP server (it replaced OpenKnowledge on
+2026-09-22 with the same tools). Its URL and Cloudflare Access token are secrets, so
+no `mcp_config.json` ships here: `claude/install/binaries.sh` and
+`install-windows.ps1` register the same server for both hosts from `LOGMD_MCP_URL`
+and a 1Password template, `~/.config/claude/logmd-headers.json.op`.
 
 The hook is Claude Code only. Antigravity gets the equivalent trigger as prose in
 `rules/AGENTS.md`.

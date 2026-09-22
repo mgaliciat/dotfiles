@@ -1,4 +1,4 @@
-# Logbook & OpenKnowledge Rules
+# Logbook & logmd Rules
 
 When this plugin is active, follow these rules for knowledge capture and vault interaction:
 
@@ -8,9 +8,9 @@ When this plugin is active, follow these rules for knowledge capture and vault i
 - **Vault paths:** Raw immutable notes live under `entries/YYYY-MM-DD-HHMM-<repo>.md`. Synthesized wiki pages live under `wiki/`. `logbook` is the tooling/plugin name, never a folder path in the vault.
 
 ## 2. Tooling
-- Always use the `open-knowledge` MCP tools (`write`, `edit`, `search`, `links`, `exec`, `checkpoint`) to interact with the vault.
-- Do not use standard filesystem tools (e.g. direct file writes) for remote or managed OpenKnowledge vaults.
-- If the `open-knowledge` MCP server is unreachable, report it to the user rather than silently writing to temporary local files.
+- Always use the `logmd` MCP tools (`write`, `edit`, `search`, `links`, `exec`, `checkpoint`) to interact with the vault.
+- Do not use standard filesystem tools (e.g. direct file writes) for the vault: it is remote, and the MCP is the only way in.
+- If the `logmd` MCP server is unreachable, report it to the user rather than silently writing to temporary local files.
 
 ## 3. Capture Workflow (Logbook Entry)
 - **Trigger:** After landing a `git commit` or opening a PR that closes a meaningful unit of work (not a WIP step), or when the user mentions "logbook", "bitácora", "guarda resumen", or invokes `/logbook:entry`:

@@ -1,6 +1,6 @@
 ---
 name: runbook
-description: Author a detailed operating procedure (runbooks/<repo>-<topic>, type runbook) in the OpenKnowledge vault — prerequisites, the exact commands in the order that works, per-step verification, troubleshooting and undo — built by reading the real scripts and running the real commands, never from the conversation's own context. Use when the user says "runbook", "procedimiento", "/logbook:runbook", or asks how to bring something up, deploy, migrate or recover it step by step.
+description: Author a detailed operating procedure (runbooks/<repo>-<topic>, type runbook) in the logmd vault — prerequisites, the exact commands in the order that works, per-step verification, troubleshooting and undo — built by reading the real scripts and running the real commands, never from the conversation's own context. Use when the user says "runbook", "procedimiento", "/logbook:runbook", or asks how to bring something up, deploy, migrate or recover it step by step.
 ---
 
 # logbook · runbook

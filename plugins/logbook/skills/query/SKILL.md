@@ -1,6 +1,6 @@
 ---
 name: query
-description: Answer a question from the OpenKnowledge wiki without re-deriving it from scratch, filing any new knowledge worth keeping. Use when the user says "query wiki", "pregunta a la wiki", "/logbook:query", or asks a question meant to be answered from the vault.
+description: Answer a question from the logmd wiki without re-deriving it from scratch, filing any new knowledge worth keeping. Use when the user says "query wiki", "pregunta a la wiki", "/logbook:query", or asks a question meant to be answered from the vault.
 ---
 
 # logbook · query

@@ -1,6 +1,6 @@
 ---
 name: task
-description: Capture, list and close pending work on a per-repo board (tasks/<repo>, type task-board) in the OpenKnowledge vault, with enough context to pick it up cold and a code anchor confirmed against the real code when the task is technical. Use when the user says "task", "tarea", "pendiente", "apunta esto", "queda pendiente", "/logbook:task", describes work to do later, or wants to see or close what is open.
+description: Capture, list and close pending work on a per-repo board (tasks/<repo>, type task-board) in the logmd vault, with enough context to pick it up cold and a code anchor confirmed against the real code when the task is technical. Use when the user says "task", "tarea", "pendiente", "apunta esto", "queda pendiente", "/logbook:task", describes work to do later, or wants to see or close what is open.
 ---
 
 # logbook · task
@@ -27,7 +27,7 @@ Three operations, one verb:
 ## Where
 
 **`tasks/<repo>.md`** — one board per repository, `type: task-board`, written
-through the `open-knowledge` MCP. `<repo>` is the repository slug, bare, the same
+through the `logmd` MCP. `<repo>` is the repository slug, bare, the same
 one `/logbook:entry` uses.
 
 - **Never `write` at a board that exists.** `write` with `position: replace`

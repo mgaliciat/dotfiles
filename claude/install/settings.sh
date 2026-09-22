@@ -26,11 +26,12 @@ link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 # whole dir was rejected (see project CLAUDE.md: per-machine content, .gitignore
 # leak risk). A hand-authored skill we DO version is the additive exception: we
 # control its content, it sits beside the per-machine skills (`learned`,
-# `codebase-memory`, the OpenKnowledge ones) without touching them, and there is no
+# `codebase-memory`) without touching them, and there is no
 # leak because the repo folder only ever holds what we put there.
 #
 # Dropped in aug-2026 with the obsidian MCP they wrote through, and back in
-# sep-2026 rewritten against the `open-knowledge` MCP (registered in binaries.sh).
+# sep-2026 rewritten against the vault's MCP — `logmd` since 2026-09-22, registered
+# in binaries.sh.
 #
 # `logbook` covers BOTH vault layers, capture and synthesis: `/logbook:entry`
 # writes one immutable note per invocation into entries/, and ingest/query/lint
