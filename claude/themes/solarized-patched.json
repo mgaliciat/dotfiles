@@ -1,0 +1,12 @@
+{
+  "name": "solarized-patched",
+  "base": "dark",
+  "overrides": {
+    "diffAddedDimmed": "#031219",
+    "diffRemovedDimmed": "#031219",
+    "diffAdded": "#0e4429",
+    "diffRemoved": "#5a1b22",
+    "diffAddedWord": "#1f7a4d",
+    "diffRemovedWord": "#b02a33"
+  }
+}

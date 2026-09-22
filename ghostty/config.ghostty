@@ -40,7 +40,7 @@
 #
 # A different palette from `solarized-dark`, also in this family: that one is
 # Schoonover's canonical scheme, this cut re-tunes every value.
-theme = typesafe-dark
+theme = solarized-patched
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -84,45 +84,56 @@ theme = typesafe-dark
 #   · typesafe-dark — its dark companion: the same sage hue at 11% lightness
 #     (#182221, derived — the page has no dark mode); every other value tuned
 #     to that canvas in OKLCH, the page's tokens giving only the hues.
-# ─── craftzdog's two overrides ────────────────────────────────
-# Both WIN over the theme's own values regardless of order, so they are the pair
-# that decides what the terminal actually looks like.
+# ─── craftzdog's overrides ────────────────────────────────────
+# These WIN over the theme's own values regardless of order, so whatever is
+# uncommented here is what the terminal actually looks like.
 #
 # `background = #031219` is his, verbatim: a deep ocean near-black blue, over the
 # patched cut's own #001e27. Comment it out the day a theme should own its canvas.
 #
-# `foreground = #ffffff` is ALSO what he reads, but by accident rather than by a
-# line in his file. His `theme =` doesn't resolve (see above), so his foreground
-# falls back to Ghostty's default — and that default is pure white, confirmed with
-# `ghostty +show-config --default`. Pinning it here reproduces his text tone on
-# top of a theme that actually loads.
+# `foreground = #ffffff` is NOT his, and the whole point of this block is the
+# difference. He writes no foreground line at all, so Ghostty's default applies,
+# and that default is pure white (`ghostty +show-config --default`). It only
+# applies because his `theme =` does not resolve (see above); with the theme
+# loaded the text is the cut's own #708284. So white is what his config produces
+# today, by accident, and #708284 is the look he is actually known for.
 #
-# It is a big departure from Solarized, which is the point of writing it down:
-# white on #031219 is 19.01:1 contrast against 4.72:1 for the patched cut's own
-# #708284. Solarized deliberately keeps body text muted so the accents carry the
-# meaning; this makes the text the loudest thing on screen instead.
-# Drop this line to get the theme's real foreground back. Intermediate options if
-# white is too harsh: #819090 (the cut's base1, 5.73:1) or #eae3cb (its ANSI
-# white, warmer).
+# Measured, not argued. His README screenshot (images/screenshot-1.png, committed
+# 2022-04-11, three years before he added a ghostty config at all) samples #6d7e84
+# for body text over a #030f14 canvas — #708284 on #031219, both softened by the
+# window's 0.9 opacity over the wallpaper. In 2022 he was on iTerm2, and that is
+# where the string "Solarized Dark - Patched" comes from: it is an iTerm2 preset
+# name, hyphen and all. He pasted it into Ghostty, which spells the same theme
+# without the hyphen, and has been reading Ghostty's default palette ever since.
 #
-# Only the terminal. His nvim is NOT white — it runs solarized-osaka.nvim with
-# that theme's own muted fg — so nvim and tmux keep the patched palette here.
+# OFF since 2026-09-21, which hands the text back to the theme. Pin it again only
+# to reproduce what his screen shows now rather than what his screenshots show.
+# The difference is a big one: white on #031219 is 19.01:1 against 4.72:1 for
+# #708284, and Solarized keeps body text muted on purpose so that the accents
+# carry the meaning. Intermediate options if #708284 is too quiet: #819090 (the
+# cut's base1, 5.73:1) or #eae3cb (its ANSI white, warmer).
 #
-# Both OFF since 2026-09-18: `typesafe` owns its canvas (#abbab9, the page's own
-# background) and white text on it would be invisible. Uncomment the pair when
-# solarized-patched comes back.
-# background = #031219
+# Only the terminal. His nvim runs solarized-osaka.nvim with that theme's own
+# muted fg, so nvim and tmux keep the patched palette here either way.
+#
+# `background` is back on 2026-09-21 with `solarized-patched`. Both were off
+# between 2026-09-18 and then, under the typesafe pair: a theme that owns its
+# canvas (#abbab9 light, #182221 dark) and where white text would be invisible or
+# too loud. Comment the background out again the day such a theme is active.
+background = #031219
 # foreground = #ffffff
 
-# sRGB since 2026-09-18, under typesafe. `display-p3` reads every hex as a P3
-# coordinate, which on a wide-gamut screen pushes the sage #abbab9 greener and
-# more saturated than the browser paints it — CSS `rgb()` is sRGB, and the
-# theme's whole point is matching that page. The Ghostty doc for this key names
-# `srgb` as the default. Was `display-p3` (orange and cream saturate more on
-# M-chip screens); go back to it under a dark theme whose palette was never
-# matched against a browser.
-window-colorspace = srgb
-# window-colorspace = display-p3
+# Display P3 wide-gamut — orange and cream saturate more on M-chip / Retina
+# screens. No downside on non-P3 machines. Back on 2026-09-21 under
+# solarized-patched, a palette that was never matched against a browser.
+#
+# `srgb` held the slot between 2026-09-18 and today, under the typesafe pair:
+# `display-p3` reads every hex as a P3 coordinate, which on a wide-gamut screen
+# pushes the sage greener and more saturated than the browser paints it — CSS
+# `rgb()` is sRGB, and matching that page is the whole point of those two. It is
+# also the default Ghostty documents for this key.
+window-colorspace = display-p3
+# window-colorspace = srgb
 
 # Automatic minimum contrast. Fine tradeoff:
 #   1.1 = no enforcement (friendly default). Dim grays evaporate
@@ -139,12 +150,12 @@ window-colorspace = srgb
 # load-bearing — his near-invisible Ghost_Character depends on no enforcement) and
 # 3.0 under solarized-dark (2026-08-13).
 #
-# 1.1 under typesafe (2026-09-18) even though it is a light theme. The "3.0 for
-# light themes" rule above assumes a cream or white canvas, where Claude orange
-# clears 3:1 untouched; over the sage #abbab9 the brand set sits at 1.1–1.8:1
-# (orange 1.55, blue 1.46, green 1.83) and 3.0 rewrote all of it, so Claude
-# Code's spinner and accents came out as dark mud. The theme's own 16 slots are
-# tuned above 3:1 by construction and need no enforcement.
+# It stayed 1.1 under typesafe (2026-09-18) even though that one is a light
+# theme: the "3.0 for light themes" rule above assumes a cream or white canvas,
+# where Claude orange clears 3:1 untouched; over the sage #abbab9 the brand set
+# sits at 1.1–1.8:1 (orange 1.55, blue 1.46, green 1.83) and 3.0 rewrote all of
+# it into dark mud. Worth keeping in mind before raising this for any light
+# canvas that is not cream or white.
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
@@ -258,7 +269,7 @@ macos-titlebar-style = transparent
 # still his.
 #
 # The other half of this lives in nvim: `transparent = true` on the ACTIVE theme's
-# spec (lua/themes/typesafe-dark.lua and solarized-patched.lua carry it). Without
+# spec (lua/themes/solarized-patched.lua and typesafe-dark.lua carry it). Without
 # it nvim paints an opaque canvas over the glass and the seam shows at every split
 # edge, so the two move together — and the setting does not follow a theme around,
 # so a theme swap means checking the new spec carries it. `typesafe` (light) does
@@ -276,8 +287,9 @@ macos-titlebar-style = transparent
 # transparent cut; the other material is `macos-glass-regular`, the standard one
 # and the closest analogue to Windows Terminal's acrylic, which held the slot for
 # part of 2026-09-20. Clear ran from 2026-09-11 and was dropped for letting the
-# desktop read through too much — over the LIGHT sage canvas. The stack has been
-# on `typesafe-dark` since, which is the canvas it comes back on.
+# desktop read through too much — over the LIGHT sage canvas. It came back on
+# 2026-09-20 under `typesafe-dark` and stays under `solarized-patched`, the dark
+# canvas it was tuned on in the first place.
 #
 # 0.95, up from his 0.9. The glass carries its own opacity on top of this one, and
 # `background-opacity-cells` below pushes both down onto cells that set their own
@@ -294,13 +306,20 @@ macos-titlebar-style = transparent
 background-opacity = 0.95
 background-blur = macos-glass-clear
 
-# Without this the glass is only half on. `background-opacity` applies to the
-# WINDOW background alone, so any cell carrying an explicit background colour
-# stays fully opaque — Ghostty's own docs call out Neovim and tmux as the programs
-# that repaint cell backgrounds and therefore "may not respect
-# background-opacity (by design)". In practice that is every diff hunk, selection,
-# fzf row and lazygit panel landing as a solid block over a translucent window.
-# `true` extends the opacity to those cells too.
+# `background-opacity` applies to the WINDOW background alone, so any cell
+# carrying an explicit background colour stays fully opaque by default — Ghostty's
+# own docs call out Neovim and tmux as the programs that repaint cell backgrounds
+# and therefore "may not respect background-opacity (by design)". `true` extends
+# the opacity to those cells too, which is what "the glass is only half on
+# otherwise" means here.
+#
+# It also has to be `true` for a TUI colour to be able to DISAPPEAR. A theme that
+# wants no band behind a line paints that line the canvas colour; with cells
+# opaque, that block renders solid while the window around it is glass, so the
+# "invisible" band comes out as a darker rectangle. Only when cells share the
+# window's opacity does canvas-coloured mean actually unseen. claude/themes/
+# solarized-patched.json depends on exactly that for its diff rows, so the two
+# move together: turning this off means giving those rows a real colour again.
 background-opacity-cells = true
 
 # Blend alpha in linear space with the correction step. macOS defaults to

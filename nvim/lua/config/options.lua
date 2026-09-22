@@ -27,7 +27,7 @@
 --                       rest tuned to it in OKLCH on the page's hues
 -- (The solarized-osaka-{day,moon,storm} variants and "obsidian" are still
 --  valid themes here, but outside the matrix.)
-vim.g.theme = "typesafe-dark"
+vim.g.theme = "solarized-patched"
 
 -- ─── remote-plugin providers ──────────────────────────────────
 -- Nothing here is a remote plugin (every plugin is Lua), so the Python,

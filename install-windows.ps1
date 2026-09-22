@@ -1136,7 +1136,7 @@ Install-FontFromRelease -Repo "googlefonts/googlesans-code" -AssetPattern '^Goog
 # layers -- following ghostty would mean a mac theme change silently repainting a
 # machine that has no ghostty installed. Change the look by editing this line
 # and re-running -- no switcher, no pointer.
-$WtTheme = "typesafe-dark"
+$WtTheme = "solarized-patched"
 
 # $WtFont is the font half of the same idea, and it DOES track the Mac: it is
 # ghostty's `font-family` (`250235e`). Kept as its own line rather than parsed
@@ -1206,11 +1206,13 @@ $WtFonts = @("PlemolJP Console NF", "PlemolJP35 Console NF", "Google Sans Code M
 #   alpha-blending            → antialiasingMode is a different knob (grayscale /
 #                               cleartype / aliased), not a colour space. Not a port.
 #   cursor-style-blink        → WT exposes no blink toggle.
-# Both OFF since 2026-09-18 (tracking config.ghostty): `typesafe` / `typesafe-dark`
-# owns its canvas and text. Uncomment the pair when solarized-patched comes back.
+# Tracking config.ghostty: `background` back on 2026-09-21 (craftzdog's canvas
+# pin over solarized-patched), `foreground` left off — white is what his config
+# falls back to, not the look he is known for, and the scheme's own #708284 is.
+# The reasoning, with the measurement behind it, is in ghostty/config.ghostty.
 $WtAppearance = [ordered]@{
-    # foreground                    = "#ffffff"
-    # background                    = "#031219"
+    # foreground                  = "#ffffff"
+    background                    = "#031219"
     opacity                       = 95
     useAcrylic                    = $true
     cursorShape                   = "filledBox"
