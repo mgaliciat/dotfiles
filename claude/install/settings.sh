@@ -41,16 +41,18 @@ link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 # `walkthrough` anchors every diagram node to a file:line at a pinned commit SHA,
 # so its page can be re-verified mechanically. `task` is the odd one: a per-repo
 # board in tasks/, the one MUTABLE layer, holding pending work with a code anchor
-# when it is technical. The per-vault taxonomy is
+# when it is technical. `run` executes the job a note describes (a feature or PR
+# review stamped from a template) and records the outcome back in that note. The
+# per-vault taxonomy is
 # NOT here — it lives in the vault's own wiki/CLAUDE.md, versioned with the content
 # it governs. The plugin is the engine, that file is the config.
 #
 # NOTE: `logbook` is a skills-dir PLUGIN, not a plain skill — the dir holds a
 # `.claude-plugin/plugin.json` (skills: ./skills/) so Claude Code auto-loads it as
-# `logbook@skills-dir`, bundling nine sub-skills that invoke as `/logbook:entry`,
+# `logbook@skills-dir`, bundling ten sub-skills that invoke as `/logbook:entry`,
 # `/logbook:ingest`, `/logbook:query`, `/logbook:lint`, `/logbook:guide`,
 # `/logbook:runbook`, `/logbook:document`, `/logbook:walkthrough`,
-# `/logbook:task`. Plugin skills are ALWAYS
+# `/logbook:task`, `/logbook:run`. Plugin skills are ALWAYS
 # namespaced with a colon: invocation is `/<plugin>:<folder>` (folder = skill name,
 # `logbook` = plugin `name:` from plugin.json). So the folders are the bare nouns
 # and verbs (entry, ingest, …) and you type the real colon form `/logbook:lint` —
@@ -63,9 +65,9 @@ link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 # plugin's value is packaging: one dir, one symlink, and the skills share two spec
 # files at the root (each SKILL.md reads them first) so the spec is single-source —
 # ENGINE.md for the vault's layers and tools, AUTHORING.md for the evidence rule
-# the four authoring skills follow. `entry` and `task` are deliberately outside
-# both and self-contained: each writes one short thing, so reading three spec
-# files first is a cost neither would earn back.
+# the four authoring skills follow. `entry`, `task` and `run` are deliberately
+# outside both and self-contained: reading three spec files first is a cost none
+# of them would earn back.
 link "$DOTFILES/plugins/logbook" "$HOME/.claude/skills/logbook"
 
 # The same dir, linked a second time where Antigravity scans for global plugins

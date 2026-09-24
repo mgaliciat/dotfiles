@@ -1,8 +1,8 @@
 {
   "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
   "name": "logbook",
-  "version": "0.6.0",
-  "description": "Capture, ingest, query and lint a logmd vault (OKF v0.2): one immutable note per invocation, synthesized into cross-linked wiki pages — plus guide, runbook, document and walkthrough, which author detailed documentation from verified sources, and task, a per-repo board of pending work anchored against the real code.",
+  "version": "0.7.0",
+  "description": "Capture, ingest, query and lint a logmd vault (OKF v0.2): one immutable note per invocation, synthesized into cross-linked wiki pages — plus guide, runbook, document and walkthrough, which author detailed documentation from verified sources, task, a per-repo board of pending work anchored against the real code, and run, which executes the job a note describes and records the outcome back in it.",
   "author": {
     "name": "M. Galicia"
   },

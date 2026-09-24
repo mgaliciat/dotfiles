@@ -10,7 +10,7 @@ upgrade path.
 | Antigravity | `~/.gemini/config/plugins/logbook` | `plugin.json` | `skills/`, `rules/AGENTS.md` |
 
 The skills invoke as `/logbook:<name>` on both hosts: `entry`, `ingest`, `query`,
-`lint`, `task`, and the four authoring skills `guide`, `runbook`, `document`,
+`lint`, `task`, `run`, and the four authoring skills `guide`, `runbook`, `document`,
 `walkthrough`. Each SKILL.md reads `ENGINE.md` (the vault's layers and MCP tools)
 and, for authoring, `AUTHORING.md` (the evidence rule) from this root first, so
 the spec is single-source.

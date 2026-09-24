@@ -170,13 +170,14 @@ Set-DotfileSymlink (Join-Path $Dotfiles "claude\CLAUDE.md")      (Join-Path $Cla
 # personal state. This one we control and version, so it symlinks in beside the
 # others. `logbook` is a skills-dir plugin (.claude-plugin/plugin.json) but
 # installs by THIS symlink alone -- referenced in place, so `git pull` propagates
-# edits with no copy and no marketplace. Its nine sub-skills invoke as
+# edits with no copy and no marketplace. Its ten sub-skills invoke as
 # /logbook:entry, /logbook:ingest, /logbook:query, /logbook:lint, /logbook:guide,
-# /logbook:runbook, /logbook:document, /logbook:walkthrough, /logbook:task.
+# /logbook:runbook, /logbook:document, /logbook:walkthrough, /logbook:task,
+# /logbook:run.
 # skills/ may not exist yet (codebase-memory-mcp creates it later), so make it
 # first.
 #
-# Runtime note: all nine read and write through the `logmd` MCP, wired below.
+# Runtime note: all ten read and write through the `logmd` MCP, wired below.
 #
 # $SkillsDir is also read by the gh-stack block far below. It was defined HERE,
 # and when these symlinks were dropped in aug-2026 the definition went with them
