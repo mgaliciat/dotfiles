@@ -330,20 +330,37 @@ if (-not ($Settings.PSObject.Properties.Name -contains "permissions")) {
 # The lists come from claude/install/permissions.json -- the same file the bash
 # side reads with jq. Single source of truth: adding a permission in one place
 # used to leave the other platform silently behind.
+#
+# Same merge as settings.sh: "allow" only when the machine has none, "ask" and
+# "deny" unioned with the repo's rules on every run, "retired" rules removed
+# from all three. Existing entries keep their order; new ones append.
+# -cnotcontains, not -notcontains: PowerShell compares case-INSENSITIVELY by
+# default, and `fd *-x *` / `fd *-X *` are two different rules.
 $Permissions = Get-Content (Join-Path $Dotfiles "claude\install\permissions.json") -Raw | ConvertFrom-Json
+$Retired = @($Permissions.retired)
+$PermsBefore = $Settings.permissions | ConvertTo-Json -Depth 5 -Compress
 
-if ($Settings.permissions.PSObject.Properties.Name -contains "allow") {
-    Write-Host "OK  permissions.allow already set in settings.json -- leaving it alone"
+$Allow = if ($Settings.permissions.PSObject.Properties.Name -contains "allow") {
+    @($Settings.permissions.allow)
 } else {
-    $Settings.permissions | Add-Member -NotePropertyName "allow" -NotePropertyValue $Permissions.allow
-    Write-Host "OK  permissions.allow added to settings.json"
+    @($Permissions.allow)
+}
+$Settings.permissions | Add-Member -Force -NotePropertyName "allow" `
+    -NotePropertyValue @($Allow | Where-Object { $Retired -cnotcontains $_ })
+
+foreach ($List in "ask", "deny") {
+    $Current = @()
+    if ($Settings.permissions.PSObject.Properties.Name -contains $List) {
+        $Current = @($Settings.permissions.$List | Where-Object { $Retired -cnotcontains $_ })
+    }
+    $Missing = @($Permissions.$List | Where-Object { $Current -cnotcontains $_ })
+    $Settings.permissions | Add-Member -Force -NotePropertyName $List -NotePropertyValue @($Current + $Missing)
 }
 
-if ($Settings.permissions.PSObject.Properties.Name -contains "deny") {
-    Write-Host "OK  permissions.deny already set in settings.json -- leaving it alone"
+if (($Settings.permissions | ConvertTo-Json -Depth 5 -Compress) -ceq $PermsBefore) {
+    Write-Host "OK  permissions already current (allow kept, ask/deny include the repo's rules)"
 } else {
-    $Settings.permissions | Add-Member -NotePropertyName "deny" -NotePropertyValue $Permissions.deny
-    Write-Host "OK  permissions.deny added to settings.json"
+    Write-Host "OK  permissions updated (ask/deny unioned with permissions.json, retired rules removed)"
 }
 
 # ─── attribution: no Co-Authored-By trailer (mirror of settings.sh) ───

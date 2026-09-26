@@ -31,7 +31,7 @@ installers do not create any of these.
 | `~/.zshenv.local` | secrets and tokens as `export` lines (`CONTEXT7_API_KEY`, `LOGMD_MCP_URL`) | every zsh, and the installers |
 | `~/.zshrc.local` | aliases and functions for this machine only | interactive zsh |
 | `~/.claude/claude-api.env` | the API-gateway credential (`ANTHROPIC_BASE_URL=…`, `chmod 600`) | `claude --api`, `code --api`, tmux `Alt+a` |
-| `~/.claude/settings.json` | Claude Code permissions and UI prefs | Claude Code; the installers only add keys that are absent |
+| `~/.claude/settings.json` | Claude Code permissions and UI prefs | Claude Code; the installers only add keys that are absent, except `permissions.ask`/`deny`, which they union with `permissions.json` |
 
 On native Windows the shell files do not exist; the secrets are Windows user
 environment variables set with `setx` (see `windows.md`).
