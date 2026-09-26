@@ -116,7 +116,7 @@ You enter with `prefix [`. You exit with `q`.
 | `/` / `?` | Search forwards / backwards |
 | `n` / `N` | Next / previous match |
 | `v` | Start the selection |
-| `y` | **Copy to the system clipboard** (via pbcopy) |
+| `y` | **Copy to the system clipboard** (OSC 52; on macOS also pbcopy) |
 | `Enter` | Copy and exit |
 
 **To paste** what you copied (in any pane): `prefix ]`.
@@ -128,7 +128,7 @@ You enter with `prefix [`. You exit with `q`.
 | Shortcut / Command | Action |
 |---|---|
 | `prefix r` | **Reload the config** (without killing the session) |
-| `prefix o` | Open `pane_current_path` in Finder |
+| `prefix o` | Open `pane_current_path` in Finder (macOS) / Explorer (WSL) / `xdg-open` (Linux) |
 | `prefix g` | **IDE layout** — builds 4 panes (main + right column, terminal 30% at the bottom, sidebar 20% at full height); it doesn't launch apps, just the layout |
 | `prefix ?` | List ALL the keybindings (`q` to exit) |
 | `prefix t` | Clock in a fullscreen pane (aesthetic) |

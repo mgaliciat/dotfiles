@@ -8,12 +8,12 @@
 # the bg leans towards a very dark brown (not neutral) so the warm palette doesn't
 # look like it's "floating" over a cold background. Cream fg, not pure white, to
 # lower eye strain in long sessions.
-background = #1a1614
-foreground = #e8dccc
+background = #1a1814
+foreground = #e8dcc4
 
 # cursor — Claude orange straight up, maximum visibility over the charcoal bg
 cursor-color = #d97757
-cursor-text  = #1a1614
+cursor-text  = #1a1814
 
 # selection — heavily darkened terracotta + bright fg. Enough contrast
 # for selected text without saturating the view.
