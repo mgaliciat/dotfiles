@@ -48,7 +48,11 @@ EFFORT=$(echo "$input" | jq -r '.effort.level // empty')
 # literal form cost 7 invisible-but-counted characters per reset in vis() below,
 # which silently ate 28 columns of the right-alignment. One representation only.
 GREEN=$'\033[32m'; YELLOW=$'\033[33m'; RED=$'\033[31m'; RESET=$'\033[0m'
-CHIP=$'' # nf-fa-microchip
+# Spelled as its UTF-8 bytes, never pasted: U+F2DB is a Private Use codepoint,
+# which editors and tools drop in silence, leaving `$''` — an empty chip with
+# nothing for the context hue to paint. `\xHH` rather than `\uF2DB` because
+# macOS runs this under /bin/bash 3.2, which predates `\u`.
+CHIP=$'\xef\x8b\x9b' # nf-fa-microchip, U+F2DB
 
 # One ladder for every gauge on the line (ctx, quota) so a colour means the same
 # thing wherever it appears — there used to be a copy of this `if` per gauge,
@@ -129,13 +133,28 @@ COST=$(printf '%.2f' "$(echo "$input" | jq -r '.cost.total_cost_usd // 0')")
 COST_SEG=""
 [ "$COST" != "0.00" ] && COST_SEG="\$${COST}"
 
+# `-C "$DIR"`: the branch of the directory this line SHOWS, not of whatever cwd
+# Claude Code happened to launch us from — the two differ once the session
+# moves. One git call, not two: outside a repo it fails, and on a detached HEAD
+# it prints nothing, so an empty answer hides the segment in both cases instead
+# of leaving a bare `⎇ `.
 BRANCH=""
-git rev-parse --git-dir > /dev/null 2>&1 && BRANCH=" | ⎇ $(git branch --show-current 2>/dev/null)"
+GIT_BRANCH=$(git -C "$DIR" branch --show-current 2>/dev/null)
+[ -n "$GIT_BRANCH" ] && BRANCH=" | ⎇ ${GIT_BRANCH}"
 
 # Full path, not just the leaf — but with $HOME collapsed to `~`, the way every
 # shell prompt does it. Nothing is lost (the path stays unambiguous) and a deep
 # project saves ~15 columns.
-DIR_FMT="${DIR/#$HOME/~}"
+#
+# A `case`, not `${DIR/#$HOME/~}`: bash 5.2 tilde-expands that replacement back
+# into $HOME, so it collapses nothing, and a bare prefix match would turn
+# /home/bobby into `~by` for HOME=/home/bob. The `/*` arm only matches at a path
+# boundary. The quoted `~` is the literal character on purpose.
+# shellcheck disable=SC2088
+case $DIR in
+  "$HOME"|"$HOME"/*) DIR_FMT="~${DIR#"$HOME"}" ;;
+  *)                 DIR_FMT=$DIR ;;
+esac
 CTX_NUM="$(fmt "$USED")"
 [ "$SIZE" -gt 0 ] && CTX_NUM="${CTX_NUM}/$(fmt "$SIZE")"
 
@@ -170,10 +189,10 @@ MODEL_SEG="${NUM_COLOR}${CHIP}${RESET} ${MODEL}"
 #   1. COLUMNS is the whole terminal, not this row. The status line renders
 #      inside a bordered box with its own border and padding (what the `padding`
 #      setting adds *to*), and that chrome's width is not on stdin.
-#   2. Nerd Font glyphs count 1 CHARACTER but can render 2 CELLS.  / ⎇ / ↻ are
-#      one codepoint each to `${#s}` and there is no way to ask the terminal how
-#      wide the font drew them — the same ambiguous-width trap that killed the
-#      ■/◼/⬛ cubes in an earlier version of this file.
+#   2. Nerd Font glyphs count 1 CHARACTER but can render 2 CELLS. The chip,
+#      ⎇ and ↻ are one codepoint each to `${#s}` and there is no way to ask the
+#      terminal how wide the font drew them — the same ambiguous-width trap that
+#      killed the ■/◼/⬛ cubes in an earlier version of this file.
 #
 # So the true usable width is COLUMNS minus an unknown, and the only safe move
 # is to under-fill it. Overshooting costs a truncated tail with an ellipsis —
@@ -197,8 +216,8 @@ OUT="${LEFT} | ${RIGHT}"
 # strip, and anything it misses is counted as if it were printable.
 #
 # `${#s}` counts CHARACTERS rather than bytes only under a UTF-8 locale. Claude
-# Code runs us with LANG=en_US.UTF-8 (verified), which is what keeps ⎇ / ↻ /
-# and any non-ASCII cwd from counting 3:1 and dragging the block leftward.
+# Code runs us with LANG=en_US.UTF-8 (verified), which is what keeps the chip,
+# ⎇, ↻ and any non-ASCII cwd from counting 3:1 and dragging the block leftward.
 vis() { local s=${1//$'\033'\[*([0-9;])m/}; printf '%d' "${#s}"; }
 
 if [ -n "$COLUMNS" ]; then
