@@ -126,9 +126,12 @@ if command -v codebase-memory-mcp >/dev/null 2>&1; then
     && echo "✓ codebase-memory-mcp: MCP server + hooks + skill registered" \
     || echo "⚠️  codebase-memory-mcp install -y failed"
   # auto_index: cheap and idempotent, forced on every run so new projects index
-  # themselves on connect.
-  codebase-memory-mcp config set auto_index true >/dev/null 2>&1
-  echo "✓ codebase-memory-mcp: auto_index=true"
+  # themselves on connect. The `||` is not optional: this file is sourced under
+  # the installer's `set -e`, so a bare failing command here would abort every
+  # step after install_claude.
+  codebase-memory-mcp config set auto_index true >/dev/null 2>&1 \
+    && echo "✓ codebase-memory-mcp: auto_index=true" \
+    || echo "⚠️  codebase-memory-mcp config set auto_index failed"
 fi
 
 # ─── context7 (up-to-date library docs MCP) ───────────────────
