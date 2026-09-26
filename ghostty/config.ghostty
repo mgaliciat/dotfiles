@@ -408,8 +408,12 @@ clipboard-trim-trailing-spaces = true
 clipboard-paste-protection = true
 
 # ─── scrollback ───────────────────────────────────────────────
-# big buffer to re-read long outputs
-scrollback-limit = 100000
+# Big buffer to re-read long outputs. The unit is BYTES, not lines: a
+# line-count-looking `100000` is ~100 KB, below even the default (10 MB; 50 MB
+# from 1.4, which renames the key `scrollback-limit-bytes` to say so and keeps
+# this spelling as an alias). Only surfaces outside tmux ever fill it — inside
+# tmux the alternate screen is in use and history-limit (tmux.conf) rules.
+scrollback-limit = 100000000
 
 # ─── notifications ────────────────────────────────────────────
 # Silence the bells — in SDD, interruptions break the flow.
