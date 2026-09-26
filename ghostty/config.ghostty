@@ -18,8 +18,8 @@
 #
 # NOTE: this `theme =` is THE active selection and the source of truth. Since
 # the file is versioned, a `git pull` propagates the theme to the other
-# machines. To change the look: edit this line (and the equivalent lines
-# in nvim and tmux — they share the id) and commit. There's no switcher and no pointer.
+# machines. To change the look: `theme <id>` (scripts/theme edits this line
+# and the equivalent ones in nvim and tmux — they share the id), then commit.
 #
 # craftzdog's theme, ported into the family (2026-09-11). His line reads
 # `theme = "Solarized Dark - Patched"` and that string DOES NOT RESOLVE — the

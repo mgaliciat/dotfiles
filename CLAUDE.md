@@ -31,7 +31,7 @@ parsed (they need their plugins to load). Runtime validation is running the inst
 | `tmux/` | `tmux.conf` + `macos.conf` / `theme.conf` / `statusline.conf` / `utility.conf` / `themes/` |
 | `claude/` | User-level Claude Code: `CLAUDE.md`, `statusline.{sh,ps1}`, `themes/`, `install/` |
 | `plugins/` | Plugins shared by Claude Code and Antigravity. `logbook/` carries two manifests (`.claude-plugin/plugin.json`, `plugin.json`), `skills/`, `rules/`, `hooks/` |
-| `scripts/` | `lib.sh` (shared by both bash installers), `ide`, `claude-api-env` |
+| `scripts/` | `lib.sh` (shared by both bash installers), `ide`, `claude-api-env`, `theme` |
 | `runbook/` | Operator bring-up per OS |
 
 `README.md` is the map of the repo; this file is the rationale.
@@ -71,6 +71,12 @@ fourth layer. Selection is a direct versioned value in each config:
 - `theme = "custom:<id>"` in `~/.claude/settings.json`, written by `settings.sh` from
   ghostty's `theme =` line whenever `claude/themes/<id>.json` exists (convergent, the one
   settings key that is), pointing at that Claude Code custom theme
+
+`scripts/theme <id>` (on PATH as `theme`) rewrites the first three lines, regenerates
+lazygit's `theme:` block from the ghostty + tmux palettes, and reports a pinned
+`background =`/`foreground =` in `config.ghostty` rather than touching it. It leaves
+`$WtTheme` alone on purpose: Windows is independent. CI runs it bare, which fails when
+the three selection lines disagree.
 
 Adding a theme = its three definitions (`ghostty/themes/<id>`,
 `nvim/lua/themes/<id>.lua`, `tmux/themes/<id>.conf`). Provenance of each palette is in

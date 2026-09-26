@@ -1,0 +1,227 @@
+#!/usr/bin/env bash
+# ─── scripts/theme — switch the stack theme in one command ────
+#
+#   theme            show the id each layer selects, and whether they agree
+#   theme --list     every id the three layers share (* = active)
+#   theme <id>       select <id> everywhere, then reload what can be reloaded
+#
+# The selection stays what CLAUDE.md says it is: a direct, versioned value in
+# each config (ghostty `theme =`, nvim `vim.g.theme`, the tmux palette
+# `source`). This only edits those lines in the repo, so the result is a diff
+# to commit, and a `git pull` carries it to the other machines as before.
+#
+# Also rewritten, because they are mirrors of the palette rather than
+# selections: lazygit's `theme:` block (generated from the ghostty + tmux
+# files, the roles are the ones the hand-copied block used) and delta's
+# --dark/--light flag beside it, and the "Currently" line in README.md.
+#
+# Deliberately NOT touched:
+#   - `$WtTheme` in install-windows.ps1. Windows shares no layer with the other
+#     three, and following ghostty is exactly what that line refuses to do.
+#   - An uncommented `background =` / `foreground =` in config.ghostty. Those
+#     are hand-curated overrides that win over any theme; they are reported,
+#     because on a theme with another canvas they paint the wrong one.
+#   - ~/.claude/settings.json. settings.sh already converges `theme` from
+#     ghostty's line on the next ./install.sh.
+#
+# Plain bash 3.2 (macOS /bin/bash): no `sed -i`, whose flags differ between BSD
+# and GNU, no associative arrays, no `readlink -f`.
+set -euo pipefail
+
+# Resolve our own symlink (~/.local/bin/theme → repo) to find the repo.
+self=${BASH_SOURCE[0]}
+while [[ -L $self ]]; do
+  target=$(readlink "$self")
+  [[ $target == /* ]] || target=$(dirname "$self")/$target
+  self=$target
+done
+DOTFILES=$(cd "$(dirname "$self")/.." && pwd)
+
+GHOSTTY_CONF=$DOTFILES/ghostty/config.ghostty
+NVIM_OPTS=$DOTFILES/nvim/lua/config/options.lua
+TMUX_CONF=$DOTFILES/tmux/tmux.conf
+LAZYGIT_CONF=$DOTFILES/lazygit/config.yml
+README=$DOTFILES/README.md
+
+die() { echo "theme: $1" >&2; exit 1; }
+
+current_ghostty() { sed -nE 's/^theme = (.+)$/\1/p' "$GHOSTTY_CONF" | head -n 1; }
+current_nvim()    { sed -nE 's/^vim\.g\.theme = "(.+)"$/\1/p' "$NVIM_OPTS" | head -n 1; }
+current_tmux()    { sed -nE 's|^source ~/\.config/tmux/themes/(.+)\.conf$|\1|p' "$TMUX_CONF" | head -n 1; }
+
+# An id is selectable when every layer can render it: a ghostty theme, a tmux
+# palette, and an nvim theme module — or the solarized-osaka plugin, which is
+# how nvim renders that one id.
+valid_id() {
+  [[ -f $DOTFILES/ghostty/themes/$1 && -f $DOTFILES/tmux/themes/$1.conf ]] || return 1
+  [[ -f $DOTFILES/nvim/lua/themes/$1.lua || $1 == solarized-osaka ]]
+}
+
+# `key = value` from a ghostty theme file; palette slots as `palette N`.
+ghostty_value() {
+  local file=$DOTFILES/ghostty/themes/$1 key=$2
+  if [[ $key == palette\ * ]]; then
+    sed -nE "s/^palette *= *${key#palette }=(#[0-9A-Fa-f]{6}).*/\1/p" "$file" | head -n 1
+  else
+    sed -nE "s/^${key} *= *(#[0-9A-Fa-f]{6}).*/\1/p" "$file" | head -n 1
+  fi
+}
+
+tmux_value() {
+  sed -nE "s/^set -g @${2} +\"(#[0-9A-Fa-f]{6})\".*/\1/p" "$DOTFILES/tmux/themes/$1.conf" | head -n 1
+}
+
+# Light or dark from the canvas' relative luminance (sRGB weights, no gamma:
+# only which side of the middle it falls on matters here).
+is_light() {
+  local hex=${1#\#}
+  local r=$((16#${hex:0:2})) g=$((16#${hex:2:2})) b=$((16#${hex:4:2}))
+  (( 2126 * r + 7152 * g + 722 * b > 10000 * 128 ))
+}
+
+# Rewrite a file through a temp file, keeping its inode and mode (`cat >`
+# rather than `mv`), and fail loudly if the pattern matched nothing.
+rewrite() {
+  local file=$1 tmp
+  shift
+  tmp=$(mktemp)
+  sed -E "$@" "$file" > "$tmp"
+  if cmp -s "$tmp" "$file"; then
+    rm -f "$tmp"
+    return 1
+  fi
+  cat "$tmp" > "$file"
+  rm -f "$tmp"
+}
+
+show_status() {
+  local g n t
+  g=$(current_ghostty) n=$(current_nvim) t=$(current_tmux)
+  printf '  ghostty  %s\n  nvim     %s\n  tmux     %s\n' "${g:-?}" "${n:-?}" "${t:-?}"
+  if [[ $g == "$n" && $n == "$t" ]]; then
+    echo "✓ in sync"
+  else
+    echo "⚠️  out of sync — run: theme <id>"
+    return 1
+  fi
+}
+
+list_ids() {
+  local active id file mark kind
+  active=$(current_ghostty)
+  for file in "$DOTFILES"/ghostty/themes/*; do
+    id=$(basename "$file")
+    [[ $id == README.md ]] && continue
+    valid_id "$id" || continue
+    mark=' '
+    [[ $id == "$active" ]] && mark='*'
+    kind=dark
+    is_light "$(ghostty_value "$id" background)" && kind=light
+    printf '%s %-20s %s\n' "$mark" "$id" "$kind"
+  done
+}
+
+# lazygit's `theme:` block, regenerated whole. The roles are the ones the
+# hand-mirrored block used: tmux's accent for the active border, its subtle for
+# the inactive one, ANSI 4 for option text, ghostty's selection for the cursor
+# line, ANSI 3 on the canvas for cherry-picks, ANSI 1 for unstaged changes.
+write_lazygit() {
+  local id=$1 block tmp
+  local accent subtle blue sel yellow bg red fg
+  accent=$(tmux_value "$id" thm_accent)
+  subtle=$(tmux_value "$id" thm_subtle)
+  blue=$(ghostty_value "$id" 'palette 4')
+  sel=$(ghostty_value "$id" selection-background)
+  yellow=$(ghostty_value "$id" 'palette 3')
+  bg=$(ghostty_value "$id" background)
+  red=$(ghostty_value "$id" 'palette 1')
+  fg=$(ghostty_value "$id" foreground)
+  local v
+  for v in "$accent" "$subtle" "$blue" "$sel" "$yellow" "$bg" "$red" "$fg"; do
+    [[ -n $v ]] || die "$id: a colour lazygit needs is missing from ghostty/themes/$id or tmux/themes/$id.conf"
+  done
+
+  block=$(cat <<EOF
+  theme: # stack theme: $id
+    activeBorderColor:
+      - "$accent" # tmux @thm_accent
+      - bold
+    inactiveBorderColor:
+      - "$subtle" # tmux @thm_subtle
+    optionsTextColor:
+      - "$blue" # ansi4
+    selectedLineBgColor:
+      - "$sel" # ghostty selection-background
+    cherryPickedCommitBgColor:
+      - "$yellow" # ansi3
+    cherryPickedCommitFgColor:
+      - "$bg" # ghostty background
+    unstagedChangesColor:
+      - "$red" # ansi1
+    defaultFgColor:
+      - "$fg" # ghostty foreground
+EOF
+)
+  tmp=$(mktemp)
+  # Replace from `  theme:` up to the next line indented by exactly two spaces
+  # (the next gui key or its comment).
+  awk -v block="$block" '
+    /^  theme:/ { print block; skip = 1; next }
+    skip && /^  [^ ]/ { skip = 0 }
+    !skip { print }
+  ' "$LAZYGIT_CONF" > "$tmp"
+  grep -q "^  theme: # stack theme: $id\$" "$tmp" || { rm -f "$tmp"; die "no gui.theme block found in $LAZYGIT_CONF"; }
+  cat "$tmp" > "$LAZYGIT_CONF"
+  rm -f "$tmp"
+
+  if is_light "$bg"; then
+    rewrite "$LAZYGIT_CONF" 's/(command: delta .*)--dark/\1--light/' || true
+  else
+    rewrite "$LAZYGIT_CONF" 's/(command: delta .*)--light/\1--dark/' || true
+  fi
+}
+
+# Hand-curated `background =` / `foreground =` in config.ghostty win over any
+# theme. Say so when they would paint something other than the theme's value.
+check_overrides() {
+  local id=$1 key line value theme_value
+  for key in background foreground; do
+    line=$(grep -nE "^${key} *= *#" "$GHOSTTY_CONF" | head -n 1) || continue
+    value=$(sed -nE "s/^${key} *= *(#[0-9A-Fa-f]{6}).*/\1/p" <<<"${line#*:}")
+    theme_value=$(ghostty_value "$id" "$key")
+    [[ $(tr 'A-F' 'a-f' <<<"$value") == $(tr 'A-F' 'a-f' <<<"$theme_value") ]] && continue
+    echo "⚠️  ghostty/config.ghostty:${line%%:*} pins $key = $value, over $id's own $theme_value."
+    echo "    Comment it out if $id should own its $key."
+  done
+}
+
+select_theme() {
+  local id=$1
+  valid_id "$id" || die "unknown theme '$id' — see: theme --list"
+
+  rewrite "$GHOSTTY_CONF" "s/^theme = .+\$/theme = $id/" || true
+  rewrite "$NVIM_OPTS" "s/^vim\\.g\\.theme = \".+\"\$/vim.g.theme = \"$id\"/" || true
+  rewrite "$TMUX_CONF" "s|^source ~/\\.config/tmux/themes/.+\\.conf\$|source ~/.config/tmux/themes/$id.conf|" || true
+  rewrite "$README" "s/^Currently \`[^\`]+\`\\./Currently \`$id\`./" || true
+  write_lazygit "$id"
+
+  show_status || die "a selection line was not found — check the files by hand"
+  check_overrides "$id"
+
+  if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
+    tmux source-file "$HOME/.config/tmux/tmux.conf" && echo "✓ tmux reloaded"
+  fi
+  echo "→ Ghostty: Cmd+Shift+R   nvim: restart   lazygit: reopen"
+  if [[ -f $DOTFILES/claude/themes/$id.json ]]; then
+    echo "→ Claude Code: ./install.sh sets theme = custom:$id"
+  fi
+  echo "→ Review and commit: git -C \"$DOTFILES\" diff"
+}
+
+case ${1:-} in
+  '')          show_status ;;
+  -l|--list)   list_ids ;;
+  -h|--help)   sed -n '4,6p' "$self" | sed 's/^# \{0,1\}//' ;;
+  -*)          die "unknown option '$1' — see: theme --help" ;;
+  *)           select_theme "$1" ;;
+esac

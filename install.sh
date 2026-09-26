@@ -45,8 +45,8 @@ fi
 # Nothing to do here. The theme selection is a direct value in each versioned
 # config (Ghostty `theme =`, nvim `vim.g.theme`, the palette `source` in
 # tmux.conf) and arrives with the clone/pull; the dir symlinks above expose the
-# palettes with no extra work. Changing the theme on ALL machines = edit those
-# 3 lines + commit + pull.
+# palettes with no extra work. Changing the theme on ALL machines = `theme <id>`
+# (scripts/theme rewrites those 3 lines) + commit + pull.
 
 # Caps Lock → Option: System Settings → Keyboard → Keyboard Shortcuts →
 # Modifier Keys → Caps Lock = Option ⌥. It is per-device and per-machine, not

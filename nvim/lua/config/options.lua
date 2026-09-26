@@ -1,9 +1,9 @@
 -- ─── stack theme ──────────────────────────────────────────────
 -- nvim is ONE layer of the "stack theme" (alongside Ghostty and tmux). The
 -- selection is this string, versioned and the source of truth: a `git pull`
--- propagates the theme to the other machines. To change the look edit this
--- line (and the equivalent ones in Ghostty and tmux — they share the id) and commit.
--- There's no switcher or pointer; it requires restarting nvim.
+-- propagates the theme to the other machines. To change the look run
+-- `theme <id>` (scripts/theme rewrites this line and the equivalent ones in
+-- Ghostty and tmux — they share the id) and commit. Restart nvim to see it.
 --
 -- Canonical family (id = same string in Ghostty/nvim/tmux):
 --   "dark-2026"        clone of "Dark 2026", VS Code's dark default
