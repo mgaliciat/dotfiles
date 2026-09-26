@@ -195,13 +195,28 @@ _settings_set_if_absent '.statusLine' \
 # see this. Runs second so it lands on the object the previous call may have
 # just created.
 #
-# Without it the status line re-runs on EVENTS only, and our `↻` countdown to
-# the 5h rate-limit reset freezes while the session is idle — which is exactly
-# when you're looking at it. 60s because the countdown is rendered in minutes;
-# anything faster just burns a subprocess to redraw the same string.
+# Without it the status line re-runs on EVENTS only: the `↻` countdown to the
+# 5h rate-limit reset freezes while the session is idle, and the context bar's
+# rise-and-settle animation has no frames to play in. 1s (the minimum) because
+# each run of statusline.sh IS one frame of that animation; a run is one jq and
+# one git, and an idle run redraws the same string.
 _settings_set_if_absent '.statusLine.refreshInterval' \
-  '.statusLine.refreshInterval = 60' \
+  '.statusLine.refreshInterval = 1' \
   'statusLine.refreshInterval'
+
+# 60 was this file's own default before the bar animated. A machine still on
+# exactly 60 got it from here, not from a person, so it moves to 1; any other
+# value was picked by hand and the guard above leaves it alone.
+if [[ "$(jq -r '.statusLine.refreshInterval // empty' "$SETTINGS")" == 60 ]]; then
+  _ri_tmp="$(mktemp)"
+  if jq '.statusLine.refreshInterval = 1' "$SETTINGS" > "$_ri_tmp"; then
+    mv "$_ri_tmp" "$SETTINGS"
+    echo "✓ statusLine.refreshInterval 60 → 1 (the context bar animates per frame)"
+  else
+    rm -f "$_ri_tmp"
+  fi
+  unset _ri_tmp
+fi
 
 # ── theme: follows the stack theme ──
 # The ONE key here that is convergent rather than guarded. The stack theme is a

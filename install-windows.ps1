@@ -319,6 +319,8 @@ if ($Settings.statusLine -isnot [PSCustomObject]) {
 } elseif ($Settings.statusLine.PSObject.Properties.Name -contains "refreshInterval") {
     Write-Host "OK  statusLine.refreshInterval already set in settings.json -- leaving it alone"
 } else {
+    # 60, not the 1 settings.sh writes: statusline.ps1 does not animate its bar,
+    # and a PowerShell start every second costs far more than bash + jq does.
     $Settings.statusLine | Add-Member -NotePropertyName "refreshInterval" -NotePropertyValue 60
     Write-Host "OK  statusLine.refreshInterval added to settings.json (60s)"
 }
