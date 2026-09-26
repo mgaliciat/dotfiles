@@ -33,18 +33,24 @@ map("n", "<C-Down>",  "<cmd>resize -2<CR>",          { desc = "Resize down" })
 map("n", "<C-Left>",  "<cmd>vertical resize -2<CR>", { desc = "Resize left" })
 map("n", "<C-Right>", "<cmd>vertical resize +2<CR>", { desc = "Resize right" })
 
--- Move lines with Alt+j/k (in normal and visual mode)
+-- Move lines with Alt+j/k (in normal and visual mode).
+-- Every visual map in this config uses "x", never "v": "v" is visual AND
+-- select mode, and select mode is where a snippet placeholder waits to be
+-- typed over — a `p`, `<`, `>` or a <leader> key there must be text, not a
+-- mapping.
 map("n", "<A-j>", "<cmd>m .+1<CR>==",       { desc = "Move line down" })
 map("n", "<A-k>", "<cmd>m .-2<CR>==",       { desc = "Move line up" })
-map("v", "<A-j>", ":m '>+1<CR>gv=gv",       { desc = "Move selection down" })
-map("v", "<A-k>", ":m '<-2<CR>gv=gv",       { desc = "Move selection up" })
+map("x", "<A-j>", ":m '>+1<CR>gv=gv",       { desc = "Move selection down" })
+map("x", "<A-k>", ":m '<-2<CR>gv=gv",       { desc = "Move selection up" })
 
 -- Keep the selection when indenting (default deselects, annoying)
-map("v", "<", "<gv", { desc = "Indent left & keep selection" })
-map("v", ">", ">gv", { desc = "Indent right & keep selection" })
+map("x", "<", "<gv", { desc = "Indent left & keep selection" })
+map("x", ">", ">gv", { desc = "Indent right & keep selection" })
 
--- Paste over a selection without losing the yank (default: the selection replaces the register)
-map("v", "p", '"_dP', { desc = "Paste without yank" })
+-- Paste over a selection without losing the yank. Native `P` in visual mode
+-- does exactly that (`:h v_P`); `"_dP` does not at the end of a line, where
+-- the delete moves the cursor left and `P` lands one column early.
+map("x", "p", "P", { desc = "Paste without yank" })
 
 -- Buffers
 map("n", "<S-l>", "<cmd>bnext<CR>",     { desc = "Next buffer" })
@@ -64,13 +70,13 @@ map("n", "<leader>cd", vim.diagnostic.open_float,                  { desc = "Lin
 -- Paste from register 0 = "last yank, ignores deletes".
 -- Solves: you yanked something → deleted something else → `p` no longer pastes
 -- the original yank. With <leader>p it always pastes the last yank.
-map({ "n", "v" }, "<leader>p", '"0p', { desc = "Paste from yank register" })
+map({ "n", "x" }, "<leader>p", '"0p', { desc = "Paste from yank register" })
 map("n",          "<leader>P", '"0P', { desc = "Paste from yank register (before)" })
 
 -- Delete without polluting the register (black-hole "_).
 -- Use them when you want to delete something WITHOUT losing your last yank.
-map({ "n", "v" }, "<leader>d", '"_d', { desc = "Delete (no yank)" })
-map({ "n", "v" }, "<leader>D", '"_D', { desc = "Delete to EOL (no yank)" })
+map({ "n", "x" }, "<leader>d", '"_d', { desc = "Delete (no yank)" })
+map({ "n", "x" }, "<leader>D", '"_D', { desc = "Delete to EOL (no yank)" })
 
 -- `x` also to the black-hole — deleting 1 char is rarely something you want
 -- to copy, and it pollutes the paste register.

@@ -22,7 +22,7 @@
 --   scroll        → smooth scroll fought the trackpad (see its block below).
 --   notifier      → we already have nvim-notify via noice.nvim. Enabling it
 --                   duplicates the message sink and breaks the routing to
---                   notify_send that noice does when you lose focus.
+--                   notify_send that noice does when you lose focus (Linux).
 --   statuscolumn  → LSP/git signs already live in the native signcolumn
 --                   (signcolumn="yes" in options.lua), it adds nothing.
 --   quickfile     → it renders the file before plugins load; with a ~40 ms
@@ -35,6 +35,18 @@
 -- Dynamic discovery pattern: snacks is a "composable suite" just like
 -- the rest of the repo (mini.bracketed, blink.cmp). Each module
 -- stands on its own; the wrapper is ergonomics.
+
+-- `]]`/`[[` between LSP references when the cursor sits on one, else the
+-- native section motion (see `keys` below). Snacks.words.get() is what
+-- words.jump() itself uses to find the reference under the cursor.
+local function ref_jump(native, count)
+  local _, current = Snacks.words.get()
+  if current then
+    Snacks.words.jump(count)
+  else
+    vim.cmd("normal! " .. vim.v.count1 .. native)
+  end
+end
 
 return {
   "folke/snacks.nvim",
@@ -159,11 +171,14 @@ return {
     quickfile    = { enabled = false },
   },
   keys = {
-    -- `]]` / `[[` are vim's section motions (`{` in column 0 — C-era).
-    -- When words has references for the buffer they jump between them;
-    -- otherwise the native motion runs, so nothing is lost.
-    { "]]", function() Snacks.words.jump(vim.v.count1) end,  mode = { "n", "t" }, desc = "Next reference" },
-    { "[[", function() Snacks.words.jump(-vim.v.count1) end, mode = { "n", "t" }, desc = "Prev reference" },
+    -- `]]` / `[[` are vim's section motions (`{` in column 0 — C-era). When
+    -- the cursor is on a highlighted LSP reference they jump between the
+    -- references; otherwise the native motion runs, so nothing is lost.
+    -- Snacks.words.jump() alone just returns off a reference, hence the
+    -- explicit fallback. Normal mode only: in terminal mode these keys are
+    -- text (`[[ … ]]` in a shell), and a `[`/`]` prefix stalled lazygit.
+    { "]]", function() ref_jump("]]",  vim.v.count1) end, desc = "Next reference" },
+    { "[[", function() ref_jump("[[", -vim.v.count1) end, desc = "Prev reference" },
     -- Buffer close that keeps the window layout: the window gets the
     -- alternate (or next) buffer instead of being destroyed like `:bdelete`
     -- does when the buffer is visible. Asks before dropping unsaved changes.

@@ -47,8 +47,14 @@ return {
     local function try_lint()
       -- Only lint real files that have a linter, and never while a diff or
       -- a terminal/float buffer borrowed the filetype.
+      -- Any part of a dotted filetype counts (`markdown.mdx` → markdown), the
+      -- way nvim-lint itself resolves them; an exact lookup skipped .mdx.
       if vim.bo.buftype ~= "" then return end
-      if not lint.linters_by_ft[vim.bo.filetype] then return end
+      local has_linter = false
+      for ft in vim.bo.filetype:gmatch("[^.]+") do
+        if lint.linters_by_ft[ft] then has_linter = true end
+      end
+      if not has_linter then return end
       lint.try_lint()
     end
 
