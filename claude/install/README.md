@@ -23,6 +23,8 @@ the convergent cleanups (the obsolete `tmux-claude-session-manager` hooks, and t
 exists on that machine, it is not touched. Two exceptions. `permissions.ask` and `.deny` are
 unioned with the repo's rules on every run (and `retired` rules are stripped from all three
 lists), so a tightening reaches machines that already had a deny list; `allow` keeps the guard.
+`statusLine.refreshInterval` is written as 1 (the context bar animates one frame per run), and a
+machine still on exactly 60 — this file's old default, so never a hand-picked value — moves to 1.
 And `theme`: it is a layer of the
 versioned stack theme, so it is written from ghostty's `theme =` line on every run whenever a
 `claude/themes/<id>.json` exists for that id. It also symlinks the versioned pieces of `claude/` —

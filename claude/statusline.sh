@@ -1,56 +1,65 @@
 #!/bin/bash
 # Claude Code status line, in two zones:
 #   left  — WHERE you are:    model + effort, cwd, git branch
-#   right — WHAT you've spent: ctx, session cost, 5h quota
+#   right — WHAT you've spent: the context bar, 5h quota
 # The split is the whole layout decision (ago-2026). Everything on the right is
 # a meter that only grows; everything on the left changes when you move. Reading
 # order follows that: you scan left to orient, right to check the budget, and
 # the two never interleave (ctx used to sit on the left, between branch and the
 # quota — a gauge stranded in the identity half).
 # JSON session data arrives on stdin (see: https://code.claude.com/docs/en/statusline).
-input=$(cat)
 shopt -s extglob   # needed by vis() to match an ANSI escape; see below
 
-MODEL=$(echo "$input" | jq -r '.model.id')
-DIR=$(echo "$input" | jq -r '.workspace.current_dir')
-PCT=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1)
-USED=$(echo "$input" | jq -r '.context_window.total_input_tokens // 0')
-SIZE=$(echo "$input" | jq -r '.context_window.context_window_size // 0')
-
-# `effort.level` is the LIVE value — a mid-session `/effort` is reflected here,
-# so this is not decoration: it's the biggest lever on how fast the rate-limit
-# windows below fill. Absent when the model has no effort parameter (hence
-# `// empty`), and ultracode reports as `xhigh` rather than a level of its own.
-EFFORT=$(echo "$input" | jq -r '.effort.level // empty')
-
-# ─── context usage ────────────────────────────────────────────
-# Just the number, no gauge. A graphical bar was tried (8 cubes x 8 sub-levels,
-# coloured green/yellow/red by position in the window) and removed jul-2026: on
-# a 1M window you sit at ~12% for a whole session, so it spent ~17 columns
-# saying what `121k/1M` already says, more precisely.
+# ONE jq for every field, one value per line. This script runs every second
+# (`statusLine.refreshInterval`, set by claude/install/settings.sh, is what
+# drives the bar's animation), so it used to cost nine jq processes, a `cut`
+# per percentage and a `date` for the countdown — per second. `now` gives the
+# clock from inside jq, and `floor` does what the `cut -d.` did.
 #
-# This replaced an earlier cyan/magenta split (accumulated vs. added-this-turn).
-# The data for that split is still on stdin if it's ever wanted back:
-# `current_usage` breaks into cache_read (everything before this turn) +
-# cache_creation (what this turn added) + input, summing exactly to
-# total_input_tokens.
-#
-# ⚠️ What is NOT available at all is the `/context` category breakdown (system
-# prompt / system tools / MCP tools / skills / memory / messages). Claude Code
-# computes that internally and never puts it on stdin — don't try to break the
-# number down by category, the data isn't there.
-#
-# Colours are plain ANSI (not hex) on purpose: the active stack theme remaps
-# them, so the statusline follows whatever Ghostty/tmux/nvim are wearing.
+# Line-per-value rather than @tsv: `read` with a tab IFS collapses empty
+# fields, and EFFORT / the quota are empty often.
+{
+  read -r MODEL
+  read -r DIR
+  read -r PCT
+  read -r USED
+  read -r SIZE
+  read -r EFFORT
+  read -r FIVE_H
+  read -r RESETS_AT
+  read -r SESSION
+  read -r NOW
+} < <(jq -r '
+  (.model.id // ""),
+  (.workspace.current_dir // ""),
+  (.context_window.used_percentage // 0 | floor),
+  (.context_window.total_input_tokens // 0),
+  (.context_window.context_window_size // 0),
+  # `effort.level` is the LIVE value — a mid-session `/effort` is reflected
+  # here. Absent when the model has no effort parameter, and ultracode
+  # reports as `xhigh` rather than a level of its own.
+  (.effort.level // ""),
+  (.rate_limits.five_hour.used_percentage // "" | if . == "" then . else floor end),
+  (.rate_limits.five_hour.resets_at // ""),
+  (.session_id // "" | gsub("[^A-Za-z0-9_-]"; "")),
+  (now | floor)
+')
 
 # $'…' (ANSI-C quoting), NOT '\033[…m': these have to be REAL escape characters,
 # not a backslash-0-3-3 string that only becomes an escape inside `echo -e`. The
 # literal form cost 7 invisible-but-counted characters per reset in vis() below,
 # which silently ate 28 columns of the right-alignment. One representation only.
+#
+# Colours are plain ANSI (not hex) on purpose: the active stack theme remaps
+# them, so the statusline follows whatever Ghostty/tmux/nvim are wearing. FAINT
+# right after a reset dims the theme's own foreground — the only "grey" that is
+# readable on every palette in the family, since ANSI 8 is not (solarized-osaka
+# mirrors its brights, so 8 is near-invisible there).
 GREEN=$'\033[32m'; YELLOW=$'\033[33m'; RED=$'\033[31m'; RESET=$'\033[0m'
+FAINT=$'\033[2m'
 # Spelled as its UTF-8 bytes, never pasted: U+F2DB is a Private Use codepoint,
 # which editors and tools drop in silence, leaving `$''` — an empty chip with
-# nothing for the context hue to paint. `\xHH` rather than `\uF2DB` because
+# nothing for the context hue to paint. `\xHH` rather than `` because
 # macOS runs this under /bin/bash 3.2, which predates `\u`.
 CHIP=$'\xef\x8b\x9b' # nf-fa-microchip, U+F2DB
 
@@ -63,8 +72,6 @@ hue() {
   else printf '%s' "$GREEN"; fi
 }
 
-# The number is absolute (121k/1M), not a percentage: on a 1M window "12%" is
-# not a quantity you can act on, while "121k" is.
 NUM_COLOR=$(hue "$PCT")
 
 # 121002 -> 121k, 1000000 -> 1M. Integer only; k granularity is all that fits.
@@ -73,6 +80,108 @@ fmt() {
   elif [ "$1" -ge 1000 ];    then printf '%dk' $(($1 / 1000))
   else printf '%d' "$1"; fi
 }
+
+# ─── context bar ──────────────────────────────────────────────
+# A half-height slab `▄` for the used part, riding on a thin rail `▁` for the
+# rest: both are anchored to the bottom of the cell, so the fill reads as
+# something laid ON the track rather than a second line beside it. Block
+# elements, NOT the geometric shapes: Ghostty draws U+2580–259F itself as
+# sprites, exactly one cell wide and seamless cell to cell in any font. The
+# ■/◼/⬛ cubes of an earlier version here were font glyphs of ambiguous width,
+# which is what broke the right-alignment and got the first bar removed.
+#
+# Why a rail and not a dimmed slab for the empty part: FAINT is the only
+# theme-safe way to dim, and this config sets `faint-opacity = 0.7` — a faint
+# slab sits too close to the lit one to read as empty. A 1/8-height stroke stays
+# quiet at any opacity. The rail is the theme's foreground, not the ladder
+# colour, so the fill is the only coloured thing in the bar.
+#
+# One step per cell (5% on 20 cells). The quadrant glyph that would give half
+# steps leaves a hole in the rail under its empty half; the number beside the
+# bar carries the precision anyway. The number stays (`121k/1M`): the bar
+# answers "how full", the number "how much", and on a 1M window the bar alone
+# reads as nearly empty for a whole session.
+#
+# THE ANIMATION: when the context grows, the cells it grew into rise and
+# settle — a full block `█`, then three quarters `▆`, then the slab `▄` like the
+# rest — in the ladder colour throughout. Height, not a colour flash: the only
+# theme-safe "brighter" colour is the foreground, which some palettes keep
+# muted on purpose (solarized-patched's #708284 read as an EMPTY cell next to
+# the fill) and light palettes make dark. It only ever plays on growth: an idle
+# session is a still bar, never a shimmer.
+# The frames come from `statusLine.refreshInterval = 1`; each run of this
+# script is one frame, drawn from the age of the last change.
+#
+# That age needs memory across runs: one small file per session under $TMPDIR
+# holding "tokens-now changed-at tokens-before", read with `read` and written
+# with `printf` so the state costs no process. A DROP in tokens is /compact or
+# /clear: the file resets and nothing animates — the bar just jumps down.
+state_dir="${TMPDIR:-/tmp}/claude-statusline-${UID}"
+[[ -d $state_dir ]] || mkdir -p "$state_dir" 2>/dev/null
+state_file="$state_dir/${SESSION:-default}"
+
+last_used=0 changed_at=0 from_used=0
+[[ -r $state_file ]] && read -r last_used changed_at from_used < "$state_file"
+if (( USED > last_used )); then
+  from_used=$last_used changed_at=$NOW
+  printf '%s %s %s\n' "$USED" "$NOW" "$from_used" > "$state_file" 2>/dev/null
+elif (( USED < last_used )); then
+  from_used=$USED changed_at=0
+  printf '%s %s %s\n' "$USED" 0 "$USED" > "$state_file" 2>/dev/null
+fi
+AGE=$(( NOW - changed_at ))
+
+# cells(TOKENS, WIDTH): filled cells, rounded, never zero once there is
+# anything in the window — an empty bar has to mean an empty context.
+cells() {
+  local n=0
+  if (( SIZE > 0 )); then
+    n=$(( ($1 * $2 * 2 + SIZE) / (SIZE * 2) ))
+    (( $1 > 0 && n == 0 )) && n=1
+    (( n > $2 )) && n=$2
+  fi
+  printf '%d' "$n"
+}
+
+# bar WIDTH → the rendered bar.
+bar() {
+  local width=$1 filled from=0 hot=0 out
+  filled=$(cells "$USED" "$width")
+  if (( changed_at > 0 && AGE < 2 && filled > 0 )); then
+    from=$(cells "$from_used" "$width")
+    # A turn often adds less than a cell (5k tokens on 1M is a tenth of one).
+    # The head cell rises anyway, or the animation would be invisible exactly
+    # when it is most frequent.
+    (( from >= filled )) && from=$(( filled - 1 ))
+    hot=$(( filled - from ))
+  fi
+  printf -v out '%*s' $(( filled - hot )) ''
+  local lit=${out// /▄}
+  printf -v out '%*s' "$hot" ''
+  local rise='█'
+  (( AGE == 1 )) && rise='▆'
+  local flash=${out// /$rise}
+  printf -v out '%*s' $(( width - filled )) ''
+  local rail=${out// /▁}
+  out=""
+  [[ -n $lit ]]   && out+="${NUM_COLOR}${lit}${RESET}"
+  [[ -n $flash ]] && out+="${NUM_COLOR}${flash}${RESET}"
+  [[ -n $rail ]]  && out+="${FAINT}${rail}${RESET}"
+  printf '%s' "$out"
+}
+
+# Left-padded to the widest value it can take (`199k/200k`, `999k/1M`), so the
+# bar keeps its length and position as the count gains a digit — a gauge that
+# shrinks when the number grows misstates its own proportion.
+CTX_NUM="$(fmt "$USED")"
+if [ "$SIZE" -gt 0 ]; then
+  SIZE_FMT="$(fmt "$SIZE")"
+  WIDEST="$(fmt $(( SIZE - 1 )))"
+  (( ${#SIZE_FMT} > ${#WIDEST} )) && WIDEST=$SIZE_FMT
+  CTX_NUM="${CTX_NUM}/${SIZE_FMT}"
+  printf -v CTX_NUM '%*s' $(( ${#WIDEST} + 1 + ${#SIZE_FMT} )) "$CTX_NUM"
+fi
+CTX_NUM="${NUM_COLOR}${CTX_NUM}${RESET}"
 
 # ─── session quota ────────────────────────────────────────────
 # The subscription's rolling 5-hour window (Pro/Max), on the same
@@ -94,44 +203,21 @@ fmt() {
 #
 # Optional throughout: `rate_limits` is absent for API-key users and until the
 # first API response of the session, and `resets_at` can be absent on its own —
-# hence `// empty` on both and a guard each, so the % still renders without it.
+# hence `// ""` on both and a guard each, so the % still renders without it.
 #
-# `resets_at` is epoch seconds rendered as time-REMAINING: pure arithmetic, so
-# no `date -r` (BSD) vs `date -d @` (GNU) branch on a file both OSes symlink.
-#
-# ⚠️ The countdown only stays honest because `statusLine.refreshInterval` is set
-# in claude/install/settings.sh — without it the status line re-runs on EVENTS
-# only, so ↻ freezes exactly while you sit idle watching it.
+# `resets_at` is epoch seconds rendered as time-REMAINING: pure arithmetic
+# against jq's `now`, so no `date -r` (BSD) vs `date -d @` (GNU) branch on a
+# file both OSes symlink.
 LIMIT=""
-FIVE_H=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty' | cut -d. -f1)
-RESETS_AT=$(echo "$input" | jq -r '.rate_limits.five_hour.resets_at // empty')
 if [ -n "$FIVE_H" ]; then
   LIMIT="$(hue "$FIVE_H")${FIVE_H}%"
   if [ -n "$RESETS_AT" ]; then
-    MINS=$(((RESETS_AT - $(date +%s)) / 60))
+    MINS=$(((RESETS_AT - NOW) / 60))
     [ "$MINS" -ge 60 ] && REMAIN="$((MINS / 60))h$((MINS % 60))m" || REMAIN="${MINS}m"
     [ "$MINS" -gt 0 ] && LIMIT="${LIMIT} ↻${REMAIN}"
   fi
   LIMIT="${LIMIT}${RESET}"
 fi
-
-# ─── session cost ─────────────────────────────────────────────
-# Back on the line (ago-2026) after being dropped in jul-2026 for "a number you
-# can't act on on a subscription". That reasoning was about *acting*, and the
-# number is worth having anyway: it's the only absolute figure on the line — the
-# 5h quota is a percentage of an opaque, model-weighted limit, so `$` is what
-# makes two sessions comparable to each other, and what tells you whether this
-# session was cheap or expensive independently of how full the window happens
-# to be right now.
-#
-# NOT colour-coded: hue() means "how close to a ceiling", and cost has no
-# ceiling to be close to. Tinting it would fake a threshold that doesn't exist.
-#
-# Hidden below a cent rather than shown as `$0.00`: a rounded-to-zero figure is
-# noise. The string compare is deliberate — no float arithmetic in bash.
-COST=$(printf '%.2f' "$(echo "$input" | jq -r '.cost.total_cost_usd // 0')")
-COST_SEG=""
-[ "$COST" != "0.00" ] && COST_SEG="\$${COST}"
 
 # `-C "$DIR"`: the branch of the directory this line SHOWS, not of whatever cwd
 # Claude Code happened to launch us from — the two differ once the session
@@ -155,8 +241,6 @@ case $DIR in
   "$HOME"|"$HOME"/*) DIR_FMT="~${DIR#"$HOME"}" ;;
   *)                 DIR_FMT=$DIR ;;
 esac
-CTX_NUM="$(fmt "$USED")"
-[ "$SIZE" -gt 0 ] && CTX_NUM="${CTX_NUM}/$(fmt "$SIZE")"
 
 # Effort rides inside the model segment rather than getting its own `| … |`:
 # it IS a model parameter, and the level names (low/medium/high/xhigh/max) can't
@@ -201,15 +285,6 @@ MODEL_SEG="${NUM_COLOR}${CHIP}${RESET} ${MODEL}"
 EDGE_RESERVE=8
 LEFT="${MODEL_SEG} | ${DIR_FMT}${BRANCH}"
 
-# Meters ordered by scope, narrowest first: this turn's window (ctx), this
-# session ($), the rolling 5h window (%↻). Only ctx is guaranteed to be there,
-# so it anchors the block and the other two append.
-RIGHT="ctx ${NUM_COLOR}${CTX_NUM}${RESET}"
-[ -n "$COST_SEG" ] && RIGHT="${RIGHT} | ${COST_SEG}"
-[ -n "$LIMIT" ]    && RIGHT="${RIGHT} | ${LIMIT}"
-
-OUT="${LEFT} | ${RIGHT}"
-
 # Visible width: the colour escapes are zero-width and have to come out before
 # counting, or the block would jump ~5 columns left the moment a gauge turns
 # yellow. This is the reason the colours above are real escapes — one form to
@@ -217,10 +292,24 @@ OUT="${LEFT} | ${RIGHT}"
 #
 # `${#s}` counts CHARACTERS rather than bytes only under a UTF-8 locale. Claude
 # Code runs us with LANG=en_US.UTF-8 (verified), which is what keeps the chip,
-# ⎇, ↻ and any non-ASCII cwd from counting 3:1 and dragging the block leftward.
+# ⎇, ↻, the bar's strokes and any non-ASCII cwd from counting 3:1 and dragging
+# the block leftward.
 vis() { local s=${1//$'\033'\[*([0-9;])m/}; printf '%d' "${#s}"; }
 
+# The bar takes whatever the rest of the line leaves, up to BAR_MAX cells, and
+# disappears below BAR_MIN — a stub of four cells says nothing the number does
+# not. Meters ordered by scope, narrowest first: this turn's window (ctx), the
+# rolling 5h window (%↻).
+BAR_MAX=20 BAR_MIN=8
+TAIL="$CTX_NUM"
+[ -n "$LIMIT" ] && TAIL="${TAIL} | ${LIMIT}"
+
 if [ -n "$COLUMNS" ]; then
+  # 3 = the narrowest gap that still reads as separation, 1 = bar↔number space.
+  ROOM=$((COLUMNS - EDGE_RESERVE - $(vis "$LEFT") - $(vis "$TAIL") - 3 - 1))
+  (( ROOM > BAR_MAX )) && ROOM=$BAR_MAX
+  RIGHT=$TAIL
+  (( ROOM >= BAR_MIN )) && RIGHT="$(bar "$ROOM") ${TAIL}"
   GAP=$((COLUMNS - EDGE_RESERVE - $(vis "$LEFT") - $(vis "$RIGHT")))
   # Under 3 columns of gap it stops reading as separation and starts reading as
   # a typo, so a narrow terminal keeps the inline join. This doubles as the
@@ -228,7 +317,11 @@ if [ -n "$COLUMNS" ]; then
   if [ "$GAP" -ge 3 ]; then
     printf -v PAD '%*s' "$GAP" ''
     OUT="${LEFT}${PAD}${RIGHT}"
+  else
+    OUT="${LEFT} | ${RIGHT}"
   fi
+else
+  OUT="${LEFT} | $(bar 12) ${TAIL}"
 fi
 
 # Plain `echo`, no -e: every escape in $OUT is already a real one, so -e would
