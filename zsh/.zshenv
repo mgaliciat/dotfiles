@@ -8,7 +8,8 @@
 # ─── PATH ─────────────────────────────────────────────────────
 # Cross-platform: each block is prepended only if the dir exists.
 # Final order (first = highest priority):
-#   $HOME/.local/bin → Homebrew (mac or linux) → $HOME/.cargo/bin → rest of the PATH
+#   $HOME/.local/bin → pyenv (shims, bin) → Homebrew (mac or linux)
+#   → $HOME/.cargo/bin → rest of the PATH
 # ~/.zshenv.local can prepend afterwards and win priority.
 
 # Cargo (Rust tools on Linux/WSL: zoxide, delta, etc.)
@@ -22,12 +23,19 @@
 [[ -d "/opt/homebrew/bin" ]] && \
   export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
 
+# pyenv — the shims dir is what makes `python`/`pip` resolve to the pyenv
+# version, and it is only a directory of executables: putting it on PATH costs
+# no fork, unlike `pyenv init`. Here rather than behind the lazy `pyenv()` in
+# .zshrc, which only fires when `pyenv` itself is typed and leaves `python` on
+# the system interpreter until then; and here rather than in .zshrc so scripts,
+# tmux binds and Claude Code's shell get the same interpreter as the prompt.
+# Ahead of Homebrew, whose python3 arrives as a dependency of other formulae.
+export PYENV_ROOT="$HOME/.pyenv"
+[[ -d "$PYENV_ROOT/bin" ]]   && export PATH="$PYENV_ROOT/bin:$PATH"
+[[ -d "$PYENV_ROOT/shims" ]] && export PATH="$PYENV_ROOT/shims:$PATH"
+
 # ~/.local/bin always wins — preserves the original behavior.
 export PATH="$HOME/.local/bin:$PATH"
-
-# Pyenv root (PATH only; the lazy init lives in .zshrc so as not to penalize startup).
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d "$PYENV_ROOT/bin" ]] && export PATH="$PYENV_ROOT/bin:$PATH"
 
 # ─── CLI tool env vars ────────────────────────────────────────
 # bat — uses the terminal's 16 ANSI colors instead of its own theme, so it
@@ -75,10 +83,15 @@ export GHQ_ROOT="$HOME/Developer"
 export EDITOR="nvim"
 export VISUAL="nvim"
 
-# Claude Code — classic main-screen renderer instead of fullscreen (documented
-# env var: code.claude.com/docs/en/env-vars). Avoids the banner "flash" when
-# starting a session and keeps the conversation in the native scrollback.
-export CLAUDE_CODE_NO_FLICKER=1
+# Claude Code — classic main-screen renderer instead of fullscreen. Avoids the
+# banner "flash" when starting a session and keeps the conversation in the
+# native scrollback, where tmux copy mode and Cmd+F can reach it.
+#
+# NOT `CLAUDE_CODE_NO_FLICKER=1`, which reads like the same wish and is its
+# opposite: "no flicker" is the fullscreen renderer's selling point, and =1
+# FORCES the alternate screen (code.claude.com/docs/en/fullscreen). This one
+# forces classic ahead of everything else, the saved `/tui` setting included.
+export CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1
 
 # Claude Code — CFC is Claude For Chrome: the browser-extension integration,
 # not "context-free composition" (what this comment used to claim). Verified

@@ -56,13 +56,26 @@ setopt PUSHD_IGNORE_DUPS
 setopt INTERACTIVE_COMMENTS    # allows # comments at the prompt
 
 # ─── completions ──────────────────────────────────────────────
-# Load compinit with a 24h cache (avoids constant recompilation).
+# Load compinit with a 24h cache: the full check (compaudit + rescanning fpath)
+# at most once a day, `compinit -C` against the existing dump otherwise.
+#
+# The glob runs as an argument to an anonymous function, where the bare
+# `(N.mh+24)` qualifier works with default options. Inside `[[ ]]` it would need
+# `(#q…)` AND `setopt extendedglob`; without the option it is a literal string,
+# `-n` is always true and every shell pays for the full compinit.
+#
+# The `touch` is what keeps the cache a cache: a full compinit only rewrites the
+# dump when the set of completion functions changed, so without it the dump
+# stays older than 24h and every later shell takes the slow branch again.
 autoload -Uz compinit
-if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
-  compinit
-else
-  compinit -C   # skip security check (faster)
-fi
+() {
+  if (( $# )); then
+    compinit
+    touch "$1"
+  else
+    compinit -C   # skip security check (faster)
+  fi
+} ${ZDOTDIR:-$HOME}/.zcompdump(N.mh+24)
 
 # Native zsh menu: first Tab completes the common prefix, second Tab
 # opens the navigable menu. (fzf-tab used to live here — it was removed
@@ -109,8 +122,10 @@ zle -N fancy-ctrl-z
 bindkey '^Z' fancy-ctrl-z
 
 # ─── tool inits ───────────────────────────────────────────────
-# pyenv lazy-load — initializes on the first use of pyenv/python/pip.
-# Saves ~40ms at startup vs an eager `eval "$(pyenv init -)"`.
+# pyenv lazy-load — `pyenv init -` runs on the first `pyenv` command.
+# Saves ~40ms at startup vs an eager `eval "$(pyenv init -)"`. `python` and
+# `pip` do not wait for it: the shims are already on PATH from .zshenv. What
+# the init adds is the shell integration (`pyenv shell`, auto-rehash).
 pyenv() {
   unfunction pyenv
   eval "$(command pyenv init -)"
