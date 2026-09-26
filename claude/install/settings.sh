@@ -234,19 +234,44 @@ else
 fi
 unset _stack_theme
 
-# ── permissions.allow / deny ──
+# ── permissions.allow / ask / deny ──
 # The lists live in claude/install/permissions.json — single source of truth
 # shared with install-windows.ps1, which reads the same file with
-# ConvertFrom-Json. Adding a permission in one place used to leave the other
-# platform silently behind; now there is only one place. The rationale for
-# what's in (and deliberately out of) each list is in that file's _comment.
-_settings_set_if_absent '.permissions.allow' \
-  '.permissions //= {} | .permissions.allow = $perms[0].allow' \
-  'permissions.allow'
-
-_settings_set_if_absent '.permissions.deny' \
-  '.permissions //= {} | .permissions.deny = $perms[0].deny' \
-  'permissions.deny'
+# ConvertFrom-Json. The rationale for what's in (and deliberately out of) each
+# list is in that file's _comment.
+#
+# NOT one guard for all three. Grants and restrictions converge differently:
+#   allow — written only when the machine has none. What a host allows is its
+#           own business, and re-adding a rule someone removed by hand there
+#           would undo a deliberate choice.
+#   ask, deny — the repo's rules are unioned into whatever the machine has, on
+#           every run. With a set-if-absent guard a tightening here never
+#           reached a machine that already had a deny list, i.e. every
+#           machine but a fresh one. Hand-added entries survive the union.
+#   retired — rules this repo used to ship, removed from all three lists, so a
+#           rule that turned out wrong does not linger on old installs.
+# Order-preserving: existing entries keep their place, new ones append.
+_perms_tmp="$(mktemp)"
+if jq --slurpfile perms "$PERMISSIONS" '
+    $perms[0] as $p
+    | def converge($list): ((. // []) - $p.retired) as $cur | $cur + ($list - $cur);
+    .permissions //= {}
+    | .permissions.allow = ((.permissions.allow // $p.allow) - $p.retired)
+    | .permissions.ask   = (.permissions.ask  | converge($p.ask))
+    | .permissions.deny  = (.permissions.deny | converge($p.deny))
+  ' "$SETTINGS" > "$_perms_tmp"; then
+  if jq -e --slurpfile before "$SETTINGS" '.permissions == $before[0].permissions' "$_perms_tmp" >/dev/null; then
+    rm -f "$_perms_tmp"
+    echo "✓ permissions already current (allow kept, ask/deny include the repo's rules)"
+  else
+    mv "$_perms_tmp" "$SETTINGS"
+    echo "✓ permissions updated (ask/deny unioned with permissions.json, retired rules removed)"
+  fi
+else
+  rm -f "$_perms_tmp"
+  echo "⚠️  could not merge permissions — settings.json left untouched"
+fi
+unset _perms_tmp
 
 # ── attribution: no Co-Authored-By trailer ──
 # `attribution.commit` / `.pr` override the text Claude Code appends to commit

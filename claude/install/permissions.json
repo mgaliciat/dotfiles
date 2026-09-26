@@ -1,5 +1,5 @@
 {
-  "_comment": "Single source of truth for Claude Code's base permissions. Read by claude/install/settings.sh (jq, mac + Linux) and install-windows.ps1 (ConvertFrom-Json). Both are additive-only: they write these lists only if the key does not already exist in that machine's settings.json. Curated from the official docs (https://code.claude.com/docs/en/permissions) — read-only Bash commands (git status/diff/log, ls, cat, grep, find, pwd, head, tail, wc, which, stat, du, cd...) no longer prompt by default, so they are deliberately absent from `allow`. What remains is what still causes real friction: git writes, build/test tooling, and the modern replacements for those classic read-only commands, which Claude Code still confirms because they are not in its internal list (rg, tgrep, fd, eza, bat, fzf, jq, tree, delta — all installed by these same installers). `tgrep` is the one entry that is not purely read-only: `tgrep index` writes a `.tgrep/` index and `tgrep serve` leaves a daemon running. Allowed wholesale anyway — the writes are confined to a disposable directory that `.gitignore_global` already ignores, and splitting the rule would mean prompting on the two subcommands that make the search fast. `deny` blocks the obviously destructive, and applies even under bypassPermissions/auto — but it is best-effort: wildcard patterns do not cover variants like `rm -fr` or `git push -f`. For a real block, the documented path is a PreToolUse hook, not more strings.",
+  "_comment": "Single source of truth for Claude Code's base permissions. Read by claude/install/settings.sh (jq, mac + Linux) and install-windows.ps1 (ConvertFrom-Json). Curated from the official docs (https://code.claude.com/docs/en/permissions) — read-only Bash commands (git status/diff/log, ls, cat, grep, find, pwd, head, tail, wc, which, stat, du, cd...) no longer prompt by default, so they are deliberately absent from `allow`. What remains is what still causes real friction: git writes, build/test tooling, and the modern replacements for those classic read-only commands, which Claude Code still confirms because they are not in its internal list (rg, tgrep, fd, eza, bat, fzf, jq, tree, delta — all installed by these same installers). `tgrep` is the one entry that is not purely read-only: `tgrep index` writes a `.tgrep/` index and `tgrep serve` leaves a daemon running. Allowed wholesale anyway — the writes are confined to a disposable directory that `.gitignore_global` already ignores. Build/test tooling (make, npm run, cargo, go, gradle, kotlinc) runs code the repo defines; that is accepted here, as it is the point of allowing it. `ask` exists because several of those read-only tools are NOT read-only with the right flag: `fd -x/-X/--exec` and `rg --pre` run a command per file, `bat`/`delta --pager` run the pager you name, `tree -o` writes a file, `fzf --bind/--preview` run commands, and `go run pkg@version` downloads and runs remote code. Ask and deny are evaluated before allow, so the broad allow stays and only those forms prompt. `deny` blocks the obviously destructive, and applies even under bypassPermissions/auto. The force-push rules deliberately do NOT match `--force-with-lease` (the safe form), which a `git push --force*` prefix did. `git push ... +refspec` is a force push too, but `+` also shows up in legitimate refs, so it asks instead. All of it is best-effort: a rule matches the command text, so `/bin/rm`, `sh -c '...'`, `git -C . push -f` or combined short flags (`-uf`) are not caught. For a real block, the documented path is a PreToolUse hook or the sandbox, not more strings. Merge semantics: `allow` is written only when the machine has none (grants stay per-machine), while `ask` and `deny` are UNIONED on every install so a tightening here reaches every machine. `retired` lists rules this file used to ship: every install removes them from all three lists.",
 
   "allow": [
     "Bash(git add *)",
@@ -35,9 +35,33 @@
     "Bash(delta *)"
   ],
 
+  "ask": [
+    "Bash(fd *-x *)",
+    "Bash(fd *-X *)",
+    "Bash(fd *--exec*)",
+    "Bash(rg *--pre*)",
+    "Bash(bat *--pager*)",
+    "Bash(delta *--pager*)",
+    "Bash(tree *-o *)",
+    "Bash(fzf *--bind*)",
+    "Bash(fzf *--preview*)",
+    "Bash(go run *@*)",
+    "Bash(git push *+*)"
+  ],
+
   "deny": [
     "Bash(rm -rf *)",
-    "Bash(git push --force*)",
+    "Bash(rm -fr *)",
+    "Bash(rm -Rf *)",
+    "Bash(rm -fR *)",
+    "Bash(git push *--force)",
+    "Bash(git push *--force *)",
+    "Bash(git push *-f)",
+    "Bash(git push *-f *)",
     "Bash(sudo *)"
+  ],
+
+  "retired": [
+    "Bash(git push --force*)"
   ]
 }

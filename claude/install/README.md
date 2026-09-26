@@ -17,10 +17,13 @@ from the parent, and that `jq` is already installed.
 | **3** | `plugins.sh` | The **Claude Code CLI** (`claude plugin`) | Handled by the CLI |
 
 **1 — `settings.sh`.** The only thing we write by hand: `statusLine` (+ `refreshInterval`),
-`permissions.allow/deny`, `attribution.commit/pr`, the logbook `PostToolUse` hook, and
+`permissions.allow/ask/deny`, `attribution.commit/pr`, the logbook `PostToolUse` hook, and
 the convergent cleanups (the obsolete `tmux-claude-session-manager` hooks, and the pre-rename
 `bitacora`/`wiki` symlinks and hook entry). Additive-only, with a guard: if the key already
-exists on that machine, it is not touched. The one exception is `theme`: it is a layer of the
+exists on that machine, it is not touched. Two exceptions. `permissions.ask` and `.deny` are
+unioned with the repo's rules on every run (and `retired` rules are stripped from all three
+lists), so a tightening reaches machines that already had a deny list; `allow` keeps the guard.
+And `theme`: it is a layer of the
 versioned stack theme, so it is written from ghostty's `theme =` line on every run whenever a
 `claude/themes/<id>.json` exists for that id. It also symlinks the versioned pieces of `claude/` —
 `statusline.sh`, the user-level `CLAUDE.md`, `hooks/logbook.sh`, every Claude Code colour theme
@@ -41,7 +44,7 @@ suppresses `Co-Authored-By` on commits and PRs (it supersedes the deprecated `in
 The permission lists themselves live in **`permissions.json`** — single source of truth, read here
 with `jq --slurpfile` and by `install-windows.ps1` with `ConvertFrom-Json`. Adding a permission in
 one script used to leave the other platform silently behind. The rationale for what is in and out
-of each list is in that file's `_comment`.
+of each list, and the merge semantics above, are in that file's `_comment`.
 
 **2 — `binaries.sh`.** You install the binary (brew / curl) and run *its* setup command, which is
 the one that writes hooks, MCP servers and skills into `~/.claude/`. Today: `rtk` (a `PreToolUse`
