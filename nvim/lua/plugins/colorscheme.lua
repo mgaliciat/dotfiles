@@ -40,7 +40,8 @@
 -- according to vim.g.theme.
 --
 -- Switching:
---   1. Edit `vim.g.theme = "<name>"` in lua/config/options.lua
+--   1. `theme <name>` (scripts/theme), which edits `vim.g.theme` in
+--      lua/config/options.lua along with the Ghostty and tmux lines
 --   2. Restart nvim (or `:source $MYVIMRC | colorscheme tokyonight-<style>`).
 
 local theme_name = vim.g.theme or "obsidian"

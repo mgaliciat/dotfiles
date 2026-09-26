@@ -27,7 +27,7 @@ jobs:
           shellcheck --version
           shellcheck -x \
             install.sh install-linux.sh \
-            scripts/lib.sh scripts/ide scripts/claude-api-env \
+            scripts/lib.sh scripts/ide scripts/claude-api-env scripts/theme \
             claude/install/*.sh plugins/logbook/hooks/logbook.sh claude/statusline.sh
 
       # Every loop here collects failures in $failed and exits on it. A plain
@@ -38,11 +38,16 @@ jobs:
         run: |
           failed=0
           for f in install.sh install-linux.sh scripts/lib.sh scripts/ide \
-                   scripts/claude-api-env claude/install/*.sh \
+                   scripts/claude-api-env scripts/theme claude/install/*.sh \
                    plugins/logbook/hooks/logbook.sh claude/statusline.sh; do
             if bash -n "$f"; then echo "ok    $f"; else echo "FAIL  $f"; failed=1; fi
           done
           exit $failed
+
+      # With no argument scripts/theme only reads: it prints the id each layer
+      # selects and exits 1 when ghostty, nvim and tmux disagree.
+      - name: stack theme in sync
+        run: scripts/theme
 
       - name: zsh -n
         run: |

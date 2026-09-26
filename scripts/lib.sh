@@ -38,6 +38,7 @@ link_portable() {
   link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"
   link "$DOTFILES/scripts/claude-api-env" "$HOME/.local/bin/claude-api-env"
   link "$DOTFILES/scripts/ide"            "$HOME/.local/bin/ide"
+  link "$DOTFILES/scripts/theme"          "$HOME/.local/bin/theme"
 }
 
 # Claude Code: three mechanisms, one file each, split by WHO writes to
