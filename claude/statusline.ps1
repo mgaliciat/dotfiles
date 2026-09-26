@@ -84,8 +84,11 @@ if ($Dir -and (git -C $Dir rev-parse --git-dir 2>$null)) {
 }
 
 # $HOME collapsed to `~`, as in the .sh. StartsWith, not -replace: the path is
-# a literal with backslashes, which a regex would read as escapes.
-$DirFmt = if ($Dir -and $Dir.StartsWith($HOME, [StringComparison]::OrdinalIgnoreCase)) {
+# a literal with backslashes, which a regex would read as escapes. StartsWith
+# alone would also match C:\Users\bobby for HOME=C:\Users\bob and print
+# `~by`, so the next character has to be a separator or the end of the path.
+$DirFmt = if ($Dir -and $Dir.StartsWith($HOME, [StringComparison]::OrdinalIgnoreCase) -and
+    ($Dir.Length -eq $HOME.Length -or ('\', '/') -contains [string]$Dir[$HOME.Length])) {
     "~" + $Dir.Substring($HOME.Length)
 } else { $Dir }
 
