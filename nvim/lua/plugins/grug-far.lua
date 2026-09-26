@@ -29,7 +29,7 @@ return {
       end,
       desc = "Search & replace (word)" },
     { "<leader>sr", function() require("grug-far").with_visual_selection() end,
-      mode = "v", desc = "Search & replace (selection)" },
+      mode = "x", desc = "Search & replace (selection)" },
     { "<leader>sf", function()
         require("grug-far").open({
           prefills = { search = vim.fn.expand("<cword>"), paths = vim.fn.expand("%") },
@@ -39,6 +39,6 @@ return {
     { "<leader>sf", function()
         require("grug-far").with_visual_selection({ prefills = { paths = vim.fn.expand("%") } })
       end,
-      mode = "v", desc = "Search & replace selection in current file" },
+      mode = "x", desc = "Search & replace selection in current file" },
   },
 }

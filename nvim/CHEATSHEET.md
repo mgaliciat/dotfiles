@@ -63,7 +63,7 @@ Every keymap below is taken from `lua/config/keymaps.lua` (native) or the `keys 
 - `n` / `N` — next / previous search match
 - `<C-o>` / `<C-i>` — back / forward in the jump history
 - `<C-^>` — toggle previous buffer
-- `]]` / `[[` — next / previous **reference of the symbol under the cursor** (LSP, via snacks.words — the same binding, not the same text). The references are **not** highlighted — the `LspReference*` groups are cleared in `snacks.lua`, which keeps the extmarks the jump reads and drops the block of colour behind every occurrence. Falls back to the native section motion where there is no LSP
+- `]]` / `[[` — next / previous **reference of the symbol under the cursor** (LSP, via snacks.words — the same binding, not the same text). The references are **not** highlighted — the `LspReference*` groups are cleared in `snacks.lua`, which keeps the extmarks the jump reads and drops the block of colour behind every occurrence. Falls back to the native section motion when the cursor is not on a reference
 
 ### Quick jumps (flash.nvim)
 
@@ -365,9 +365,9 @@ Mason downloads the rest on demand. `:Mason` to view/install/update. `:LspInfo` 
 |---|---|
 | `gd` | Goto definition — **Glance peek** if there are several results; direct jump if only one |
 | `gD` | Goto declaration (direct jump, native LSP) |
-| `gr` | References — Glance peek |
-| `gi` | Goto implementation — Glance peek |
-| `gt` | Goto type definition — Glance peek. **Careful:** in any buffer with LSP, `gt` is NOT "next tab" (`gT` still works) |
+| `grr` | References — Glance peek |
+| `gri` | Goto implementation — Glance peek |
+| `grt` | Goto type definition — Glance peek |
 | `K` | Hover docs |
 | `<leader>rn` | Rename symbol with **IncRename** — live preview at every call site; the cmdline stays open for editing |
 | `<leader>ca` (normal / visual) | Code action (quick fix, imports, refactor, ESLint "fix all") — opens as a telescope dropdown, `<C-j>`/`<C-k>` and `<CR>` |
@@ -387,13 +387,13 @@ Mason downloads the rest on demand. `:Mason` to view/install/update. `:LspInfo` 
 | `<Tab>` / `<S-Tab>` | Snippet jump forward / back |
 | `<C-e>` | Cancel |
 
-Sources: LSP, path, snippets, buffer. Signature help pops up automatically while typing arguments.
+Sources: lazydev (nvim's Lua API, in Lua files), LSP, path, snippets, buffer. Signature help pops up automatically while typing arguments.
 
 ---
 
 ## 7. Rust (rustaceanvim)
 
-Registers itself on `.rs` buffers; **not** in the lspconfig loop. Same `gd` / `gr` / `<leader>ca` keymaps as any LSP buffer (`K` is rustaceanvim's hover with actions: go to impl, run test, open docs), plus its own, buffer-local under `<leader>c`:
+Registers itself on `.rs` buffers; **not** in the lspconfig loop. Same `gd` / `grr` / `<leader>ca` keymaps as any LSP buffer (`K` is rustaceanvim's hover with actions: go to impl, run test, open docs), plus its own, buffer-local under `<leader>c`:
 
 | Shortcut | Command | Action |
 |---|---|---|
@@ -514,7 +514,7 @@ Everything starts **expanded** (`foldlevel = 99`). nvim-ufo used to do this (pee
 | `gt` / `gT` / `:tabnew` | bufferline | Tab bar at the top — it lists **tabpages, not buffers**, so it only ever shows what you opened by hand. Cycling is the native `gt`/`gT` on purpose: in a terminal `<Tab>` is the same byte as `<C-i>`, so binding it would kill the forward half of the jumplist |
 | `<leader>cm` | render-markdown | Toggle in-buffer markdown rendering |
 | `:Noice` / `:Noice last` | noice | Message history / the last message. noice also draws the cmdline — on the **bottom line, shell style** (`:` `/` `?` `!` as the prompt, syntax-highlighted as you type); completion is nvim's own popup menu right above it, `<Tab>` / `<S-Tab>` to walk it |
-| `:Snacks.dashboard()` | snacks.dashboard | Splash screen when opening nvim with no args — `f` files, `g` grep, `r` recent, `s` restore session, `n` new, `c` config, `L` Lazy, `q` quit. Then a **Projects** list (git roots of recent files, numbered): a key `cd`s there and restores that directory's session, or opens the file picker if it has none |
+| `:lua Snacks.dashboard()` | snacks.dashboard | Splash screen when opening nvim with no args — `f` files, `g` grep, `r` recent, `s` restore session, `n` new, `c` config, `L` Lazy, `q` quit. Then a **Projects** list (git roots of recent files, numbered): a key `cd`s there and restores that directory's session, or opens the file picker if it has none |
 | any prompt for text | snacks.input | `vim.ui.input` is a small floating window (neo-tree add/rename, grug-far prompts) — `<Esc>` cancels, `<CR>` confirms |
 
 Also on: snacks indent guides with scope highlight, incline (the filename floating in each window's top-right corner — what tells the splits apart, with the focused one on an accent background), highlight-colors (inline `#hex` swatches), snacks.bigfile (files over 1.5 MB or with 1000-char lines open with treesitter, LSP and folds off — `ft=bigfile`). Smooth scroll is off (it fought the trackpad).
@@ -590,7 +590,7 @@ Typical: `<leader>fg` → `<C-q>` → `zf` to keep the 12 hits that matter → `
 ### Tabs
 - `:tabnew` — new tab
 - `:tabclose` — close tab
-- `gT` — previous tab. `gt` and `<num>gt` do **not** work in a buffer with LSP: `gt` is Glance type-definition there, and the count doesn't avoid the mapping. Use `:tabnext` / `:tabn N`.
+- `gt` / `gT` — next / previous tab; `<num>gt` jumps to tab N
 
 ---
 
@@ -650,7 +650,7 @@ Single keys outside a group: `<leader>m` / `<leader>M` / `<leader>1-4` harpoon, 
 - **`>ip` / `<ip`** — indent / unindent paragraph.
 - **`==`** — re-indent the line according to LSP/treesitter.
 - **`<C-r>=` in insert** — inline calculator (`5*7` Enter inserts `35`).
-- **Reviewing a generated diff**: `]h` through the hunks, `<leader>gp` to see the old text, `<leader>gr` to throw a hunk away, `gd` / `gr` (Glance) to check a symbol without leaving the file, `<leader>fd` for everything the LSP disagrees with.
+- **Reviewing a generated diff**: `]h` through the hunks, `<leader>gp` to see the old text, `<leader>gr` to throw a hunk away, `gd` / `grr` (Glance) to check a symbol without leaving the file, `<leader>fd` for everything the LSP disagrees with.
 
 ---
 

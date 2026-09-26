@@ -88,43 +88,6 @@ return {
       -- vim.lsp.config[name] when it loads — but we do NOT use its .setup().
       local capabilities = require("blink.cmp").get_lsp_capabilities()
 
-      -- List of servers that mason installs automatically.
-      -- Rust is deliberately left out — rustaceanvim handles it in rust.lua.
-      require("mason-lspconfig").setup({
-        ensure_installed = {
-          -- Web / JS ecosystem
-          "ts_ls",          -- TypeScript / JavaScript / React (.tsx)
-          "eslint",         -- ESLint rules as diagnostics + fix-all (js/ts/vue/svelte/astro)
-          "angularls",      -- Angular (HTML templates + TS components)
-          "astro",          -- Astro (.astro files)
-          "html",           -- HTML standalone
-          "cssls",          -- CSS / SCSS / Less
-          "emmet_ls",       -- Emmet abbrev (div.foo>span → markup)
-          "jsonls",         -- JSON + JSONC (with schemas via SchemaStore)
-          "yamlls",         -- YAML (with k8s/GitHub Actions/etc. schemas)
-
-          -- Backend / systems
-          "gopls",          -- Go
-          "intelephense",   -- PHP
-          "basedpyright",   -- Python type checker (improved fork of pyright)
-          "ruff",           -- Python linter + formatter (Rust, ultra-fast)
-
-          -- Shell / scripting / docs
-          "bashls",         -- Bash / sh / zsh
-          "lua_ls",         -- Lua (to configure nvim itself)
-          "marksman",       -- Markdown
-        },
-        automatic_installation = true,
-        -- mason-lspconfig v2 enables EVERY installed mason package that
-        -- lspconfig has a server file for. stylua ships an LSP mode and
-        -- lspconfig knows it, so installing stylua (for conform) also
-        -- attached a second "stylua" client next to lua_ls — a duplicate
-        -- formatter provider that fights conform's format-on-save.
-        -- rust_analyzer is excluded for the same reason as rustaceanvim
-        -- staying out of `ensure_installed`: it owns that client.
-        automatic_enable = { exclude = { "stylua", "rust_analyzer" } },
-      })
-
       -- on_attach via LspAttach autocmd (idiomatic post-0.10).
       -- Runs once for every LSP that attaches to a buffer.
       vim.api.nvim_create_autocmd("LspAttach", {
@@ -136,11 +99,18 @@ return {
 
           -- Floating Glance instead of a direct jump: with the before_open hook,
           -- if there's only 1 result it jumps anyway; if there are several, peek window.
-          map("n", "gd", "<cmd>Glance definitions<cr>",      "Goto definition")
-          map("n", "gD", vim.lsp.buf.declaration,            "Goto declaration")
-          map("n", "gr", "<cmd>Glance references<cr>",       "References")
-          map("n", "gi", "<cmd>Glance implementations<cr>",  "Goto implementation")
-          map("n", "gt", "<cmd>Glance type_definitions<cr>", "Goto type definition")
+          --
+          -- References / implementation / type definition sit on nvim's own
+          -- LSP keys (`grr`, `gri`, `grt`, 0.11+), which they replace in the
+          -- buffer. NOT `gr`/`gi`/`gt`: a buffer-local `gr` is a prefix of
+          -- every default `gr*`, so each `gr` waited out 'timeoutlen'; `gi` is
+          -- "insert where you last left insert mode"; `gt` is next tabpage,
+          -- which bufferline's tab bar is cycled with.
+          map("n", "gd",  "<cmd>Glance definitions<cr>",      "Goto definition")
+          map("n", "gD",  vim.lsp.buf.declaration,            "Goto declaration")
+          map("n", "grr", "<cmd>Glance references<cr>",       "References")
+          map("n", "gri", "<cmd>Glance implementations<cr>",  "Goto implementation")
+          map("n", "grt", "<cmd>Glance type_definitions<cr>", "Goto type definition")
           map("n", "K", vim.lsp.buf.hover,                 "Hover docs")
           -- IncRename: live preview of the call sites while you type.
           -- expr=true → the returned string runs as if you had typed it.
@@ -148,7 +118,7 @@ return {
           vim.keymap.set("n", "<leader>rn", function()
             return ":IncRename " .. vim.fn.expand("<cword>")
           end, { buffer = ev.buf, expr = true, desc = "Rename symbol (inc-rename live preview)" })
-          map({ "n", "v" }, "<leader>ca", vim.lsp.buf.code_action, "Code action")
+          map({ "n", "x" }, "<leader>ca", vim.lsp.buf.code_action, "Code action")
           map("n", "<leader>cs", vim.lsp.buf.signature_help, "Signature help")
 
           -- Code lens: runs the lens on the current line (go test, go generate, go mod tidy, etc.)
@@ -420,6 +390,47 @@ return {
         cfg.capabilities = capabilities
         vim.lsp.config(name, cfg)
       end
+
+      -- AFTER the vim.lsp.config() calls above, not before: automatic_enable
+      -- calls vim.lsp.enable(), and once nvim is past startup (the plugin
+      -- loads on the first file opened, which can be long after launch)
+      -- enable() re-fires FileType for the open buffers straight away, so a
+      -- server enabled first would start without the settings below.
+      -- List of servers that mason installs automatically.
+      -- Rust is deliberately left out — rustaceanvim handles it in rust.lua.
+      require("mason-lspconfig").setup({
+        ensure_installed = {
+          -- Web / JS ecosystem
+          "ts_ls",          -- TypeScript / JavaScript / React (.tsx)
+          "eslint",         -- ESLint rules as diagnostics + fix-all (js/ts/vue/svelte/astro)
+          "angularls",      -- Angular (HTML templates + TS components)
+          "astro",          -- Astro (.astro files)
+          "html",           -- HTML standalone
+          "cssls",          -- CSS / SCSS / Less
+          "emmet_ls",       -- Emmet abbrev (div.foo>span → markup)
+          "jsonls",         -- JSON + JSONC (with schemas via SchemaStore)
+          "yamlls",         -- YAML (with k8s/GitHub Actions/etc. schemas)
+
+          -- Backend / systems
+          "gopls",          -- Go
+          "intelephense",   -- PHP
+          "basedpyright",   -- Python type checker (improved fork of pyright)
+          "ruff",           -- Python linter + formatter (Rust, ultra-fast)
+
+          -- Shell / scripting / docs
+          "bashls",         -- Bash / sh / zsh
+          "lua_ls",         -- Lua (to configure nvim itself)
+          "marksman",       -- Markdown
+        },
+        -- mason-lspconfig v2 enables EVERY installed mason package that
+        -- lspconfig has a server file for. stylua ships an LSP mode and
+        -- lspconfig knows it, so installing stylua (for conform) also
+        -- attached a second "stylua" client next to lua_ls — a duplicate
+        -- formatter provider that fights conform's format-on-save.
+        -- rust_analyzer is excluded for the same reason as rustaceanvim
+        -- staying out of `ensure_installed`: it owns that client.
+        automatic_enable = { exclude = { "stylua", "rust_analyzer" } },
+      })
       vim.lsp.enable(vim.tbl_keys(servers))
     end,
   },

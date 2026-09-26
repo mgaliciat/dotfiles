@@ -15,17 +15,19 @@
 
 return {
   "MeanderingProgrammer/render-markdown.nvim",
-  ft = { "markdown" },
+  -- `markdown.mdx` listed on its own everywhere: lazy's `ft`, the key filter
+  -- and render-markdown's `file_types` all compare the whole dotted value.
+  ft = { "markdown", "markdown.mdx" },
   dependencies = { "nvim-treesitter/nvim-treesitter" },
   keys = {
     { "<leader>cm",
       function() require("render-markdown").toggle() end,
       desc = "Toggle markdown render",
-      ft = "markdown",
+      ft = { "markdown", "markdown.mdx" },
     },
   },
   opts = {
-    file_types = { "markdown" },
+    file_types = { "markdown", "markdown.mdx" },
 
     -- Headings: org-mode style with graduated icons. `sign = false` avoids
     -- the extra icon in the signcolumn (which we reserve for LSP/git).

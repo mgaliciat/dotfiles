@@ -63,23 +63,26 @@ return {
       override = {
         ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
         ["vim.lsp.util.stylize_markdown"]               = true,
-        ["cmp.entry.get_documentation"]                 = true,
       },
     },
   },
   config = function(_, opts)
-    -- Focus-routing: if nvim is NOT focused, send notifs to
-    -- macOS native (via nvim-notify → osascript fallback).
-    local focused = true
-    vim.api.nvim_create_autocmd("FocusGained", { callback = function() focused = true end })
-    vim.api.nvim_create_autocmd("FocusLost",   { callback = function() focused = false end })
-
+    -- Focus-routing: while nvim is NOT focused, notifications also go to the
+    -- desktop through noice's `notify_send` view — which is the `notify-send`
+    -- binary, i.e. Linux only. macOS has no such command and noice has no
+    -- osascript backend, so there the route is not registered at all and
+    -- notifications stay inside nvim.
     opts.routes = opts.routes or {}
-    table.insert(opts.routes, 1, {
-      filter = { cond = function() return not focused end },
-      view   = "notify_send",
-      opts   = { stop = false },
-    })
+    if vim.fn.executable("notify-send") == 1 then
+      local focused = true
+      vim.api.nvim_create_autocmd("FocusGained", { callback = function() focused = true end })
+      vim.api.nvim_create_autocmd("FocusLost",   { callback = function() focused = false end })
+      table.insert(opts.routes, 1, {
+        filter = { cond = function() return not focused end },
+        view   = "notify_send",
+        opts   = { stop = false },
+      })
+    end
 
     -- Filter: silences the LSP hover's "No information available"
     -- when there are no docs — pure noise in languages without documentation.

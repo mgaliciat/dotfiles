@@ -45,7 +45,7 @@ return {
     { "<leader>fw", function() require("telescope-live-grep-args.shortcuts").grep_word_under_cursor() end,
                     desc = "Grep word under cursor" },
     { "<leader>fw", function() require("telescope-live-grep-args.shortcuts").grep_visual_selection() end,
-                    mode = "v", desc = "Grep selection" },
+                    mode = "x", desc = "Grep selection" },
     { "<leader>fG", function()
         require("telescope").extensions.live_grep_args.live_grep_args({
           cwd = vim.fn.expand("%:p:h"),
@@ -106,6 +106,16 @@ return {
         },
       },
     }
+  end,
+  -- telescope loads on its command/keys, so until the first picker opens
+  -- `vim.ui.select` (code actions, `<leader>ca`) is still nvim's numbered
+  -- prompt. This stub loads telescope on the first select; its config
+  -- registers ui-select, which replaces the stub before the call goes on.
+  init = function()
+    vim.ui.select = function(...)
+      require("lazy").load({ plugins = { "telescope.nvim" } })
+      return vim.ui.select(...)
+    end
   end,
   config = function(_, opts)
     local telescope = require("telescope")

@@ -72,13 +72,16 @@ return {
     },
   },
 
-  config = function(_, opts)
-    require("neo-tree").setup(opts)
-
-    -- Auto-open at startup if no file was passed (e.g. `nvim` or `nvim .`).
-    -- If you pass `nvim foo.lua`, the sidebar does NOT open automatically —
-    -- you start in the file and open the tree with <leader>n if you want it.
+  -- Auto-open at startup if no file was passed (e.g. `nvim` or `nvim .`).
+  -- If you pass `nvim foo.lua`, the sidebar does NOT open automatically —
+  -- you start in the file and open the tree with <leader>n if you want it.
+  --
+  -- In `init`, not `config`: this plugin loads on its command or keys, which
+  -- is always after VimEnter, so an autocmd registered from `config` waited
+  -- for an event that had already fired. `:Neotree show` is what loads it.
+  init = function()
     vim.api.nvim_create_autocmd("VimEnter", {
+      once = true,
       callback = function()
         local argv0 = vim.fn.argv(0)
         if vim.fn.argc() == 0 or (argv0 ~= "" and vim.fn.isdirectory(argv0) == 1) then

@@ -15,24 +15,10 @@
 -- light-2026, solarized-light) over that glass is unreadable. The theme that
 -- wants it declares it; everything else keeps its opaque canvas.
 --
--- Themes currently available (all on top of tokyonight; except
--- obsidian, each one has a Ghostty + tmux mirror — the stack family):
---
---   dark-2026        clone of VS Code's default "Dark 2026" (near-black + teal)
---   light-2026       clone of "2026 Light" (pure white + blue #0069CC)
---   carbon           minimal true-black, high contrast, Claude orange accent
---   neon-noir        true black noir canvas + neon magenta/cyan/blue (derived)
---   anthropic-dark   dark Claude.ai (brown-black + Claude orange)
---   anthropic-warm   warm charcoal + Claude palette (terracotta, olive, amber)
---   prism-night      deep night-blue + spectrum accents
---   paper            light cream + sepia ink
---   typesafe         sage canvas of typesafe.ai (#abbab9), OKLCH-tuned on the page's hues
---   typesafe-dark    its dark companion (same sage at 11%, #182221, OKLCH-tuned on the page's hues)
---   solarized-light  canonical Solarized Light
---   solarized-dark   canonical Solarized Dark (the original, not the osaka fork)
---   retta            Eclipse "Retta" port (true black + pumpkin/cream, high contrast)
---   xray             palette of Ghostty's `xray` dock icon (monochrome PCB + silver ghost)
---   obsidian         high-contrast dark, cyan accent (nvim only + fallback)
+-- The available ids: `theme --list` (scripts/theme) prints every id all
+-- three layers can render; provenance of each palette is in
+-- ghostty/themes/README.md. `obsidian` is the one module here with no Ghostty
+-- or tmux mirror: it is the fallback below, not a stack theme.
 --
 -- The solarized-osaka variants do NOT live in this selector — they use their own
 -- plugin spec (lua/plugins/solarized-osaka.lua) because they ship with a full
@@ -52,13 +38,27 @@ if theme_name:match("^solarized%-osaka") then
   return { "folke/tokyonight.nvim", enabled = false }
 end
 
-local ok, theme  = pcall(require, "themes." .. theme_name)
-if not ok then
+-- A missing module falls back to obsidian; a module that exists but errors
+-- says so instead. One pcall(require) for both used to report a typo inside
+-- a palette as "does not exist", which sends you looking for the wrong fault.
+local theme
+if #vim.api.nvim_get_runtime_file("lua/themes/" .. theme_name .. ".lua", false) == 0 then
   vim.notify(
     "Theme '" .. theme_name .. "' does not exist in lua/themes/. Falling back to obsidian.",
     vim.log.levels.WARN
   )
   theme = require("themes.obsidian")
+else
+  local ok, loaded = pcall(require, "themes." .. theme_name)
+  if ok then
+    theme = loaded
+  else
+    vim.notify(
+      "Theme '" .. theme_name .. "' failed to load, falling back to obsidian:\n" .. loaded,
+      vim.log.levels.ERROR
+    )
+    theme = require("themes.obsidian")
+  end
 end
 
 local transparent = theme.transparent or false

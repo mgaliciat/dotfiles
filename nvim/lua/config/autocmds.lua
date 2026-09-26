@@ -6,7 +6,7 @@ local autocmd = vim.api.nvim_create_autocmd
 -- Highlight on yank (visual feedback without plugins)
 autocmd("TextYankPost", {
   group = augroup("highlight_yank", { clear = true }),
-  callback = function() vim.highlight.on_yank({ timeout = 200 }) end,
+  callback = function() vim.hl.on_yank({ timeout = 200 }) end,
 })
 
 -- Trim whitespace on save. Restores the cursor to avoid jumps.
@@ -54,7 +54,9 @@ autocmd("FileType", {
 -- Markdown: wrap on + spellcheck. No relative numbers (distracting when writing prose).
 autocmd("FileType", {
   group = augroup("ft_markdown", { clear = true }),
-  pattern = { "markdown", "gitcommit" },
+  -- `markdown.mdx` by name: a FileType pattern matches the WHOLE dotted
+  -- value, so "markdown" alone never fires for .mdx files.
+  pattern = { "markdown", "markdown.mdx", "gitcommit" },
   callback = function()
     vim.opt_local.wrap = true                 -- already global; kept so prose wraps even if code stops
     vim.opt_local.linebreak = true            -- wrap respects words

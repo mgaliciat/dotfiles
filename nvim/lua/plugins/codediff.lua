@@ -26,7 +26,7 @@ return {
     -- PR-style review: merge-base of origin/HEAD vs the working tree, so
     -- commits that landed on the base since branching don't show as yours.
     { "<leader>gB", "<cmd>CodeDiff origin/HEAD...<cr>", desc = "CodeDiff: branch vs base" },
-    { "<leader>gh", ":'<,'>CodeDiff history<cr>", mode = "v", desc = "CodeDiff: history of selection" },
+    { "<leader>gh", ":'<,'>CodeDiff history<cr>", mode = "x", desc = "CodeDiff: history of selection" },
   },
   opts = {
     diff = {
