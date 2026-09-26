@@ -30,20 +30,28 @@ jobs:
             scripts/lib.sh scripts/ide scripts/claude-api-env \
             claude/install/*.sh plugins/logbook/hooks/logbook.sh claude/statusline.sh
 
+      # Every loop here collects failures in $failed and exits on it. A plain
+      # `check "$f" && echo ok` does NOT fail the step: the runner's `bash -e`
+      # ignores a failure on the left of `&&`, and the loop then exits with
+      # the LAST file's status — so a broken file anywhere but last goes green.
       - name: bash -n
         run: |
+          failed=0
           for f in install.sh install-linux.sh scripts/lib.sh scripts/ide \
                    scripts/claude-api-env claude/install/*.sh \
                    plugins/logbook/hooks/logbook.sh claude/statusline.sh; do
-            bash -n "$f" && echo "ok  $f"
+            if bash -n "$f"; then echo "ok    $f"; else echo "FAIL  $f"; failed=1; fi
           done
+          exit $failed
 
       - name: zsh -n
         run: |
           sudo apt-get install -y -q zsh >/dev/null
+          failed=0
           for f in zsh/.zshenv zsh/.zshrc zsh/functions.zsh; do
-            zsh -n "$f" && echo "ok  $f"
+            if zsh -n "$f"; then echo "ok    $f"; else echo "FAIL  $f"; failed=1; fi
           done
+          exit $failed
 
   lua-json:
     runs-on: ubuntu-latest
@@ -58,13 +66,16 @@ jobs:
           find nvim -name '*.lua' -print0 | xargs -0 -n1 luac5.1 -p
           echo "ok  $(find nvim -name '*.lua' | wc -l) lua files"
 
+      # Same $failed pattern as the shell job, for the same reason.
       - name: jq (json validity)
         run: |
+          failed=0
           for f in claude/install/permissions.json nvim/lazy-lock.json \
                    plugins/logbook/.claude-plugin/plugin.json plugins/logbook/plugin.json \
                    claude/themes/*.json; do
-            jq empty "$f" && echo "ok  $f"
+            if jq empty "$f"; then echo "ok    $f"; else echo "FAIL  $f"; failed=1; fi
           done
+          exit $failed
 
   powershell:
     runs-on: ubuntu-latest
