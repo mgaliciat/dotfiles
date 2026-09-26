@@ -219,11 +219,15 @@ _load_zsh_plugin zsh-history-substring-search
 # 1.3:1, so every command you typed was nearly invisible. ANSI 2 is whatever
 # the active stack theme tuned it to be, which is the only value that stays
 # readable across the family. MUST come after loading the plugin, otherwise
-# the ZSH_HIGHLIGHT_STYLES array doesn't exist.
-ZSH_HIGHLIGHT_STYLES[command]='fg=green'
-ZSH_HIGHLIGHT_STYLES[builtin]='fg=green'
-ZSH_HIGHLIGHT_STYLES[alias]='fg=green'
-ZSH_HIGHLIGHT_STYLES[function]='fg=green'
+# the ZSH_HIGHLIGHT_STYLES array doesn't exist — which is also why it is
+# guarded: on a box without the plugin, assigning `[command]` to an array
+# nobody declared fails with "invalid subscript range" on every shell start.
+if (( ${+ZSH_HIGHLIGHT_STYLES} )); then
+  ZSH_HIGHLIGHT_STYLES[command]='fg=green'
+  ZSH_HIGHLIGHT_STYLES[builtin]='fg=green'
+  ZSH_HIGHLIGHT_STYLES[alias]='fg=green'
+  ZSH_HIGHLIGHT_STYLES[function]='fg=green'
+fi
 
 # ─── prompt ───────────────────────────────────────────────────
 # Starship was removed (aug-2026): the terminal's width belongs to the
