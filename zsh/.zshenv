@@ -106,6 +106,18 @@ export CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1
 # would read as undefined and hand the decision back to the server.
 export CLAUDE_CODE_ENABLE_CFC=false
 
+# Claude Code — the task list (TaskCreate/TaskGet/TaskUpdate/TaskList). Since
+# v2.1.233 it is gated by model: only Claude 3.x, Opus ≤4.7, Sonnet ≤4.6 and
+# Haiku 4.5 get it by default, so on Opus 5.5 and Sonnet 5.5 plans never show a
+# checklist, and nothing in /doctor or the tool list says why
+# (code.claude.com/docs/en/tools-reference#task-tool-availability). This puts
+# it back on every model. Verified on 2.1.284 with `claude -p --verbose`: the
+# init message lists the four tools with it and none without.
+#
+# Read at launch, so a running session keeps what it had. Only what a zsh starts
+# sees it: the desktop app opened from the Dock does not.
+export CLAUDE_CODE_ENABLE_TODO_TOOLS=1
+
 # ─── local overrides (not versioned) ──────────────────────────
 # ~/.zshenv.local for per-machine secrets/tokens/env vars.
 # Loaded at the end so it can prepend to PATH and override defaults.
