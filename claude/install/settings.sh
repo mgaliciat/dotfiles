@@ -132,6 +132,7 @@ unset _theme
 # ~/.claude/hooks/ is a real per-machine dir (codebase-memory-mcp writes its own
 # hooks there), so this is a per-ITEM link for the same reason as the skills above.
 link "$DOTFILES/plugins/logbook/hooks/logbook.sh" "$HOME/.claude/hooks/logbook.sh"
+link "$DOTFILES/claude/hooks/no-bash-edits.py" "$HOME/.claude/hooks/no-bash-edits.py"
 
 # ── convergent cleanup: the pre-rename `bitacora` + `wiki` names (sep-2026) ──
 # The plugin was `wiki` and capture was a separate plain skill, `bitacora`; both
@@ -521,6 +522,46 @@ if ! jq -e '[.. | strings] | any(test("hooks/logbook"))' "$SETTINGS" >/dev/null 
   fi
 else
   echo "✓ logbook PostToolUse hook already in settings.json — leaving it alone"
+fi
+
+# ── PreToolUse hook: file changes go through Edit/Write, not Bash ──
+# The enforcement half of the THRIFTY_SONIC block above: that switch removes the
+# Bash-first steer, this denies what slips through anyway (the switch is
+# undocumented and can vanish in any release). What it blocks and lets through is
+# in claude/hooks/no-bash-edits.py.
+#
+# `/usr/bin/python3`, never a bare `python3`: on this Mac that resolves to a pyenv
+# shim, which fails outright in any project whose .python-version names an
+# uninstalled version — on every Bash call. The system interpreter is always
+# there once Homebrew is (it requires the Command Line Tools) and on Debian/Ubuntu.
+#
+# No Windows twin: sessions there run PowerShell (CLAUDE_CODE_USE_POWERSHELL_TOOL)
+# and this parses bash.
+#
+# Same deep-scan guard as the logbook block, for the same reason: .hooks.PreToolUse
+# is shared with rtk's own entry.
+if [[ ! -x /usr/bin/python3 ]]; then
+  echo "⚠️  /usr/bin/python3 not found — skipping the no-bash-edits hook"
+elif ! jq -e '[.. | strings] | any(test("hooks/no-bash-edits"))' "$SETTINGS" >/dev/null 2>&1; then
+  SETTINGS_TMP="$(mktemp)"
+  if jq '.hooks //= {}
+         | .hooks.PreToolUse //= []
+         | .hooks.PreToolUse += [{
+             matcher: "Bash",
+             hooks: [{
+               type: "command",
+               command: "/usr/bin/python3 ~/.claude/hooks/no-bash-edits.py",
+               timeout: 5
+             }]
+           }]' "$SETTINGS" > "$SETTINGS_TMP"; then
+    mv "$SETTINGS_TMP" "$SETTINGS"
+    echo "✓ no-bash-edits PreToolUse hook added to settings.json"
+  else
+    rm -f "$SETTINGS_TMP"
+    echo "⚠️  could not add the no-bash-edits hook — settings.json left untouched"
+  fi
+else
+  echo "✓ no-bash-edits PreToolUse hook already in settings.json — leaving it alone"
 fi
 
 # ── convergent cleanup: stale tmux-claude-session-manager hooks ──

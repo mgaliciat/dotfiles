@@ -17,8 +17,8 @@ from the parent, and that `jq` is already installed.
 | **3** | `plugins.sh` | The **Claude Code CLI** (`claude plugin`) | Handled by the CLI |
 
 **1 — `settings.sh`.** The only thing we write by hand: `statusLine` (+ `refreshInterval`),
-`permissions.allow/ask/deny`, `attribution.commit/pr`, the logbook `PostToolUse` hook, and
-the convergent cleanups (the obsolete `tmux-claude-session-manager` hooks, and the pre-rename
+`permissions.allow/ask/deny`, `attribution.commit/pr`, the logbook `PostToolUse` hook, the
+`no-bash-edits` `PreToolUse` hook, `env.CLAUDE_CODE_THRIFTY_SONIC`, and the convergent cleanups (the obsolete `tmux-claude-session-manager` hooks, and the pre-rename
 `bitacora`/`wiki` symlinks and hook entry). Additive-only, with a guard: if the key already
 exists on that machine, it is not touched. Two exceptions. `permissions.ask` and `.deny` are
 unioned with the repo's rules on every run (and `retired` rules are stripped from all three
@@ -28,12 +28,13 @@ machine still on exactly 60 — this file's old default, so never a hand-picked 
 And `theme`: it is a layer of the
 versioned stack theme, so it is written from ghostty's `theme =` line on every run whenever a
 `claude/themes/<id>.json` exists for that id. It also symlinks the versioned pieces of `claude/` —
-`statusline.sh`, the user-level `CLAUDE.md`, `hooks/logbook.sh`, every Claude Code colour theme
+`statusline.sh`, the user-level `CLAUDE.md`, `hooks/logbook.sh`, `hooks/no-bash-edits.py`, every Claude Code colour theme
 in `themes/` (the stack theme's fifth layer), and the skill plugin we author
 (`skills/logbook`), one `link` per item and never the parent dir.
 
-The logbook hook is the one entry here that cannot use the `_settings_set_if_absent` helper:
-`.hooks.PostToolUse` is an array shared with other tools, so the guard deep-scans for our own
+The two hooks are the entries here that cannot use the `_settings_set_if_absent` helper:
+`.hooks.PostToolUse` and `.hooks.PreToolUse` are arrays shared with other tools (rtk's own
+`PreToolUse` entry among them), so each guard deep-scans for our own
 command string instead of testing a `jq` path. Guarding on the path would either be satisfied by
 somebody else's hook — ours never landing — or append a duplicate on every run.
 
