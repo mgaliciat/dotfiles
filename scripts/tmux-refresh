@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+# ─── scripts/tmux-refresh — kill the whole tmux server ────────
+# For when running processes must pick up something they only read at launch:
+# an `env` key in ~/.claude/settings.json, an export in zsh/.zshenv. The usual
+# culprits are the persistent claude-* popup sessions (Alt+c, Alt+C, Alt+a,
+# Alt+y), which outlive every Ghostty window and keep whatever they started with.
+#
+# Every Ghostty tab runs `exec tmux new-session` (auto-tmux in zsh/.zshrc), so
+# when the server dies each tab's process ends and Ghostty closes the tab. A new
+# window (Cmd+N) starts a fresh server. Claude conversations survive on disk:
+# `claude --resume` in the same directory lists them.
+#
+# Usage: tmux-refresh [-y|--yes]
+set -euo pipefail
+
+yes=0
+case "${1:-}" in
+  -y | --yes) yes=1 ;;
+  "") ;;
+  *)
+    echo "usage: tmux-refresh [-y|--yes]" >&2
+    exit 2
+    ;;
+esac
+
+if ! tmux list-sessions >/dev/null 2>&1; then
+  echo "no tmux server running"
+  exit 0
+fi
+
+echo "tmux sessions that will be killed:"
+tmux list-sessions -F '  #{session_name}  (#{session_windows} windows, #{?session_attached,attached,detached})'
+echo "Claude conversations can be reopened with \`claude --resume\` in their directory."
+
+if ((!yes)); then
+  # With no terminal to ask on (a script, an agent's Bash tool) refuse instead of
+  # killing: this closes every tmux tab, including the one that ran it.
+  if [[ ! -t 0 ]]; then
+    echo "not a terminal — pass --yes to confirm" >&2
+    exit 1
+  fi
+  read -r -p "Kill the tmux server? Every Ghostty tab running tmux closes. [y/N] " reply
+  if [[ "$reply" != [yY]* ]]; then
+    echo "aborted"
+    exit 0
+  fi
+fi
+
+tmux kill-server

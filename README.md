@@ -20,7 +20,7 @@ The design rationale (what is versioned vs. per-machine, and why every non-obvio
 | `tmux/` | tmux config — prefix `C-t`, single-chord popups `Alt+c/C/a/A/y/u/d/g/Enter`, modular (theme / statusline / utility / `themes/`). Cheatsheet: `tmux/CHEATSHEET.md` |
 | `lazygit/config.yml` | lazygit theme + custom commands |
 | `git/.gitignore_global` | Global gitignore — macOS noise, editor files, build dirs, **and AI-agent scratch** (`.claude/`, `.cursor/`, `.aider*`, …), excluded in every repo |
-| `scripts/` | `ide` (4-pane tmux layout, `prefix + g`), `claude-api-env` (runs a command with the gateway env), `theme` (switches the stack theme), `lib.sh` (shared by both bash installers). The first three are symlinked onto `~/.local/bin` |
+| `scripts/` | `ide` (4-pane tmux layout, `prefix + g`), `claude-api-env` (runs a command with the gateway env), `theme` (switches the stack theme), `tmux-refresh` (kills the tmux server so every session restarts clean), `lib.sh` (shared by both bash installers). All but `lib.sh` are symlinked onto `~/.local/bin` |
 | `claude/` | User-level Claude Code pieces — `CLAUDE.md` (→ `~/.claude/CLAUDE.md`), `statusline.{sh,ps1}`, `themes/`, and `install/` (everything the installers do to `~/.claude/`, see its README) |
 | `plugins/` | Agent plugins shared by Claude Code and Antigravity. `logbook/`: the logmd vault skills, its post-commit hook and both manifests; linked into `~/.claude/skills/` and `~/.gemini/config/plugins/` |
 | `install.sh` | macOS entry point — symlinks + Homebrew deps + Claude Code setup |
@@ -49,7 +49,7 @@ cd ~/dotfiles
 
 `install.sh` is idempotent — re-run it after every `git pull`. It backs up anything it would overwrite as `<file>.backup.<timestamp>` and then:
 
-1. **Symlinks** `.zshrc`, `.zshenv`, `.gitignore_global`, ghostty (config + themes), nvim, tmux, lazygit, `~/.local/bin/{ide,claude-api-env,theme}`, and the Claude pieces (`~/.claude/CLAUDE.md`, `statusline.sh`, `hooks/logbook.sh`, `skills/logbook`).
+1. **Symlinks** `.zshrc`, `.zshenv`, `.gitignore_global`, ghostty (config + themes), nvim, tmux, lazygit, `~/.local/bin/{ide,claude-api-env,theme,tmux-refresh}`, and the Claude pieces (`~/.claude/CLAUDE.md`, `statusline.sh`, `hooks/logbook.sh`, `skills/logbook`).
 2. **Installs missing Homebrew deps** (see `REQUIRED_FORMULAE` / `REQUIRED_CASKS` in the script): the zsh plugins, `eza`, `bat`, `fd`, `ripgrep`, `gomi`, `zoxide`, `fzf`, `jq`, `gh`, `git-delta`, `pyenv`, `neovim`, `tree-sitter-cli`, `tmux`, `lazygit`, `rtk`; casks `ghostty`, `1password-cli` and the fonts `config.ghostty` names. Paper Mono has no cask and is fetched from its GitHub release.
 3. **Configures Claude Code** — additive, nothing you set by hand on that machine is clobbered; the one list that converges is `permissions.ask`/`deny`, where the repo's rules are unioned into whatever the machine has. Split by who writes `~/.claude/settings.json` (`claude/install/README.md`): our `jq` merges (statusline, base permissions, no attribution trailer, the logbook `PostToolUse` hook), the external binaries' own setup ([`rtk`](https://github.com/rtk-ai/rtk), [`codebase-memory-mcp`](https://github.com/DeusData/codebase-memory-mcp), the `context7` and `logmd` MCP endpoints, the `gh-stack` skill), and the plugin CLI (currently nothing).
 4. **Bootstraps tmux** — clones tpm if missing, pins `tmux-claude-hatch` to a commit, reloads the config if a server is running. Inside tmux: `prefix + I` installs the rest of the plugins the first time.

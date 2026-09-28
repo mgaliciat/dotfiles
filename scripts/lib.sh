@@ -39,6 +39,7 @@ link_portable() {
   link "$DOTFILES/scripts/claude-api-env" "$HOME/.local/bin/claude-api-env"
   link "$DOTFILES/scripts/ide"            "$HOME/.local/bin/ide"
   link "$DOTFILES/scripts/theme"          "$HOME/.local/bin/theme"
+  link "$DOTFILES/scripts/tmux-refresh"   "$HOME/.local/bin/tmux-refresh"
 }
 
 # Claude Code: three mechanisms, one file each, split by WHO writes to
