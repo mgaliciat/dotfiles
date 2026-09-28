@@ -481,6 +481,18 @@ if ($Settings.env -isnot [PSCustomObject]) {
     Write-Host "OK  env.CLAUDE_CODE_USE_POWERSHELL_TOOL added to settings.json (1)"
 }
 
+# ─── env.CLAUDE_CODE_THRIFTY_SONIC: file edits go through Edit/Write ───
+# Twin of the block in settings.sh -- the why and the verification live there.
+# The string "0", not the integer, for the same reason as the tool flag above.
+if ($Settings.env -isnot [PSCustomObject]) {
+    Write-Host "i   env is not an object in settings.json -- leaving it alone"
+} elseif ($Settings.env.PSObject.Properties.Name -contains "CLAUDE_CODE_THRIFTY_SONIC") {
+    Write-Host "OK  env.CLAUDE_CODE_THRIFTY_SONIC already set -- leaving it alone"
+} else {
+    $Settings.env | Add-Member -NotePropertyName "CLAUDE_CODE_THRIFTY_SONIC" -NotePropertyValue "0"
+    Write-Host "OK  env.CLAUDE_CODE_THRIFTY_SONIC added to settings.json (0)"
+}
+
 # ─── convergent cleanup: the agent-teams env block (sep-2026) ───
 # Twin of the jq removal block in settings.sh, and there for the same reason:
 # this installer used to WRITE these three keys, every guard in it is additive,

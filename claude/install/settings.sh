@@ -396,6 +396,30 @@ _settings_set_if_absent '.preferredNotifChannel' \
   '.preferredNotifChannel = "terminal_bell"' \
   'preferredNotifChannel (terminal_bell)'
 
+# ── env.CLAUDE_CODE_THRIFTY_SONIC: file edits go through Edit/Write ──
+# In auto and bypassPermissions mode Claude Code sends the model a "Bash-first"
+# steer: read with cat/sed -n, edit with sed, heredocs or scripts, rather than
+# Read/Edit/Write. It is a server-side experiment (`tengu_thrifty_sonic`, assigned
+# per session: forced / cohort / none), not a model habit, and it costs exactly
+# what those tools exist for: no diff of the change, no /rewind (only
+# Edit/Write/NotebookEdit are checkpointed), no path-scoped rules or nested
+# CLAUDE.md (both load only on Read/Edit/Write), and no exactly-once match on the
+# replaced text. Open upstream with no maintainer answer: anthropics/claude-code
+# #87971, #88041, #90450, #90599.
+#
+# UNDOCUMENTED, like ENABLE_CFC in zsh/.zshenv — re-check it against the binary,
+# where the variable is read before the experiment is consulted. "0" turns the
+# steer off; unset is NOT off, it hands the decision back to the experiment.
+# Verified on 2.1.284 with Opus 5.5, auto and bypass alike: without it the session
+# transcript records an `auto_mode` attachment with `bashFirst: true` plus the
+# steer text, with it neither.
+#
+# In `env` rather than zsh/.zshenv because settings.json is read by Claude Code
+# however it was launched; a zsh export reaches only what a zsh starts.
+_settings_set_if_absent '.env.CLAUDE_CODE_THRIFTY_SONIC' \
+  '.env.CLAUDE_CODE_THRIFTY_SONIC = "0"' \
+  'env.CLAUDE_CODE_THRIFTY_SONIC (no Bash-first steer)'
+
 # ── convergent cleanup: the agent-teams env block (sep-2026) ──
 # Until sep-2026 this file wrote three keys into `env`:
 # CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS, CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS
