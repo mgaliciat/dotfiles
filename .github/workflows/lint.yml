@@ -1,6 +1,7 @@
 # Static checks only — nothing here installs the dotfiles or needs a Mac.
 # Everything that runs is a syntax/lint pass over the files a `git pull`
-# delivers, so a typo in an installer or a zsh file is caught before it lands
+# delivers (plus one smoke test for a hook that fails silently by design), so a
+# typo in an installer or a zsh file is caught before it lands
 # on the other machines. Runtime validation stays where it always was: running
 # the installer (CLAUDE.md, "there is no test suite").
 #
@@ -27,7 +28,7 @@ jobs:
           shellcheck --version
           shellcheck -x \
             install.sh install-linux.sh \
-            scripts/lib.sh scripts/ide scripts/claude-api-env scripts/theme \
+            scripts/lib.sh scripts/ide scripts/claude-api-env scripts/theme scripts/tmux-refresh \
             claude/install/*.sh plugins/logbook/hooks/logbook.sh claude/statusline.sh
 
       # Every loop here collects failures in $failed and exits on it. A plain
@@ -38,7 +39,7 @@ jobs:
         run: |
           failed=0
           for f in install.sh install-linux.sh scripts/lib.sh scripts/ide \
-                   scripts/claude-api-env scripts/theme claude/install/*.sh \
+                   scripts/claude-api-env scripts/theme scripts/tmux-refresh claude/install/*.sh \
                    plugins/logbook/hooks/logbook.sh claude/statusline.sh; do
             if bash -n "$f"; then echo "ok    $f"; else echo "FAIL  $f"; failed=1; fi
           done
@@ -81,6 +82,43 @@ jobs:
             if jq empty "$f"; then echo "ok    $f"; else echo "FAIL  $f"; failed=1; fi
           done
           exit $failed
+
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # The hooks run on the Mac's /usr/bin/python3, which is 3.9. The runner's is
+      # newer, so the grammar is pinned to 3.9: syntax from a later release would
+      # otherwise pass here and fail on every Bash call there.
+      - name: python parse (3.9 grammar)
+        run: |
+          python3 - claude/hooks/*.py <<'PY'
+          import ast, sys
+          failed = 0
+          for f in sys.argv[1:]:
+              try:
+                  ast.parse(open(f).read(), f, feature_version=(3, 9))
+                  print(f"ok    {f}")
+              except SyntaxError as e:
+                  print(f"FAIL  {f}: {e}")
+                  failed = 1
+          sys.exit(failed)
+          PY
+
+      # no-bash-edits exits 0 silently on ANY exception, by design (a bug must
+      # never block a command), so a broken hook looks exactly like one that
+      # allows everything. One deny and one allow case tell the two apart.
+      - name: no-bash-edits smoke test
+        run: |
+          hook=claude/hooks/no-bash-edits.py
+          deny=$(jq -nc '{tool_name: "Bash", tool_input: {command: "sed -i s/a/b/ f.txt"}}' | python3 "$hook")
+          allow=$(jq -nc '{tool_name: "Bash", tool_input: {command: "echo x > /dev/null"}}' | python3 "$hook")
+          if ! jq -e '.hookSpecificOutput.permissionDecision == "deny"' <<<"$deny" >/dev/null; then
+            echo "FAIL  deny case produced: ${deny:-<nothing>}"; exit 1
+          fi
+          if [ -n "$allow" ]; then echo "FAIL  allow case produced: $allow"; exit 1; fi
+          echo "ok    deny + allow"
 
   powershell:
     runs-on: ubuntu-latest
