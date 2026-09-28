@@ -123,7 +123,7 @@ fi
 # does not duplicate it).
 if command -v codebase-memory-mcp >/dev/null 2>&1; then
   codebase-memory-mcp install -y >/dev/null 2>&1 \
-    && echo "✓ codebase-memory-mcp: MCP server + hooks + skill registered" \
+    && echo "✓ codebase-memory-mcp: MCP server + skill registered" \
     || echo "⚠️  codebase-memory-mcp install -y failed"
   # auto_index: cheap and idempotent, forced on every run so new projects index
   # themselves on connect. The `||` is not optional: this file is sourced under
@@ -133,6 +133,35 @@ if command -v codebase-memory-mcp >/dev/null 2>&1; then
     && echo "✓ codebase-memory-mcp: auto_index=true" \
     || echo "⚠️  codebase-memory-mcp config set auto_index failed"
 fi
+
+# ── convergent cleanup: the hooks `install -y` registers ──
+# `install -y` also writes three Claude Code hooks, and 0.9.0 has no way to opt
+# out (no install flag, no config key), so they are stripped after every run:
+#  - SessionStart (startup/resume/clear/compact) + SubagentStart print a fixed
+#    "ALWAYS use codebase-memory-mcp FIRST" protocol into every context. The MCP
+#    tools and the `codebase-memory` skill already announce themselves; which one
+#    to reach for is the user's call, not a standing order.
+#  - PreToolUse on `Grep|Glob` augments those tools' results, and never fires in
+#    a session that has no Grep/Glob tool.
+# Matched on the script path, not on event or matcher: those arrays are shared
+# (rtk's Bash hook, the logbook plugin's). Must stay AFTER `install -y`, which
+# re-adds all three on every run.
+CBM_SETTINGS="$HOME/.claude/settings.json"
+if [[ -f "$CBM_SETTINGS" ]] && jq -e '[.hooks[]?[]?.hooks[]?.command // "" | select(contains("hooks/cbm-"))] | length > 0' \
+     "$CBM_SETTINGS" >/dev/null 2>&1; then
+  CBM_TMP="$(mktemp)"
+  if jq '.hooks |= (map_values(map(.hooks |= map(select((.command // "") | contains("hooks/cbm-") | not)))
+                               | map(select(.hooks | length > 0)))
+                    | with_entries(select(.value | length > 0)))' "$CBM_SETTINGS" > "$CBM_TMP"; then
+    mv "$CBM_TMP" "$CBM_SETTINGS"
+    echo "✓ codebase-memory-mcp hooks stripped from settings.json"
+  else
+    rm -f "$CBM_TMP"
+    echo "⚠️  could not strip the codebase-memory-mcp hooks — settings.json left untouched"
+  fi
+fi
+rm -f "$HOME"/.claude/hooks/cbm-*
+unset CBM_SETTINGS CBM_TMP
 
 # ─── context7 (up-to-date library docs MCP) ───────────────────
 # Hosted HTTP server — nothing to install, no binary, no local port: we only

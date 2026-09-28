@@ -739,7 +739,7 @@ if (-not $CbmCmd -or $CbmStamped -ne $CbmHave) {
 $Cbm = if (Test-Path $CbmExe) { $CbmExe } else { (Get-Command codebase-memory-mcp -ErrorAction SilentlyContinue).Source }
 if ($Cbm) {
     & $Cbm install -y | Out-Null
-    Write-Host "OK  codebase-memory-mcp: MCP server + hooks + skill registered"
+    Write-Host "OK  codebase-memory-mcp: MCP server + skill registered"
     & $Cbm config set auto_index true | Out-Null
     Write-Host "OK  codebase-memory-mcp: auto_index=true"
     # 3D graph viewer on http://localhost:9749, served by the binary itself
@@ -751,6 +751,38 @@ if ($Cbm) {
     & $Cbm config set ui_port 9749 | Out-Null
     Write-Host "OK  codebase-memory-mcp: UI on http://localhost:9749"
 }
+
+# Mirror of the hook cleanup in claude/install/binaries.sh -- the why lives there.
+# settings.json is re-read, not taken from $Settings: `install -y` rewrote it
+# after the settings block above saved it.
+if (Test-Path $SettingsPath) {
+    $CbmSettings = [System.IO.File]::ReadAllText($SettingsPath, [System.Text.Encoding]::UTF8) | ConvertFrom-Json
+    $CbmStripped = $false
+    if ($CbmSettings.PSObject.Properties.Name -contains "hooks") {
+        # $HookEvent, not $Event: $Event is a PowerShell automatic variable.
+        foreach ($HookEvent in @($CbmSettings.hooks.PSObject.Properties)) {
+            $Kept = @()
+            foreach ($Entry in @($HookEvent.Value)) {
+                $EntryHooks = @(@($Entry.hooks) | Where-Object { [string]$_.command -notmatch 'hooks[\\/]cbm-' })
+                if ($EntryHooks.Count -ne @($Entry.hooks).Count) { $CbmStripped = $true }
+                if ($EntryHooks.Count -gt 0) {
+                    $Entry.hooks = $EntryHooks
+                    $Kept += $Entry
+                }
+            }
+            if ($Kept.Count -eq 0) {
+                $CbmSettings.hooks.PSObject.Properties.Remove($HookEvent.Name)
+            } else {
+                $CbmSettings.hooks.($HookEvent.Name) = $Kept
+            }
+        }
+    }
+    if ($CbmStripped) {
+        [System.IO.File]::WriteAllText($SettingsPath, ($CbmSettings | ConvertTo-Json -Depth 10), $Utf8NoBom)
+        Write-Host "OK  codebase-memory-mcp hooks stripped from settings.json"
+    }
+}
+Remove-Item (Join-Path $HooksDir "cbm-*") -Force -ErrorAction SilentlyContinue
 
 # ─── tgrep (trigram-indexed grep) ───────────────────────────────
 # Mirror of the `tgrep` entry in install.sh's REQUIRED_FORMULAE — the caveats
