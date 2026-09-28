@@ -71,7 +71,19 @@ enabled = false
 #   curl  — response bodies are data, not logs. Also rtk-ai/rtk#1282: rtk doesn't
 #           check isatty, so filtered output piped into another tool gets
 #           corrupted, and curl is the command most likely to be left of a pipe.
-exclude_commands = ["diff", "curl"]
+#   jq    — same argument as curl: its output is data. The filter cut a 224-byte
+#           `jq -c` line at ~118 chars; display.max_width does not reach it.
+#   ls    — with several dirs it drops the `dir:` headers, so the entries of all
+#           of them run together with no way to tell which dir holds which; `-l`
+#           loses owner and mtime. Listings are small, the savings near zero.
+#   find  — rewrites paths relative to the root and left-truncates long ones
+#           ("...ugins/cache/..."), with no recovery marker: a path you cannot
+#           copy back out is the one thing find exists to produce.
+#   wc    — strips the directory from every path, so same-named files in
+#           different dirs become indistinguishable. Output is a few lines.
+# Each entry matches the command's leading word, per `&&`/`;` segment: `lsof`,
+# `git ls-files` and `git diff` are untouched (verified against the hook on 0.49).
+exclude_commands = ["diff", "curl", "jq", "ls", "find", "wc"]
 transparent_prefixes = []
 
 [limits]
