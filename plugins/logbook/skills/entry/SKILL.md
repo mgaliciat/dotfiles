@@ -37,7 +37,7 @@ it. Keep it to the *reasoning* git won't preserve, not a commit-log dump.
 ## Where
 
 One file **per invocation**: **`entries/YYYY-MM-DD-HHMM-<repo>`** in the
-logmd vault, written with the `logmd` MCP's `write` tool
+logbook vault, written with the `logbook-mcp` MCP's `write` tool
 (`document`). `<repo>` is the primary repo/service slug — the **repository** name,
 not the product's and not the org's; the vault's `wiki/CLAUDE.md` keeps the alias
 table, and a raw note is never re-tagged after the fact.

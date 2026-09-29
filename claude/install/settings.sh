@@ -30,8 +30,8 @@ link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 # leak because the repo folder only ever holds what we put there.
 #
 # Dropped in aug-2026 with the obsidian MCP they wrote through, and back in
-# sep-2026 rewritten against the vault's MCP — `logmd` since 2026-09-22, registered
-# in binaries.sh.
+# sep-2026 rewritten against the vault's MCP — `logmd` from 2026-09-22 and
+# `logbook-mcp` since 2026-09-28, registered in binaries.sh.
 #
 # `logbook` covers BOTH vault layers, capture and synthesis: `/logbook:entry`
 # writes one immutable note per invocation into entries/, and ingest/query/lint

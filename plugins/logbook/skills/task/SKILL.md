@@ -27,7 +27,7 @@ Three operations, one verb:
 ## Where
 
 **`tasks/<repo>.md`** — one board per repository, `type: task-board`, written
-through the `logmd` MCP. `<repo>` is the repository slug, bare, the same
+through the `logbook-mcp` MCP. `<repo>` is the repository slug, bare, the same
 one `/logbook:entry` uses.
 
 - **Never `write` at a board that exists.** `write` with `position: replace`
