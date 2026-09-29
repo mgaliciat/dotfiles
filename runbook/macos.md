@@ -71,7 +71,8 @@ per-machine files and the two silent guards.
    - configures Claude Code: `settings.json` keys (additive, guarded), the
      `CLAUDE.md` / statusline / hook / skill symlinks, `rtk`,
      `codebase-memory-mcp`, the two MCP endpoints, the `gh-stack` skill;
-   - clones tpm, pins `tmux-claude-hatch`, reloads a running tmux;
+   - clones tpm, pins `tmux-claude-hatch`, installs the other tmux plugins,
+     reloads a running tmux;
    - installs the `gh-stack` extension;
    - registers VS Code as the default app for `.ghostty` files, if installed.
 
@@ -107,8 +108,9 @@ per-machine files and the two silent guards.
    the one required key; without it `claude --api` refuses to launch.
 
 5. `exec zsh`. An interactive shell **auto-starts tmux** (`exec tmux
-   new-session` in `.zshrc`). Escape hatch: `NO_AUTO_TMUX=1`. Inside tmux the
-   first time: `C-t I` (prefix is `C-t`) to install the plugins tpm lists.
+   new-session` in `.zshrc`). Escape hatch: `NO_AUTO_TMUX=1`. The installer
+   already installed the plugins tpm lists; `C-t I` (prefix is `C-t`) does it
+   by hand if that step warned.
 
 6. Open Ghostty. The theme and font are already selected in the config; if the
    glyphs look wrong, check the family name resolved:

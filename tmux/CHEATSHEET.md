@@ -38,6 +38,7 @@ Convention: `prefix x` = you press `Ctrl+t`, release, then `x`.
 3. You come back later to `~/projects/foo` → `Alt+c` → you reattach to the **same** session with all its context.
 4. You switch to `~/projects/bar` → `Alt+c` → a DIFFERENT session (different md5).
 5. Lost track of which Claude is running where? → `Alt+u` → picker with the live state of all of them.
+6. After a reboot, tmux-resurrect restores your other sessions but not Claude: `Alt+c` starts a new one, and `/resume` inside it gets the old conversation back.
 
 **Session naming convention:**
 - `claude-<hash>` → the default one that `Alt+c` / `Alt+y` open (they share the hash)
@@ -75,7 +76,7 @@ To kill a specific session: `tmux kill-session -t claude-<hash>`.
 
 | Shortcut | Action |
 |---|---|
-| `prefix c` | Create a new window |
+| `prefix c` | Create a new window (cwd preserved, via tmux-pain-control) |
 | `prefix ,` | Rename the current window |
 | `prefix &` | Close the window (asks for confirmation) |
 | `prefix n` / `prefix p` | Next / previous window |

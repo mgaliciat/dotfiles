@@ -92,15 +92,14 @@ bootstrap_gh_stack() {
 }
 
 # tpm (Tmux Plugin Manager) + reload. tpm lives in the installer, not in
-# tmux.conf: cloning it is a one-time bootstrap, not per-launch work. Plugins
-# listed in tmux.conf are installed from inside tmux with `prefix + I` the first
-# time (`prefix + U` updates them).
+# tmux.conf: cloning it is a one-time bootstrap, not per-launch work. The other
+# plugins listed in tmux.conf are installed here too (`prefix + U` updates them).
 bootstrap_tmux() {
   local tpm_dir="$HOME/.config/tmux/plugins/tpm"
   if [[ ! -d "$tpm_dir" ]]; then
     echo "→ Cloning tpm into $tpm_dir"
     git clone --depth 1 https://github.com/tmux-plugins/tpm "$tpm_dir"
-    echo "✓ tpm installed. Inside tmux: prefix + I to install plugins"
+    echo "✓ tpm installed"
   fi
 
   # tmux-claude-hatch is pinned here (not left to `prefix + I`) so every
@@ -138,6 +137,19 @@ bootstrap_tmux() {
       git -C "$csm_dir" fetch --quiet origin && \
         git -C "$csm_dir" checkout --quiet "$csm_pin" && \
         echo "✓ tmux-claude-hatch pinned to ${csm_pin:0:7}"
+    fi
+  fi
+
+  # The rest of the @plugin list (pain-control, resurrect, continuum). Left to
+  # `prefix + I`, a machine where nobody pressed it ran without them and nothing
+  # said so: no resurrect save ever written, the continuum timer a silent no-op.
+  # After the pin on purpose — tpm skips a plugin whose dir exists, so it must
+  # find tmux-claude-hatch already checked out. Convergent for the same reason.
+  if [[ -x "$tpm_dir/bin/install_plugins" ]] && command -v tmux >/dev/null 2>&1; then
+    if "$tpm_dir/bin/install_plugins" >/dev/null; then
+      echo "✓ tmux plugins installed"
+    else
+      echo "⚠️  tpm could not install the tmux plugins; inside tmux: prefix + I"
     fi
   fi
 
