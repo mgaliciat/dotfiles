@@ -15,6 +15,11 @@
 # (`git commit -F - <<EOF`), and any command carrying ALLOW_BASH_WRITE=1 — the
 # deliberate escape hatch, visible in the command itself.
 #
+# Temp dirs are exempt for interpreter code too, but only when every write in the
+# code names its target as a string literal under a temp dir. A target held in a
+# variable is allowed for a redirect (the shell would expand it, we can't) yet
+# denied inside code: there it is usually a repo path computed a line earlier.
+#
 # Heuristic on purpose: it matches the shapes the steer produces, not every way a
 # shell can write a file. Python because shlex is what tells a quoted `>` from a
 # redirect; bash + jq cannot. Every failure path exits 0 with no output, so a bug
@@ -36,8 +41,21 @@ WRITE_API = re.compile(
     r"\.write_(?:text|bytes)\s*\("
     r"|\bopen\s*\([^)]*,\s*(?:mode\s*=\s*)?['\"][rbt]*[wax+]"
     r"|\b(?:writeFileSync|appendFileSync|writeFile|appendFile)\s*\("
-    r"|\bFile\.(?:write|open)\s*\("
+    r"|\bFile\.write\s*\("
+    r"|\bFile\.open\s*\([^)]*,\s*['\"][rbt]*[wax+]"
 )
+
+# The same write sites as WRITE_API, narrowed to those whose target is a string
+# literal, captured as `path`. A site WRITE_API sees and none of these captures
+# has a computed target, which is never taken for a temp one.
+_LITERAL = r"(?:[rRbBfF]{0,2})(?P<q>['\"])(?P<path>[^'\"]*)(?P=q)"
+WRITE_TARGETS = [
+    re.compile(r"\bopen\s*\(\s*" + _LITERAL + r"\s*,\s*(?:mode\s*=\s*)?['\"][rbt]*[wax+]"),
+    re.compile(r"\bPath\s*\(\s*" + _LITERAL + r"\s*\)\s*\.write_(?:text|bytes)\s*\("),
+    re.compile(r"\b(?:writeFileSync|appendFileSync|writeFile|appendFile)\s*\(\s*" + _LITERAL),
+    re.compile(r"\bFile\.write\s*\(\s*" + _LITERAL),
+    re.compile(r"\bFile\.open\s*\(\s*" + _LITERAL + r"\s*,\s*['\"][rbt]*[wax+]"),
+]
 
 INTERPRETERS = {"python", "python3", "node", "ruby", "perl"}
 CODE_FLAGS = {"-c", "-e", "-E", "--eval", "-p", "--print"}
@@ -83,19 +101,32 @@ def split_heredocs(command):
     return "\n".join(kept), bodies
 
 
-def writes_real_file(target):
-    if not target or target.startswith("&") or target.isdigit():
-        return False
+def resolve(target):
+    """The target with ~, $HOME and $TMPDIR expanded, or None if it stays unresolvable."""
     path = target
     if path == "~" or path.startswith("~/"):
         path = HOME + path[1:]
     path = re.sub(r"^\$\{?HOME\}?", lambda _: HOME, path)
     path = re.sub(r"^\$\{?TMPDIR\}?", lambda _: TMPDIR, path)
-    if any(c in path for c in "$`()"):
+    return None if any(c in path for c in "$`()") else path
+
+
+def is_temp(target):
+    path = resolve(target)
+    return path is not None and (path.startswith(TEMP_PREFIXES) or bool(TMPDIR and path.startswith(TMPDIR)))
+
+
+def writes_real_file(target):
+    if not target or target.startswith("&") or target.isdigit():
         return False
-    if path.startswith(TEMP_PREFIXES) or (TMPDIR and path.startswith(TMPDIR)):
-        return False
-    return True
+    return resolve(target) is not None and not is_temp(target)
+
+
+def writes_outside_temp(code):
+    targets = [m.group("path") for pattern in WRITE_TARGETS for m in pattern.finditer(code)]
+    if len(targets) < len(WRITE_API.findall(code)):
+        return True
+    return not all(is_temp(t) for t in targets)
 
 
 def command_words(tokens):
@@ -139,11 +170,15 @@ def violations(command):
             found += [f"`tee {a}`" for a in args if not a.startswith("-") and writes_real_file(a)]
         elif cmd in INTERPRETERS:
             code = [b for a, b in zip(args, args[1:]) if a in CODE_FLAGS]
-            if any(WRITE_API.search(c) for c in code):
+            if any(WRITE_API.search(c) and writes_outside_temp(c) for c in code):
                 found.append(f"`{cmd}` code that writes files")
 
     for line, body in bodies:
-        if WRITE_API.search(body) and any(cmd in INTERPRETERS for _, cmd in command_words(tokenize(line))):
+        if (
+            WRITE_API.search(body)
+            and writes_outside_temp(body)
+            and any(cmd in INTERPRETERS for _, cmd in command_words(tokenize(line)))
+        ):
             found.append("a heredoc script that writes files")
 
     return found
