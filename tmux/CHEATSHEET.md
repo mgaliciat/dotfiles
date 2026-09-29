@@ -118,6 +118,7 @@ You enter with `prefix [`. You exit with `q`.
 | `v` | Start the selection |
 | `y` | **Copy to the system clipboard** (OSC 52; on macOS also pbcopy) |
 | `Enter` | Copy and exit |
+| `Esc` / `q` | Exit without copying |
 
 **To paste** what you copied (in any pane): `prefix ]`.
 
@@ -160,13 +161,17 @@ Enabled by default. You can:
 - **Click** on a window (statusline) → selects it
 - **Drag** on a pane border → resize
 - **Scroll wheel** → enters copy mode and you scroll
-- **Drag** over text → copies on release, but the highlight disappears
-- **Shift + drag** over text → selection that *stays* (and also copies)
+- **Drag** over text → copies on release; the selection and the view stay
+- **Double / triple click** → copies the word / line, same way
+- **Click** → at the bottom, back to the prompt; scrolled up, clears the selection
+- **Shift + drag** over text → Ghostty's own selection (also copies)
 
-The vanishing highlight is not a bug: plain drag is tmux, and its default
-`MouseDragEnd1Pane` binding cancels copy mode on mouse-up. The text does reach
-the macOS clipboard — you just don't see the selection. `Shift` keeps the drag
-away from tmux entirely, so Ghostty selects it natively and it persists.
+**A kept selection means you're still in copy mode:** what you type goes to tmux
+(`j`/`k` scroll), not to the pane. Leave with `Esc`, `q`, or a click at the
+bottom before typing.
+
+Shift + drag bypasses tmux entirely, but it selects screen cells: inside a popup
+it grabs the border and whatever is behind it, and it can't scroll history.
 
 If it bugs you: in `tmux.conf` change `set-option -g mouse on` → `off`.
 
