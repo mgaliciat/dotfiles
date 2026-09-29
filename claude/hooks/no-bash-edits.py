@@ -37,13 +37,21 @@ ESCAPE = "ALLOW_BASH_WRITE=1"
 # delimiter and swallow every line after it.
 HEREDOC = re.compile(r"(?<!<)<<(?!<)(-?)[ \t]*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\2")
 
+# A mode literal made only of mode characters, one of them a write. Checking the
+# first character alone read a path as a mode: `gzip.open('access.log.gz')` is "a".
+_MODE = r"(?:mode\s*=\s*)?['\"][rbtU]*[wax+][rwbtax+U]*['\"]"
+# os.open takes flags, not a mode string, and its path may be a call
+# (os.path.join(...)), hence one level of parentheses before the flags.
+_OS_FLAGS = r"(?:[^()]|\([^()]*\))*\bO_(?:WRONLY|RDWR|CREAT|APPEND|TRUNC)\b"
+
 WRITE_API = re.compile(
     r"\.write_(?:text|bytes)\s*\("
-    r"|\bopen\s*\([^)]*,\s*(?:mode\s*=\s*)?['\"][rbt]*[wax+]"
-    r"|\.open\s*\(\s*(?:mode\s*=\s*)?['\"][rbt]*[wax+]"
+    r"|\bos\.open\s*\(" + _OS_FLAGS +
+    r"|\bopen\s*\([^)]*,\s*" + _MODE +
+    r"|\.open\s*\(\s*" + _MODE +
     r"|\b(?:writeFileSync|appendFileSync|writeFile|appendFile)\s*\("
     r"|\bFile\.write\s*\("
-    r"|\bFile\.open\s*\([^)]*,\s*['\"][rbt]*[wax+]"
+    r"|\bFile\.open\s*\([^)]*,\s*" + _MODE
 )
 
 # The same write sites as WRITE_API, narrowed to those whose target is a string
@@ -51,12 +59,13 @@ WRITE_API = re.compile(
 # has a computed target, which is never taken for a temp one.
 _LITERAL = r"(?:[rRbBfF]{0,2})(?P<q>['\"])(?P<path>[^'\"]*)(?P=q)"
 WRITE_TARGETS = [
-    re.compile(r"\bopen\s*\(\s*" + _LITERAL + r"\s*,\s*(?:mode\s*=\s*)?['\"][rbt]*[wax+]"),
+    re.compile(r"\bos\.open\s*\(\s*" + _LITERAL + r"\s*," + _OS_FLAGS),
+    re.compile(r"\bopen\s*\(\s*" + _LITERAL + r"\s*,\s*" + _MODE),
     re.compile(r"\bPath\s*\(\s*" + _LITERAL + r"\s*\)\s*\.write_(?:text|bytes)\s*\("),
-    re.compile(r"\bPath\s*\(\s*" + _LITERAL + r"\s*\)\s*\.open\s*\(\s*(?:mode\s*=\s*)?['\"][rbt]*[wax+]"),
+    re.compile(r"\bPath\s*\(\s*" + _LITERAL + r"\s*\)\s*\.open\s*\(\s*" + _MODE),
     re.compile(r"\b(?:writeFileSync|appendFileSync|writeFile|appendFile)\s*\(\s*" + _LITERAL),
     re.compile(r"\bFile\.write\s*\(\s*" + _LITERAL),
-    re.compile(r"\bFile\.open\s*\(\s*" + _LITERAL + r"\s*,\s*['\"][rbt]*[wax+]"),
+    re.compile(r"\bFile\.open\s*\(\s*" + _LITERAL + r"\s*,\s*" + _MODE),
 ]
 
 INTERPRETERS = {"python", "python3", "node", "ruby", "perl"}
