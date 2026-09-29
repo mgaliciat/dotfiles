@@ -40,6 +40,7 @@ HEREDOC = re.compile(r"(?<!<)<<(?!<)(-?)[ \t]*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\2
 WRITE_API = re.compile(
     r"\.write_(?:text|bytes)\s*\("
     r"|\bopen\s*\([^)]*,\s*(?:mode\s*=\s*)?['\"][rbt]*[wax+]"
+    r"|\.open\s*\(\s*(?:mode\s*=\s*)?['\"][rbt]*[wax+]"
     r"|\b(?:writeFileSync|appendFileSync|writeFile|appendFile)\s*\("
     r"|\bFile\.write\s*\("
     r"|\bFile\.open\s*\([^)]*,\s*['\"][rbt]*[wax+]"
@@ -52,6 +53,7 @@ _LITERAL = r"(?:[rRbBfF]{0,2})(?P<q>['\"])(?P<path>[^'\"]*)(?P=q)"
 WRITE_TARGETS = [
     re.compile(r"\bopen\s*\(\s*" + _LITERAL + r"\s*,\s*(?:mode\s*=\s*)?['\"][rbt]*[wax+]"),
     re.compile(r"\bPath\s*\(\s*" + _LITERAL + r"\s*\)\s*\.write_(?:text|bytes)\s*\("),
+    re.compile(r"\bPath\s*\(\s*" + _LITERAL + r"\s*\)\s*\.open\s*\(\s*(?:mode\s*=\s*)?['\"][rbt]*[wax+]"),
     re.compile(r"\b(?:writeFileSync|appendFileSync|writeFile|appendFile)\s*\(\s*" + _LITERAL),
     re.compile(r"\bFile\.write\s*\(\s*" + _LITERAL),
     re.compile(r"\bFile\.open\s*\(\s*" + _LITERAL + r"\s*,\s*['\"][rbt]*[wax+]"),
