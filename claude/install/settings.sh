@@ -31,7 +31,7 @@ link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 #
 # Dropped in aug-2026 with the obsidian MCP they wrote through, and back in
 # sep-2026 rewritten against the vault's MCP — `logmd` from 2026-09-22 and
-# `logbook-mcp` since 2026-09-28, registered in binaries.sh.
+# `logbook-mcp` since 2026-09-28, registered by hand from the vault's 1Password item.
 #
 # `logbook` covers BOTH vault layers, capture and synthesis: `/logbook:entry`
 # writes one immutable note per invocation into entries/, and ingest/query/lint

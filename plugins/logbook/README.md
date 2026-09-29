@@ -17,10 +17,9 @@ the spec is single-source.
 
 Everything writes through the `logbook-mcp` MCP server, a logmd server (it replaced
 OpenKnowledge on 2026-09-22 with the same tools, and was registered as `logmd` until
-2026-09-28). Its URL and Cloudflare Access token are secrets, so no `mcp_config.json`
-ships here: `claude/install/binaries.sh` and `install-windows.ps1` register the same
-server for both hosts from `LOGBOOK_MCP_URL` and a 1Password template,
-`~/.config/claude/logbook-headers.json.op`.
+2026-09-28). Its URL and Cloudflare Access token are secrets, and which vault a machine
+writes to is that machine's choice, so neither this plugin nor the installers register
+it: each vault's 1Password item carries the one-line command that does.
 
 The hook is Claude Code only. Antigravity gets the equivalent trigger as prose in
 `rules/AGENTS.md`.

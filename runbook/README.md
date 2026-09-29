@@ -28,7 +28,7 @@ installers do not create any of these.
 | File | Holds | Who reads it |
 |---|---|---|
 | `~/.gitconfig` + `~/.gitconfig.local` | git identity, signing key, 1Password vault, `core.editor` and `pull.rebase` | git, and lazygit for `pull.rebase` |
-| `~/.zshenv.local` | secrets and tokens as `export` lines (`CONTEXT7_API_KEY`, `LOGBOOK_MCP_URL`) | every zsh, and the installers |
+| `~/.zshenv.local` | secrets and tokens as `export` lines (`CONTEXT7_API_KEY`) | every zsh, and the installers |
 | `~/.zshrc.local` | aliases and functions for this machine only | interactive zsh |
 | `~/.claude/claude-api.env` | the API-gateway credential (`ANTHROPIC_BASE_URL=…`, `chmod 600`) | `claude --api`, `code --api`, tmux `Alt+a` |
 | `~/.claude/settings.json` | Claude Code permissions and UI prefs | Claude Code; the installers only add keys that are absent, except `permissions.ask`/`deny`, which they union with `permissions.json` |
@@ -39,9 +39,10 @@ environment variables set with `setx` (see `windows.md`).
 **Order matters on a fresh machine.** Two guards in the installers skip
 silently when their input is missing, and a second run is the only fix:
 
-1. **Install Claude Code first.** Every MCP registration (`context7`,
-   `logbook-mcp`) is guarded on `claude` being on PATH. No binary, no
-   registration, no error.
+1. **Install Claude Code first.** The `context7` registration is guarded on
+   `claude` being on PATH. No binary, no registration, no error. (The vault's
+   `logbook-mcp` is never the installers' job: its one-line command is in the
+   vault's 1Password item.)
 2. **Write the secrets first.** The same registrations are guarded on their env
    vars. A missing var prints a `→ skipped` line and moves on. On mac/Linux that
    means `~/.zshenv.local` exists *and* has been sourced in the shell that runs

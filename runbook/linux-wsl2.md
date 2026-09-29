@@ -38,19 +38,13 @@ Windows side, so also run [`windows.md`](windows.md) there.
    ```bash
    cat > ~/.zshenv.local <<'EOF'
    export CONTEXT7_API_KEY="…"
-   export LOGBOOK_MCP_URL="https://<host>/mcp"
    EOF
    source ~/.zshenv.local
-   mkdir -p ~/.config/claude
-   cat > ~/.config/claude/logbook-headers.json.op <<'EOF'
-   {"CF-Access-Client-Id": "{{ op://<vault>/<item>/CF_ACCESS_CLIENT_ID }}", "CF-Access-Client-Secret": "{{ op://<vault>/<item>/CF_ACCESS_CLIENT_SECRET }}"}
-   EOF
    ```
 
-   The template holds `op://` references, not the token: Claude Code runs
-   `op inject` over it on every connection (`headersHelper`), so `op` must be
-   installed and signed in. Missing the URL, the template or `op` skips the
-   `logbook-mcp` registration with a `→ skipped` line.
+   The vault's MCP (`logbook-mcp`, which the logbook skills write through) is not
+   the installer's job: after the install, run the one-line command in the notes of
+   the vault's 1Password item. It needs `op` installed and signed in.
 
    This is bash at this point — `source` works the same.
 
@@ -158,7 +152,7 @@ remove it from `~/.local/bin` and re-run.
   pyenv itself. Building a Python needs the build dependencies pyenv
   documents (libssl-dev, zlib1g-dev, libbz2-dev, libreadline-dev, libsqlite3-dev,
   libffi-dev, liblzma-dev…) — apt-get them, then retry.
-- **`→ context7: skipped` / `→ logbook-mcp: skipped`.** Env var not in the
+- **`→ context7: skipped`.** Env var not in the
   shell that ran the installer. Fix `~/.zshenv.local`, `exec zsh`, re-run.
 - **Rotated token.** `claude mcp remove <name> -s user`, then re-run.
 - **tmux config not reloaded.** No server was running, which is normal on a

@@ -205,88 +205,10 @@ elif [[ -z "${CONTEXT7_API_KEY:-}" ]]; then
   echo "→ context7: skipped (no CONTEXT7_API_KEY — add it to ~/.zshenv.local)"
 fi
 
-# ─── logbook-mcp (the vault behind the logbook skills) ────────
-# Same shape as context7: a hosted HTTP endpoint we only register — no binary,
-# nothing to install, no local port. It is a logmd server (logbook-md/logbook-server)
-# holding the personal knowledge base the `logbook` skills read and write. It
-# replaced an OpenKnowledge server on 2026-09-22 and speaks the same tools, so the
-# skills did not change shape — only the server's name, which went from `logmd` to
-# `logbook-mcp` with the LogMD -> logbook.md rebrand on 2026-09-28.
-#
-# Two inputs, neither of them in this PUBLIC repo:
-#
-#   ~/.zshenv.local                       export LOGBOOK_MCP_URL="https://<host>/mcp"
-#   ~/.config/claude/logbook-headers.json.op
-#     {"CF-Access-Client-Id": "{{ op://<vault>/<item>/CF_ACCESS_CLIENT_ID }}",
-#      "CF-Access-Client-Secret": "{{ op://<vault>/<item>/CF_ACCESS_CLIENT_SECRET }}"}
-#
-# The endpoint sits behind Cloudflare Access, and the two headers are a service
-# token. They reach Claude Code through `headersHelper`: a command it runs on every
-# connection, here `op inject` over that template, so the token lives in 1Password
-# and never in ~/.claude.json. The template holds only `op://` references, which is
-# why it can sit in plain sight — but they name a vault and an item, so it stays
-# out of this repo. Missing the URL, the template or `op` skips cleanly: a server
-# registered without its headers connects to an Access login page and looks broken.
-#
-# The earlier names of the same vault, `open-knowledge` and `logmd`, are removed on
-# the way: a stale name beside the live one is how an agent writes through the wrong
-# server, and the skills only name `logbook-mcp`. `--scope user` for the same reason
-# as context7.
-LOGBOOK_HEADERS="$HOME/.config/claude/logbook-headers.json.op"
-if command -v claude >/dev/null 2>&1 \
-   && [[ -n "${LOGBOOK_MCP_URL:-}" ]] \
-   && [[ -f "$LOGBOOK_HEADERS" ]] \
-   && command -v op >/dev/null 2>&1; then
-  for stale in open-knowledge logmd; do
-    if claude mcp get "$stale" >/dev/null 2>&1; then
-      claude mcp remove "$stale" -s user >/dev/null 2>&1 \
-        && echo "✓ $stale: removed (replaced by logbook-mcp)"
-    fi
-  done
-  if claude mcp get logbook-mcp >/dev/null 2>&1; then
-    echo "✓ logbook-mcp: already registered"
-  elif claude mcp add-json logbook-mcp \
-      "$(jq -n --arg url "$LOGBOOK_MCP_URL" --arg helper "op inject -i $LOGBOOK_HEADERS" \
-          '{type: "http", url: $url, headersHelper: $helper}')" \
-      --scope user >/dev/null 2>&1 </dev/null; then
-    echo "✓ logbook-mcp: MCP server registered (user scope, headers from 1Password)"
-  else
-    echo "⚠️  logbook-mcp registration failed — check by hand (claude mcp add-json logbook-mcp ...)"
-  fi
-elif command -v claude >/dev/null 2>&1; then
-  echo "→ logbook-mcp: skipped (needs LOGBOOK_MCP_URL in ~/.zshenv.local, $LOGBOOK_HEADERS and op)"
-fi
-
-# The SAME server for Antigravity, which reads ~/.gemini/config/mcp_config.json
-# (antigravity.google/docs/mcp: `serverUrl` + `headers` for a remote server; the
-# `url` key is rejected, and it has no headersHelper). So here the template IS
-# resolved, once, at install time, and the token lands in that file literally —
-# the one place it does, and the reason this is not an mcp_config.json shipped
-# inside the public plugin. A rotated token means re-running install.sh; the entry
-# is rewritten every run for that reason. Not gated on Antigravity being installed:
-# writing the file costs nothing and the app picks it up whenever it arrives.
-if [[ -n "${LOGBOOK_MCP_URL:-}" ]] && [[ -f "$LOGBOOK_HEADERS" ]] \
-   && command -v op >/dev/null 2>&1; then
-  AGY_MCP="$HOME/.gemini/config/mcp_config.json"
-  mkdir -p "$(dirname "$AGY_MCP")"
-  [[ -s "$AGY_MCP" ]] || echo '{}' > "$AGY_MCP"
-  AGY_TMP="$(mktemp)"
-  if AGY_HEADERS="$(op inject -i "$LOGBOOK_HEADERS" 2>/dev/null)" \
-     && jq --arg url "$LOGBOOK_MCP_URL" --argjson headers "$AGY_HEADERS" \
-          '.mcpServers //= {}
-           | del(.mcpServers["open-knowledge"], .mcpServers["logmd"])
-           | .mcpServers["logbook-mcp"] = { serverUrl: $url, headers: $headers }' \
-          "$AGY_MCP" > "$AGY_TMP"; then
-    mv "$AGY_TMP" "$AGY_MCP"
-    chmod 600 "$AGY_MCP"
-    echo "✓ logbook-mcp: registered in Antigravity ($AGY_MCP)"
-  else
-    rm -f "$AGY_TMP"
-    echo "⚠️  logbook-mcp: could not write $AGY_MCP — is 1Password unlocked?"
-  fi
-  unset AGY_MCP AGY_TMP AGY_HEADERS
-fi
-unset LOGBOOK_HEADERS
+# ─── the vault's MCP: not registered here ─────────────────────
+# The `logbook` skills write through a server named `logbook-mcp`, but which vault
+# that is (personal or work) is a per-machine choice with its own Access token. It is
+# registered by hand with the one-line command kept in that vault's 1Password item.
 
 # ─── gh-stack skill (stacked PRs) ─────────────────────────────
 # Mechanism 2 with a twist: the external tool here is not a binary we install but

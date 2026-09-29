@@ -17,8 +17,7 @@
 #     its versioned config.toml, COPIED like on mac/Linux
 #   - codebase-memory-mcp — the `-ui-` release asset, NOT the official
 #     install.ps1 (which hardcodes the headless build; see that block)
-#   - HTTP-endpoint MCPs (context7, logbook-mcp) — mechanism 2, credentials from
-#     env vars (context7) or 1Password through `op` (logbook-mcp, whose URL is env too)
+#   - the context7 HTTP-endpoint MCP — mechanism 2, credential from an env var
 #   - gh-stack: the `gh` extension + its skill (npx skills) — mirror of
 #     bootstrap_gh_stack in scripts/lib.sh and the block in binaries.sh
 #   - Nerd Fonts (the ONE stack layer that DOES exist on Windows: Windows
@@ -177,7 +176,8 @@ Set-DotfileSymlink (Join-Path $Dotfiles "claude\CLAUDE.md")      (Join-Path $Cla
 # skills/ may not exist yet (codebase-memory-mcp creates it later), so make it
 # first.
 #
-# Runtime note: all ten read and write through the `logbook-mcp` MCP, wired below.
+# Runtime note: all ten read and write through the `logbook-mcp` MCP, which is
+# registered by hand from the vault's 1Password item, not by this script.
 #
 # $SkillsDir is also read by the gh-stack block far below. It was defined HERE,
 # and when these symlinks were dropped in aug-2026 the definition went with them
@@ -903,94 +903,10 @@ if ((Get-Command claude -ErrorAction SilentlyContinue) -and $env:CONTEXT7_API_KE
     Write-Host "i   context7: skipped (no CONTEXT7_API_KEY env var -- setx CONTEXT7_API_KEY <key>)"
 }
 
-# ─── logbook-mcp (mechanism 2 — twin of binaries.sh) ────────────
-# The logmd server holding the personal knowledge base that the `logbook` skills
-# (symlinked far above) read and write. It replaced an OpenKnowledge server on
-# 2026-09-22 with the same tools, and was registered as `logmd` until the
-# 2026-09-28 rebrand. Hosted HTTP endpoint: register it, nothing to install.
-#
-# Two inputs, neither in this PUBLIC repo:
-#
-#   setx LOGBOOK_MCP_URL "https://<host>/mcp"
-#   ~\.config\claude\logbook-headers.json.op   -- the Cloudflare Access service token
-#     as `op://` references, the same file binaries.sh documents
-#
-# Claude Code gets the headers from `headersHelper`, which runs `op inject` over
-# that template on every connection, so the token stays in 1Password and never
-# lands in ~/.claude.json. Missing the URL, the template or `op` skips cleanly --
-# a server registered without its headers connects to an Access login page.
-#
-# The JSON goes to `claude mcp add-json` as one argument, and PowerShell 5.1 (and
-# 7.x in Legacy mode) strip embedded double quotes when calling a native exe, so
-# they are escaped there and only there -- escaping under 7.3's Standard mode would
-# double them. The earlier names of the same vault, `open-knowledge` and `logmd`,
-# are removed on the way: the skills only name `logbook-mcp`.
-$LogbookHeaders = Join-Path $HOME ".config\claude\logbook-headers.json.op"
-$HaveLogbookInputs = $env:LOGBOOK_MCP_URL -and (Test-Path $LogbookHeaders) -and (Get-Command op -ErrorAction SilentlyContinue)
-if ((Get-Command claude -ErrorAction SilentlyContinue) -and $HaveLogbookInputs) {
-    foreach ($Stale in @("open-knowledge", "logmd")) {
-        if ((Invoke-Native { claude mcp get $Stale }) -eq 0) {
-            if ((Invoke-Native { claude mcp remove $Stale -s user }) -eq 0) {
-                Write-Host "OK  ${Stale}: removed (replaced by logbook-mcp)"
-            }
-        }
-    }
-    if ((Invoke-Native { claude mcp get logbook-mcp }) -eq 0) {
-        Write-Host "OK  logbook-mcp: already registered"
-    } else {
-        $LogbookJson = [PSCustomObject]@{
-            type          = "http"
-            url           = $env:LOGBOOK_MCP_URL
-            headersHelper = "op inject -i `"$LogbookHeaders`""
-        } | ConvertTo-Json -Compress
-        $StandardPassing = $PSVersionTable.PSVersion.Major -ge 7 -and $PSNativeCommandArgumentPassing -ne "Legacy"
-        if (-not $StandardPassing) { $LogbookJson = $LogbookJson.Replace('"', '\"') }
-        if ((Invoke-Native { $null | claude mcp add-json logbook-mcp $LogbookJson -s user }) -eq 0) {
-            Write-Host "OK  logbook-mcp: MCP server registered (user scope, headers from 1Password)"
-        } else {
-            Write-Host "!!  logbook-mcp registration failed -- check by hand (claude mcp add-json logbook-mcp ...)" -ForegroundColor Yellow
-        }
-    }
-} elseif (Get-Command claude -ErrorAction SilentlyContinue) {
-    Write-Host "i   logbook-mcp: skipped (needs LOGBOOK_MCP_URL -- setx --, $LogbookHeaders and op)"
-}
-
-# ─── the SAME vault server for Antigravity (twin of binaries.sh) ───
-# Antigravity reads ~/.gemini/config/mcp_config.json: `serverUrl` + `headers` for
-# a remote server, and no headersHelper. So the template is resolved once, here,
-# and the token is written in literally -- the one file that holds it, and why this
-# is not an mcp_config.json shipped inside the public plugin dir. The entry is
-# rewritten on every run, so a rotated token is one re-run away. Not gated on
-# Antigravity being installed: the file costs nothing and is picked up whenever the
-# app arrives.
-if ($HaveLogbookInputs) {
-    $AgyConfigDir  = Join-Path $HOME ".gemini\config"
-    $AgyConfigFile = Join-Path $AgyConfigDir "mcp_config.json"
-    New-Item -ItemType Directory -Path $AgyConfigDir -Force | Out-Null
-    try {
-        $AgyHeaders = (& op inject -i $LogbookHeaders) -join "`n" | ConvertFrom-Json
-        if ($LASTEXITCODE -ne 0) { throw "op inject failed -- is 1Password unlocked?" }
-        $AgyConfig = [PSCustomObject]@{ mcpServers = [PSCustomObject]@{} }
-        if (Test-Path $AgyConfigFile) {
-            $RawAgy = Get-Content -Raw $AgyConfigFile
-            if (-not [string]::IsNullOrWhiteSpace($RawAgy)) { $AgyConfig = $RawAgy | ConvertFrom-Json }
-        }
-        if (-not ($AgyConfig.PSObject.Properties.Name -contains "mcpServers")) {
-            $AgyConfig | Add-Member -NotePropertyName "mcpServers" -NotePropertyValue ([PSCustomObject]@{})
-        }
-        $AgyConfig.mcpServers.PSObject.Properties.Remove("open-knowledge")
-        $AgyConfig.mcpServers.PSObject.Properties.Remove("logmd")
-        $AgyConfig.mcpServers | Add-Member -Force -NotePropertyName "logbook-mcp" -NotePropertyValue ([PSCustomObject]@{
-            serverUrl = $env:LOGBOOK_MCP_URL
-            headers   = $AgyHeaders
-        })
-        # -Depth 10: the default of 2 truncates the nested headers object.
-        $AgyConfig | ConvertTo-Json -Depth 10 | Set-Content -Path $AgyConfigFile -Encoding utf8
-        Write-Host "OK  logbook-mcp: registered in Antigravity ($AgyConfigFile)"
-    } catch {
-        Write-Host "!!  logbook-mcp: could not write $AgyConfigFile -- $($_.Exception.Message)" -ForegroundColor Yellow
-    }
-}
+# ─── the vault's MCP: not registered here (twin of binaries.sh) ───
+# The `logbook` skills write through a server named `logbook-mcp`, but which vault
+# that is (personal or work) is a per-machine choice with its own Access token. It is
+# registered by hand with the one-line command kept in that vault's 1Password item.
 
 # No plugins installed right now: ponytail and andrej-karpathy-skills lived here
 # until aug-2026 and were dropped. Install-ClaudePlugin stays for the next one --
