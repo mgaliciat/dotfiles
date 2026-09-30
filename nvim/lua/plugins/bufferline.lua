@@ -33,9 +33,9 @@
 -- gone (2026-09-09) and the `bg = NONE` table is still the reason.
 --
 -- Giving the tabs a solid background to slice would put an opaque strip
--- back over the glass, the same seam lualine.lua fixes for the statusline
--- (never a baked hex — see the repo CLAUDE.md). So the geometry goes and the accent stays: a left bar on
--- the active tab, italic bold text, thin dividers. That is also what
+-- back over the glass, the same seam lualine.lua fixes for the statusline.
+-- So the geometry goes and the accent stays: a left bar on the active tab,
+-- italic bold text, thin dividers. That is also what
 -- craftzdog's own screenshots show — his `separator_style` line is
 -- commented out in the config the rest of this file came from.
 --
