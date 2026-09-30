@@ -1,7 +1,7 @@
 -- ─── theme: anthropic-warm ───────────────────────────────────
--- Mirror of the Ghostty theme `anthropic-warm` and of tmux/themes/anthropic-warm.conf
+-- Mirror of the Ghostty theme `anthropic-warm`
 -- (warm dark sepia/terracotta). It used to be called "warm" — renamed to the
--- canonical id of the switcher family (same string across the 3 layers).
+-- canonical id of the switcher family (same string across both layers).
 -- tokyonight base: variant `night`.
 --
 -- Dark theme convention: the "bright" colors are LIGHTER than the normal ones.

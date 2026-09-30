@@ -1,5 +1,5 @@
 # typesafe-dark — the sage of typesafe.ai taken down to a night canvas. Mirror
-# of nvim/lua/themes/typesafe-dark.lua and tmux/themes/typesafe-dark.conf.
+# of nvim/lua/themes/typesafe-dark.lua.
 # Dark companion of `typesafe`, built from the same page tokens.
 #
 # Source: the page's own CSS, read from the served HTML of

@@ -1,6 +1,6 @@
 # carbon — minimal + functional, true black (#000) + a single warm accent.
 # Cross-stack mirror: the same palette baked into nvim/lua/themes/carbon.lua
-# and tmux/themes/carbon.conf (single source of truth = the canonical palette).
+# (single source of truth = the canonical palette).
 # Philosophy: high contrast over #000, neutral grays with no tint, and ONE
 # accent (Claude orange #d97757) reused from the Anthropic Warm palette — without
 # inventing other accent hexes. The grays carry the weight; the orange only

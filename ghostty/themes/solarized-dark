@@ -1,5 +1,5 @@
 # solarized-dark — Ethan Schoonover's canonical Solarized Dark.
-# Mirror of nvim/lua/themes/solarized-dark.lua and tmux/themes/solarized-dark.conf.
+# Mirror of nvim/lua/themes/solarized-dark.lua.
 #
 # The original, NOT the osaka fork: base03 (#002b36) canvas instead of
 # craftzdog's deep-ocean #031219, and no re-tuned accents — the hex below is

@@ -1,6 +1,6 @@
 -- ─── theme: carbon ───────────────────────────────────────────
--- Cross-stack mirror of the `carbon` theme (same id in ghostty/themes/carbon
--- and tmux/themes/carbon.conf — one palette, three layers).
+-- Cross-stack mirror of the `carbon` theme (same id in
+-- ghostty/themes/carbon — one palette, two layers).
 -- Minimal + functional + high contrast over true black (#000000).
 -- A single warm accent: Claude orange #d97757 (from the repo's brand
 -- palette — do NOT invent other accent hex values).

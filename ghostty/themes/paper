@@ -1,5 +1,5 @@
-# paper — light cream + sepia ink. Mirror of nvim/lua/themes/paper.lua
-# and tmux/themes/paper.conf. Absorbs the old "anthropic-light".
+# paper — light cream + sepia ink. Mirror of nvim/lua/themes/paper.lua.
+# Absorbs the old "anthropic-light".
 # Light convention: the "brights" (8-15) are DARKER than the normals
 # (more saturation = more contrast over a light background) — the reverse of the darks.
 #

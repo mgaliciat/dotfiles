@@ -13,7 +13,7 @@
 # cool-leaning, ~40% saturation (raised from ~30% because the
 # first cut read as gray on gray). Semantics survive, the look stays radiograph.
 #
-# Cross-stack mirror: nvim/lua/themes/xray.lua and tmux/themes/xray.conf.
+# Cross-stack mirror: nvim/lua/themes/xray.lua.
 # NOTE: the canvas is #101010 (the board), NOT true black — the icon's #000
 # is only its metal frame. `minimum-contrast = 3.0` is fine here: every gray
 # below (#808080 up) already clears it over #101010.

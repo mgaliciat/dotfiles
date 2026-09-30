@@ -5,7 +5,7 @@
 # (editor.background, focusBorder, tokenColors, etc.) — they're not a guess,
 # they're the real values the editor ships. Dark companion of
 # `light-2026` (same refresh, same extraction criteria).
-# Mirror of nvim/lua/themes/dark-2026.lua and tmux/themes/dark-2026.conf.
+# Mirror of nvim/lua/themes/dark-2026.lua.
 #
 # VS Code doesn't define a 16-color ANSI palette (its format is
 # UI-chrome + tokenColors, not terminal), so the ANSI here is a

@@ -4,7 +4,7 @@
 -- in 1.113). Hex values taken straight from
 -- extensions/theme-defaults/themes/2026-light.json in microsoft/vscode
 -- (colors + tokenColors) — they're not a guess.
--- Mirror of the Ghostty theme `light-2026` and tmux/themes/light-2026.conf.
+-- Mirror of the Ghostty theme `light-2026`.
 -- tokyonight base: variant `day` (the plugin's light one).
 --
 -- The repo's light theme convention (see paper/solarized-light): the

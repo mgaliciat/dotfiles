@@ -1,7 +1,7 @@
 -- ─── theme: retta ────────────────────────────────────────────
 -- Cross-stack mirror of the `retta` theme (same id in ghostty/themes/retta;
--- tmux mirror pending — one palette per layer, single source of truth is the
--- Eclipse "Retta" XML recovered from the eclipse-color-theme GitHub mirror).
+-- one palette per layer, single source of truth is the Eclipse "Retta" XML
+-- recovered from the eclipse-color-theme GitHub mirror).
 -- High contrast "pumpkin spice": true black #000 + cream fg #f8e1aa, with
 -- Retta's own semantic colors kept faithful — pumpkin keywords, sand-yellow
 -- strings, blue-gray methods, red-orange classes.

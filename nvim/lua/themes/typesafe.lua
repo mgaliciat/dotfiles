@@ -1,6 +1,6 @@
 -- ─── theme: typesafe ─────────────────────────────────────────
 -- The sage canvas of typesafe.ai + near-black ink. Mirror of the Ghostty
--- theme `typesafe` and tmux/themes/typesafe.conf.
+-- theme `typesafe`.
 -- tokyonight base: variant `day` (the plugin's light one).
 --
 -- Canvas #abbab9 and the teal #09aea1 (cursor, borders) are the page's own

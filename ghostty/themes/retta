@@ -9,7 +9,7 @@
 #
 # Ghostty-ONLY for now — outside the cross-stack matrix (like `obsidian` in
 # nvim). To promote it to the family, mirror this palette into
-# nvim/lua/themes/retta.lua + tmux/themes/retta.conf first.
+# nvim/lua/themes/retta.lua first.
 
 # background and text — Retta's editor bg/fg verbatim. Cream over true black
 # is the high-contrast core of the theme (~15:1).

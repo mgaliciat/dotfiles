@@ -1,5 +1,5 @@
 # typesafe — the sage canvas of typesafe.ai + near-black ink. Mirror of
-# nvim/lua/themes/typesafe.lua and tmux/themes/typesafe.conf.
+# nvim/lua/themes/typesafe.lua.
 #
 # Source: the page's own CSS, read from the served HTML of
 # https://typesafe.ai/blog/introducing-system-one-models-and-jev (2026-09-18):

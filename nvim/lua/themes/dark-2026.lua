@@ -5,7 +5,7 @@
 -- extensions/theme-defaults/themes/2026-dark.json in microsoft/vscode
 -- (colors + tokenColors) — they're not a guess. Dark companion of
 -- `light-2026` (same refresh, same extraction criteria).
--- Mirror of the Ghostty theme `dark-2026` and tmux/themes/dark-2026.conf.
+-- Mirror of the Ghostty theme `dark-2026`.
 -- tokyonight base: variant `night`.
 --
 -- The repo's dark theme convention (see carbon/neon-noir): the "bright"

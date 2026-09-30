@@ -1,5 +1,5 @@
 # solarized-light — Ethan Schoonover's canonical Solarized Light.
-# Mirror of nvim/lua/themes/solarized-light.lua and tmux/themes/solarized-light.conf.
+# Mirror of nvim/lua/themes/solarized-light.lua.
 #
 # Palette = Solarized's official one (the same hex the repo's osaka family
 # derives from, but here in its classic LIGHT form: base3 background, base00

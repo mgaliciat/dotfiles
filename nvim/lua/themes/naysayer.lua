@@ -1,6 +1,6 @@
 -- ─── theme: naysayer ─────────────────────────────────────────
--- Cross-stack mirror of the `naysayer` theme (same id in ghostty/themes/naysayer
--- and tmux/themes/naysayer.conf — one palette, three layers).
+-- Cross-stack mirror of the `naysayer` theme (same id in
+-- ghostty/themes/naysayer — one palette, two layers).
 --
 -- Jonathan Blow's editor colours (Emacs, later his own editor). He never shipped
 -- a theme: the source of truth is his editor's colour-slot table, reverse-engineered

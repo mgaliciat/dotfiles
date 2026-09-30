@@ -1,5 +1,5 @@
 -- ─── theme: prism-night ──────────────────────────────────────
--- Mirror of the Ghostty theme `prism-night` and of tmux/themes/prism-night.conf.
+-- Mirror of the Ghostty theme `prism-night`.
 -- Palette sampled from macOS's "prism" wallpaper: deep midnight
 -- blue + the spectrum arc (orange → yellow → green → cyan →
 -- blue → violet). It used to exist only in Ghostty; now in nvim too.

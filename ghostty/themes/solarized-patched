@@ -1,11 +1,10 @@
 # solarized-patched — the "Solarized Dark Patched" cut, ported into the family.
-# Mirror of nvim/lua/themes/solarized-patched.lua and
-# tmux/themes/solarized-patched.conf.
+# Mirror of nvim/lua/themes/solarized-patched.lua.
 #
 # Why it exists: craftzdog's Ghostty selects this theme by name. It is a Ghostty
 # built-in (`ghostty +list-themes` lists it as "Solarized Dark Patched
-# (resources)"), which means the other three layers had nothing to point at —
-# nvim, tmux and Windows Terminal cannot read a file inside Ghostty.app. Porting
+# (resources)"), which means the other layers had nothing to point at —
+# nvim and Windows Terminal cannot read a file inside Ghostty.app. Porting
 # it is what lets one id mean the same thing in every layer.
 #
 # Source of truth is that shipped file, copied verbatim:

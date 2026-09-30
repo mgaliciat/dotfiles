@@ -1,6 +1,5 @@
 # naysayer — Jonathan Blow's editor colors (Emacs, later his own 4coder-derived one).
-# Cross-stack mirror: the same palette baked into nvim/lua/themes/naysayer.lua
-# and tmux/themes/naysayer.conf.
+# Cross-stack mirror: the same palette baked into nvim/lua/themes/naysayer.lua.
 #
 # Source of truth: his editor's own colour slots (Background, Default, Comment,
 # Str_Constant, Int_Constant, Preproc, Cursor, Highlight, Bar, Margin, …), as

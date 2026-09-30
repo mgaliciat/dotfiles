@@ -14,7 +14,7 @@
 background = #001419
 foreground = #839395
 
-# cursor — solarized magenta (signature accent, matches incline.nvim and tmux)
+# cursor — solarized magenta (signature accent, matches incline.nvim)
 cursor-color = #d23681
 cursor-text  = #001419
 

@@ -1,6 +1,6 @@
 -- ─── theme: solarized-patched ────────────────────────────────
 -- The "Solarized Dark Patched" cut, mirror of the Ghostty theme
--- `solarized-patched` and tmux/themes/solarized-patched.conf.
+-- `solarized-patched`.
 -- tokyonight base: variant `night`.
 --
 -- craftzdog's Ghostty names this theme; it ships inside Ghostty.app, so nvim had

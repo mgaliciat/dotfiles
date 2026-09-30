@@ -1,6 +1,6 @@
 -- ─── theme: neon-noir ────────────────────────────────────────
--- Cross-stack mirror of the `neon-noir` theme (same id in ghostty/themes/neon-noir
--- and tmux/themes/neon-noir.conf — one palette, three layers).
+-- Cross-stack mirror of the `neon-noir` theme (same id in
+-- ghostty/themes/neon-noir — one palette, two layers).
 -- True black (#000000) noir canvas + a cool, saturated neon spectrum.
 --
 -- DERIVED palette, NOT a port: it borrows the name and the intent of the

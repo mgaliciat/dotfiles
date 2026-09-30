@@ -5,9 +5,9 @@ mechanics (selection lines, reload, how to add one) are in the repo's
 `CLAUDE.md`; what follows is the part no config file records: **where each
 palette's hex actually came from, and which sources are not valid.**
 
-A theme here is three files that must mirror one palette — `ghostty/themes/<id>`,
-`nvim/lua/themes/<id>.lua`, `tmux/themes/<id>.conf` — so "what is the source of
-truth" is a question that comes up every time one is touched.
+A theme here is two files that must mirror one palette — `ghostty/themes/<id>`
+and `nvim/lua/themes/<id>.lua` — so "what is the source of truth" is a question
+that comes up every time one is touched.
 
 ## Ports — hex taken verbatim from a published source
 
@@ -36,9 +36,9 @@ against `#dc322f`, blue `#2176c7` against `#268bd2`). Two themes, not two
 spellings of one — don't merge them.
 
 It exists because **craftzdog's Ghostty selects this theme by name**, and a
-built-in cannot be mirrored: it lives inside the app bundle, where nvim, tmux and
+built-in cannot be mirrored: it lives inside the app bundle, where nvim and
 Windows Terminal cannot read it. Porting it is what lets the id mean the same
-thing in all four layers instead of Ghostty diverging from the rest.
+thing in every layer instead of Ghostty diverging from the rest.
 
 His own line spells it `theme = "Solarized Dark - Patched"`, with a hyphen, and
 that string does not resolve in current Ghostty — his terminal has been falling
@@ -164,20 +164,18 @@ no external source.
 
 ## `solarized-osaka` — the one with a plugin behind it
 
-craftzdog's deep-ocean theme. The id is the full plugin name in all three
+craftzdog's deep-ocean theme. The id is the full plugin name in both
 layers; "osaka" is just the informal nickname.
 
 **The plugin is the source of truth for its own palette.** The hex comes from
 `require("solarized-osaka.colors").setup()` (extractable with headless nvim) and
-is baked by hand into the Ghostty theme and the tmux palette. If the plugin
-changes its palette, re-extract and re-sync both mirrors.
+is baked by hand into the Ghostty theme. If the plugin changes its palette,
+re-extract and re-sync the Ghostty theme.
 
 - **Ghostty's ANSI is a literal mirror of the plugin's `M.terminal()`** — flat
   mapping: brights == normals, no orange/violet in ANSI, white = fg. That is
   deliberately *not* the classic Solarized convention; it is what makes the
   shell and a `:terminal` inside nvim look identical.
-- **tmux is our own semantic derivation** (`@thm_*`). No upstream osaka tmux
-  theme exists to mirror.
 - **It was the only theme in the family that carried transparency** — and as of
   2026-09-09 nothing in the repo does. The glass is off stack-wide: Ghostty runs
   `background-opacity = 1.0` / `background-blur = 0`, the `background = #031219`

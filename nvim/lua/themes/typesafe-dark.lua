@@ -1,6 +1,6 @@
 -- ─── theme: typesafe-dark ────────────────────────────────────
 -- The sage of typesafe.ai taken down to a night canvas. Mirror of the Ghostty
--- theme `typesafe-dark` and tmux/themes/typesafe-dark.conf; dark companion of
+-- theme `typesafe-dark`; dark companion of
 -- `typesafe`, built from the same page tokens.
 -- tokyonight base: variant `night`.
 --

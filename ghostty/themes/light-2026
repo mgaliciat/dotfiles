@@ -4,7 +4,7 @@
 # extensions/theme-defaults/themes/2026-light.json in microsoft/vscode
 # (editor.background, focusBorder, tokenColors, etc.) — they're not a guess,
 # they're the real values the editor ships.
-# Mirror of nvim/lua/themes/light-2026.lua and tmux/themes/light-2026.conf.
+# Mirror of nvim/lua/themes/light-2026.lua.
 #
 # VS Code doesn't define a 16-color ANSI palette (its format is
 # UI-chrome + tokenColors, not terminal), so the ANSI here is a

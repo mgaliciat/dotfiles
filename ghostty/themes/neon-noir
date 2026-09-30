@@ -1,6 +1,5 @@
 # neon-noir — true black (#000) noir canvas + a neon spectrum on top.
-# Cross-stack mirror: the same palette baked into nvim/lua/themes/neon-noir.lua
-# and tmux/themes/neon-noir.conf.
+# Cross-stack mirror: the same palette baked into nvim/lua/themes/neon-noir.lua.
 #
 # PROVENANCE — read this before "fixing" a hex against some reference:
 # this is a DERIVED palette, NOT a port. It takes its name and its intent from

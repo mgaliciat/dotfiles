@@ -1,5 +1,5 @@
 -- ─── theme: anthropic-brand ──────────────────────────────────
--- Mirror of ghostty/themes/anthropic-brand and tmux/themes/anthropic-brand.conf.
+-- Mirror of ghostty/themes/anthropic-brand.
 -- Read the ghostty file first: it carries the full derivation rationale and the
 -- link to the upstream source (skills/brand-guidelines/SKILL.md in
 -- github.com/anthropics/skills), which is the only normative publication of

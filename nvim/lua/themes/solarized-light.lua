@@ -1,6 +1,6 @@
 -- ─── theme: solarized-light ──────────────────────────────────
 -- Ethan Schoonover's canonical Solarized Light, mirror of the Ghostty
--- theme `solarized-light` and tmux/themes/solarized-light.conf.
+-- theme `solarized-light`.
 -- tokyonight base: variant `day` (the plugin's light one).
 --
 -- Light theme convention: the "bright" colors are the DARK base tones

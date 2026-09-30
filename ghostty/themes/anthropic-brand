@@ -1,5 +1,5 @@
 # anthropic-brand — the SEVEN official Anthropic brand colours, verbatim.
-# Mirror of nvim/lua/themes/anthropic-brand.lua and tmux/themes/anthropic-brand.conf.
+# Mirror of nvim/lua/themes/anthropic-brand.lua.
 #
 # Source of truth: skills/brand-guidelines/SKILL.md in github.com/anthropics/skills
 # (Anthropic's own, live on main — re-read it before touching these values; it is

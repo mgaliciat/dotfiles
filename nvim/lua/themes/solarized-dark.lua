@@ -1,6 +1,6 @@
 -- ─── theme: solarized-dark ───────────────────────────────────
 -- Ethan Schoonover's canonical Solarized Dark, mirror of the Ghostty
--- theme `solarized-dark` and tmux/themes/solarized-dark.conf.
+-- theme `solarized-dark`.
 -- tokyonight base: variant `night`.
 --
 -- The original, NOT the osaka fork (which lives in its own plugin spec):

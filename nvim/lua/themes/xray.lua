@@ -1,6 +1,6 @@
 -- ─── theme: xray ─────────────────────────────────────────────
--- Cross-stack mirror of the `xray` theme (same id in ghostty/themes/xray
--- and tmux/themes/xray.conf — one palette, three layers).
+-- Cross-stack mirror of the `xray` theme (same id in
+-- ghostty/themes/xray — one palette, two layers).
 -- The palette of Ghostty's own `xray` dock icon (macos-icon = xray): a
 -- monochrome PCB with a silver ghost. Grays sampled from the icon
 -- (`XrayImage` in Ghostty.app's Assets.car, 1.3.1), not guessed:
