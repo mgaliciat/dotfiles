@@ -51,7 +51,7 @@ shopt -s extglob   # needed by vis() to match an ANSI escape; see below
 # which silently ate 28 columns of the right-alignment. One representation only.
 #
 # Colours are plain ANSI (not hex) on purpose: the active stack theme remaps
-# them, so the statusline follows whatever Ghostty/tmux/nvim are wearing. FAINT
+# them, so the statusline follows whatever Ghostty/nvim are wearing. FAINT
 # right after a reset dims the theme's own foreground — the only "grey" that is
 # readable on every palette in the family, since ANSI 8 is not (solarized-osaka
 # mirrors its brights, so 8 is near-invisible there).

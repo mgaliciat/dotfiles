@@ -429,7 +429,7 @@ Gutter signs: `│` added / modified · `_` / `‾` deleted · `~` changed-and-d
 
 ### Porcelain (lazygit in a float)
 
-Same binary and versioned config as tmux's `Alt+g` (`lazygit/config.yml`), opened in a float inside nvim. Replaced Neogit in sep-2026.
+Same binary and versioned config as a plain `lazygit` in the terminal (`lazygit/config.yml`), opened in a float inside nvim. Replaced Neogit in sep-2026.
 
 | Shortcut | Action |
 |---|---|
@@ -446,7 +446,7 @@ Same binary and versioned config as tmux's `Alt+g` (`lazygit/config.yml`), opene
 | `<leader>gh` (normal / visual) | History of the current file / of the selected lines |
 | `<leader>gf` / `<leader>gF` | Telescope picker of repo / file commits — `<CR>` opens the commit in codediff, `<C-y>` yanks its hash. (Repo-wide history: this or `<leader>gl`) |
 
-Full TUI: **`Alt+g`** in tmux opens lazygit in a popup (no prefix). `prefix + g` is something else — the IDE layout.
+Full TUI: run `lazygit` in a terminal split.
 
 ---
 

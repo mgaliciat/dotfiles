@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Purpose
 
-Personal dotfiles for macOS (Ghostty + Homebrew), with a portable subset for Linux/WSL2 (zsh, nvim, tmux, lazygit, git) and a deliberately narrow native-Windows entry point. **The repo is public.**
+Personal dotfiles for macOS (Ghostty + Homebrew), with a portable subset for Linux/WSL2 (zsh, nvim, lazygit, git) and a deliberately narrow native-Windows entry point. **The repo is public.**
 
 ## Commands
 
@@ -13,13 +13,12 @@ Personal dotfiles for macOS (Ghostty + Homebrew), with a portable subset for Lin
 - `./install-windows.ps1` — native Windows. Needs Developer Mode for symlinks.
 - `exec zsh` after editing `zsh/`.
 - `Cmd+Shift+R` in Ghostty after editing `ghostty/` — it does not watch its config.
-- `prefix + r` (prefix is `C-t`) after editing `tmux/`.
 
 No build and no test suite. CI (`.github/workflows/lint.yml`) runs static checks only:
 shellcheck + `bash -n` over the installers and `claude/install/*.sh`, `zsh -n` over the
 zsh files, `luac5.1 -p` over every nvim lua file, `jq empty` over the JSON, and a
-PowerShell parse of `install-windows.ps1`. tmux and nvim configs are deliberately not
-parsed (they need their plugins to load). Runtime validation is running the installer.
+PowerShell parse of `install-windows.ps1`. The nvim config is deliberately not parsed
+(it needs its plugins to load). Runtime validation is running the installer.
 
 ## Layout
 
@@ -28,10 +27,9 @@ parsed (they need their plugins to load). Runtime validation is running the inst
 | `zsh/` | `.zshrc` (interactive), `.zshenv` (env + PATH), `functions.zsh` |
 | `ghostty/` | `config.ghostty` + `themes/` |
 | `nvim/` | lazy.nvim, `lua/plugins/*` one file per plugin, `lua/themes/*` |
-| `tmux/` | `tmux.conf` + `macos.conf` / `theme.conf` / `statusline.conf` / `utility.conf` / `themes/` |
 | `claude/` | User-level Claude Code: `CLAUDE.md`, `statusline.{sh,ps1}`, `themes/`, `hooks/`, `install/` |
 | `plugins/` | Plugins shared by Claude Code and Antigravity. `logbook/` carries two manifests (`.claude-plugin/plugin.json`, `plugin.json`), `skills/`, `rules/`, `hooks/` |
-| `scripts/` | `lib.sh` (shared by both bash installers), `ide`, `claude-api-env`, `theme`, `tmux-refresh` |
+| `scripts/` | `lib.sh` (shared by both bash installers), `claude-api-env`, `theme` |
 | `runbook/` | Operator bring-up per OS |
 
 `README.md` is the map of the repo; this file is the rationale.
@@ -42,7 +40,7 @@ parsed (they need their plugins to load). Runtime validation is running the inst
 
 `scripts/lib.sh` holds what both bash installers use: `link()`, `link_portable()` (the
 portable symlink list — adding a file is one edit, not one per installer),
-`install_claude()`, `bootstrap_gh_stack()`, `bootstrap_tmux()`. `install-windows.ps1`
+`install_claude()`, `bootstrap_gh_stack()`. `install-windows.ps1`
 replicates the Claude Code parts by hand; PowerShell cannot source bash.
 
 ### Claude Code config: three mechanisms
@@ -61,25 +59,24 @@ of truth for permissions, read by `settings.sh` with `jq --slurpfile` and by
 
 ### The stack theme
 
-One theme id spanning Ghostty + nvim + tmux, plus Windows Terminal as an independent
-fourth layer. Selection is a direct versioned value in each config:
+One theme id spanning Ghostty + nvim, plus Windows Terminal as an independent
+third layer. Selection is a direct versioned value in each config:
 
 - `theme = <id>` in `ghostty/config.ghostty`
 - `vim.g.theme = "<id>"` in `nvim/lua/config/options.lua`
-- `source ~/.config/tmux/themes/<id>.conf` in `tmux/tmux.conf`
 - `$WtTheme` in `install-windows.ps1` (generated from `ghostty/themes/<id>` at install time)
 - `theme = "custom:<id>"` in `~/.claude/settings.json`, written by `settings.sh` from
   ghostty's `theme =` line whenever `claude/themes/<id>.json` exists (convergent, the one
   settings key that is), pointing at that Claude Code custom theme
 
-`scripts/theme <id>` (on PATH as `theme`) rewrites the first three lines, regenerates
-lazygit's `theme:` block from the ghostty + tmux palettes, and reports a pinned
+`scripts/theme <id>` (on PATH as `theme`) rewrites the first two lines, regenerates
+lazygit's `theme:` block from the ghostty palette, and reports a pinned
 `background =`/`foreground =` in `config.ghostty` rather than touching it. It leaves
 `$WtTheme` alone on purpose: Windows is independent. CI runs it bare, which fails when
-the three selection lines disagree.
+the two selection lines disagree.
 
-Adding a theme = its three definitions (`ghostty/themes/<id>`,
-`nvim/lua/themes/<id>.lua`, `tmux/themes/<id>.conf`). Provenance of each palette is in
+Adding a theme = its two definitions (`ghostty/themes/<id>`,
+`nvim/lua/themes/<id>.lua`). Provenance of each palette is in
 `ghostty/themes/README.md`. The Claude Code theme is optional and exists only for a canvas
 the brand colours cannot read on: `base: light-ansi`/`dark-ansi` makes the TUI take its
 colours from the terminal's ANSI slots, and `overrides.claude` re-tunes the spinner.

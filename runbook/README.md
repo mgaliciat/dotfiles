@@ -30,7 +30,7 @@ installers do not create any of these.
 | `~/.gitconfig` + `~/.gitconfig.local` | git identity, signing key, 1Password vault, `core.editor` and `pull.rebase` | git, and lazygit for `pull.rebase` |
 | `~/.zshenv.local` | secrets and tokens as `export` lines (`CONTEXT7_API_KEY`) | every zsh, and the installers |
 | `~/.zshrc.local` | aliases and functions for this machine only | interactive zsh |
-| `~/.claude/claude-api.env` | the API-gateway credential (`ANTHROPIC_BASE_URL=…`, `chmod 600`) | `claude --api`, `code --api`, tmux `Alt+a` |
+| `~/.claude/claude-api.env` | the API-gateway credential (`ANTHROPIC_BASE_URL=…`, `chmod 600`) | `claude --api`, `code --api` |
 | `~/.claude/settings.json` | Claude Code permissions and UI prefs | Claude Code; the installers only add keys that are absent, except `permissions.ask`/`deny`, which they union with `permissions.json` |
 
 On native Windows the shell files do not exist; the secrets are Windows user
@@ -70,14 +70,13 @@ the backup back.
 
 Symlinked files are already current. Re-run the installer anyway — it is
 idempotent and it is what delivers new symlinks, new packages, new
-`settings.json` keys and the pinned tmux plugin. Then reload what is still
+`settings.json` keys. Then reload what is still
 holding the old config in memory:
 
 | Changed | Apply with |
 |---|---|
 | `zsh/*` | `exec zsh` in each open terminal |
 | `ghostty/*` | `Cmd+Shift+R` in a Ghostty window. New `keybind` lines need a full quit and relaunch |
-| `tmux/*` | the installer reloads a running server; or `tmux source ~/.config/tmux/tmux.conf` |
 | `nvim/*` | restart nvim |
 | `lazygit/*` | reopen lazygit |
 | `claude/*`, `install*` | the installer; then restart Claude Code |

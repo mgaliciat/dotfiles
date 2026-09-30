@@ -1,6 +1,6 @@
 # macOS
 
-Full stack: Ghostty, zsh, nvim, tmux, lazygit, Claude Code, fonts. Entry point
+Full stack: Ghostty, zsh, nvim, lazygit, Claude Code, fonts. Entry point
 `./install.sh`. Read [`README.md`](README.md) in this folder first for the
 per-machine files and the two silent guards.
 
@@ -57,7 +57,7 @@ per-machine files and the two silent guards.
 
    What it does, in order:
    - symlinks the portable set (`.zshrc`, `.zshenv`, `.gitignore_global`,
-     `nvim`, `tmux`, lazygit, `~/.local/bin/{ide,claude-api-env}`) plus Ghostty
+     `nvim`, lazygit, `~/.local/bin/{claude-api-env,theme}`) plus Ghostty
      (`config.ghostty` into Application Support, `themes/` into
      `~/.config/ghostty/` — two different dirs, both required);
    - installs the missing Homebrew formulae and casks (fonts included) and Paper
@@ -65,8 +65,6 @@ per-machine files and the two silent guards.
    - configures Claude Code: `settings.json` keys (additive, guarded), the
      `CLAUDE.md` / statusline / hook / skill symlinks, `rtk`,
      `codebase-memory-mcp`, the two MCP endpoints, the `gh-stack` skill;
-   - clones tpm, pins `tmux-claude-hatch`, installs the other tmux plugins,
-     reloads a running tmux;
    - installs the `gh-stack` extension;
    - registers VS Code as the default app for `.ghostty` files, if installed.
 
@@ -101,10 +99,7 @@ per-machine files and the two silent guards.
    Real `ANTHROPIC_*` names, passed through verbatim. `ANTHROPIC_BASE_URL` is
    the one required key; without it `claude --api` refuses to launch.
 
-5. `exec zsh`. An interactive shell **auto-starts tmux** (`exec tmux
-   new-session` in `.zshrc`). Escape hatch: `NO_AUTO_TMUX=1`. The installer
-   already installed the plugins tpm lists; `C-t I` (prefix is `C-t`) does it
-   by hand if that step warned.
+5. `exec zsh`.
 
 6. Open Ghostty. The theme and font are already selected in the config; if the
    glyphs look wrong, check the family name resolved:
@@ -120,18 +115,14 @@ per-machine files and the two silent guards.
 ## Verify
 
 ```bash
-readlink ~/.zshrc ~/.config/nvim ~/.config/tmux ~/.local/bin/ide     # all into the repo
+readlink ~/.zshrc ~/.config/nvim ~/.local/bin/claude-api-env         # all into the repo
 readlink ~/.claude/CLAUDE.md ~/.claude/skills/logbook ~/.claude/hooks/logbook.sh
 readlink ~/.gemini/config/plugins/logbook && jq '.mcpServers | keys' ~/.gemini/config/mcp_config.json   # Antigravity: same plugin
 claude mcp list                                                     # context7, codebase-memory, and logbook-mcp once added by hand
 rtk --version && rtk config                                         # config path under ~/Library/Application Support/rtk
 tgrep --version                                                     # brew formula; index/serve are per-repo, opt-in
-tmux -V && git -C ~/.config/tmux/plugins/tmux-claude-hatch rev-parse --short HEAD
 nvim --headless '+Lazy! sync' +qa                                   # first plugin install, non-interactive
 ```
-
-In tmux: `Alt+c` opens Claude in a popup, `Alt+d` detaches it, `Alt+u` lists
-sessions, `Alt+a` is the gateway twin (needs the env file).
 
 ## Re-run after a pull
 
@@ -158,9 +149,6 @@ file does nothing on screen until `Cmd+Shift+R`.
   moves it to `config.backup.<ts>`; check that dir if it came back.
 - **`claude --api` says the env file is missing.** Step 4 above. The path can be
   overridden with `CLAUDE_API_ENV_FILE` for a second gateway.
-- **`Alt+a` popup flashes and closes.** The helper is not on PATH yet — a
-  `git pull` delivered the tmux bind but `./install.sh` has not delivered the
-  `~/.local/bin/claude-api-env` symlink. Re-run the installer.
 - **`git commit` fails with "1Password: Could not connect to socket".** The
   1Password app is not running (the browser helper alone is not enough):
   `open -a 1Password`.

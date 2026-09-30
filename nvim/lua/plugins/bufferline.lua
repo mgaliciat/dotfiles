@@ -14,10 +14,8 @@
 -- craftzdog binds <Tab> / <S-Tab> to BufferLineCycleNext/Prev; that is
 -- deliberately not copied. In a terminal <Tab> and <C-i> are the same
 -- byte, and they're only distinguishable through the kitty keyboard
--- protocol — which tmux drops here (`extended-keys` is `off` in
--- tmux/tmux.conf), so nvim can't tell them apart and mapping <Tab>
--- silently kills <C-i>, the forward half of the jumplist. Turning
--- `extended-keys on` in tmux is what would make those binds safe.
+-- protocol; without it nvim can't tell them apart and mapping <Tab>
+-- silently kills <C-i>, the forward half of the jumplist.
 --
 -- The close icons are off because there's no mouse workflow here and
 -- `:tabclose` is the way out; the neo-tree offset keeps the bar from
@@ -35,9 +33,8 @@
 -- gone (2026-09-09) and the `bg = NONE` table is still the reason.
 --
 -- Giving the tabs a solid background to slice would put an opaque strip
--- back over the glass, which is the same thing the tmux statusline was
--- fixed for in sep-2026 (`bg=default`, never a baked hex — see the repo
--- CLAUDE.md). So the geometry goes and the accent stays: a left bar on
+-- back over the glass, the same seam lualine.lua fixes for the statusline
+-- (never a baked hex — see the repo CLAUDE.md). So the geometry goes and the accent stays: a left bar on
 -- the active tab, italic bold text, thin dividers. That is also what
 -- craftzdog's own screenshots show — his `separator_style` line is
 -- commented out in the config the rest of this file came from.

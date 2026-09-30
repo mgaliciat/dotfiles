@@ -4,7 +4,7 @@
 
 <h1 align="center">dotfiles</h1>
 
-Personal config for macOS — Ghostty terminal, zsh, Neovim, tmux, lazygit, Claude Code — with a portable subset for Linux/WSL2 and a narrow Windows entry point.
+Personal config for macOS — Ghostty terminal, zsh, Neovim, lazygit, Claude Code — with a portable subset for Linux/WSL2 and a narrow Windows entry point.
 
 The design rationale (what is versioned vs. per-machine, and why every non-obvious line is the way it is) lives in [`CLAUDE.md`](CLAUDE.md). This README is the map.
 
@@ -17,10 +17,9 @@ The design rationale (what is versioned vs. per-machine, and why every non-obvio
 | `zsh/functions.zsh` | Shell functions, incl. `claude --api` / `code --api` (run through the API gateway, see below) |
 | `ghostty/` | Ghostty config (`config.ghostty`) + `themes/` (the palettes of the cross-stack theme) |
 | `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*` (one file per plugin), `lua/themes/*` for the stack theme. Cheatsheet: `nvim/CHEATSHEET.md` |
-| `tmux/` | tmux config — prefix `C-t`, single-chord popups `Alt+c/C/a/A/y/u/d/g/Enter`, modular (theme / statusline / utility / `themes/`). Cheatsheet: `tmux/CHEATSHEET.md` |
 | `lazygit/config.yml` | lazygit theme + custom commands |
 | `git/.gitignore_global` | Global gitignore — macOS noise, editor files, build dirs, **and AI-agent scratch** (`.claude/`, `.cursor/`, `.aider*`, …), excluded in every repo |
-| `scripts/` | `ide` (4-pane tmux layout, `prefix + g`), `claude-api-env` (runs a command with the gateway env), `theme` (switches the stack theme), `tmux-refresh` (kills the tmux server so every session restarts clean), `lib.sh` (shared by both bash installers). All but `lib.sh` are symlinked onto `~/.local/bin` |
+| `scripts/` | `claude-api-env` (runs a command with the gateway env), `theme` (switches the stack theme), `lib.sh` (shared by both bash installers). All but `lib.sh` are symlinked onto `~/.local/bin` |
 | `claude/` | User-level Claude Code pieces — `CLAUDE.md` (→ `~/.claude/CLAUDE.md`), `statusline.{sh,ps1}`, `themes/`, `hooks/` (the `PreToolUse` hook that sends file edits to Edit/Write instead of the shell), and `install/` (everything the installers do to `~/.claude/`, see its README) |
 | `plugins/` | Agent plugins shared by Claude Code and Antigravity. `logbook/`: the logmd vault skills, its post-commit hook and both manifests; linked into `~/.claude/skills/` and `~/.gemini/config/plugins/` |
 | `install.sh` | macOS entry point — symlinks + Homebrew deps + Claude Code setup |
@@ -49,12 +48,11 @@ cd ~/dotfiles
 
 `install.sh` is idempotent — re-run it after every `git pull`. It backs up anything it would overwrite as `<file>.backup.<timestamp>` and then:
 
-1. **Symlinks** `.zshrc`, `.zshenv`, `.gitignore_global`, ghostty (config + themes), nvim, tmux, lazygit, `~/.local/bin/{ide,claude-api-env,theme,tmux-refresh}`, and the Claude pieces (`~/.claude/CLAUDE.md`, `statusline.sh`, `hooks/logbook.sh`, `hooks/no-bash-edits.py`, `skills/logbook`).
-2. **Installs missing Homebrew deps** (see `REQUIRED_FORMULAE` / `REQUIRED_CASKS` in the script): the zsh plugins, `eza`, `bat`, `fd`, `ripgrep`, `gomi`, `zoxide`, `fzf`, `jq`, `gh`, `git-delta`, `pyenv`, `neovim`, `tree-sitter-cli`, `tmux`, `lazygit`, `rtk`; casks `ghostty`, `1password-cli` and the fonts `config.ghostty` names. Paper Mono has no cask and is fetched from its GitHub release.
+1. **Symlinks** `.zshrc`, `.zshenv`, `.gitignore_global`, ghostty (config + themes), nvim, lazygit, `~/.local/bin/{claude-api-env,theme}`, and the Claude pieces (`~/.claude/CLAUDE.md`, `statusline.sh`, `hooks/logbook.sh`, `hooks/no-bash-edits.py`, `skills/logbook`).
+2. **Installs missing Homebrew deps** (see `REQUIRED_FORMULAE` / `REQUIRED_CASKS` in the script): the zsh plugins, `eza`, `bat`, `fd`, `ripgrep`, `gomi`, `zoxide`, `fzf`, `jq`, `gh`, `git-delta`, `pyenv`, `neovim`, `tree-sitter-cli`, `lazygit`, `rtk`; casks `ghostty`, `1password-cli` and the fonts `config.ghostty` names. Paper Mono has no cask and is fetched from its GitHub release.
 3. **Configures Claude Code** — additive, nothing you set by hand on that machine is clobbered; the one list that converges is `permissions.ask`/`deny`, where the repo's rules are unioned into whatever the machine has. Split by who writes `~/.claude/settings.json` (`claude/install/README.md`): our `jq` merges (statusline, base permissions, no attribution trailer, the logbook `PostToolUse` hook, the `no-bash-edits` `PreToolUse` hook, `CLAUDE_CODE_THRIFTY_SONIC=0`), the external binaries' own setup ([`rtk`](https://github.com/rtk-ai/rtk), [`codebase-memory-mcp`](https://github.com/DeusData/codebase-memory-mcp), the `context7` MCP endpoint, the `gh-stack` skill), and the plugin CLI (currently nothing).
-4. **Bootstraps tmux** — clones tpm if missing, pins `tmux-claude-hatch` to a commit, installs the rest of the plugins through tpm, reloads the config if a server is running.
-5. Installs the `gh-stack` extension for `gh`.
-6. Registers VS Code as the default app for `.ghostty` files (if VS Code is installed).
+4. Installs the `gh-stack` extension for `gh`.
+5. Registers VS Code as the default app for `.ghostty` files (if VS Code is installed).
 
 Then `exec zsh`.
 
@@ -70,24 +68,22 @@ After a `git pull`, files are already current through the symlinks, **but runnin
 |---|---|
 | `zsh/*` | `exec zsh` in every open terminal |
 | `ghostty/*` | `Cmd+Shift+R` (*Reload Configuration*). **New `keybind`s need a full quit + relaunch** |
-| `tmux/*` | `./install.sh` does it; or `tmux source ~/.config/tmux/tmux.conf` |
 | `nvim/*` | Restart nvim (`:Lazy reload <plugin>` for a single plugin) |
 | `lazygit/*` | Reopen lazygit |
 | `install*.sh`, `claude/install/*` | Re-run `./install.sh` |
 
 ## The stack theme
 
-One theme id spans Ghostty, nvim and tmux (and Windows Terminal, derived from the Ghostty file at install time). Selection is a versioned value in each config — `theme <id>` rewrites the three lines, then commit and pull on the other machines:
+One theme id spans Ghostty and nvim (and Windows Terminal, derived from the Ghostty file at install time). Selection is a versioned value in each config — `theme <id>` rewrites the two lines, then commit and pull on the other machines:
 
 - `ghostty/config.ghostty` → `theme = <id>`
 - `nvim/lua/config/options.lua` → `vim.g.theme = "<id>"`
-- `tmux/tmux.conf` → `source ~/.config/tmux/themes/<id>.conf`
 
-Currently `solarized-patched`. The family and each theme's provenance are documented in `CLAUDE.md` ("The stack theme"); the palettes live in `ghostty/themes/`, `nvim/lua/themes/`, `tmux/themes/`.
+Currently `solarized-patched`. The family and each theme's provenance are documented in `CLAUDE.md` ("The stack theme"); the palettes live in `ghostty/themes/` and `nvim/lua/themes/`.
 
 ## Claude Code through an API gateway
 
-`claude --api …` and `code --api …` (zsh functions) run the real binary with the `ANTHROPIC_*` variables from `~/.claude/claude-api.env`, for that one process only; without the flag both are untouched. `Alt+a` / `Alt+A` in tmux are the gateway twins of `Alt+c` / `Alt+C`. All of it goes through `scripts/claude-api-env`, which *parses* the file (never `source`s it) and refuses to launch without `ANTHROPIC_BASE_URL`.
+`claude --api …` and `code --api …` (zsh functions) run the real binary with the `ANTHROPIC_*` variables from `~/.claude/claude-api.env`, for that one process only; without the flag both are untouched. All of it goes through `scripts/claude-api-env`, which *parses* the file (never `source`s it) and refuses to launch without `ANTHROPIC_BASE_URL`.
 
 The env file holds a credential: per-machine, `chmod 600`, never versioned, and no installer creates it. A machine without one simply has no gateway.
 

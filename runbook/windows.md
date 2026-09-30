@@ -1,6 +1,6 @@
 # Native Windows
 
-**Narrow scope, on purpose.** zsh, tmux and nvim do not run natively, so this
+**Narrow scope, on purpose.** zsh and nvim do not run natively, so this
 is not a port of the stack. `./install-windows.ps1` covers: the Claude Code
 pieces, `git/.gitignore_global`, Nerd Fonts, the stack theme as a Windows
 Terminal colour scheme, and two Windows Terminal keybindings for Claude. For a
@@ -66,8 +66,7 @@ fallback for symlinks, and scoop refuses to run under it.
    - writes the `settings.json` keys `settings.sh` writes on mac/Linux
      (statusline, permissions from `permissions.json`, attribution, output
      style, fallback model, the PowerShell-tool env var, the logbook hook), each
-     only if absent, and removes the retired agent-team env keys.
-     `terminalTitleFromRename` is deliberately not mirrored — no tmux here;
+     only if absent, and removes the retired agent-team env keys;
    - `rtk` from its release zip plus its versioned `config.toml`, copied;
    - `codebase-memory-mcp` — the **`-ui-`** release asset, sha256-checked, not
      the official installer (which ships the headless build). A stamp file

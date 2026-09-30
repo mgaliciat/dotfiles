@@ -5,9 +5,6 @@
 -- still lands on the dashboard, so an accidental `nvim` in the wrong dir
 -- doesn't reopen twenty buffers.
 --
--- Pairs with the tmux side: one Claude session per directory
--- (`Alt+c`), and now one editor session per directory too.
---
 -- `need = 1`: a session is only written when at least one real file
 -- buffer is open, so `nvim` → dashboard → `:q` does not overwrite the
 -- session you had with an empty one. `branch = true` keeps one session per

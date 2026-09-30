@@ -1,7 +1,7 @@
 # Claude Code pieces for NATIVE Windows (no WSL2 — WSL2 uses
 # install-linux.sh, which already detects it and gives specific hints).
 #
-# Intentionally narrow scope: zsh/tmux/nvim do not run natively on Windows, so
+# Intentionally narrow scope: zsh/nvim do not run natively on Windows, so
 # this script is NOT a port of the rest of the dotfiles — see CLAUDE.md, the
 # "per-machine split" section. It covers only:
 #   - symlinks for claude/statusline.ps1, claude/CLAUDE.md, the plugin we author
@@ -21,7 +21,7 @@
 #   - gh-stack: the `gh` extension + its skill (npx skills) — mirror of
 #     bootstrap_gh_stack in scripts/lib.sh and the block in binaries.sh
 #   - Nerd Fonts (the ONE stack layer that DOES exist on Windows: Windows
-#     Terminal, unlike zsh/tmux/nvim — so the fonts install.sh puts on the Mac
+#     Terminal, unlike zsh/nvim — so the fonts install.sh puts on the Mac
 #     are useful here too). Maple + Monaspace via scoop; PlemolJP by direct
 #     download (not in any scoop bucket). Best-effort, both guarded/try-catch.
 #   - the stack theme on that same layer: a Windows Terminal colour scheme
@@ -31,15 +31,15 @@
 #     fg/bg overrides, opacity + acrylic, cursor shape, padding, bell, history,
 #     contrast ($WtAppearance). Additive-only, and the list of what has no WT
 #     equivalent at all is beside it.
-#   - Windows Terminal keybindings for Claude (ctrl+shift+l / ctrl+shift+y), the
-#     moral equivalent of tmux's M-c / M-C on the one layer this box shares.
+#   - Windows Terminal keybindings for Claude (ctrl+shift+l / ctrl+shift+y), on
+#     the one layer this box shares.
 #     ctrl+shift+ is the ONLY safe family in a terminal — see $WtBinds.
 #
 # Those bullets are the three mechanisms of claude/install/ (settings.sh /
 # binaries.sh / plugins.sh) replicated by hand: PowerShell cannot source the bash
 # scripts. If you touch something over there, check whether it applies here.
 #
-# What is still deliberately ABSENT vs install.sh, and why: zsh/tmux/nvim/ghostty
+# What is still deliberately ABSENT vs install.sh, and why: zsh/nvim/ghostty
 # and their symlinks (do not run natively), the shell tools behind their aliases
 # (eza/bat/fd/gomi/zoxide/fzf — no zsh to alias them from), 1password-cli
 # (nothing in this repo references `op`), and Paper Mono (a former ghostty
@@ -225,7 +225,7 @@ foreach ($StaleAgentPath in @(
     }
 }
 
-# Claude Code colour theme, the stack theme's fifth layer (rationale in
+# Claude Code colour theme, the stack theme's fourth layer (rationale in
 # claude/install/settings.sh). Linked only: its ACTIVATION (`theme` in
 # settings.json) is per-machine, and on Windows the canvas is whatever
 # $WtTheme generated, so `/theme` inside Claude Code is where it gets picked.
@@ -264,7 +264,7 @@ foreach ($StalePath in @(
 }
 
 # The one NON-Claude symlink from install.sh that is portable here: git runs
-# natively on Windows, unlike zsh/tmux/nvim/ghostty. Inert on its own -- it only
+# natively on Windows, unlike zsh/nvim/ghostty. Inert on its own -- it only
 # takes effect once ~/.gitconfig points at it (`[core] excludesfile`), which is
 # per-machine and NOT versioned, exactly as on mac. Linking it anyway means that
 # when you do write that gitconfig, the file is already there and tracks the repo.
@@ -916,8 +916,7 @@ if ((Get-Command claude -ErrorAction SilentlyContinue) -and $env:CONTEXT7_API_KE
 #
 # Guarded on the extension already being listed -- `gh extension install` errors
 # out on a re-run. Deliberately NOT convergent (no `gh extension upgrade`):
-# bumping the version is the user's call, unlike the tmux plugin on the bash side,
-# which is SHA-pinned precisely so every machine runs the same bytes.
+# bumping the version is the user's call.
 if (Get-Command gh -ErrorAction SilentlyContinue) {
     # Needs the OUTPUT, so Invoke-Native (which swallows it) is no use here --
     # same EAP dance by hand so a stderr write cannot kill the script.
@@ -1101,8 +1100,8 @@ Install-FontFromRelease -Repo "yuru7/PlemolJP" -AssetPattern '^PlemolJP_NF_.*\.z
 # The desktop zip, NOT the -Android one, which ships a different name table.
 Install-FontFromRelease -Repo "googlefonts/googlesans-code" -AssetPattern '^GoogleSansCode-v[\d.]+\.zip$' -Label "Google Sans Code"
 
-# ─── Windows Terminal: colour scheme + font (stack theme, 4th layer) ────
-# The stack theme is normally 3 layers (ghostty + nvim + tmux), NONE of which
+# ─── Windows Terminal: colour scheme + font (stack theme, 3rd layer) ────
+# The stack theme is normally 2 layers (ghostty + nvim), NEITHER of which
 # runs natively on Windows. Windows Terminal is the one layer that does exist
 # here, and its `schemes` are the same data as a ghostty theme: 16 ANSI +
 # bg/fg/cursor/selection. So the family reaches this machine after all.
@@ -1114,9 +1113,9 @@ Install-FontFromRelease -Repo "googlefonts/googlesans-code" -AssetPattern '^Goog
 # 20 lines of `key = #hex` is cheaper than keeping a .json in sync forever.
 #
 # $WtTheme IS the selection line for Windows, versioned and direct, same shape
-# as ghostty's `theme =` / tmux's `source themes/<id>.conf`. It does NOT read
+# as ghostty's `theme =`. It does NOT read
 # ghostty's line: it may agree with it (it does today) or disagree, and either
-# is a normal state, because a native-Windows box shares NONE of the other three
+# is a normal state, because a native-Windows box shares NONE of the other two
 # layers -- following ghostty would mean a mac theme change silently repainting a
 # machine that has no ghostty installed. Change the look by editing this line
 # and re-running -- no switcher, no pointer.
@@ -1206,9 +1205,8 @@ $WtAppearance = [ordered]@{
     adjustIndistinguishableColors = "never"
 }
 
-# Claude launchers -- the moral equivalent of tmux's `M-c` / `M-C`
-# (utility.conf), on the one layer this box shares with the rest of the stack.
-# NOT the same chords, and the reason is a hard rule about terminal keys:
+# Claude launchers, on the one layer this box shares with the rest of the
+# stack. The chords follow a hard rule about terminal keys:
 #
 #   - `ctrl+<letter>` is free as far as WT is concerned (its defaults.json
 #     reserves ZERO of them) and is still the wrong place to bind. That chord IS
@@ -1221,15 +1219,14 @@ $WtAppearance = [ordered]@{
 #   - `ctrl+alt+<letter>` is AltGr on an ISO-LA keyboard (this box). Taking it
 #     costs you a character you type daily -- ctrl+alt+q IS `@`. Never.
 #
-# So the with/without-Shift pair the tmux binds use cannot exist here (its
-# no-Shift half would be a control char) and yolo gets its own letter instead.
+# So a with/without-Shift pair cannot exist here (its no-Shift half would be a
+# control char) and yolo gets its own letter instead.
 # Occupied by WT 1.24: a c d f k m n p t v w. Enumerated, not guessed --
 # `(Get-AppxPackage Microsoft.WindowsTerminal).InstallLocation\defaults.json`
 # is readable, and it is JSONC, so regex it rather than ConvertFrom-Json.
 #
 # `sendInput` TYPES at the prompt, it does not spawn: no popup, no dedicated
-# session, no md5-of-path reuse like the tmux binds -- WT has no equivalent of
-# any of that. Press it mid-command and you inject text into that command's
+# session, no per-directory reuse -- WT has no equivalent of any of that. Press it mid-command and you inject text into that command's
 # stdin, which is the whole (small) cost of doing this with 2 lines of config.
 #
 # Two arrays, not one: since WT 1.19 an `actions` entry DEFINES a command under

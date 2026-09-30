@@ -1,6 +1,6 @@
 # Ubuntu / Debian / WSL2
 
-Portable subset: zsh, nvim, tmux, lazygit, git, Claude Code. No Ghostty. Entry
+Portable subset: zsh, nvim, lazygit, git, Claude Code. No Ghostty. Entry
 point `./install-linux.sh`. Read [`README.md`](README.md) in this folder first
 for the per-machine files and the two silent guards.
 
@@ -58,13 +58,12 @@ Windows side, so also run [`windows.md`](windows.md) there.
 
    What it does, in order:
    - symlinks the portable set (same list as macOS, from `scripts/lib.sh`);
-   - `apt-get install` for what apt has (zsh, tmux, ripgrep, fd-find, bat, fzf,
+   - `apt-get install` for what apt has (zsh, ripgrep, fd-find, bat, fzf,
      jq, gh, eza, the zsh plugins, python3, build-essential…);
    - shims `fd → fdfind` and `bat → batcat` into `~/.local/bin` where apt uses
      the renamed binaries — the `cat` alias in `.zshrc` is unguarded, so
      without the shim every `cat` breaks;
    - configures Claude Code (same three scripts as macOS);
-   - clones tpm, pins `tmux-claude-hatch`, installs the other tmux plugins;
    - GitHub release binaries for what apt lacks or ships too old: lazygit,
      **nvim 0.10+** (tarball, no FUSE), delta (`.deb`), eza fallback, gomi,
      tree-sitter-cli; zoxide and pyenv via their official curl installers;
@@ -87,8 +86,7 @@ Windows side, so also run [`windows.md`](windows.md) there.
    printf 'ANTHROPIC_BASE_URL=https://<gateway>\nANTHROPIC_AUTH_TOKEN=…\n' >> ~/.claude/claude-api.env
    ```
 
-5. `exec zsh`. An interactive shell auto-starts tmux; `NO_AUTO_TMUX=1` to
-   skip. Inside tmux the first time: `C-t I` to install plugins.
+5. `exec zsh`.
 
 ### WSL2 extras
 
@@ -111,12 +109,11 @@ The installer detects WSL2 and prints these; they are manual on purpose:
 ## Verify
 
 ```bash
-readlink ~/.zshrc ~/.config/nvim ~/.config/tmux ~/.local/bin/ide ~/.local/bin/claude-api-env
+readlink ~/.zshrc ~/.config/nvim ~/.local/bin/claude-api-env
 echo $SHELL                                   # /usr/bin/zsh after re-login
 nvim --version | head -1                      # v0.10 or newer
 command -v fd bat eza zoxide lazygit delta gomi tree-sitter rtk
 claude mcp list
-git -C ~/.config/tmux/plugins/tmux-claude-hatch rev-parse --short HEAD
 ```
 
 `fd` and `bat` should resolve to `~/.local/bin/` shims on Ubuntu, not to the
@@ -155,8 +152,6 @@ remove it from `~/.local/bin` and re-run.
 - **`→ context7: skipped`.** Env var not in the
   shell that ran the installer. Fix `~/.zshenv.local`, `exec zsh`, re-run.
 - **Rotated token.** `claude mcp remove <name> -s user`, then re-run.
-- **tmux config not reloaded.** No server was running, which is normal on a
-  fresh login. The next `tmux` reads it.
 - **`rtk` missing after the run.** brew is not involved here; `binaries.sh`
   falls back to rtk's curl installer. If that failed (network), re-run.
 

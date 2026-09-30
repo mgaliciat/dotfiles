@@ -1,9 +1,9 @@
 -- ─── stack theme ──────────────────────────────────────────────
--- nvim is ONE layer of the "stack theme" (alongside Ghostty and tmux). The
+-- nvim is ONE layer of the "stack theme" (alongside Ghostty). The
 -- selection is this string, versioned and the source of truth: a `git pull`
 -- propagates the theme to the other machines. To change the look run
--- `theme <id>` (scripts/theme rewrites this line and the equivalent ones in
--- Ghostty and tmux — they share the id) and commit. Restart nvim to see it.
+-- `theme <id>` (scripts/theme rewrites this line and the equivalent one in
+-- Ghostty — they share the id) and commit. Restart nvim to see it.
 --
 -- The ids: `theme --list`. Beyond them, the solarized-osaka-{day,moon,storm}
 -- variants and "obsidian" are valid here, but nvim-only.
@@ -88,8 +88,8 @@ opt.smartcase = true                 -- ignores case unless you type uppercase
 -- (incsearch and hlsearch are nvim defaults; not restated here.)
 
 -- UI
--- (termguicolors is auto-detected since nvim 0.10; Ghostty and tmux-256color
---  both declare RGB, so it's on without a line here.)
+-- (termguicolors is auto-detected since nvim 0.10; Ghostty declares RGB, so
+--  it's on without a line here.)
 opt.signcolumn = "yes"               -- always visible: avoids layout shift when LSP/git signs appear
 opt.showmode = false                 -- lualine already shows the mode
 opt.cmdheight = 1

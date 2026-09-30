@@ -10,12 +10,11 @@
 #
 # WHY A SCRIPT AND NOT (only) A ZSH FUNCTION. The `--api` flag on `claude` /
 # `code` lives in zsh/functions.zsh, which .zshrc sources — so it exists in
-# INTERACTIVE shells and nowhere else. tmux launches its Claude popups with
-# `tmux new-session … "exec claude"`, which tmux runs through `$SHELL -c`:
-# non-interactive, no .zshrc, no function. Same for any script or hook. Moving
-# the parsing here and symlinking it onto PATH (~/.local/bin, see install.sh)
-# makes the gateway reachable from all of them, and leaves ONE implementation
-# instead of two copies that drift — the zsh function is now a facade over this.
+# INTERACTIVE shells and nowhere else: a script or a hook runs non-interactive,
+# with no .zshrc and no function. Moving the parsing here and symlinking it
+# onto PATH (~/.local/bin, see install.sh) makes the gateway reachable from all
+# of them, and leaves ONE implementation instead of two copies that drift — the
+# zsh function is now a facade over this.
 #
 # THE FILE IS PARSED, NEVER SOURCED: `NAME=value` lines, an optional leading
 # `export`, `#` comments, one optional layer of matching quotes. A credentials
@@ -33,17 +32,8 @@ set -u
 
 envfile=${CLAUDE_API_ENV_FILE:-$HOME/.claude/claude-api.env}
 
-# CLAUDE_API_HOLD_ERRORS is set by the tmux binds, never by a human. Inside a
-# popup the session's only process IS this script, so a plain exit destroys the
-# session and takes the error message with it — you see a flash and nothing
-# else. Waiting for a key keeps the pane alive long enough to read it. An
-# interactive terminal scrolls back, so it doesn't pay for the pause.
 die() {
   echo "claude-api-env: $1" >&2
-  if [[ ${CLAUDE_API_HOLD_ERRORS:-} == 1 ]]; then
-    echo "claude-api-env: press any key to close" >&2
-    read -r -n 1 -s || true
-  fi
   exit 1
 }
 
@@ -90,8 +80,7 @@ fi
 (( has_base )) || die "ANTHROPIC_BASE_URL is unset (put it in $envfile) — not launching $1"
 
 # `exec env` replaces this process, so nothing of ours is left in the tree and
-# the pane's process is the target command itself — which is what the tmux
-# binds and their Alt+d detach assume. No `--`: both BSD and GNU env stop
+# the terminal's process is the target command itself. No `--`: both BSD and GNU env stop
 # reading options at the first assignment, and `vars` is never empty here (it
 # holds ANTHROPIC_BASE_URL at minimum), so a command starting with `-` is
 # already safe — and a `--` placed AFTER the assignments is itself taken as the

@@ -105,7 +105,7 @@ done
 unset _stale
 
 # ── Claude Code colour theme → ~/.claude/themes/ ──
-# The stack theme's fifth layer. Claude Code paints its spinner and accents in
+# The stack theme's fourth layer. Claude Code paints its spinner and accents in
 # the brand colours by truecolor, and over a canvas they were never tuned for
 # they wash out (Claude orange sits at 1.55:1 over typesafe's sage). A custom
 # theme is the only lever: `base: light-ansi` makes the TUI take its colours

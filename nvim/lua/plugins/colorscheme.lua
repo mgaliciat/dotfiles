@@ -16,9 +16,9 @@
 -- wants it declares it; everything else keeps its opaque canvas.
 --
 -- The available ids: `theme --list` (scripts/theme) prints every id all
--- three layers can render; provenance of each palette is in
+-- two layers can render; provenance of each palette is in
 -- ghostty/themes/README.md. `obsidian` is the one module here with no Ghostty
--- or tmux mirror: it is the fallback below, not a stack theme.
+-- mirror: it is the fallback below, not a stack theme.
 --
 -- The solarized-osaka variants do NOT live in this selector — they use their own
 -- plugin spec (lua/plugins/solarized-osaka.lua) because they ship with a full
@@ -27,7 +27,7 @@
 --
 -- Switching:
 --   1. `theme <name>` (scripts/theme), which edits `vim.g.theme` in
---      lua/config/options.lua along with the Ghostty and tmux lines
+--      lua/config/options.lua along with the Ghostty line
 --   2. Restart nvim (or `:source $MYVIMRC | colorscheme tokyonight-<style>`).
 
 local theme_name = vim.g.theme or "obsidian"

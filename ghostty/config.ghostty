@@ -19,7 +19,7 @@
 # NOTE: this `theme =` is THE active selection and the source of truth. Since
 # the file is versioned, a `git pull` propagates the theme to the other
 # machines. To change the look: `theme <id>` (scripts/theme edits this line
-# and the equivalent ones in nvim and tmux — they share the id), then commit.
+# and the equivalent one in nvim — they share the id), then commit.
 #
 # craftzdog's theme, ported into the family (2026-09-11). His line reads
 # `theme = "Solarized Dark - Patched"` and that string DOES NOT RESOLVE — the
@@ -33,9 +33,9 @@
 # he MEANT.
 #
 # Selected here as `solarized-patched`, a versioned copy in ghostty/themes/, and
-# NOT by the built-in name. The built-in lives inside Ghostty.app, where nvim,
-# tmux and Windows Terminal cannot reach it — naming it there would leave the
-# other three layers with nothing to mirror and break the one-id rule. The port is
+# NOT by the built-in name. The built-in lives inside Ghostty.app, where nvim
+# and Windows Terminal cannot reach it — naming it there would leave the
+# other layers with nothing to mirror and break the one-id rule. The port is
 # hex-verbatim from the shipped file; provenance is in the theme file itself.
 #
 # A different palette from `solarized-dark`, also in this family: that one is
@@ -44,7 +44,7 @@ theme = solarized-patched
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
-# id in Ghostty/nvim/tmux; to flip the look you edit the 3 configs):
+# id in Ghostty/nvim; to flip the look you edit the 2 configs):
 #   · light-2026 — clone of the "2026 Light" theme that Microsoft shipped as
 #     VS Code's new default (extensions/theme-defaults/themes/2026-light.json,
 #     the 2026 "Focus" refresh). Pure white + blue accent #0069CC.
@@ -114,7 +114,7 @@ theme = solarized-patched
 # cut's base1, 5.73:1) or #eae3cb (its ANSI white, warmer).
 #
 # Only the terminal. His nvim runs solarized-osaka.nvim with that theme's own
-# muted fg, so nvim and tmux keep the patched palette here either way.
+# muted fg, so nvim keeps the patched palette here either way.
 #
 # `background` is back on 2026-09-21 with `solarized-patched`. Both were off
 # between 2026-09-18 and then, under the typesafe pair: a theme that owns its
@@ -315,7 +315,7 @@ background-blur = macos-glass-clear
 
 # `background-opacity` applies to the WINDOW background alone, so any cell
 # carrying an explicit background colour stays fully opaque by default — Ghostty's
-# own docs call out Neovim and tmux as the programs that repaint cell backgrounds
+# own docs call out Neovim among the programs that repaint cell backgrounds
 # and therefore "may not respect background-opacity (by design)". `true` extends
 # the opacity to those cells too, which is what "the glass is only half on
 # otherwise" means here.
@@ -374,13 +374,6 @@ window-padding-color = extend
 # restores the session when reopening Ghostty
 window-save-state = always
 
-# `always`, not the default `true`. `true` asks only when shell integration
-# reports a process still running, which is exactly the case tmux defeats: the
-# pane's foreground process is the shell, and the Claude Code sessions live in
-# tmux sessions the terminal knows nothing about. `always` confirms every close,
-# so a stray ⌘W cannot take a surface down without a prompt.
-confirm-close-surface = always
-
 # ─── cursor ───────────────────────────────────────────────────
 # Block + blink — craftzdog's pair, and also Ghostty's own default shape. The
 # color comes from the active theme (cursor-color + cursor-text); under osaka
@@ -411,8 +404,7 @@ clipboard-paste-protection = true
 # Big buffer to re-read long outputs. The unit is BYTES, not lines: a
 # line-count-looking `100000` is ~100 KB, below even the default (10 MB; 50 MB
 # from 1.4, which renames the key `scrollback-limit-bytes` to say so and keeps
-# this spelling as an alias). Only surfaces outside tmux ever fill it — inside
-# tmux the alternate screen is in use and history-limit (tmux.conf) rules.
+# this spelling as an alias).
 scrollback-limit = 100000000
 
 # ─── notifications ────────────────────────────────────────────
@@ -427,7 +419,7 @@ mouse-hide-while-typing = true
 # ⌥` opens a floating terminal on top of any app so you can
 # check something without losing your main window's context.
 # It closes with the same combo but the process stays alive
-# in the background — ideal for keeping persistent tmux sessions
+# in the background — ideal for keeping a persistent shell
 # (claude, lazygit, REPLs) that you reopen instantly.
 quick-terminal-position = top
 # 100% = takes up the whole screen (full-screen popup). If at some
@@ -437,7 +429,7 @@ quick-terminal-size = 100%
 quick-terminal-animation-duration = 0.15
 
 # Stay open when focus moves to another app (macOS default is to hide). The
-# premise of this surface here is a persistent tmux session — claude, lazygit,
+# premise of this surface here is a persistent shell — claude, lazygit,
 # REPLs — so vanishing the moment you click a browser to read something is the
 # opposite of what it is for. Closing is ⌥` again, deliberately.
 quick-terminal-autohide = false
@@ -479,7 +471,7 @@ macos-option-as-alt = left
 # Give ⌥← / ⌥→ back to the running program. Ghostty binds them by default to
 # `esc:b` / `esc:f` (readline word-jump, confirmed with
 # `ghostty +list-keybinds --default`), which it then sends INSTEAD of the raw
-# key — so tmux, nvim and any TUI that wants ⌥+arrow never sees it.
+# key — so nvim and any TUI that wants ⌥+arrow never sees it.
 # `alt+left` / `alt+right` is craftzdog's spelling verbatim; `arrow_left` /
 # `arrow_right` is what Ghostty prints in `+list-keybinds`, and both parse.
 keybind = alt+left=unbind

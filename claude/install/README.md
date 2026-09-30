@@ -29,7 +29,7 @@ And `theme`: it is a layer of the
 versioned stack theme, so it is written from ghostty's `theme =` line on every run whenever a
 `claude/themes/<id>.json` exists for that id. It also symlinks the versioned pieces of `claude/` —
 `statusline.sh`, the user-level `CLAUDE.md`, `hooks/logbook.sh`, `hooks/no-bash-edits.py`, every Claude Code colour theme
-in `themes/` (the stack theme's fifth layer), and the skill plugin we author
+in `themes/` (the stack theme's fourth layer), and the skill plugin we author
 (`skills/logbook`), one `link` per item and never the parent dir.
 
 The two hooks are the entries here that cannot use the `_settings_set_if_absent` helper:

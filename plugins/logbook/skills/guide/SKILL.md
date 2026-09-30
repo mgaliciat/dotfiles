@@ -34,7 +34,7 @@ in the body. `guides/index.md` is hand-written and lists every file in the folde
    each thing the guide will list, name where it came from:
    - keymaps → the config files that define them (`keys = {}` blocks, the
      keymap file), plus the tool's own lister where it has one
-     (`ghostty +list-keybinds`, `tmux list-keys`, `<leader>fk`)
+     (`ghostty +list-keybinds`, `<leader>fk`)
    - flags, keys and subcommands → `<tool> --help`, `<tool> api-json`,
      `ghostty +show-config`, `brew info`. A tool is the only authority on itself
    - what is installed and at which version → `--version`, not a lockfile you
