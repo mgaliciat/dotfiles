@@ -467,6 +467,13 @@ keybind = cmd+b>n=next_tab
 keybind = cmd+b>p=previous_tab
 keybind = cmd+b>comma=prompt_tab_title
 
+# Read-only pane: keys and mouse stop reaching the process, while selecting,
+# scrolling and copying still work. For reading a running Claude without typing
+# into it by mistake. FOOTGUN: it swallows input until toggled off with the same
+# chord. ⌘B M lets the mouse select text even when nvim or a TUI captures it.
+keybind = cmd+b>w=toggle_readonly
+keybind = cmd+b>m=toggle_mouse_reporting
+
 # Resize is a mode, not a chord: ⌘B R, then h/j/k/l as many times as needed.
 # FOOTGUN: while it is active `catch_all` swallows every other key, so nothing
 # reaches the shell. Esc or Enter leaves it.
