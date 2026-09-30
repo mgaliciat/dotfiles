@@ -3,7 +3,6 @@
 #  Philosophy: startup <50ms. No Oh My Zsh. Only the essentials.
 #
 #  Order:
-#    0. auto-tmux                                    (exec → cuts the rest in the parent)
 #    1. history + options + completions + keybinds   (input/output)
 #    2. tool inits                                   (pyenv, zoxide, fzf)
 #    3. aliases
@@ -11,33 +10,6 @@
 #    5. prompt
 #    6. local overrides                              (~/.zshrc.local)
 # ═══════════════════════════════════════════════════════════════
-
-# ─── auto-tmux ────────────────────────────────────────────────
-# Every Ghostty window/tab starts inside tmux. We use `exec` so that
-# tmux REPLACES this zsh — when you leave with `exit` (or close the
-# last window), the process dies and Ghostty closes the window.
-# Without `exec` you'd be back in a bare zsh.
-#
-# Guards:
-#   $TMUX empty        → prevents recursion. The child panes that tmux
-#                        spawns have $TMUX set and follow the normal
-#                        .zshrc flow.
-#   $- contains 'i'    → interactive shells only. Not scripts.
-#   $TERM_PROGRAM     → VS Code's integrated terminal keeps a bare
-#                        shell (its jump-to-error / cwd tracking breaks
-#                        with tmux in the middle).
-#   $NO_AUTO_TMUX     → manual escape hatch: NO_AUTO_TMUX=1 ghostty
-#                        opens a shell without tmux for one-off cases.
-#
-# `tmux new-session` (without -s) creates a new ephemeral session per
-# window — Cmd+T does NOT clone content between tabs. Named sessions
-# (claude-*, claude-yolo-*) live independently in the same server and
-# persist across Ghostty windows/restarts.
-if [[ -z "$TMUX" && $- == *i* && -z "$NO_AUTO_TMUX" \
-      && "$TERM_PROGRAM" != "vscode" ]] \
-   && command -v tmux >/dev/null 2>&1; then
-  exec tmux new-session
-fi
 
 # ─── history ──────────────────────────────────────────────────
 HISTFILE=~/.zsh_history
@@ -408,14 +380,10 @@ RPROMPT='%(1j.%F{white}✳%j%f  .)%F{white}${_prompt_duration_str}%f${_prompt_du
 # Two things on every prompt, both via precmd:
 #
 # 1. Title (OSC 2): without this Ghostty's title stays stuck on the
-#    login cwd (tmux uses set-titles-string "#T" = pane title, and
-#    nobody updates it). %~ = path with ~ abbreviated.
+#    login cwd. %~ = path with ~ abbreviated.
 #
 # 2. cwd (OSC 7): tells Ghostty which dir you're in so that Cmd+T
-#    inherits the directory. INSIDE tmux the plain OSC 7 is captured by
-#    tmux and never reaches Ghostty → it has to be wrapped in tmux's DCS
-#    passthrough (\ePtmux;…\e\\ with every ESC doubled; requires
-#    `allow-passthrough on` in tmux.conf). Outside tmux it's emitted as-is.
+#    inherits the directory.
 #
 # add-zsh-hook is already autoloaded by the prompt section above.
 
@@ -423,11 +391,7 @@ _set_title() { print -Pn "\e]2;%~\a" }
 add-zsh-hook precmd _set_title
 
 _report_cwd() {
-  if [[ -n "$TMUX" ]]; then
-    printf '\ePtmux;\e\e]7;file://%s%s\e\e\\\e\\' "$HOST" "$PWD"
-  else
-    printf '\e]7;file://%s%s\e\\' "$HOST" "$PWD"
-  fi
+  printf '\e]7;file://%s%s\e\\' "$HOST" "$PWD"
 }
 add-zsh-hook precmd _report_cwd
 

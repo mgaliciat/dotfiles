@@ -27,8 +27,8 @@
 # version, and it is only a directory of executables: putting it on PATH costs
 # no fork, unlike `pyenv init`. Here rather than behind the lazy `pyenv()` in
 # .zshrc, which only fires when `pyenv` itself is typed and leaves `python` on
-# the system interpreter until then; and here rather than in .zshrc so scripts,
-# tmux binds and Claude Code's shell get the same interpreter as the prompt.
+# the system interpreter until then; and here rather than in .zshrc so scripts
+# and Claude Code's shell get the same interpreter as the prompt.
 # Ahead of Homebrew, whose python3 arrives as a dependency of other formulae.
 export PYENV_ROOT="$HOME/.pyenv"
 [[ -d "$PYENV_ROOT/bin" ]]   && export PATH="$PYENV_ROOT/bin:$PATH"
@@ -48,7 +48,7 @@ export BAT_THEME="ansi"
 # light canvas. `16` maps every role onto the ANSI slots the theme tunes.
 # `bg+:-1` drops the current-line block entirely (base16 would paint it in
 # ANSI 8, the comment gray) and `fg+` bold marks the line instead — the same
-# no-blocks rule the tmux statusline follows; the red pointer still points.
+# no-blocks rule; the red pointer still points.
 export FZF_DEFAULT_OPTS="--color=16,bg+:-1,fg+:-1:bold"
 
 # man pages through bat — syntax-highlighted, line numbers off. `col -bx`
@@ -85,7 +85,7 @@ export VISUAL="nvim"
 
 # Claude Code — classic main-screen renderer instead of fullscreen. Avoids the
 # banner "flash" when starting a session and keeps the conversation in the
-# native scrollback, where tmux copy mode and Cmd+F can reach it.
+# native scrollback, where Cmd+F can reach it.
 #
 # NOT `CLAUDE_CODE_NO_FLICKER=1`, which reads like the same wish and is its
 # opposite: "no flicker" is the fullscreen renderer's selling point, and =1
