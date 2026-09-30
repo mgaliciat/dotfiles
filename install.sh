@@ -11,7 +11,7 @@ TS="$(date +%Y%m%d_%H%M%S)"
 # install-linux.sh.
 source "$DOTFILES/scripts/lib.sh"
 
-# zsh, git, nvim, tmux, lazygit, ~/.local/bin tools — the list is in lib.sh so
+# zsh, git, nvim, lazygit, ~/.local/bin tools — the list is in lib.sh so
 # both installers link the same set. Only Ghostty is mac-specific, below.
 link_portable
 
@@ -33,9 +33,9 @@ link "$DOTFILES/ghostty/shaders"        "$GHOSTTY_DIR/shaders"
 # Support dir where the config lives — they are different dirs. If you put them
 # in Application Support, Ghostty ignores them and errors with "theme not found".
 # Symlink the whole dir so new themes are exposed automatically.
-# This also exposes the "stack theme" family: new themes in ghostty/themes,
-# nvim/lua/themes and tmux/themes ride along for free with the parent dir
-# symlinks — no need to link them one by one.
+# This also exposes the "stack theme" family: new themes in ghostty/themes and
+# nvim/lua/themes ride along for free with the parent dir symlinks — no need
+# to link them one by one.
 if [[ -d "$DOTFILES/ghostty/themes" ]]; then
   mkdir -p "$HOME/.config/ghostty"
   link "$DOTFILES/ghostty/themes"       "$HOME/.config/ghostty/themes"
@@ -43,10 +43,10 @@ fi
 
 # ─── stack theme ──────────────────────────────────────────────
 # Nothing to do here. The theme selection is a direct value in each versioned
-# config (Ghostty `theme =`, nvim `vim.g.theme`, the palette `source` in
-# tmux.conf) and arrives with the clone/pull; the dir symlinks above expose the
-# palettes with no extra work. Changing the theme on ALL machines = `theme <id>`
-# (scripts/theme rewrites those 3 lines) + commit + pull.
+# config (Ghostty `theme =`, nvim `vim.g.theme`) and arrives with the
+# clone/pull; the dir symlinks above expose the palettes with no extra work.
+# Changing the theme on ALL machines = `theme <id>` (scripts/theme rewrites
+# those 2 lines) + commit + pull.
 
 # Caps Lock → Option: System Settings → Keyboard → Keyboard Shortcuts →
 # Modifier Keys → Caps Lock = Option ⌥. It is per-device and per-machine, not
@@ -95,7 +95,7 @@ if command -v brew >/dev/null 2>&1; then
     gomi                  # `rm` with trash + interactive restore (alias `gm`)
     zoxide
     fzf
-    jq                    # required by tmux-claude-hatch (parses `claude agents --json`)
+    jq                    # required by claude/install/settings.sh
     gh                    # GitHub CLI — host for the gh-stack extension (bootstrap_gh_stack below)
     ghq                   # clone manager — $GHQ_ROOT tree, and the source the Ctrl+F widget lists
     git-delta
@@ -108,7 +108,6 @@ if command -v brew >/dev/null 2>&1; then
     # so the mason route leaves the formatter permanently uninstalled. The
     # brew bottle carries its own interpreter.
     sqlfluff
-    tmux
     lazygit
     rtk                   # token-reducing proxy CLI for Claude Code — see the rtk section below
     # Trigram-indexed grep (microsoft/tgrep). It is NOT an `rg` drop-in — the
@@ -228,7 +227,6 @@ fi
 # AFTER the Homebrew block: settings.sh needs jq.
 install_claude
 
-bootstrap_tmux
 bootstrap_gh_stack
 
 # macOS file associations — open config.ghostty in VS Code (not TextEdit).

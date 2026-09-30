@@ -25,7 +25,7 @@ link_portable
 # ─── stack theme ──────────────────────────────────────────────
 # Nothing to do here. Same reason as in install.sh: palettes AND the active
 # selection travel versioned and arrive through the dir symlinks above
-# (here only nvim + tmux; no ghostty on Linux/WSL2).
+# (here only nvim; no ghostty on Linux/WSL2).
 
 # ~/.gitconfig is NOT symlinked — per-machine, same as on mac.
 
@@ -52,12 +52,11 @@ if command -v apt-get >/dev/null 2>&1; then
     curl
     unzip
     build-essential
-    tmux
     ripgrep
     fd-find                       # the binary is 'fdfind' — apt names it that way because of a clash with another 'fd'
     bat                           # on Ubuntu 20.04 it was 'batcat'; 22.04+ it is 'bat'
     fzf
-    jq                            # required by tmux-claude-hatch (parses `claude agents --json`)
+    jq                            # required by claude/install/settings.sh
     gh                            # GitHub CLI — universe on Ubuntu 23.10+/Debian 13; older releases fail here and bootstrap_gh_stack skips itself
     eza                           # apt 23.10+; on older versions it fails → GH release fallback below
     zsh-syntax-highlighting
@@ -114,7 +113,6 @@ fi
 # between platforms. It goes AFTER the apt block: settings.sh needs jq.
 install_claude
 
-bootstrap_tmux
 bootstrap_gh_stack
 
 # ─── zsh-history-substring-search (not in apt) ────────────────
@@ -330,7 +328,6 @@ echo "✅ Done. Next steps:"
 echo "   1. Per-machine credentials/env vars: create ~/.zshenv.local"
 echo "   2. Per-machine aliases/functions: create ~/.zshrc.local"
 echo "   3. Open a new shell: exec zsh"
-echo "   4. Inside tmux the first time: prefix + I to install plugins"
-echo "   5. If some tool is still missing: check the output above — the ⚠️"
+echo "   4. If some tool is still missing: check the output above — the ⚠️"
 echo "      mark failed installs. They are usually network problems or an"
 echo "      unsupported arch (only x86_64 + arm64 are implemented)."
