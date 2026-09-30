@@ -447,6 +447,48 @@ keybind = cmd+alt+l=goto_split:right
 keybind = cmd+shift+enter=toggle_split_zoom
 keybind = cmd+alt+equal=equalize_splits
 
+# ─── prefix: ⌘B, then a key ───────────────────────────────────
+# What tmux's prefix used to do, as key sequences (Ghostty ≥ 1.3). ⌘B is free
+# in Ghostty and in macOS; a Ctrl letter would not be, readline and fzf own
+# them. Splits open in the pane's cwd (Ghostty's default). Letters only, v and
+# s as in nvim's :vsplit / :split: `\`, `|` and `=` cost an AltGr or a Shift
+# on the Latin American layout.
+keybind = cmd+b>h=goto_split:left
+keybind = cmd+b>j=goto_split:bottom
+keybind = cmd+b>k=goto_split:top
+keybind = cmd+b>l=goto_split:right
+keybind = cmd+b>v=new_split:right
+keybind = cmd+b>s=new_split:down
+keybind = cmd+b>z=toggle_split_zoom
+keybind = cmd+b>e=equalize_splits
+keybind = cmd+b>x=close_surface
+keybind = cmd+b>c=new_tab
+keybind = cmd+b>n=next_tab
+keybind = cmd+b>p=previous_tab
+keybind = cmd+b>comma=prompt_tab_title
+
+# Resize is a mode, not a chord: ⌘B R, then h/j/k/l as many times as needed.
+# FOOTGUN: while it is active `catch_all` swallows every other key, so nothing
+# reaches the shell. Esc or Enter leaves it.
+keybind = cmd+b>r=activate_key_table:resize
+keybind = resize/h=resize_split:left,30
+keybind = resize/j=resize_split:down,30
+keybind = resize/k=resize_split:up,30
+keybind = resize/l=resize_split:right,30
+keybind = resize/e=equalize_splits
+keybind = resize/escape=deactivate_key_table
+keybind = resize/enter=deactivate_key_table
+keybind = resize/catch_all=ignore
+
+# ⌘⇧P palette entries. The Claude ones TYPE the command into the focused pane
+# (Ghostty cannot start a process in a new split), so pick them at a shell
+# prompt: anywhere else the text lands in whatever is running.
+command-palette-entry = title:"Resize splits",description:"Modal resize: h/j/k/l, e equalizes, Esc leaves.",action:activate_key_table:resize
+command-palette-entry = title:"Claude: here",description:"Types claude + Enter in the focused pane.",action:"text:claude\r"
+command-palette-entry = title:"Claude: here, gateway",description:"Types claude --api + Enter in the focused pane.",action:"text:claude --api\r"
+command-palette-entry = title:"Claude: here, skip permissions",description:"Types claude --dangerously-skip-permissions + Enter.",action:"text:claude --dangerously-skip-permissions\r"
+command-palette-entry = title:"Claude: here, gateway, skip permissions",description:"Types claude --api --dangerously-skip-permissions + Enter.",action:"text:claude --api --dangerously-skip-permissions\r"
+
 # Reset font-size — useful when doing demos or screen-sharing specs
 keybind = cmd+zero=reset_font_size
 
