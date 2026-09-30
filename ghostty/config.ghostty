@@ -480,6 +480,14 @@ keybind = resize/escape=deactivate_key_table
 keybind = resize/enter=deactivate_key_table
 keybind = resize/catch_all=ignore
 
+# Scrollback into nvim (tmux's copy mode, with search, yank and motions):
+# ⌘B O types `nvim <temp file with the whole scrollback>` at the prompt, no
+# Enter. It TYPES, so at a shell prompt only; inside a TUI (Claude Code, nvim)
+# use ⌘B Y, which just copies the path, and open it from a shell.
+keybind = cmd+b>y=write_scrollback_file:copy
+keybind = cmd+b>o=text:nvim\x20
+keybind = chain=write_scrollback_file:paste
+
 # ⌘⇧P palette entries. The Claude ones TYPE the command into the focused pane
 # (Ghostty cannot start a process in a new split), so pick them at a shell
 # prompt: anywhere else the text lands in whatever is running.
