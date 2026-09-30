@@ -17,6 +17,8 @@
 --                picker, a one-liner wants an input box.)
 --   lazygit    → the git porcelain (status, stage, commit, push, log), as a
 --                float. Replaced Neogit in sep-2026 — see its block below.
+--   image      → image files (png, jpg, pdf…) open as the picture. Inline
+--                rendering in markdown stays off — see its block below.
 --
 -- Intentionally off:
 --   scroll        → smooth scroll fought the trackpad (see its block below).
@@ -164,6 +166,15 @@ return {
     -- `configure = false`: with it on, snacks appends its own theme derived
     -- from nvim's highlights and overrides the palette the repo maintains.
     lazygit = { enabled = true, configure = false },
+
+    -- ─── image ────────────────────────────────────────
+    -- Opening an image file shows the picture (kitty graphics protocol, which
+    -- Ghostty speaks). `doc.enabled = false` on purpose: with it on, every
+    -- markdown image renders inline and a remote `![](https://…)` is fetched
+    -- with curl the moment the file opens, a README's badges and tracking
+    -- pixels included. Flip it to get inline rendering. Anything but PNG needs
+    -- ImageMagick (`magick`, installed by the installers).
+    image = { enabled = true, doc = { enabled = false } },
 
     -- Explicitly off: documents intent.
     notifier     = { enabled = false },

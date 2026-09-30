@@ -58,6 +58,16 @@ map("n", "<S-h>", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
 -- <leader>bd / <leader>bo live in plugins/snacks.lua (Snacks.bufdelete):
 -- `:bdelete` on a visible buffer takes its window with it.
 
+-- <Tab> cycles tabpages, but only under Ghostty. In a legacy terminal <Tab> is
+-- <C-i>, the jumplist's forward half, and binding it would swallow that key.
+-- Ghostty speaks the kitty keyboard protocol, which nvim switches on by itself
+-- and which sends <C-i> as its own sequence; ssh or WSL2 under Windows Terminal
+-- get no such thing (TERM_PROGRAM is not forwarded), so they keep `gt` / `gT`.
+if vim.env.TERM_PROGRAM == "ghostty" then
+  map("n", "<Tab>",   "<cmd>tabnext<CR>",     { desc = "Next tab" })
+  map("n", "<S-Tab>", "<cmd>tabprevious<CR>", { desc = "Previous tab" })
+end
+
 -- Diagnostic navigation (native LSP, no plugin required)
 map("n", "[d", function() vim.diagnostic.jump({ count = -1 }) end, { desc = "Prev diagnostic" })
 map("n", "]d", function() vim.diagnostic.jump({ count =  1 }) end, { desc = "Next diagnostic" })

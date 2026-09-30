@@ -10,12 +10,12 @@
 -- hand, so the bar only ever shows what you decided to put there:
 -- workspaces, not history.
 --
--- Cycling is the NATIVE `gt` / `gT`, plus `:tabnew` / `:tabclose`.
--- craftzdog binds <Tab> / <S-Tab> to BufferLineCycleNext/Prev; that is
--- deliberately not copied. In a terminal <Tab> and <C-i> are the same
--- byte, and they're only distinguishable through the kitty keyboard
--- protocol; without it nvim can't tell them apart and mapping <Tab>
--- silently kills <C-i>, the forward half of the jumplist.
+-- Cycling is the NATIVE `gt` / `gT`, plus `:tabnew` / `:tabclose`; under
+-- Ghostty <Tab> / <S-Tab> do it too (config/keymaps.lua). craftzdog binds them
+-- to BufferLineCycleNext/Prev, which is not copied: in a terminal <Tab> and
+-- <C-i> are the same byte, distinguishable only through the kitty keyboard
+-- protocol, so mapping <Tab> without it silently kills <C-i>, the forward
+-- half of the jumplist.
 --
 -- The close icons are off because there's no mouse workflow here and
 -- `:tabclose` is the way out; the neo-tree offset keeps the bar from

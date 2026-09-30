@@ -511,7 +511,7 @@ Everything starts **expanded** (`foldlevel = 99`). nvim-ufo used to do this (pee
 |---|---|---|
 | `<leader>z` | snacks.zen | Zen mode: centers the buffer, hides statusline / signs / diagnostics |
 | `<leader>Z` | snacks.zen | Zoom the current window only |
-| `gt` / `gT` / `:tabnew` | bufferline | Tab bar at the top — it lists **tabpages, not buffers**, so it only ever shows what you opened by hand. Cycling is the native `gt`/`gT` on purpose: in a terminal `<Tab>` is the same byte as `<C-i>`, so binding it would kill the forward half of the jumplist |
+| `gt` / `gT` / `<Tab>` / `<S-Tab>` / `:tabnew` | bufferline | Tab bar at the top — it lists **tabpages, not buffers**, so it only ever shows what you opened by hand. `gt`/`gT` work everywhere; `<Tab>`/`<S-Tab>` only under Ghostty, where the kitty keyboard protocol keeps `<C-i>` (jumplist forward) a separate key. Elsewhere `<Tab>` is the same byte as `<C-i>`, so it stays unbound |
 | `<leader>cm` | render-markdown | Toggle in-buffer markdown rendering |
 | `:Noice` / `:Noice last` | noice | Message history / the last message. noice also draws the cmdline — on the **bottom line, shell style** (`:` `/` `?` `!` as the prompt, syntax-highlighted as you type); completion is nvim's own popup menu right above it, `<Tab>` / `<S-Tab>` to walk it |
 | `:lua Snacks.dashboard()` | snacks.dashboard | Splash screen when opening nvim with no args — `f` files, `g` grep, `r` recent, `s` restore session, `n` new, `c` config, `L` Lazy, `q` quit. Then a **Projects** list (git roots of recent files, numbered): a key `cd`s there and restores that directory's session, or opens the file picker if it has none |

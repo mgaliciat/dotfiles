@@ -52,6 +52,7 @@ if command -v apt-get >/dev/null 2>&1; then
     curl
     unzip
     build-essential
+    imagemagick                   # snacks.image converts anything but PNG with `magick`
     ripgrep
     fd-find                       # the binary is 'fdfind' — apt names it that way because of a clash with another 'fd'
     bat                           # on Ubuntu 20.04 it was 'batcat'; 22.04+ it is 'bat'

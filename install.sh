@@ -108,6 +108,7 @@ if command -v brew >/dev/null 2>&1; then
     # so the mason route leaves the formatter permanently uninstalled. The
     # brew bottle carries its own interpreter.
     sqlfluff
+    imagemagick           # snacks.image converts anything but PNG with `magick`
     lazygit
     rtk                   # token-reducing proxy CLI for Claude Code — see the rtk section below
     # Trigram-indexed grep (microsoft/tgrep). It is NOT an `rg` drop-in — the
