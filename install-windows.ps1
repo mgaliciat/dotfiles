@@ -11,7 +11,7 @@
 #     outputStyle, fallbackModel, autoContinueAtUsageLimit,
 #     preferredNotifChannel, the PowerShell-tool and experimental-feature env
 #     vars, and the logbook PostToolUse hook in settings.json (CI checks this list against
-#     settings.sh; terminalTitleFromRename is the one deliberate omission)
+#     settings.sh)
 #     (equivalent to the jq blocks in install.sh/install-linux.sh, native JSON here)
 #   - rtk (no official installer for Windows — we download the release zip) and
 #     its versioned config.toml, COPIED like on mac/Linux
@@ -427,13 +427,6 @@ if ($Settings.PSObject.Properties.Name -contains "outputStyle") {
 #   preferredNotifChannel: `terminal_bell` is the one channel every terminal
 #     has; `auto` detects the terminal from the environment and guesses wrong
 #     often enough that the explicit value is the safer default.
-#
-# terminalTitleFromRename is deliberately NOT mirrored. settings.sh sets it to
-# false because tmux owns the tab title there; on native Windows there is no
-# tmux, Windows Terminal's tab title is otherwise the shell's, and letting
-# `/rename` label the tab is the useful behaviour. That is the one documented
-# divergence, and the CI mirror check (.github/workflows/lint.yml) allowlists
-# it by name -- add a key to that list only with a comment like this one.
 foreach ($Pair in @(
     @{ Name = "fallbackModel";            Value = @("sonnet");     Label = "fallbackModel (sonnet)" },
     @{ Name = "autoContinueAtUsageLimit"; Value = $true;           Label = "autoContinueAtUsageLimit" },

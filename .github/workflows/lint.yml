@@ -5,9 +5,8 @@
 # on the other machines. Runtime validation stays where it always was: running
 # the installer (CLAUDE.md, "there is no test suite").
 #
-# tmux and nvim configs are NOT parsed here on purpose: both need their
-# plugins present to load, and stubbing those out tests the stub, not the
-# config. tmux is validated by the installer's `tmux source-file` reload.
+# The nvim config is NOT parsed here on purpose: it needs its plugins present
+# to load, and stubbing those out tests the stub, not the config.
 name: lint
 
 on:
@@ -28,7 +27,7 @@ jobs:
           shellcheck --version
           shellcheck -x \
             install.sh install-linux.sh \
-            scripts/lib.sh scripts/ide scripts/claude-api-env scripts/theme scripts/tmux-refresh \
+            scripts/lib.sh scripts/claude-api-env scripts/theme \
             claude/install/*.sh plugins/logbook/hooks/logbook.sh claude/statusline.sh
 
       # Every loop here collects failures in $failed and exits on it. A plain
@@ -38,15 +37,15 @@ jobs:
       - name: bash -n
         run: |
           failed=0
-          for f in install.sh install-linux.sh scripts/lib.sh scripts/ide \
-                   scripts/claude-api-env scripts/theme scripts/tmux-refresh claude/install/*.sh \
+          for f in install.sh install-linux.sh scripts/lib.sh \
+                   scripts/claude-api-env scripts/theme claude/install/*.sh \
                    plugins/logbook/hooks/logbook.sh claude/statusline.sh; do
             if bash -n "$f"; then echo "ok    $f"; else echo "FAIL  $f"; failed=1; fi
           done
           exit $failed
 
       # With no argument scripts/theme only reads: it prints the id each layer
-      # selects and exits 1 when ghostty, nvim and tmux disagree.
+      # selects and exits 1 when ghostty and nvim disagree.
       - name: stack theme in sync
         run: scripts/theme
 
@@ -136,7 +135,7 @@ jobs:
       - name: settings.sh ↔ install-windows.ps1 mirror
         shell: bash
         run: |
-          allow='terminalTitleFromRename'   # tmux owns the tab title on mac/Linux; no tmux on Windows
+          allow=''
           missing=0
           # The class carries `_` for the env.CLAUDE_CODE_* keys: without it the
           # pattern simply fails to match those lines and they go unchecked —

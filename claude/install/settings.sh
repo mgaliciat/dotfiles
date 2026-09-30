@@ -364,19 +364,11 @@ _settings_set_if_absent '.fallbackModel' \
 # On hitting a claude.ai usage limit, hold the session open and resume the task
 # by itself when the window resets, instead of stopping at a dialog that has to
 # be answered by hand. The wait is offered either way — this only picks the
-# answer up front. Worth it here because sessions routinely run unattended in
-# background tmux popups, where nobody is watching to click through.
+# answer up front. Worth it here because sessions routinely run unattended,
+# where nobody is watching to click through.
 _settings_set_if_absent '.autoContinueAtUsageLimit' \
   '.autoContinueAtUsageLimit = true' \
   'autoContinueAtUsageLimit'
-
-# ── terminalTitleFromRename ──
-# Stop `/rename` and `--name` from rewriting the terminal tab title. tmux
-# already owns the window name (and the statusline renders it), so letting
-# Claude Code write there means two things fighting over one string.
-_settings_set_if_absent '.terminalTitleFromRename' \
-  '.terminalTitleFromRename = false' \
-  'terminalTitleFromRename (leave the tab title to tmux)'
 
 # ── preferredNotifChannel ──
 # How the OS notification is delivered when a turn finishes or input is needed.
@@ -391,8 +383,8 @@ _settings_set_if_absent '.terminalTitleFromRename' \
 # and on the mac it lands in Ghostty's own `bell-features` handling anyway.
 #
 # `auto` (the default) would be the obvious third option, but it detects the
-# terminal from the environment, and inside a tmux popup that environment says
-# tmux — which is exactly where these sessions run.
+# terminal from the environment, and the explicit value does not depend on
+# that guess.
 _settings_set_if_absent '.preferredNotifChannel' \
   '.preferredNotifChannel = "terminal_bell"' \
   'preferredNotifChannel (terminal_bell)'
