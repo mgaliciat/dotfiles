@@ -36,7 +36,7 @@ $Size   = [long]$session.context_window.context_window_size
 $Effort = $session.effort.level
 
 $ESC   = [char]27
-$Green = "$ESC[32m"; $Yellow = "$ESC[33m"; $Red = "$ESC[31m"; $Reset = "$ESC[0m"
+$Accent = "$ESC[94m"; $Red = "$ESC[31m"; $Reset = "$ESC[0m"
 $Faint = "$ESC[2m"
 $Chip  = [char]0xf2db  # nf-fa-microchip
 $Arrow = [char]0x2387  # ⎇
@@ -46,7 +46,7 @@ $Rail  = [char]0x2581  # ▁ empty cell
 
 # One ladder for every gauge on the line (ctx, quota), same as hue() in the .sh.
 function Get-Hue([int]$v) {
-    if ($v -ge 90) { $Red } elseif ($v -ge 70) { $Yellow } else { $Green }
+    if ($v -ge 90) { $Red } else { $Accent }
 }
 
 $CtxColor = Get-Hue $Pct

@@ -55,7 +55,13 @@ shopt -s extglob   # needed by vis() to match an ANSI escape; see below
 # right after a reset dims the theme's own foreground — the only "grey" that is
 # readable on every palette in the family, since ANSI 8 is not (solarized-osaka
 # mirrors its brights, so 8 is near-invisible there).
-GREEN=$'\033[32m'; YELLOW=$'\033[33m'; RED=$'\033[31m'; RESET=$'\033[0m'
+#
+# ACCENT is ANSI 12, bright blue by name, and NOT a blue under dia-de-muertos:
+# that theme moved the slot to the bright cempasúchil (#ffbb76) so Claude Code's
+# inline code would pick it up, and the meters ride the same lever. Under the
+# other themes it is whatever their 12 is — blue in solarized-osaka, the body
+# grey in solarized-patched.
+ACCENT=$'\033[94m'; RED=$'\033[31m'; RESET=$'\033[0m'
 FAINT=$'\033[2m'
 # Spelled as its UTF-8 bytes, never pasted: U+F2DB is a Private Use codepoint,
 # which editors and tools drop in silence, leaving `$''` — an empty chip with
@@ -66,10 +72,13 @@ CHIP=$'\xef\x8b\x9b' # nf-fa-microchip, U+F2DB
 # One ladder for every gauge on the line (ctx, quota) so a colour means the same
 # thing wherever it appears — there used to be a copy of this `if` per gauge,
 # which is how they drift apart.
+#
+# Two steps: the accent, and red at 90%. Red is kept for the point where a meter
+# asks for action; a green/yellow stage before it would put a status colour on
+# every line of every session.
 hue() {
-  if   [ "$1" -ge 90 ]; then printf '%s' "$RED"
-  elif [ "$1" -ge 70 ]; then printf '%s' "$YELLOW"
-  else printf '%s' "$GREEN"; fi
+  if [ "$1" -ge 90 ]; then printf '%s' "$RED"
+  else printf '%s' "$ACCENT"; fi
 }
 
 CTX_COLOR=$(hue "$PCT")
@@ -166,8 +175,8 @@ bar() {
 }
 
 # ─── session quota ────────────────────────────────────────────
-# The subscription's rolling 5-hour window (Pro/Max), on the same
-# green/yellow/red ladder as ctx.
+# The subscription's rolling 5-hour window (Pro/Max), on the same ladder as
+# ctx. The countdown takes the %'s colour: it goes red with it.
 #
 # Rendered UNLABELLED — `37% ↻2h15m`, not `5h 37% ↻2h15m`. The countdown
 # already says how much of the window is left, which is the only thing the "5h"
@@ -270,7 +279,7 @@ LEFT="${MODEL_SEG} | ${DIR_FMT}${BRANCH}"
 
 # Visible width: the colour escapes are zero-width and have to come out before
 # counting, or the block would jump ~5 columns left the moment a gauge turns
-# yellow. This is the reason the colours above are real escapes — one form to
+# red. This is the reason the colours above are real escapes — one form to
 # strip, and anything it misses is counted as if it were printable.
 #
 # `${#s}` counts CHARACTERS rather than bytes only under a UTF-8 locale. Claude
