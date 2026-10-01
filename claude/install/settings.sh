@@ -80,10 +80,8 @@ link "$DOTFILES/plugins/logbook" "$HOME/.gemini/config/plugins/logbook"
 
 # ── convergent cleanup: the agent-teams skill and agents (sep-2026) ──
 # The `team` skill and the three agent definitions (scope-guard,
-# regression-watch, teammate-base) went with the CLAUDE_CODE_EXPERIMENTAL_* env
-# keys this file no longer writes: without those flags a teammate is never
-# spawned and an `observer:` field is read by nobody, so the files were dead
-# weight the loader still parses on every start.
+# regression-watch, teammate-base) were dropped in sep-2026. The env flags they
+# served are written again further down; these files are not.
 #
 # They were symlinks, and deleting the repo dirs alone leaves a DANGLING one on
 # every machine that ran the old installer — which for a skill is worse than
@@ -416,43 +414,66 @@ _settings_set_if_absent '.env.CLAUDE_CODE_THRIFTY_SONIC' \
   '.env.CLAUDE_CODE_THRIFTY_SONIC = "0"' \
   'env.CLAUDE_CODE_THRIFTY_SONIC (no Bash-first steer)'
 
-# ── convergent cleanup: the agent-teams env block (sep-2026) ──
-# Until sep-2026 this file wrote three keys into `env`:
-# CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS, CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS
-# and CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS (the ceiling the first two needed,
-# since the harness default of 20 concurrent agents is a stampede once every
-# named subagent is a teammate and every observed one drags an observer along).
+# ── env.CLAUDE_CODE_EXPERIMENTAL_* : agent teams + observer agents ──
+# Two experimental features that are OFF unless their env var is set: agent
+# teams (teammate agents you can message, `--agent-teams` is the CLI twin of
+# the var) and observer agents (the fan-out that reviews a subagent's work).
+# Both go through the CLI's boolean env parser, which accepts EXACTLY
+# `1` / `true` / `yes` / `on` (lowercased and trimmed) and reads everything
+# else as false — so "0" and "false" are real off switches, and a plausible
+# value like "enabled" silently disables the feature. The value is a STRING:
+# `env` is documented as string pairs, an integer is the wrong type.
 #
-# Dropping the writer blocks alone would only stop NEW machines from getting
-# them: every guard in this file is additive, so a box that already ran the old
-# installer keeps all three forever. Hence a removal block rather than a
-# deletion, same shape as the stale-hook cleanups below.
+# Both are ALSO gated server-side (`tengu_amber_flint`, `tengu_observer_agents_enabled`),
+# so the var is necessary and not sufficient — on an account without the gate,
+# or on a CLI too old to know the name, this degrades to an ignored key. That's
+# why there is no version guard, same as outputStyle. In 2.1.287 both gates
+# default to on.
 #
-# Removing the flags turns the features off, it does not merely stop declaring
-# them: both are off unless their var is set. MAX_CONCURRENT_SUBAGENTS goes back
-# to the harness default of 20.
+# Agent teams are documented (code.claude.com/docs/en/agent-teams, which shows
+# this exact `env` block, still "experimental and disabled by default" as of
+# 2.1.287). Observer agents are NOT: the name is read by the binary and appears
+# nowhere in the docs or the changelog. Undocumented means unsupported, so
+# expect it to change or vanish without a deprecation note, and re-check it
+# against the binary rather than against the docs.
 #
-# `.env` is dropped only when it is EXACTLY {} — Windows keeps
-# CLAUDE_CODE_USE_POWERSHELL_TOOL in there, and a per-machine key someone added
-# by hand is none of our business.
+# Written into settings.json's `env` and not exported from `.zshenv`, for the
+# reason that file's own rules give: `.zshenv` is sourced by every zsh, so an
+# export there hands the flag to every process the shell spawns. `env` scopes it
+# to Claude Code and needs no new terminal.
 #
-# TEMPORARY: delete once every machine has run this version.
-if jq -e '(.env | objects) // {}
-          | has("CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS")
-            or has("CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS")
-            or has("CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS")' "$SETTINGS" >/dev/null 2>&1; then
-  SETTINGS_TMP="$(mktemp)"
-  if jq 'del(.env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS,
-             .env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS,
-             .env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS)
-         | if .env == {} then del(.env) else . end' "$SETTINGS" > "$SETTINGS_TMP"; then
-    mv "$SETTINGS_TMP" "$SETTINGS"
-    echo "✓ agent-teams env keys removed from settings.json"
-  else
-    rm -f "$SETTINGS_TMP"
-    echo "⚠️  agent-teams env cleanup failed — settings.json left untouched"
-  fi
-fi
+# Keyed per FIELD, like attribution.* above: `env` may already exist on a machine
+# (Windows sets CLAUDE_CODE_USE_POWERSHELL_TOOL in it), and a guard on `.env`
+# would be satisfied by that and never write these.
+_settings_set_if_absent '.env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS' \
+  '.env //= {} | .env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS = "1"' \
+  'env.CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS'
+
+_settings_set_if_absent '.env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS' \
+  '.env //= {} | .env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS = "1"' \
+  'env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS'
+
+# ── env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS: the ceiling on the two above ──
+# The harness default is 20 concurrent agents (documented on the sub-agents
+# page). With agent teams on, every named subagent becomes a teammate and every
+# observed agent drags an observer along, so 20 is a stampede waiting for a
+# prompt that says "in parallel".
+#
+# 6 is the ceiling, not the target: a team of 4 teammates with their observers
+# already reaches it. The two spare slots are what keeps ordinary work — a
+# three-way Explore fan-out in a session that has nothing to do with teams —
+# from hitting the wall, since this cap is global and not scoped to teams.
+#
+# It is genuinely ENFORCED, unlike a budget written in a prompt: past the limit
+# the Agent call is refused with "Concurrent subagent limit reached. Do not
+# retry." The binary names the variable in that message.
+#
+# Its plausible sibling `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` appeared in the
+# 2.1.267 binary's env-name registry with NO reader — setting it was a silent
+# no-op. Don't add it.
+_settings_set_if_absent '.env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS' \
+  '.env //= {} | .env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS = "6"' \
+  'env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS (6)'
 
 # ── convergent cleanup: the pre-rename bitacora hook entry (sep-2026) ──
 # Must run BEFORE the block that registers the new one, or the guard below sees a

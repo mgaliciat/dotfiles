@@ -65,8 +65,9 @@ fallback for symlinks, and scoop refuses to run under it.
      `agents/*.md` links if they are still there;
    - writes the `settings.json` keys `settings.sh` writes on mac/Linux
      (statusline, permissions from `permissions.json`, attribution, output
-     style, fallback model, the PowerShell-tool env var, the logbook hook), each
-     only if absent, and removes the retired agent-team env keys;
+     style, fallback model, the PowerShell-tool env var, the agent-team and
+     observer flags with their concurrency cap, the logbook hook), each only if
+     absent;
    - `rtk` from its release zip plus its versioned `config.toml`, copied;
    - `codebase-memory-mcp` — the **`-ui-`** release asset, sha256-checked, not
      the official installer (which ships the headless build). A stamp file
