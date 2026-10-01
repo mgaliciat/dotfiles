@@ -79,7 +79,7 @@ One theme id spans Ghostty and nvim (and Windows Terminal, derived from the Ghos
 - `ghostty/config.ghostty` → `theme = <id>`
 - `nvim/lua/config/options.lua` → `vim.g.theme = "<id>"`
 
-Currently `solarized-patched`. The family and each theme's provenance are documented in `CLAUDE.md` ("The stack theme"); the palettes live in `ghostty/themes/` and `nvim/lua/themes/`.
+Currently `dia-de-muertos`. The family and each theme's provenance are documented in `CLAUDE.md` ("The stack theme"); the palettes live in `ghostty/themes/` and `nvim/lua/themes/`.
 
 ## Claude Code through an API gateway
 

@@ -1,0 +1,25 @@
+{
+  "name": "dia-de-muertos",
+  "base": "dark-ansi",
+  "overrides": {
+    "claude": "#fc9417",
+    "claudeShimmer": "#ffbb76",
+    "text": "#ede3d2",
+    "inactive": "#9385a5",
+    "subtle": "#736278",
+    "success": "#50bc59",
+    "error": "#f75c61",
+    "warning": "#e6b731",
+    "userMessageBackground": "#3d2644",
+    "userMessageBackgroundHover": "#47334d",
+    "bashMessageBackgroundColor": "#29192e",
+    "memoryBackgroundColor": "#29192e",
+    "selectionBg": "#47334d",
+    "diffAdded": "#18491c",
+    "diffRemoved": "#682224",
+    "diffAddedDimmed": "#152a16",
+    "diffRemovedDimmed": "#391919",
+    "diffAddedWord": "#256c2c",
+    "diffRemovedWord": "#9a3135"
+  }
+}

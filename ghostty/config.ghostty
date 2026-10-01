@@ -40,7 +40,7 @@
 #
 # A different palette from `solarized-dark`, also in this family: that one is
 # Schoonover's canonical scheme, this cut re-tunes every value.
-theme = solarized-patched
+theme = dia-de-muertos
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -84,6 +84,9 @@ theme = solarized-patched
 #   · typesafe-dark — its dark companion: the same sage hue at 11% lightness
 #     (#182221, derived — the page has no dark mode); every other value tuned
 #     to that canvas in OKLCH, the page's tokens giving only the hues.
+#   · dia-de-muertos — the night of the vigil: morado canvas (#1d1022),
+#     cempasúchil cursor (#fc9417), rosa mexicano, talavera, turquoise, bone
+#     text. Hues from the altar, everything else set in OKLCH.
 # ─── craftzdog's overrides ────────────────────────────────────
 # These WIN over the theme's own values regardless of order, so whatever is
 # uncommented here is what the terminal actually looks like.
@@ -120,7 +123,10 @@ theme = solarized-patched
 # between 2026-09-18 and then, under the typesafe pair: a theme that owns its
 # canvas (#abbab9 light, #182221 dark) and where white text would be invisible or
 # too loud. Comment the background out again the day such a theme is active.
-background = #031219
+#
+# Off again on 2026-10-01 under `dia-de-muertos`, whose morado canvas (#1d1022)
+# is the theme; the osaka blue under it would read as a different palette.
+# background = #031219
 # foreground = #ffffff
 
 # Display P3 wide-gamut — orange and cream saturate more on M-chip / Retina

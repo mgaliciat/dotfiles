@@ -1,0 +1,65 @@
+# dia-de-muertos — the night of the vigil: a purple-black canvas lit by
+# cempasúchil, rosa mexicano and candle flame. Mirror of
+# nvim/lua/themes/dia-de-muertos.lua.
+#
+# PROVENANCE: DERIVED, no published hex. The source is the altar itself, as
+# HUES only:
+#   · canvas   — morado, the colour of mourning in the altar's papel picado,
+#                taken down to a night (OKLCH L 0.20, C 0.04, h 318)
+#   · accent   — cempasúchil, the marigold that lays the path (h 62)
+#   · red      — grana cochinilla, the carmine of the cochineal dye (h 22)
+#   · green    — the green sheet of papel picado (h 145)
+#   · yellow   — veladora flame (h 88)
+#   · blue     — talavera cobalt (h 258)
+#   · magenta  — rosa mexicano (h 356)
+#   · cyan     — the turquoise of the sugar-skull icing (h 192)
+#   · text     — hueso, a warm bone white (h 80)
+#   · comment  — copal smoke, a grey lavender (h 305)
+# Rosa mexicano's usual reference, Pantone #e4007c, is a print swatch and NOT a
+# valid source for a text colour: on this canvas it lands at 4.0:1.
+#
+# Everything is set per role in OKLCH, the typesafe-dark recipe:
+#   · normals (1-6)  L 0.68–0.72, C 0.12–0.23 (yellow 0.80, a yellow at 0.70
+#     is mustard). 5.7–7.8:1 over the canvas, yellow 9.7:1.
+#   · brights (8-15) L 0.78–0.88, chroma lowered. 8.7–12.7:1.
+#   · every neutral (grays, the bg ladder) carries the canvas hue; the text and
+#     ANSI 7/15 carry the bone hue instead, so they read warm against the purple.
+#   · bg ladder in L: 0.165 code bg / 0.20 canvas / 0.245 cursorline /
+#     0.31 selection / 0.355 ansi0.
+# Measured in sRGB; `window-colorspace = display-p3` renders them more saturated.
+#
+# Dark convention: the "brights" (8-15) are LIGHTER than the normals.
+
+background = #1d1022
+foreground = #ede3d2
+
+# cursor — cempasúchil, the brightest chroma on screen; the canvas on it 8.2:1
+cursor-color = #fc9417
+cursor-text  = #1d1022
+
+# selection — the canvas three steps up the ladder; text on it 10.6:1
+selection-background = #3d2644
+selection-foreground = #ede3d2
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# normals (0-7) — 0 is the ladder's top step, a background tone, not text.
+# ANSI has no orange slot: cempasúchil lives on the cursor here and on numbers
+# and constants in nvim.
+palette = 0=#47334d
+palette = 1=#f75c61
+palette = 2=#50bc59
+palette = 3=#e6b731
+palette = 4=#5d9bf7
+palette = 5=#fd449d
+palette = 6=#1abcb8
+palette = 7=#d2c9bb
+
+# brights (8-15): LIGHTER (dark theme). 8 is copal smoke, the comment (5.3:1).
+palette = 8=#9385a5
+palette = 9=#ff9592
+palette = 10=#89d78c
+palette = 11=#f6d476
+palette = 12=#95c0ff
+palette = 13=#ff94bd
+palette = 14=#6dd9d5
+palette = 15=#faf5ea

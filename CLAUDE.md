@@ -77,9 +77,10 @@ the two selection lines disagree.
 
 Adding a theme = its two definitions (`ghostty/themes/<id>`,
 `nvim/lua/themes/<id>.lua`). Provenance of each palette is in
-`ghostty/themes/README.md`. The Claude Code theme is optional and exists only for a canvas
-the brand colours cannot read on: `base: light-ansi`/`dark-ansi` makes the TUI take its
-colours from the terminal's ANSI slots, and `overrides.claude` re-tunes the spinner.
+`ghostty/themes/README.md`. The Claude Code theme is optional and exists for a canvas
+the brand colours cannot read on, or for a theme whose accent should carry into the TUI
+(`dia-de-muertos`): `base: light-ansi`/`dark-ansi` makes the TUI take its colours from the
+terminal's ANSI slots, and `overrides.claude` re-tunes the spinner.
 
 ### The per-machine split
 

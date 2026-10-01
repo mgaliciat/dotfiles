@@ -7,7 +7,7 @@
 --
 -- The ids: `theme --list`. Beyond them, the solarized-osaka-{day,moon,storm}
 -- variants and "obsidian" are valid here, but nvim-only.
-vim.g.theme = "solarized-patched"
+vim.g.theme = "dia-de-muertos"
 
 -- ─── remote-plugin providers ──────────────────────────────────
 -- Nothing here is a remote plugin (every plugin is Lua), so the Python,

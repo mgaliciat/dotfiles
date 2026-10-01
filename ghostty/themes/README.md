@@ -157,6 +157,23 @@ beside yellow at 7.4:1. Now normals land at 5.7–7.5:1 and brights at 8.3–10.
 measured in sRGB. The Claude Code JSON and `lazygit/config.yml` mirror the same
 values.
 
+**`dia-de-muertos`** · The night of the vigil, made for October 2026. **Derived,
+no published hex**: the altar gives the hues and nothing else — morado canvas
+(the mourning colour of papel picado), cempasúchil accent, grana cochinilla red,
+papel picado green, veladora yellow, talavera blue, rosa mexicano magenta,
+sugar-skull turquoise, bone text, copal-smoke comments. Lightness and chroma are
+set per role in OKLCH with the `typesafe-dark` recipe: normals 5.7–7.8:1 over the
+`#1d1022` canvas (yellow 9.7:1), brights 8.7–12.7:1, measured in sRGB.
+Cempasúchil has no ANSI slot; it is the cursor in Ghostty and `orange` (numbers,
+constants) in nvim. Pantone's rosa mexicano `#e4007c` is a print swatch, not a
+valid source: on this canvas it reads at 4.0:1.
+
+Its Claude Code theme (`claude/themes/dia-de-muertos.json`) is the one that
+exists for the accent rather than for legibility: Claude orange already reads
+at 5.9:1 here. It turns the spinner cempasúchil (`#fc9417`, shimmer `#ffbb76`)
+and puts the message backgrounds and diffs on the theme's own ladder and hues,
+`dark-ansi` taking everything else from the Ghostty slots.
+
 **`carbon`** (minimal true-black, high contrast, Claude-orange accent),
 **`anthropic-warm`**, **`prism-night`**, **`paper`**, **`gray`** (neutral grey
 canvas, near-black ink — the low-saturation light option beside `paper`) carry
