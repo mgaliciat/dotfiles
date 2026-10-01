@@ -72,14 +72,7 @@ hue() {
   else printf '%s' "$GREEN"; fi
 }
 
-NUM_COLOR=$(hue "$PCT")
-
-# 121002 -> 121k, 1000000 -> 1M. Integer only; k granularity is all that fits.
-fmt() {
-  if   [ "$1" -ge 1000000 ]; then printf '%dM' $(($1 / 1000000))
-  elif [ "$1" -ge 1000 ];    then printf '%dk' $(($1 / 1000))
-  else printf '%d' "$1"; fi
-}
+CTX_COLOR=$(hue "$PCT")
 
 # ─── context bar ──────────────────────────────────────────────
 # A half-height slab `▄` for the used part, riding on a thin rail `▁` for the
@@ -97,10 +90,12 @@ fmt() {
 # colour, so the fill is the only coloured thing in the bar.
 #
 # One step per cell (5% on 20 cells). The quadrant glyph that would give half
-# steps leaves a hole in the rail under its empty half; the number beside the
-# bar carries the precision anyway. The number stays (`121k/1M`): the bar
-# answers "how full", the number "how much", and on a 1M window the bar alone
-# reads as nearly empty for a whole session.
+# steps leaves a hole in the rail under its empty half.
+#
+# No token count beside it: the `121k/1M` that sat there was dropped, and the
+# bar is the whole context meter. The cost is known — on a 1M window it reads
+# as nearly empty for most of a session. Add the count back only on purpose;
+# it is NOT missing by oversight.
 #
 # THE ANIMATION: when the context grows, the cells it grew into rise and
 # settle — a full block `█`, then three quarters `▆`, then the slab `▄` like the
@@ -164,24 +159,11 @@ bar() {
   printf -v out '%*s' $(( width - filled )) ''
   local rail=${out// /▁}
   out=""
-  [[ -n $lit ]]   && out+="${NUM_COLOR}${lit}${RESET}"
-  [[ -n $flash ]] && out+="${NUM_COLOR}${flash}${RESET}"
+  [[ -n $lit ]]   && out+="${CTX_COLOR}${lit}${RESET}"
+  [[ -n $flash ]] && out+="${CTX_COLOR}${flash}${RESET}"
   [[ -n $rail ]]  && out+="${FAINT}${rail}${RESET}"
   printf '%s' "$out"
 }
-
-# Left-padded to the widest value it can take (`199k/200k`, `999k/1M`), so the
-# bar keeps its length and position as the count gains a digit — a gauge that
-# shrinks when the number grows misstates its own proportion.
-CTX_NUM="$(fmt "$USED")"
-if [ "$SIZE" -gt 0 ]; then
-  SIZE_FMT="$(fmt "$SIZE")"
-  WIDEST="$(fmt $(( SIZE - 1 )))"
-  (( ${#SIZE_FMT} > ${#WIDEST} )) && WIDEST=$SIZE_FMT
-  CTX_NUM="${CTX_NUM}/${SIZE_FMT}"
-  printf -v CTX_NUM '%*s' $(( ${#WIDEST} + 1 + ${#SIZE_FMT} )) "$CTX_NUM"
-fi
-CTX_NUM="${NUM_COLOR}${CTX_NUM}${RESET}"
 
 # ─── session quota ────────────────────────────────────────────
 # The subscription's rolling 5-hour window (Pro/Max), on the same
@@ -189,7 +171,8 @@ CTX_NUM="${NUM_COLOR}${CTX_NUM}${RESET}"
 #
 # Rendered UNLABELLED — `37% ↻2h15m`, not `5h 37% ↻2h15m`. The countdown
 # already says how much of the window is left, which is the only thing the "5h"
-# was there to imply, and ↻ is what tells it apart from the ctx number.
+# was there to imply, and the ` | ` that parts it from the bar keeps the % from
+# reading as the bar's own.
 #
 # The weekly window (`.rate_limits.seven_day`, same two fields) was here and was
 # dropped: it isn't a budget this user acts on. Add it back only if that
@@ -249,9 +232,9 @@ esac
 # The context hue rides on the CHIP GLYPH ALONE, not on the model name. The
 # whole segment used to be tinted, which read as "the model is red" — a colour
 # saying something about a value that isn't in that segment. As a single leading
-# dot it's ambient: peripheral pressure at the start of the line, with the exact
-# figure over on the right where the meters live.
-MODEL_SEG="${NUM_COLOR}${CHIP}${RESET} ${MODEL}"
+# dot it's ambient: peripheral pressure at the start of the line, with the bar
+# over on the right where the meters live.
+MODEL_SEG="${CTX_COLOR}${CHIP}${RESET} ${MODEL}"
 [ -n "$EFFORT" ] && MODEL_SEG="${MODEL_SEG} ${EFFORT}"
 
 # ─── layout: meters flushed right ─────────────────────────────
@@ -297,31 +280,36 @@ LEFT="${MODEL_SEG} | ${DIR_FMT}${BRANCH}"
 vis() { local s=${1//$'\033'\[*([0-9;])m/}; printf '%d' "${#s}"; }
 
 # The bar takes whatever the rest of the line leaves, up to BAR_MAX cells, and
-# disappears below BAR_MIN — a stub of four cells says nothing the number does
-# not. Meters ordered by scope, narrowest first: this turn's window (ctx), the
-# rolling 5h window (%↻).
+# disappears below BAR_MIN — a stub of four cells moves in 25% steps, which the
+# chip's hue already covers. Meters ordered by scope, narrowest first: this
+# turn's window (the bar), the rolling 5h window (%↻).
+#
+# RIGHT can come out empty — no room for the bar and no quota (API key, or
+# before the first response) — and then the line is LEFT alone, never a
+# dangling ` | `.
 BAR_MAX=20 BAR_MIN=8
-TAIL="$CTX_NUM"
-[ -n "$LIMIT" ] && TAIL="${TAIL} | ${LIMIT}"
+TAIL="${LIMIT:+ | $LIMIT}"
 
 if [ -n "$COLUMNS" ]; then
-  # 3 = the narrowest gap that still reads as separation, 1 = bar↔number space.
-  ROOM=$((COLUMNS - EDGE_RESERVE - $(vis "$LEFT") - $(vis "$TAIL") - 3 - 1))
+  # 3 = the narrowest gap that still reads as separation.
+  ROOM=$((COLUMNS - EDGE_RESERVE - $(vis "$LEFT") - $(vis "$TAIL") - 3))
   (( ROOM > BAR_MAX )) && ROOM=$BAR_MAX
-  RIGHT=$TAIL
-  (( ROOM >= BAR_MIN )) && RIGHT="$(bar "$ROOM") ${TAIL}"
+  RIGHT=$LIMIT
+  (( ROOM >= BAR_MIN )) && RIGHT="$(bar "$ROOM")${TAIL}"
   GAP=$((COLUMNS - EDGE_RESERVE - $(vis "$LEFT") - $(vis "$RIGHT")))
   # Under 3 columns of gap it stops reading as separation and starts reading as
   # a typo, so a narrow terminal keeps the inline join. This doubles as the
   # no-wrap guard: a negative gap can never reach printf.
-  if [ "$GAP" -ge 3 ]; then
+  if [ -z "$RIGHT" ]; then
+    OUT=$LEFT
+  elif [ "$GAP" -ge 3 ]; then
     printf -v PAD '%*s' "$GAP" ''
     OUT="${LEFT}${PAD}${RIGHT}"
   else
     OUT="${LEFT} | ${RIGHT}"
   fi
 else
-  OUT="${LEFT} | $(bar 12) ${TAIL}"
+  OUT="${LEFT} | $(bar 12)${TAIL}"
 fi
 
 # Plain `echo`, no -e: every escape in $OUT is already a real one, so -e would

@@ -49,14 +49,7 @@ function Get-Hue([int]$v) {
     if ($v -ge 90) { $Red } elseif ($v -ge 70) { $Yellow } else { $Green }
 }
 
-# 121002 -> 121k, 1000000 -> 1M. Integer division only, k granularity.
-function Format-Tokens([long]$n) {
-    if     ($n -ge 1000000) { "$([math]::Floor($n / 1000000))M" }
-    elseif ($n -ge 1000)    { "$([math]::Floor($n / 1000))k" }
-    else                    { "$n" }
-}
-
-$NumColor = Get-Hue $Pct
+$CtxColor = Get-Hue $Pct
 
 # ─── session quota (5h rolling window) ────────────────────────
 $Limit = ""
@@ -92,17 +85,6 @@ $DirFmt = if ($Dir -and $Dir.StartsWith($HOME, [StringComparison]::OrdinalIgnore
     "~" + $Dir.Substring($HOME.Length)
 } else { $Dir }
 
-# Padded to the widest value it can take, as in the .sh, so the bar keeps its
-# length as the count gains a digit.
-$CtxNum = Format-Tokens $Used
-if ($Size -gt 0) {
-    $SizeFmt = Format-Tokens $Size
-    $Widest  = Format-Tokens ($Size - 1)
-    if ($SizeFmt.Length -gt $Widest.Length) { $Widest = $SizeFmt }
-    $CtxNum = "$CtxNum/$SizeFmt".PadLeft($Widest.Length + 1 + $SizeFmt.Length)
-}
-$CtxNum = "$NumColor$CtxNum$Reset"
-
 # Filled cells: rounded, and never zero once the window holds anything.
 function Get-Bar([int]$width) {
     $filled = 0
@@ -112,20 +94,19 @@ function Get-Bar([int]$width) {
         if ($filled -gt $width) { $filled = $width }
     }
     $out = ""
-    if ($filled -gt 0)      { $out += "$NumColor$([string]$Slab * $filled)$Reset" }
+    if ($filled -gt 0)      { $out += "$CtxColor$([string]$Slab * $filled)$Reset" }
     if ($width -gt $filled) { $out += "$Faint$([string]$Rail * ($width - $filled))$Reset" }
     $out
 }
 
-$ModelSeg = "$NumColor$Chip$Reset $Model"
+$ModelSeg = "$CtxColor$Chip$Reset $Model"
 if ($Effort) { $ModelSeg = "$ModelSeg $Effort" }
 
 # ─── layout: meters flushed right ─────────────────────────────
 # See the .sh for why EDGE_RESERVE is empirical and biased toward undershooting.
 $EdgeReserve = 8
 $Left  = "$ModelSeg | $DirFmt$Branch"
-$Tail  = $CtxNum
-if ($Limit) { $Tail = "$Tail | $Limit" }
+$Tail  = if ($Limit) { " | $Limit" } else { "" }
 
 # Visible width: strip the zero-width colour escapes before counting.
 function Get-VisibleWidth([string]$s) { ($s -replace "$ESC\[[0-9;]*m", "").Length }
@@ -139,12 +120,12 @@ $BarMax = 20; $BarMin = 8
 $Columns = 0
 if ($env:COLUMNS) { $Columns = [int]$env:COLUMNS }
 if ($Columns -gt 0) {
-    $Room = [math]::Min($BarMax, $Columns - $EdgeReserve - (Get-VisibleWidth $Left) - (Get-VisibleWidth $Tail) - 3 - 1)
-    $Right = if ($Room -ge $BarMin) { "$(Get-Bar $Room) $Tail" } else { $Tail }
+    $Room = [math]::Min($BarMax, $Columns - $EdgeReserve - (Get-VisibleWidth $Left) - (Get-VisibleWidth $Tail) - 3)
+    $Right = if ($Room -ge $BarMin) { "$(Get-Bar $Room)$Tail" } else { $Limit }
     $Gap = $Columns - $EdgeReserve - (Get-VisibleWidth $Left) - (Get-VisibleWidth $Right)
-    $Out = if ($Gap -ge 3) { $Left + (" " * $Gap) + $Right } else { "$Left | $Right" }
+    $Out = if (-not $Right) { $Left } elseif ($Gap -ge 3) { $Left + (" " * $Gap) + $Right } else { "$Left | $Right" }
 } else {
-    $Out = "$Left | $(Get-Bar 12) $Tail"
+    $Out = "$Left | $(Get-Bar 12)$Tail"
 }
 
 Write-Output $Out
