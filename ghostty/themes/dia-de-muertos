@@ -55,11 +55,21 @@ palette = 6=#1abcb8
 palette = 7=#d2c9bb
 
 # brights (8-15): LIGHTER (dark theme). 8 is copal smoke, the comment (5.3:1).
+#
+# 12 is NOT a blue here: it is the bright cempasúchil (#ffbb76, 11.0:1), and the
+# one slot where this file and nvim/lua/themes/dia-de-muertos.lua disagree on
+# purpose (nvim keeps #95c0ff as bright_blue). The reason is Claude Code: on a
+# `dark-ansi` theme it paints inline code, paths and hashes in its `permission`
+# colour, which is ANSI 12, and the markdown renderer resolves that colour from
+# the BASE theme by name — claude/themes/dia-de-muertos.json can override
+# `permission` and the replies still come out blue (verified in 2.1.287). This
+# slot is the only lever that reaches them. Anything else in the terminal that
+# asks for bright blue gets the marigold too.
 palette = 8=#9385a5
 palette = 9=#ff9592
 palette = 10=#89d78c
 palette = 11=#f6d476
-palette = 12=#95c0ff
+palette = 12=#ffbb76
 palette = 13=#ff94bd
 palette = 14=#6dd9d5
 palette = 15=#faf5ea

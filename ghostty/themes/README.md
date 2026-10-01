@@ -47,9 +47,17 @@ against the others: normals at L 0.68–0.72 (yellow 0.80, since a yellow at 0.7
 is mustard), brights at 0.78–0.88 with less chroma, every neutral carrying the
 canvas hue, and a background ladder in even L steps. Normals land at 5.7–7.8:1
 over the `#1d1022` canvas (yellow 9.7:1), brights at 8.7–12.7:1, measured in
-sRGB. Cempasúchil has no ANSI slot; it is the cursor in Ghostty and `orange`
-(numbers, constants) in nvim. Pantone's rosa mexicano `#e4007c` is a print
-swatch, not a valid source: on this canvas it reads at 4.0:1.
+sRGB. Cempasúchil is the cursor in Ghostty and `orange` (numbers, constants) in
+nvim. Pantone's rosa mexicano `#e4007c` is a print swatch, not a valid source:
+on this canvas it reads at 4.0:1.
+
+**Ghostty's ANSI 12 is the bright cempasúchil `#ffbb76`, not a blue**, and it
+is the one slot where the two files disagree on purpose: nvim keeps `#95c0ff`
+as `bright_blue`, where it colours types. On a `dark-ansi` theme Claude Code
+paints inline code, paths and hashes in ANSI 12, and in 2.1.287 its markdown
+renderer resolves that colour from the base theme by name, so an override in
+the Claude Code JSON never reaches the replies. The terminal slot is the only
+lever that does.
 
 Its Claude Code theme (`claude/themes/dia-de-muertos.json`) is the one that
 exists for the accent rather than for legibility: Claude orange already reads
