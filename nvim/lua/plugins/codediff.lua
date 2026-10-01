@@ -43,7 +43,7 @@ return {
       auto_refresh = true,
     },
     -- Colours are NOT set here: line tints come from the theme's
-    -- DiffAdd/DiffDelete (lua/themes/xray.lua), and the character-level
+    -- DiffAdd/DiffDelete (lua/themes/<id>.lua), and the character-level
     -- pair is derived from them (1.4× brighter on a dark canvas).
   },
 }

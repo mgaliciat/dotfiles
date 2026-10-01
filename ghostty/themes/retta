@@ -6,10 +6,7 @@
 # colors are the muted green (#527D5D) and the blue-gray (#A4B0C0) Retta used
 # for interfaces/methods. No neon, no invented hex outside the source XML
 # except the derived brights/cyan (Retta has no cyan; derived on-palette).
-#
-# Ghostty-ONLY for now — outside the cross-stack matrix (like `obsidian` in
-# nvim). To promote it to the family, mirror this palette into
-# nvim/lua/themes/retta.lua first.
+# Mirror of nvim/lua/themes/retta.lua.
 
 # background and text — Retta's editor bg/fg verbatim. Cream over true black
 # is the high-contrast core of the theme (~15:1).

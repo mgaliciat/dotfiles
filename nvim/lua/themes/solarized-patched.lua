@@ -8,8 +8,8 @@
 -- live in ghostty/themes/solarized-patched — that file is the source of truth
 -- for these values, this one only maps them onto tokyonight's slots.
 --
--- NOT `solarized-dark`: the patched cut re-tunes every hex (canvas #001e27, not
--- base03 #002b36). Don't merge the two.
+-- NOT canonical Solarized: the patched cut re-tunes every hex (canvas #001e27,
+-- not base03 #002b36), and canonical is not a valid source for it.
 
 local palette = {
   bg          = "#001e27",       -- patched canvas, darker than base03

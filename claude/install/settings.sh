@@ -107,13 +107,16 @@ unset _stale
 # ── Claude Code colour theme → ~/.claude/themes/ ──
 # The stack theme's fourth layer. Claude Code paints its spinner and accents in
 # the brand colours by truecolor, and over a canvas they were never tuned for
-# they wash out (Claude orange sits at 1.55:1 over typesafe's sage). A custom
-# theme is the only lever: `base: light-ansi` makes the TUI take its colours
-# from the terminal's own 16 ANSI slots — the ones each ghostty/themes/<id>
-# already tunes — and `overrides.claude` keeps the spinner on-brand, darkened
-# until it clears 3:1. The file is JSON, so there is no `.conf`/`.lua` twin.
+# they wash out (Claude orange sat at 1.55:1 over the sage of `typesafe`, a light
+# theme since deleted). A custom theme is the only lever: `base: light-ansi` /
+# `dark-ansi` makes the TUI take its colours from the terminal's own 16 ANSI
+# slots — the ones each ghostty/themes/<id> already tunes — and
+# `overrides.claude` re-tunes the spinner, on a light canvas darkened until it
+# clears 3:1. The file is JSON, so there is no `.conf`/`.lua` twin.
 #
-# One theme per canvas that needs one, named after the stack id. Per-ITEM links
+# Legibility is not the only reason one exists: `solarized-patched` re-tunes the
+# diffs, `dia-de-muertos` carries its accent into the spinner. One theme per stack
+# id that wants one, named after the id. Per-ITEM links
 # for the same reason as the agents: ~/.claude/themes/ is a real per-machine dir
 # (`/theme` → "New custom theme…" writes there too). Every JSON in the repo dir
 # is linked, so adding a theme is one file. Claude Code hot-reloads the dir;
@@ -224,13 +227,13 @@ fi
 # versioned selection by design — `theme =` in config.ghostty is the source of
 # truth and a `git pull` is meant to repaint every machine — and Claude Code is
 # a layer of it, so a value `/theme` picked on one host is exactly the drift
-# the other four layers refuse to carry. The id is READ from ghostty's line, not
+# the other layers refuse to carry. The id is READ from ghostty's line, not
 # repeated here, so a theme swap stays a change to the selection lines alone.
 #
 # `custom:<slug>` is what `/theme` itself stores for a ~/.claude/themes/<slug>.json
 # (slug = filename). Only acts when the repo carries a JSON for the active id:
-# a stack theme without one — every dark theme today, where Claude Code's own
-# brand colours read fine — leaves whatever the machine had.
+# a stack theme without one — where Claude Code's own brand colours read fine and
+# nothing else asked for a re-tune — leaves whatever the machine had.
 _stack_theme="$(sed -nE 's/^theme = (.+)$/\1/p' "$DOTFILES/ghostty/config.ghostty" | head -n 1)"
 if [[ -n "$_stack_theme" && -f "$DOTFILES/claude/themes/$_stack_theme.json" ]]; then
   if [[ "$(jq -r '.theme // ""' "$SETTINGS")" == "custom:$_stack_theme" ]]; then

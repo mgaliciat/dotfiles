@@ -13,11 +13,10 @@
 # changes; do NOT re-derive it from canonical Solarized, which is a different
 # palette (see below).
 #
-# NOT the same thing as `solarized-dark`, the canonical scheme also in this
-# family. The patched cut re-tunes every value: canvas #001e27 against base03
-# #002b36, red #d11c24 against #dc322f, blue #2176c7 against #268bd2, white
-# #eae3cb against #eee8d5. Same design, different numbers — they are two themes,
-# not two spellings of one.
+# NOT the same thing as canonical Solarized, and canonical is not a valid
+# source for it. The patched cut re-tunes every value: canvas #001e27 against
+# base03 #002b36, red #d11c24 against #dc322f, blue #2176c7 against #268bd2,
+# white #eae3cb against #eee8d5. Same design, different numbers.
 #
 # NOTE craftzdog's own config spells it `theme = "Solarized Dark - Patched"`, with
 # a hyphen, and that string does not resolve in current Ghostty. His terminal has

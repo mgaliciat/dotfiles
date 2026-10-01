@@ -18,7 +18,7 @@
 # Rosa mexicano's usual reference, Pantone #e4007c, is a print swatch and NOT a
 # valid source for a text colour: on this canvas it lands at 4.0:1.
 #
-# Everything is set per role in OKLCH, the typesafe-dark recipe:
+# Everything is set per role in OKLCH:
 #   · normals (1-6)  L 0.68–0.72, C 0.12–0.23 (yellow 0.80, a yellow at 0.70
 #     is mustard). 5.7–7.8:1 over the canvas, yellow 9.7:1.
 #   · brights (8-15) L 0.78–0.88, chroma lowered. 8.7–12.7:1.

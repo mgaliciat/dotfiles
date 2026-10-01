@@ -229,10 +229,13 @@ foreach ($StaleAgentPath in @(
 # claude/install/settings.sh). Linked only: its ACTIVATION (`theme` in
 # settings.json) is per-machine, and on Windows the canvas is whatever
 # $WtTheme generated, so `/theme` inside Claude Code is where it gets picked.
+# Every JSON in the repo dir is linked, the same rule as settings.sh, so adding
+# or deleting a theme never needs an edit here.
 $ThemesDir = Join-Path $ClaudeDir "themes"
 New-Item -ItemType Directory -Path $ThemesDir -Force | Out-Null
-Set-DotfileSymlink (Join-Path $Dotfiles "claude\themes\typesafe.json") (Join-Path $ThemesDir "typesafe.json")
-Set-DotfileSymlink (Join-Path $Dotfiles "claude\themes\typesafe-dark.json") (Join-Path $ThemesDir "typesafe-dark.json")
+foreach ($ThemeJson in (Get-ChildItem (Join-Path $Dotfiles "claude\themes") -Filter *.json -File)) {
+    Set-DotfileSymlink $ThemeJson.FullName (Join-Path $ThemesDir $ThemeJson.Name)
+}
 
 # The logbook's event half: a skill cannot fire on a git event, so the "log after
 # a commit lands" trigger is a PostToolUse hook (registered in the settings block

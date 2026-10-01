@@ -11,14 +11,13 @@
 --                  Ghostty's translucency shows through (see below)
 --
 -- `transparent` is per-theme and not a global switch on purpose: it only makes
--- sense while Ghostty runs `background-opacity < 1`, and a light theme (paper,
--- light-2026, solarized-light) over that glass is unreadable. The theme that
--- wants it declares it; everything else keeps its opaque canvas.
+-- sense while Ghostty runs `background-opacity < 1`, and a light theme over that
+-- glass is unreadable. The theme that wants it declares it; everything else
+-- keeps its opaque canvas.
 --
 -- The available ids: `theme --list` (scripts/theme) prints every id all
 -- two layers can render; provenance of each palette is in
--- ghostty/themes/README.md. `obsidian` is the one module here with no Ghostty
--- mirror: it is the fallback below, not a stack theme.
+-- ghostty/themes/README.md.
 --
 -- The solarized-osaka variants do NOT live in this selector — they use their own
 -- plugin spec (lua/plugins/solarized-osaka.lua) because they ship with a full
@@ -30,7 +29,7 @@
 --      lua/config/options.lua along with the Ghostty line
 --   2. Restart nvim (or `:source $MYVIMRC | colorscheme tokyonight-<style>`).
 
-local theme_name = vim.g.theme or "obsidian"
+local theme_name = vim.g.theme or ""
 
 -- Bypass: if the active theme is solarized-osaka, tokyonight doesn't load
 -- (the solarized-osaka spec takes over the colorscheme).
@@ -38,26 +37,29 @@ if theme_name:match("^solarized%-osaka") then
   return { "folke/tokyonight.nvim", enabled = false }
 end
 
--- A missing module falls back to obsidian; a module that exists but errors
--- says so instead. One pcall(require) for both used to report a typo inside
--- a palette as "does not exist", which sends you looking for the wrong fault.
+-- The fallback is stock tokyonight-night with no overrides, so it depends on no
+-- palette module that could itself be deleted or broken.
+-- A missing module falls back to it; a module that exists but errors says so
+-- instead. One pcall(require) for both used to report a typo inside a palette
+-- as "does not exist", which sends you looking for the wrong fault.
+local fallback = { style = "night" }
 local theme
 if #vim.api.nvim_get_runtime_file("lua/themes/" .. theme_name .. ".lua", false) == 0 then
   vim.notify(
-    "Theme '" .. theme_name .. "' does not exist in lua/themes/. Falling back to obsidian.",
+    "Theme '" .. theme_name .. "' does not exist in lua/themes/. Falling back to tokyonight-night.",
     vim.log.levels.WARN
   )
-  theme = require("themes.obsidian")
+  theme = fallback
 else
   local ok, loaded = pcall(require, "themes." .. theme_name)
   if ok then
     theme = loaded
   else
     vim.notify(
-      "Theme '" .. theme_name .. "' failed to load, falling back to obsidian:\n" .. loaded,
+      "Theme '" .. theme_name .. "' failed to load, falling back to tokyonight-night:\n" .. loaded,
       vim.log.levels.ERROR
     )
-    theme = require("themes.obsidian")
+    theme = fallback
   end
 end
 

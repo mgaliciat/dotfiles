@@ -37,53 +37,19 @@
 # and Windows Terminal cannot reach it — naming it there would leave the
 # other layers with nothing to mirror and break the one-id rule. The port is
 # hex-verbatim from the shipped file; provenance is in the theme file itself.
-#
-# A different palette from `solarized-dark`, also in this family: that one is
-# Schoonover's canonical scheme, this cut re-tunes every value.
+# Canonical Solarized is not a valid source for it: this cut re-tunes every value.
 theme = dia-de-muertos
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
 # id in Ghostty/nvim; to flip the look you edit the 2 configs):
-#   · light-2026 — clone of the "2026 Light" theme that Microsoft shipped as
-#     VS Code's new default (extensions/theme-defaults/themes/2026-light.json,
-#     the 2026 "Focus" refresh). Pure white + blue accent #0069CC.
-#   · dark-2026 — dark companion of light-2026, clone of "Dark 2026"
-#     (extensions/theme-defaults/themes/2026-dark.json, VS Code's default
-#     since 1.113). Near-black #121314 + teal-blue accent #3994BC.
-#   · carbon — minimal true-black (#000) + high contrast, a single
-#     Claude orange accent (#d97757).
 #   · solarized-osaka — deep-ocean craftzdog style (near-black blue). In
 #     Ghostty it's the `solarized-osaka` theme; the palette comes from the nvim plugin.
-#   · xcode-oled — Xcode "Default (Dark)" syntax (real hex from Apple's
-#     plist) over true black (#000). Made for OLED: the background's
-#     pixels are switched off. It replaced oled-neon (Dracula) in the family.
-#   · naysayer — Jonathan Blow's editor colours: deep teal (#052329), warm
-#     sand text, and comments as the brightest thing on screen. Source is his
-#     editor's own colour-slot table, not the community ports.
-#   · anthropic-dark — Claude.ai dark (brown-black + Claude orange).
-#   · anthropic-warm — warm charcoal + the Claude palette (terracotta, olive,
-#     amber, orange). Made for display-p3 + transparency, long sessions
-#     without fatigue.
-#   · prism-night — deep night blue (#0a0e1a) with spectrum accents
-#     (orange → yellow → green → cyan → blue → violet).
-#     Sampled from the macOS "prism" wallpaper.
-#   · paper — light cream + sepia ink.
-#   · solarized-light — Ethan Schoonover's canonical Solarized Light.
-#   · solarized-dark — its dark companion, the canonical one (base03 canvas,
-#     published accents) — the original, not the osaka fork above.
 #   · solarized-patched — the "Solarized Dark Patched" cut, ported hex-verbatim
 #     from the Ghostty built-in of that name because craftzdog's config selects
 #     it. Darker canvas (#001e27) and every accent re-tuned against canonical.
-#   · xray — the palette of the `xray` dock icon: monochrome PCB
-#     canvas (#101010), silver ghost text (#cdcecf), one cool "film blue"
-#     accent, ANSI kept but desaturated. Grays sampled from the icon itself.
-#   · typesafe — the sage canvas of typesafe.ai (#abbab9, from the page's own
-#     CSS) + its #09aea1 teal; every other value tuned to that canvas in OKLCH
-#     on the page's hues. Light theme.
-#   · typesafe-dark — its dark companion: the same sage hue at 11% lightness
-#     (#182221, derived — the page has no dark mode); every other value tuned
-#     to that canvas in OKLCH, the page's tokens giving only the hues.
+#   · retta — port of the Eclipse "Retta" theme: true black + cream text,
+#     pumpkin keywords (#e79e3c).
 #   · dia-de-muertos — the night of the vigil: morado canvas (#1d1022),
 #     cempasúchil cursor (#fc9417), rosa mexicano, talavera, turquoise, bone
 #     text. Hues from the altar, everything else set in OKLCH.
@@ -146,8 +112,8 @@ window-colorspace = display-p3
 #         in light themes, brand colors stay faithful.
 #   3.0 = WCAG AA large-text. Rescues the worst grays but preserves
 #         brand colors like Claude orange (#d97757, ratio 3.28:1 over
-#         cream — passes untouched). Sweet spot for light themes (light-2026,
-#         paper, solarized-light).
+#         cream — passes untouched). Sweet spot for a light theme on a
+#         cream or white canvas.
 #   4.5 = WCAG AA body text. Rescues every gray but DISTORTS brand
 #         colors: Claude orange ends up nearly black. Not recommended.
 # Still 1.1 (2026-09-11) under solarized-osaka, which is also what craftzdog runs:
@@ -282,12 +248,12 @@ macos-titlebar-style = transparent
 # still his.
 #
 # The other half of this lives in nvim: `transparent = true` on the ACTIVE theme's
-# spec (lua/themes/solarized-patched.lua and typesafe-dark.lua carry it). Without
-# it nvim paints an opaque canvas over the glass and the seam shows at every split
-# edge, so the two move together — and the setting does not follow a theme around,
-# so a theme swap means checking the new spec carries it. `typesafe` (light) does
-# NOT: a light canvas over the glass is unreadable (see colorscheme.lua), so
-# switching to it means turning the pair below off again.
+# spec (solarized-patched.lua and dia-de-muertos.lua carry it; retta.lua does
+# not). Without it nvim paints an opaque canvas over the glass and the seam shows
+# at every split edge, so the two move together — and the setting does not follow
+# a theme around, so a theme swap means checking the new spec carries it. A light
+# theme cannot: a light canvas over the glass is unreadable (see colorscheme.lua),
+# so selecting one means turning the pair below off again.
 #
 # NATIVE GLASS instead of his blur. His line is `background-blur-radius = 20` —
 # the pre-1.1 name of the key, still accepted as an alias, and 20 is simply what

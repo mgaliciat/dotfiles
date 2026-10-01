@@ -6,7 +6,7 @@
 -- Ghostty — they share the id) and commit. Restart nvim to see it.
 --
 -- The ids: `theme --list`. Beyond them, the solarized-osaka-{day,moon,storm}
--- variants and "obsidian" are valid here, but nvim-only.
+-- variants are valid here, but nvim-only.
 vim.g.theme = "dia-de-muertos"
 
 -- ─── remote-plugin providers ──────────────────────────────────

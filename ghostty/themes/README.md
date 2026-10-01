@@ -11,20 +11,11 @@ that comes up every time one is touched.
 
 ## Ports — hex taken verbatim from a published source
 
-**`dark-2026`** · Clone of VS Code's default dark theme since 1.113. Hex from
-`extensions/theme-defaults/themes/2026-dark.json` in microsoft/vscode.
-**`light-2026`** is its light companion.
-
 **`retta`** · Port of the Eclipse "Retta" theme by Eric (eclipsecolorthemes.org
 id=1004, site now dead); hex verbatim from `themes/retta.xml` in the
 eclipse-color-theme GitHub mirror. True black `#000` + cream `#f8e1aa`, pumpkin
 keywords `#e79e3c`. Cyan and the brights do not exist in the source and are
 derived on-palette.
-
-**`solarized-dark`** / **`solarized-light`** · Ethan Schoonover's canonical
-Solarized. base03 `#002b36` canvas, published accents, the canonical ANSI 16
-shared between the two. The *original*, not the osaka fork: no re-tuned hex, no
-`background =` override in Ghostty.
 
 **`solarized-patched`** · The "Solarized Dark Patched" cut. Hex copied verbatim
 from the theme **Ghostty itself ships**, at
@@ -32,8 +23,7 @@ from the theme **Ghostty itself ships**, at
 file is the source of truth, and it is where to re-extract from. Nothing here is
 derived, and **canonical Solarized is not a valid source for it**: the patched cut
 re-tunes every value (canvas `#001e27` against base03 `#002b36`, red `#d11c24`
-against `#dc322f`, blue `#2176c7` against `#268bd2`). Two themes, not two
-spellings of one — don't merge them.
+against `#dc322f`, blue `#2176c7` against `#268bd2`).
 
 It exists because **craftzdog's Ghostty selects this theme by name**, and a
 built-in cannot be mirrored: it lives inside the app bundle, where nvim and
@@ -44,140 +34,28 @@ His own line spells it `theme = "Solarized Dark - Patched"`, with a hyphen, and
 that string does not resolve in current Ghostty — his terminal has been falling
 back to the default palette since feb-2025. The port is the theme he meant.
 
-**`anthropic-brand`** · The seven official brand colours placed literally.
-Source of truth is `skills/brand-guidelines/SKILL.md` in github.com/anthropics/skills
-— Anthropic's own, and the only normative publication of them: Dark `#141413`,
-Light `#faf9f5`, Mid Gray `#b0aea5`, Light Gray `#e8e6dc`, Orange `#d97757`,
-Blue `#6a9bcc`, Green `#788c5d`. Seven values for sixteen ANSI slots is the
-whole design problem: each brand colour lands verbatim in a real slot, and the
-four hues the brand *has no value for* — red, yellow, magenta, cyan — are
-derived on its own H/S/L grid, never borrowed from another palette.
+## Derived — no published hex exists
 
-**`anthropic-dark`** claims the same source but its blue `#61aaf2` / green
-`#9aca86` came from a VS Code port, i.e. a third party's reading. Both anchors
-the two themes share, `#141413` and `#d97757`, were still current as of
-aug-2026, so **neither supersedes the other**.
+**`dia-de-muertos`** · The night of the vigil, made for October 2026. The altar
+gives the hues and nothing else — morado canvas (the mourning colour of papel
+picado), cempasúchil accent, grana cochinilla red, papel picado green, veladora
+yellow, talavera blue, rosa mexicano magenta, sugar-skull turquoise, bone text,
+copal-smoke comments.
 
-## Sampled or derived — no published hex exists
-
-**`xray`** · The palette of Ghostty's own `xray` dock icon. `config.ghostty`
-selected that icon with `macos-icon = xray` when the theme was made, so the Dock
-icon and the terminal were one object; the icon is `official` since 2026-09-15,
-so pair this theme with `macos-icon = xray` again to get that back. Grays
-**sampled from the icon**, not guessed: board
-`#101010` canvas, traces `#202020`/`#303030`, chip legs `#4c4c4c`, ghost
-`#cdcecf` fg, highlight `#f0f0f0`. The icon's only chroma is a faint cool cast
-on its light grays; pushed to usable it becomes the single accent, `#a3b5c6`
-"film blue". ANSI is kept but desaturated to ~30% — a truly grayscale terminal
-loses diffs and diagnostics.
-
-To re-sample: the PNGs live in `Ghostty.app/Contents/Resources/Assets.car` as
-`XrayImage`, extractable with `Bundle(path:).image(forResource:)` from a swift
-script. Not to be confused with `MicrochipImage`, the green board.
-
-**`naysayer`** · Jonathan Blow's editor colours — deep teal `#052329`, warm sand
-fg, comments the brightest thing on screen. He never shipped a theme, so the
-source is his editor's own colour-slot table at
-<https://vegard.wiki/w/Jon_Blow_emacs_colorscheme>. **The nvim and VS Code ports
-each re-interpret it and are not a valid source.** Blue does not exist in his
-palette and is derived on its own `0x40/0x80/0xb0/0xc0/0xf0` grid.
-
-That table is 18 slots of canvas and literals — `Background`, `Default`,
-`Comment`, `Str_Constant`, `Int_Constant`, `Preproc`, `Cursor`, `Highlight`,
-`Bar`, `Margin`, `Ghost_Character`, `Paste`, `Pop1`, … — and says **nothing about
-keywords, types, functions or directives**. Left to itself a tokyonight base
-invents a hierarchy he doesn't have, which is what makes every port of this theme
-look wrong. Those roles come from a **secondary source**: `jblowtorch`, a builtin
-theme of [Focus](https://github.com/focus-editor/focus), the editor written in
-Jai — `config/themes/jblowtorch.focus-theme`, introduced by Focus's own author
-Ivan Ivanov (`77114c51`, dec-2023), **not by Blow**. So it is a third party's
-reading like the ports, and it earns its vote only by converging independently on
-the anchors: bg `#072626`, fg `#d3b58d`, comment `#3ddf23`, cursor `#90ee90`,
-selection `#0000ff`.
-
-The rule that keeps the two straight: **jblowtorch fills gaps, it never overrides
-a slot the table defines.** Strings stay `Str_Constant #40b0a0` and numbers stay
-`Int_Constant #80f0e0` even though jblowtorch reads them as `#0fdfaf` / `#d699b5`.
-What it does supply is `code_keyword #ffffff`, `code_type #98fb98`,
-`code_directive #e67d74`, `code_macro #e0ad82`, `code_identifier #bfc9db`,
-`code_builtin_variable #d699b5` — plus the two ANSI slots where an observed hex
-beats a constructed one, red `#e64d4d` (its `code_deletion`) and magenta
-`#d699b5` (its `code_number`).
-
-The other half of the port problem is **flatness**: functions, calls, operators
-and punctuation are all plain `Default` in his editor, so nothing competes with
-the comments. `naysayer.lua` collapses those groups back onto `fg` explicitly.
-
-**`neon-noir`** · True black `#000` noir canvas + a cool neon spectrum — magenta
-keywords `#ff4d9d`, cyan types, electric-blue functions, mint strings, amber the
-only warm slot. **Derived, NOT a port**: it takes its name and intent from the
-"Neon Noir" preset Xcode 27 ships, but Apple publishes no hex for those presets
-(WWDC26 rebuilt the theme system as a base palette plus two intensity sliders)
-and no Xcode was installed to extract from. Nothing here is Apple's literal
-value, and a VS Code port or a screenshot guess is not a valid source either.
-
-It replaced `xcode-oled`, which *was* a literal port of Apple's
-`Default (Dark).xccolortheme`. If Xcode 27 ever lands on a machine here,
-re-extract from its bundled `.xccolortheme` under
-`Xcode.app/Contents/SharedFrameworks/DVTUserInterfaceKit.framework/…/FontAndColorThemes/`
-and this becomes a real port.
-
-**`typesafe`** · The sage canvas of typesafe.ai. Source is the page's own CSS,
-read from the served HTML of
-<https://typesafe.ai/blog/introducing-system-one-models-and-jev> (2026-09-18):
-`html body { background: rgb(171, 186, 185) }` → `#abbab9`, plus the Framer
-colour tokens `#1e1e1e` ink, `#09aea1` teal, `#03aa5c` green, `#d45bb6` magenta,
-`#f386a1` pink, `#858585` gray, `#000`. Canvas and cursor teal are verbatim. (The
-canvas was scaled to 93% and then 89% for an hour on 2026-09-18 and put back: the
-literal page colour is the point of the theme.) **Everything else is tuned to that
-canvas in OKLCH** (second pass, 2026-09-18, the same recipe as `typesafe-dark`):
-the site ships no 16-colour set, and its accents sit at 1.2–1.8:1 over the canvas,
-readable as a button and not as text, so the page's tokens contribute only their
-hues. Normals sit at L 0.43 (yellow 0.47), brights at 0.34, chroma clipped to the
-sRGB gamut; the text is a sage-tinted near-black (L 0.17) rather than the pure
-`#000` of the first cut, and every gray carries the canvas hue; the background
-ladder steps down in even L (0.777 / 0.755 / 0.745 / 0.705 / 0.665). A mid-light
-canvas caps what a saturated colour can reach: normals land at 3.4–4.4:1, brights
-at 5.0–6.3:1, measured in sRGB. Yellow and blue have no page value and sit on the
-same grid. A screenshot or a colour picker is not a valid source: the served CSS
-is, and it is where to re-extract from.
-
-**`typesafe-dark`** · The dark companion, from the same page tokens. The page has
-no dark mode, so the canvas is **derived**: `#abbab9` is hsl(176, 10%, 70%) and the
-canvas keeps the hue at 11% lightness, `#182221`, with saturation raised to 17%
-because at that depth 10% reads as plain gray. **Everything else is tuned to that
-canvas in OKLCH** (second pass, 2026-09-18): the page's tokens contribute their
-hues only. Normals sit at L 0.70 (yellow 0.76, since a yellow at 0.70 is mustard),
-brights at 0.80, chroma 0.10–0.15 clipped to the sRGB gamut; every neutral, text
-included, carries the canvas hue at a small chroma instead of being pure gray,
-which reads pink against a teal-tinted canvas; and the background ladder climbs
-in even L steps (0.20 / 0.242 / 0.285 / 0.33 / 0.375). The first cut used the
-page's hex verbatim because they cleared 4.5:1, and it was uneven, red at 4.5:1
-beside yellow at 7.4:1. Now normals land at 5.7–7.5:1 and brights at 8.3–10.7:1,
-measured in sRGB. The Claude Code JSON and `lazygit/config.yml` mirror the same
-values.
-
-**`dia-de-muertos`** · The night of the vigil, made for October 2026. **Derived,
-no published hex**: the altar gives the hues and nothing else — morado canvas
-(the mourning colour of papel picado), cempasúchil accent, grana cochinilla red,
-papel picado green, veladora yellow, talavera blue, rosa mexicano magenta,
-sugar-skull turquoise, bone text, copal-smoke comments. Lightness and chroma are
-set per role in OKLCH with the `typesafe-dark` recipe: normals 5.7–7.8:1 over the
-`#1d1022` canvas (yellow 9.7:1), brights 8.7–12.7:1, measured in sRGB.
-Cempasúchil has no ANSI slot; it is the cursor in Ghostty and `orange` (numbers,
-constants) in nvim. Pantone's rosa mexicano `#e4007c` is a print swatch, not a
-valid source: on this canvas it reads at 4.0:1.
+Lightness and chroma are set per role in OKLCH, so no slot pops or sinks
+against the others: normals at L 0.68–0.72 (yellow 0.80, since a yellow at 0.70
+is mustard), brights at 0.78–0.88 with less chroma, every neutral carrying the
+canvas hue, and a background ladder in even L steps. Normals land at 5.7–7.8:1
+over the `#1d1022` canvas (yellow 9.7:1), brights at 8.7–12.7:1, measured in
+sRGB. Cempasúchil has no ANSI slot; it is the cursor in Ghostty and `orange`
+(numbers, constants) in nvim. Pantone's rosa mexicano `#e4007c` is a print
+swatch, not a valid source: on this canvas it reads at 4.0:1.
 
 Its Claude Code theme (`claude/themes/dia-de-muertos.json`) is the one that
 exists for the accent rather than for legibility: Claude orange already reads
 at 5.9:1 here. It turns the spinner cempasúchil (`#fc9417`, shimmer `#ffbb76`)
 and puts the message backgrounds and diffs on the theme's own ladder and hues,
 `dark-ansi` taking everything else from the Ghostty slots.
-
-**`carbon`** (minimal true-black, high contrast, Claude-orange accent),
-**`anthropic-warm`**, **`prism-night`**, **`paper`**, **`gray`** (neutral grey
-canvas, near-black ink — the low-saturation light option beside `paper`) carry
-no external source.
 
 ## `solarized-osaka` — the one with a plugin behind it
 
@@ -193,15 +71,7 @@ re-extract and re-sync the Ghostty theme.
   mapping: brights == normals, no orange/violet in ANSI, white = fg. That is
   deliberately *not* the classic Solarized convention; it is what makes the
   shell and a `:terminal` inside nvim look identical.
-- **It was the only theme in the family that carried transparency** — and as of
-  2026-09-09 nothing in the repo does. The glass is off stack-wide: Ghostty runs
-  `background-opacity = 1.0` / `background-blur = 0`, the `background = #031219`
-  canvas override is commented out, and no nvim spec sets `transparent = true`.
-  What survives is the mechanism, not the setting: `colorscheme.lua` still reads
-  an optional per-theme `transparent`, and craftzdog's own values are recorded
-  beside each line for whoever turns it back on.
-
-  **Turning it on is all-or-nothing across two layers.** Ghostty's opacity and
+- **Transparency is all-or-nothing across two layers.** Ghostty's opacity and
   blur, plus `transparent = true` on the active theme's spec — one without the
   other means nvim paints an opaque canvas over the glass and the seam shows at
   every split edge. The values live **in the shared files**, not in a palette,
@@ -209,5 +79,4 @@ re-extract and re-sync the Ghostty theme.
   the `#031219` canvas and `minimum-contrast` at 1.1.
 
 Sub-flavours `solarized-osaka-day`, `-moon` and `-storm` are nvim-only and not
-members of the family. `obsidian` is likewise a valid nvim theme that sits
-outside it.
+members of the family.
