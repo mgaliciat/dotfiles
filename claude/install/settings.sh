@@ -459,10 +459,11 @@ _settings_set_if_absent '.env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS' \
 # observed agent drags an observer along, so 20 is a stampede waiting for a
 # prompt that says "in parallel".
 #
-# 6 is the ceiling, not the target: a team of 4 teammates with their observers
-# already reaches it. The two spare slots are what keeps ordinary work — a
-# three-way Explore fan-out in a session that has nothing to do with teams —
-# from hitting the wall, since this cap is global and not scoped to teams.
+# 3 is a deliberate choice over the 6 this held until 2026-10-01: few agents
+# alive at once, each one watched. The cap is global, not scoped to teams, so it
+# also bounds an ordinary Explore fan-out — and an observer takes a slot like
+# any other agent, so 3 fits one observed teammate plus one more agent. Raise it
+# here, not in a prompt, when parallel work starts hitting the wall.
 #
 # It is genuinely ENFORCED, unlike a budget written in a prompt: past the limit
 # the Agent call is refused with "Concurrent subagent limit reached. Do not
@@ -471,9 +472,25 @@ _settings_set_if_absent '.env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS' \
 # Its plausible sibling `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` appeared in the
 # 2.1.267 binary's env-name registry with NO reader — setting it was a silent
 # no-op. Don't add it.
+#
+# Guarded like every key here, so a machine that already carries another value
+# keeps it: changing the number below reaches new machines only.
 _settings_set_if_absent '.env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS' \
-  '.env //= {} | .env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS = "6"' \
-  'env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS (6)'
+  '.env //= {} | .env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS = "3"' \
+  'env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS (3)'
+
+# ── env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH: how deep agents may nest ──
+# How many levels of subagent-inside-subagent are allowed; past it the Agent
+# call is refused with "Subagent nesting limit reached". Documented, default 3.
+#
+# Pinned AT the default on purpose. Unset does not mean 3: the 2.1.287 binary
+# reads the env var first and otherwise takes a server-side value
+# (`tengu_hazel_trellis`) whose fallback is 3 — the same shape as THRIFTY_SONIC
+# above, a number the server can move per session. Setting it keeps the depth a
+# versioned decision rather than an experiment's.
+_settings_set_if_absent '.env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH' \
+  '.env //= {} | .env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH = "3"' \
+  'env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH (3)'
 
 # ── convergent cleanup: the pre-rename bitacora hook entry (sep-2026) ──
 # Must run BEFORE the block that registers the new one, or the guard below sees a

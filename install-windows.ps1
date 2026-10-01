@@ -506,12 +506,15 @@ if ($Settings.env -is [PSCustomObject]) {
         @{ Name = "CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS"; Value = "1" },
         # The ceiling on the two above: the harness default is 20 concurrent
         # agents, and with teams on every named subagent is a teammate and every
-        # observed agent carries an observer. 6 is enforced by the harness (the
-        # Agent call is refused past it), global rather than team-scoped, and
-        # sized so a 4-teammate team plus observers fits with room for an
-        # ordinary Explore fan-out. Its sibling MAX_SUBAGENTS_PER_SESSION had no
-        # reader in the binary -- don't add it.
-        @{ Name = "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS";     Value = "6" }
+        # observed agent carries an observer. 3 is enforced by the harness (the
+        # Agent call is refused past it) and global rather than team-scoped:
+        # few agents alive at once, each one watched. Its sibling
+        # MAX_SUBAGENTS_PER_SESSION had no reader in the binary -- don't add it.
+        @{ Name = "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS";     Value = "3" },
+        # Nesting depth, pinned AT its documented default of 3: unset hands the
+        # number to a server-side value (tengu_hazel_trellis), set keeps it
+        # versioned. Rationale in settings.sh.
+        @{ Name = "CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH";     Value = "3" }
     )) {
         if ($Settings.env.PSObject.Properties.Name -contains $EnvVar.Name) {
             Write-Host "OK  env.$($EnvVar.Name) already set -- leaving it alone"
