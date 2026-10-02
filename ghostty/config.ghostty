@@ -269,10 +269,13 @@ macos-titlebar-style = transparent
 # desktop read through too much — over the LIGHT sage canvas. It came back on
 # 2026-09-20 under `typesafe-dark` and held under `solarized-patched`, the dark
 # canvas it was tuned on in the first place. Regular took the slot on 2026-10-01
-# under `dia-de-muertos`: the frosted material keeps the morado canvas reading as
-# morado, where clear lets the wallpaper's colours through and tints it.
+# under `dia-de-muertos` — the frosted material keeps the morado canvas reading as
+# morado, where clear lets the wallpaper's colours through and tints it — and lost
+# it the same day: the tint is the accepted price of a window that reads as glass.
 #
-# 0.95, up from his 0.9. The glass carries its own opacity on top of this one, and
+# 0.9, his value, down from the 0.95 this held through the regular-glass days: the
+# point of going back to clear was more transparency, not the same amount through
+# a thinner material. The glass carries its own opacity on top of this one, and
 # `background-opacity-cells` below pushes both down onto cells that set their own
 # background — with the clear material that compounding is what can leave lazygit
 # panels and diff hunks looking thin, and the cells key below is the dial for it.
@@ -284,8 +287,8 @@ macos-titlebar-style = transparent
 # `background-blur = 0`: under `typesafe` the desktop bleeding through the light
 # sage canvas muddied it, and a light theme cannot take `transparent = true` in
 # nvim anyway. With opacity at 1.0 `background-opacity-cells` goes inert.
-background-opacity = 0.95
-background-blur = macos-glass-regular
+background-opacity = 0.9
+background-blur = macos-glass-clear
 
 # `background-opacity` applies to the WINDOW background alone, so any cell
 # carrying an explicit background colour stays fully opaque by default — Ghostty's
