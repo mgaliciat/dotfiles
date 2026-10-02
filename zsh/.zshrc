@@ -202,10 +202,13 @@ if (( ${+ZSH_HIGHLIGHT_STYLES} )); then
 fi
 
 # ─── prompt ───────────────────────────────────────────────────
-# Starship was removed (aug-2026): the terminal's width belongs to the
-# command, and git state is one `git status` away. What's left is the
-# system default (macOS /etc/zshrc uses `%n@%m %1~ %#`) minus the parts
-# that carry no information locally.
+# Two lines: where you are on the first (path, branch, background jobs, a
+# failed exit code), and nothing but `❯` on the second.
+# The command always starts at column 3 with the whole width to itself —
+# the reason Starship was removed (aug-2026) — without the prompt having
+# to be plain to get there. Once a line is accepted the prompt collapses
+# to `❯ cmd` (see the transient section), so the scrollback keeps one line
+# per command, not two.
 #
 # `%n@%m` is dropped: on your own machine it's a constant that eats a
 # third of the line. It comes back only over SSH, where "which box am I
@@ -223,8 +226,7 @@ fi
 # `#001419` background — the "dim" text it painted was invisible. 7 is
 # the theme's own foreground, which every theme has to keep readable by
 # definition, so it is the safe choice for the secondary bits.
-setopt PROMPT_SUBST      # RPROMPT re-expands $_prompt_git every draw
-setopt TRANSIENT_RPROMPT # drop RPROMPT from lines already run
+setopt PROMPT_SUBST      # PROMPT re-expands $_prompt_line1 every draw
 
 # Needed here and again by the title/cwd hooks below; autoload is
 # idempotent, but it has to happen before the FIRST add-zsh-hook call.
@@ -271,55 +273,6 @@ _prompt_git() {
 }
 add-zsh-hook precmd _prompt_git
 
-# `%(5~|…|…)` = ternary on "does the path have 5+ components": short
-# paths print whole, long ones keep the first and the last three. Plain
-# %1~ was losing the only part that identifies the project — in
-# ~/dev/api/src/routes it printed `routes` and nothing else.
-#
-# `%(?..X)` = ternary on the previous exit status, with an empty
-# success branch: the code shows up only when it is non-zero. Until now
-# a failed command left no trace at all in the prompt.
-PROMPT='%F{blue}%(5~|%-1~/…/%3~|%~)%f %(?..%F{red}%?%f )%F{white}$%f '
-[[ -n "$SSH_CONNECTION" ]] && PROMPT="%F{white}%n@%m%f $PROMPT"
-
-# ─── how long the last command took ───────────────────────────
-# `zsh/datetime` is a builtin module, not a subprocess — it exists to give
-# EPOCHREALTIME, a float clock readable with no fork. $SECONDS would also work
-# but is an integer unless globally retyped, and retyping a shell global to get
-# one prompt field is the worse trade.
-#
-# Under 2s prints nothing. The point is spotting the command that took a minute
-# while you were elsewhere, not annotating every `ls` with `0.0s`.
-zmodload zsh/datetime
-
-typeset -g _prompt_timer=
-typeset -g _prompt_duration_str=
-
-_prompt_timer_begin() { _prompt_timer=$EPOCHREALTIME }
-add-zsh-hook preexec _prompt_timer_begin
-
-_prompt_timer_end() {
-  _prompt_duration_str=
-  [[ -n $_prompt_timer ]] || return
-  local -F secs=$(( EPOCHREALTIME - _prompt_timer ))
-  _prompt_timer=
-  (( secs >= 2 )) || return
-  # The decimal earns its place only near the threshold, where 2.4s and 2.9s are
-  # different answers. Past ten seconds it is noise: `47.3s` says nothing `47s`
-  # doesn't, and the extra glyph moves everything to its left on every redraw.
-  local -i whole=$secs
-  if (( whole >= 3600 )); then
-    printf -v _prompt_duration_str '%dh%dm' $(( whole / 3600 )) $(( whole % 3600 / 60 ))
-  elif (( whole >= 60 )); then
-    printf -v _prompt_duration_str '%dm%ds' $(( whole / 60 )) $(( whole % 60 ))
-  elif (( whole >= 10 )); then
-    printf -v _prompt_duration_str '%ds' $whole
-  else
-    printf -v _prompt_duration_str '%.1fs' $secs
-  fi
-}
-add-zsh-hook precmd _prompt_timer_end
-
 # ─── dirty marker, asynchronous ───────────────────────────────
 # THE ONE PLACE the no-subprocess-per-prompt rule above is relaxed, and it is
 # only survivable because it is off the critical path. A dirty flag needs the
@@ -350,11 +303,16 @@ _prompt_dirty_done() {
   exec {fd}<&-
   [[ $_prompt_dirty_pwd == $PWD ]] || return
   _prompt_dirty_str=${line:+•}
+  _prompt_render
   zle && zle reset-prompt
 }
 
 _prompt_dirty() {
-  _prompt_dirty_str=
+  # The last answer stands while the next one is computed, as long as the
+  # directory is the same. The branch changes colour with it, and clearing
+  # it on every prompt would flash a dirty repo green for as long as each
+  # `git status` takes.
+  [[ $_prompt_dirty_pwd == $PWD ]] || _prompt_dirty_str=
   _prompt_dirty_pwd=$PWD
   # No repo, no question to ask — `_prompt_git` already told us, for free.
   [[ -n $_prompt_git_str ]] || return
@@ -364,17 +322,76 @@ _prompt_dirty() {
 }
 add-zsh-hook precmd _prompt_dirty
 
-# Right side, so none of this costs the command any width — and
-# TRANSIENT_RPROMPT above erases it once the line is accepted, keeping
-# the scrollback (and anything copied out of it) clean.
+# ─── first line ───────────────────────────────────────────────
+# Plain coloured text, one space apart. Rounded powerline pills were tried
+# here (oct-2026) and dropped for this.
 #
-# Four fields, each one conditional, in the order they answer "what is going on
-# here": background jobs, how long that took, is the tree dirty, which branch.
-# `%(1j.…​.)` = ternary on "are there jobs", so the count is absent at zero
-# rather than printed as 0. The marker is amber and everything else is 7, the
-# theme's foreground — see the palette note at the top of this section for why
-# 8 is not available as a dim grey here.
-RPROMPT='%(1j.%F{white}✳%j%f  .)%F{white}${_prompt_duration_str}%f${_prompt_duration_str:+  }%F{yellow}${_prompt_dirty_str}%f${_prompt_dirty_str:+ }%F{white}${_prompt_git_str}%f'
+# The branch glyph (U+E0A0) is spelled as UTF-8 bytes: Private Use
+# codepoints get dropped by editors and tools, the same trap
+# claude/statusline.sh documents.
+_prompt_branch_glyph=$'\xee\x82\xa0'
+
+_prompt_seg() { _prompt_line1+="${_prompt_line1:+ }%F{$1}$2%f" }
+
+# Built in precmd, and again when the dirty check answers, into a variable
+# PROMPT only references — never baked into PROMPT itself, for two reasons:
+#   1. A branch name can contain `$(…)`, which PROMPT_SUBST would run if it
+#      were part of the PROMPT text. A parameter's value is not expanded a
+#      second time; only its `%` escapes are, hence the `%%` below.
+#   2. Ghostty's shell integration wraps PROMPT in OSC 133 marks at its own
+#      precmd, and they last only while PROMPT stays the string it marked.
+#      An async redraw that reassigned PROMPT would drop the marks
+#      jump-to-prompt relies on; one that changes a variable keeps them.
+#
+# `%(5~|…|…)` = ternary on "does the path have 5+ components": short
+# paths print whole, long ones keep the first and the last three. Plain
+# %1~ was losing the only part that identifies the project — in
+# ~/dev/api/src/routes it printed `routes` and nothing else.
+#
+# Jobs and the exit code are prompt ternaries rather than tests here,
+# because only draw time knows them: `%(1j.….)` is absent at zero jobs,
+# `%(?..…)` absent on success. A failure also turns `❯` red.
+#
+# The branch is 2 when clean, 3 when dirty, and keeps its `•` on top of
+# the colour change: solarized's green and yellow (#849900, #b28500) are
+# too close to carry it alone.
+typeset -g _prompt_line1=
+
+_prompt_render() {
+  _prompt_line1=
+  [[ -n $SSH_CONNECTION ]] && _prompt_seg 7 '%n@%m'
+  _prompt_seg 4 '%(5~|%-1~/…/%3~|%~)'
+  if [[ -n $_prompt_git_str ]]; then
+    local branch="$_prompt_branch_glyph ${_prompt_git_str//\%/%%}"
+    if [[ -n $_prompt_dirty_str ]]; then
+      _prompt_seg 3 "$branch $_prompt_dirty_str"
+    else
+      _prompt_seg 2 "$branch"
+    fi
+  fi
+  _prompt_line1+="%(1j. %F{6}✳%j%f.)"
+  _prompt_line1+="%(?.. %F{1}✘ %?%f)"
+}
+add-zsh-hook precmd _prompt_render
+
+_prompt_ps1='${_prompt_line1}'$'\n''%(?.%F{5}.%F{1})❯%f '
+PROMPT=$_prompt_ps1
+
+# ─── transient prompt ─────────────────────────────────────────
+# The moment a line is accepted, line-finish swaps PROMPT for the bare
+# `❯` and redraws it in place over both lines; the next precmd puts the
+# full one back, before Ghostty's precmd marks it. Hooked through
+# add-zle-hook-widget rather than by defining zle-line-finish, so the
+# other hooks on that widget (Ghostty's integration adds one) survive.
+_prompt_collapse() {
+  PROMPT='%(?.%F{5}.%F{1})❯%f '
+  zle reset-prompt
+}
+autoload -Uz add-zle-hook-widget
+add-zle-hook-widget line-finish _prompt_collapse
+
+_prompt_expand() { PROMPT=$_prompt_ps1 }
+add-zsh-hook precmd _prompt_expand
 
 # ─── window title + cwd reporting ─────────────────────────────
 # Two things on every prompt, both via precmd:
