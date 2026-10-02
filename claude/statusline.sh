@@ -63,11 +63,14 @@ shopt -s extglob   # needed by vis() to match an ANSI escape; see below
 # grey in solarized-patched.
 ACCENT=$'\033[94m'; RED=$'\033[31m'; RESET=$'\033[0m'
 FAINT=$'\033[2m'
-# Spelled as its UTF-8 bytes, never pasted: U+F2DB is a Private Use codepoint,
-# which editors and tools drop in silence, leaving `$''` — an empty chip with
-# nothing for the context hue to paint. `\xHH` rather than `` because
-# macOS runs this under /bin/bash 3.2, which predates `\u`.
-CHIP=$'\xef\x8b\x9b' # nf-fa-microchip, U+F2DB
+# Spelled as its UTF-8 bytes, never pasted: U+F09D1 is a Private Use codepoint,
+# which editors and tools drop in silence, leaving `$''` — an empty glyph with
+# nothing for the context hue to paint. `\xHH` rather than `\U` because
+# macOS runs this under /bin/bash 3.2, which predates both `\u` and `\U`.
+#
+# A brain half drawn as circuitry would fit better, but no Nerd Font set has
+# one (that is Lucide's `brain-circuit`, which Nerd Fonts does not patch in).
+BRAIN=$'\xf3\xb0\xa7\x91' # nf-md-brain, U+F09D1
 
 # One ladder for every gauge on the line (ctx, quota) so a colour means the same
 # thing wherever it appears — there used to be a copy of this `if` per gauge,
@@ -238,12 +241,12 @@ esac
 # it IS a model parameter, and the level names (low/medium/high/xhigh/max) can't
 # be mistaken for part of the id.
 #
-# The context hue rides on the CHIP GLYPH ALONE, not on the model name. The
+# The context hue rides on the BRAIN GLYPH ALONE, not on the model name. The
 # whole segment used to be tinted, which read as "the model is red" — a colour
 # saying something about a value that isn't in that segment. As a single leading
 # dot it's ambient: peripheral pressure at the start of the line, with the bar
 # over on the right where the meters live.
-MODEL_SEG="${CTX_COLOR}${CHIP}${RESET} ${MODEL}"
+MODEL_SEG="${CTX_COLOR}${BRAIN}${RESET} ${MODEL}"
 [ -n "$EFFORT" ] && MODEL_SEG="${MODEL_SEG} ${EFFORT}"
 
 # ─── layout: meters flushed right ─────────────────────────────
@@ -265,7 +268,7 @@ MODEL_SEG="${CTX_COLOR}${CHIP}${RESET} ${MODEL}"
 #   1. COLUMNS is the whole terminal, not this row. The status line renders
 #      inside a bordered box with its own border and padding (what the `padding`
 #      setting adds *to*), and that chrome's width is not on stdin.
-#   2. Nerd Font glyphs count 1 CHARACTER but can render 2 CELLS. The chip,
+#   2. Nerd Font glyphs count 1 CHARACTER but can render 2 CELLS. The brain,
 #      ⎇ and ↻ are one codepoint each to `${#s}` and there is no way to ask the
 #      terminal how wide the font drew them — the same ambiguous-width trap that
 #      killed the ■/◼/⬛ cubes in an earlier version of this file.
@@ -283,14 +286,14 @@ LEFT="${MODEL_SEG} | ${DIR_FMT}${BRANCH}"
 # strip, and anything it misses is counted as if it were printable.
 #
 # `${#s}` counts CHARACTERS rather than bytes only under a UTF-8 locale. Claude
-# Code runs us with LANG=en_US.UTF-8 (verified), which is what keeps the chip,
+# Code runs us with LANG=en_US.UTF-8 (verified), which is what keeps the brain,
 # ⎇, ↻, the bar's strokes and any non-ASCII cwd from counting 3:1 and dragging
 # the block leftward.
 vis() { local s=${1//$'\033'\[*([0-9;])m/}; printf '%d' "${#s}"; }
 
 # The bar takes whatever the rest of the line leaves, up to BAR_MAX cells, and
 # disappears below BAR_MIN — a stub of four cells moves in 25% steps, which the
-# chip's hue already covers. Meters ordered by scope, narrowest first: this
+# brain glyph's hue already covers. Meters ordered by scope, narrowest first: this
 # turn's window (the bar), the rolling 5h window (%↻).
 #
 # RIGHT can come out empty — no room for the bar and no quota (API key, or

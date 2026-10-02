@@ -38,7 +38,10 @@ $Effort = $session.effort.level
 $ESC   = [char]27
 $Accent = "$ESC[94m"; $Red = "$ESC[31m"; $Reset = "$ESC[0m"
 $Faint = "$ESC[2m"
-$Chip  = [char]0xf2db  # nf-fa-microchip
+# nf-md-brain sits above the BMP, past what one [char] holds, so it arrives as a
+# surrogate pair that Get-VisibleWidth counts as 2. The right block lands one
+# column further left than the .sh's — the undershooting side, which is safe.
+$Brain = [char]::ConvertFromUtf32(0xF09D1)  # nf-md-brain
 $Arrow = [char]0x2387  # ⎇
 $Cycle = [char]0x21BB  # ↻ (reset countdown)
 $Slab  = [char]0x2584  # ▄ filled cell of the context bar
@@ -99,7 +102,7 @@ function Get-Bar([int]$width) {
     $out
 }
 
-$ModelSeg = "$CtxColor$Chip$Reset $Model"
+$ModelSeg = "$CtxColor$Brain$Reset $Model"
 if ($Effort) { $ModelSeg = "$ModelSeg $Effort" }
 
 # ─── layout: meters flushed right ─────────────────────────────
