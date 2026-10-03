@@ -83,15 +83,12 @@ export GHQ_ROOT="$HOME/Developer"
 export EDITOR="nvim"
 export VISUAL="nvim"
 
-# Claude Code — classic main-screen renderer instead of fullscreen. Avoids the
-# banner "flash" when starting a session and keeps the conversation in the
-# native scrollback, where Cmd+F can reach it.
-#
-# NOT `CLAUDE_CODE_NO_FLICKER=1`, which reads like the same wish and is its
-# opposite: "no flicker" is the fullscreen renderer's selling point, and =1
-# FORCES the alternate screen (code.claude.com/docs/en/fullscreen). This one
-# forces classic ahead of everything else, the saved `/tui` setting included.
-export CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1
+# Claude Code — fullscreen renderer (alternate screen). The name reads like a
+# cosmetic tweak and isn't: "no flicker" is the fullscreen renderer's selling
+# point, and =1 FORCES the alternate screen (code.claude.com/docs/en/fullscreen).
+# Its opposite is CLAUDE_CODE_DISABLE_ALTERNATE_SCREEN=1, which forces classic
+# ahead of everything else — this one included — so the two never go together.
+export CLAUDE_CODE_NO_FLICKER=1
 
 # Claude Code — CFC is Claude For Chrome: the browser-extension integration,
 # not "context-free composition" (what this comment used to claim). Verified
