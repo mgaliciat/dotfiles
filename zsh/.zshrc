@@ -141,6 +141,10 @@ command -v fd >/dev/null && alias find='fd'
 # guard, `gm` would be an alias to a nonexistent command.
 command -v gomi >/dev/null && alias gm='gomi'
 
+# keep awake: bare `caffeinate` only blocks system sleep and still lets the
+# display turn off — `-d` is the display. command -v guard: macOS only.
+command -v caffeinate >/dev/null && alias caff='caffeinate -di'
+
 # git (the sub-aliases live in .gitconfig)
 alias g='git'
 alias gs='git st'
