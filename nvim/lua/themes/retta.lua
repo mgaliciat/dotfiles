@@ -54,93 +54,32 @@ local palette = {
   accent        = "#e79e3c",
 }
 
-return {
+return require("themes._base")({
   style = "night",
   palette = palette,
 
+  -- Inline code: raised currentLine bg + string yellow.
+  code = { bg = "#1a1a1a", fg = palette.bright_yellow, delimiter = palette.comment },
+
   on_colors = function(c)
-    c.bg            = palette.bg
-    c.bg_dark       = palette.bg_dark
-    c.bg_float      = palette.bg_float
-    c.bg_popup      = palette.bg_popup
-    c.bg_search     = palette.bg_search
-    c.bg_sidebar    = palette.bg_sidebar
-    c.bg_statusline = palette.bg_statusline
-    c.bg_highlight  = palette.bg_highlight
-    c.bg_visual     = palette.bg_visual
-
-    c.fg            = palette.fg
-    c.fg_dark       = palette.fg_dark
-    c.fg_gutter     = palette.fg_gutter
-    c.fg_sidebar    = palette.fg_dark
-    c.fg_float      = palette.fg
-
-    c.comment       = palette.comment
-    c.border        = palette.border
-    c.border_highlight = palette.accent
-
-    c.red       = palette.red
-    c.red1      = palette.bright_red
     -- tokyonight paints STRINGS with `green`: Retta strings are sand yellow,
-    -- so green here is the string yellow — the "real" green stays for git/diff
-    -- (set explicitly below) and for green1/green2.
+    -- so green here is the string yellow — the "real" green (palette.green)
+    -- stays on git add and green1/green2, where the shared mapping puts it.
     c.green     = palette.bright_yellow
-    c.green1    = "#527d5d"
-    c.green2    = "#527d5d"
-    c.yellow    = palette.yellow
-    c.blue      = palette.blue
-    c.blue0     = palette.bright_blue
     c.blue1     = palette.blue
-    c.blue2     = palette.blue
-    c.blue5     = palette.cyan
-    c.blue6     = palette.bright_cyan
-    c.blue7     = palette.bright_blue
-    c.cyan      = palette.cyan
     -- tokyonight paints KEYWORDS with magenta/purple: pumpkin, per Retta.
     c.magenta   = palette.yellow
     c.magenta2  = palette.bright_red
     c.purple    = palette.yellow
     c.orange    = palette.fg_gutter      -- burnt orange (Retta lineNumber)
-
-    c.git = {
-      add    = "#527d5d",
-      change = palette.yellow,
-      delete = palette.red,
-    }
-    c.terminal_black = palette.bright_black
   end,
 
-  on_highlights = function(hl, c)
-    hl.CursorLine   = { bg = palette.bg_highlight }   -- Retta currentLine
-    hl.CursorLineNr = { fg = palette.accent, bold = true }
-    hl.LineNr       = { fg = palette.fg_gutter }
-
-    hl.FloatBorder = { fg = palette.border, bg = c.bg_float }
-    hl.NormalFloat = { fg = c.fg, bg = c.bg_float }
-
-    hl.TelescopeBorder       = { fg = palette.border, bg = c.bg_float }
-    hl.TelescopePromptBorder = { fg = palette.accent, bg = c.bg_float }
+  on_highlights = function(hl)
     hl.TelescopeMatching     = { fg = palette.accent, bold = true }
-
-    hl.GitSignsAdd    = { fg = "#527d5d" }
-    hl.GitSignsChange = { fg = palette.yellow }
-    hl.GitSignsDelete = { fg = palette.red }
 
     -- Types/classes: Retta paints them red-orange, tokyonight defaults to blue.
     hl.Type      = { fg = palette.red }
     hl["@type"]  = { fg = palette.red }
-
-    -- Inline code: raised currentLine bg + string yellow.
-    local code_bg = "#1a1a1a"
-    local code_fg = palette.bright_yellow
-    hl["@markup.raw"]                  = { bg = code_bg, fg = code_fg }
-    hl["@markup.raw.markdown_inline"]  = { bg = code_bg, fg = code_fg }
-    hl["@text.literal"]                = { bg = code_bg, fg = code_fg }
-    hl["@text.literal.markdown_inline"]= { bg = code_bg, fg = code_fg }
-    hl.markdownCode                    = { bg = code_bg, fg = code_fg }
-    hl.markdownCodeDelimiter           = { fg = palette.comment }
-    hl["@markup.raw.block"]            = { bg = code_bg }
-    hl.markdownCodeBlock               = { bg = code_bg }
 
     -- Headings: the Retta spectrum, loudest to quietest — pumpkin → sand → green.
     hl["@markup.heading.1.markdown"]   = { fg = palette.accent, bold = true }
@@ -150,4 +89,4 @@ return {
     hl["@markup.link.url"]   = { fg = palette.blue, underline = true }
     hl["@markup.link.label"] = { fg = palette.accent }
   end,
-}
+})
