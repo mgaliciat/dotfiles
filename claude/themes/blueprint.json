@@ -1,0 +1,25 @@
+{
+  "name": "blueprint",
+  "base": "dark-ansi",
+  "overrides": {
+    "claude": "#4be4ff",
+    "claudeShimmer": "#86e2f0",
+    "text": "#d7ecf5",
+    "inactive": "#7090ac",
+    "subtle": "#566b83",
+    "success": "#57c173",
+    "error": "#f75d59",
+    "warning": "#e9c944",
+    "userMessageBackground": "#18324e",
+    "userMessageBackgroundHover": "#263d58",
+    "bashMessageBackgroundColor": "#0d2137",
+    "memoryBackgroundColor": "#0d2137",
+    "selectionBg": "#263d58",
+    "diffAdded": "#174825",
+    "diffRemoved": "#682321",
+    "diffAddedDimmed": "#15291a",
+    "diffRemovedDimmed": "#391917",
+    "diffAddedWord": "#1d6835",
+    "diffRemovedWord": "#972e2d"
+  }
+}
