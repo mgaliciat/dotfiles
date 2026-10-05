@@ -127,16 +127,19 @@ if command -v brew >/dev/null 2>&1; then
     ghostty
     1password-cli         # `op` — a cask on Homebrew, not a formula (lives in Caskroom)
     # Fonts referenced by ghostty/config.ghostty.
-    # The primary (font-family) is Paper Mono, which has no cask — it is
-    # installed by direct download below, right after this block. It is NOT a
-    # Nerd Font, so the rest of this list stops being optional coverage and
-    # becomes load-bearing: Ghostty pulls every powerline/devicon glyph from
-    # the NF families below. Don't prune them while it's the primary.
-    # Google Sans Code, 0xProto NF and Maple Mono NF are all former primaries,
-    # each one line away from returning (0xProto resolves as its "Mono"
-    # family; see the typography block there). PlemolJP Console NF (JP/EN),
-    # Monaspace NF and iA Writer Mono round out the fallback chain (Ghostty
-    # falls back to them + bundled JBM NF automatically). Every font named in
+    # The primary (font-family) is PlemolJP Console NF (`font-plemol-jp-nf`),
+    # a Nerd Font that carries its own powerline/devicon glyphs. It has traded
+    # places with the others several times — the config file is the source of
+    # truth, not this comment.
+    # Google Sans Code, Paper Mono, 0xProto NF and Maple Mono NF are all
+    # former primaries, each one line away from returning (0xProto resolves
+    # as its "Mono" family; see the typography block there). Paper Mono has
+    # no cask — it is installed by direct download below, right after this
+    # block — and is NOT a Nerd Font: whenever it is the primary, the NF
+    # families here stop being optional coverage and become load-bearing,
+    # since Ghostty pulls every powerline/devicon glyph from them. Monaspace
+    # NF and iA Writer Mono round out the fallback chain (Ghostty falls back
+    # to them + bundled JBM NF automatically). Every font named in
     # the config must be installed by this list: a font-family pointing at a
     # missing family falls back silently, the exact drift 0430d08 fixed.
     # Monaspace is the `-nf` (Nerd Font) build, not the plain cask, so it
@@ -162,23 +165,26 @@ if command -v brew >/dev/null 2>&1; then
   if [[ ${#MISSING_FORMULAE[@]} -gt 0 ]]; then
     echo ""
     echo "→ Installing missing formulae: ${MISSING_FORMULAE[*]}"
-    brew install "${MISSING_FORMULAE[@]}"
+    brew install "${MISSING_FORMULAE[@]}" \
+      || echo "⚠️  brew install failed for some formulae — re-run ./install.sh or install them by hand"
   fi
 
   if [[ ${#MISSING_CASKS[@]} -gt 0 ]]; then
     echo ""
     echo "→ Installing missing casks: ${MISSING_CASKS[*]}"
-    brew install --cask "${MISSING_CASKS[@]}"
+    brew install --cask "${MISSING_CASKS[@]}" \
+      || echo "⚠️  brew install --cask failed for some casks — re-run ./install.sh or install them by hand"
   fi
 
   if [[ ${#MISSING_FORMULAE[@]} -eq 0 && ${#MISSING_CASKS[@]} -eq 0 ]]; then
     echo "✓ All Homebrew dependencies are already installed"
   fi
   # ─── Paper Mono (font, no cask) ─────────────────────────────
-  # The current font-family in ghostty/config.ghostty (it has traded places
-  # with Google Sans Code a few times — check that file, not this comment).
-  # Paper released it in jul-2026 and Homebrew has no cask yet — so this is
-  # the one font here not installed by brew. Same shape as the PlemolJP block
+  # A former (and recurring) font-family in ghostty/config.ghostty — check
+  # that file for the current one, not this comment. Kept installed so
+  # switching back is a one-line config edit. Paper released it in jul-2026
+  # and Homebrew has no cask yet — so this is the one font here not installed
+  # by brew. Same shape as the PlemolJP block
   # in install-windows.ps1: resolve the latest release, grab its asset, drop
   # the file in place.
   # Only the VARIABLE ttf: one file covers Thin→ExtraBold and the family
@@ -189,8 +195,11 @@ if command -v brew >/dev/null 2>&1; then
   if [[ ! -f "$HOME/Library/Fonts/PaperMono[wght].ttf" ]]; then
     echo ""
     echo "→ Installing Paper Mono font (direct download — no Homebrew cask)"
+    # `|| true`: under `set -euo pipefail` a failed curl (offline, rate
+    # limit) or a grep with no match would abort the whole installer here,
+    # and the hand-install fallback below would never be reached.
     PM_URL=$(curl -fsSL "https://api.github.com/repos/paper-design/paper-mono/releases/latest" \
-      | grep -o '"browser_download_url": *"[^"]*\.zip"' | cut -d'"' -f4 | head -1)
+      | grep -o '"browser_download_url": *"[^"]*\.zip"' | cut -d'"' -f4 | head -1) || true
     if [[ -n "$PM_URL" ]]; then
       PM_TMP=$(mktemp -d)
       # The zip nests everything under paper-mono-vX.Y/, hence the leading `*`.
@@ -233,9 +242,12 @@ bootstrap_gh_stack
 # macOS file associations — open config.ghostty in VS Code (not TextEdit).
 # .ghostty has no registered UTI, so macOS falls back to TextEdit by default.
 # Idempotent: checks whether the entry already exists before adding it.
+# `grep >/dev/null`, not `grep -q`: -q exits on the first match, `defaults`
+# then dies of SIGPIPE, and under pipefail the pipeline reports failure — a
+# false "missing" that would append a duplicate LSHandlers entry.
 if [[ -d "/Applications/Visual Studio Code.app" ]]; then
   if ! defaults read com.apple.LaunchServices/com.apple.launchservices.secure LSHandlers 2>/dev/null \
-       | grep -q 'LSHandlerContentTag = ghostty'; then
+       | grep 'LSHandlerContentTag = ghostty' >/dev/null; then
     defaults write com.apple.LaunchServices/com.apple.launchservices.secure LSHandlers -array-add \
       '{LSHandlerContentTag = "ghostty"; LSHandlerContentTagClass = "public.filename-extension"; LSHandlerRoleAll = "com.microsoft.vscode";}'
     /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister \

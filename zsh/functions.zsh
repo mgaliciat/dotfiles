@@ -68,14 +68,19 @@ gco() {
 
 # ─── docker ───────────────────────────────────────────────────
 
-# Exec into a running container (fzf-pick). Tries bash → falls back to sh.
+# Exec into a running container (fzf-pick). bash if the image has it, else sh.
+# The choice is made INSIDE the container, in one exec: two execs chained with
+# `||` would also run the sh fallback whenever the bash session itself ends
+# non-zero (the last command failed, `exit 1`), dropping you into a second shell.
 # Usage: dex
 dex() {
   local cid
   cid=$(docker ps --format '{{.ID}}\t{{.Names}}\t{{.Image}}' \
-        | fzf | awk '{print $1}') || return
-  docker exec -it "$cid" /bin/bash 2>/dev/null \
-    || docker exec -it "$cid" /bin/sh
+        | fzf | awk '{print $1}')
+  # The pipeline's status is awk's, so a cancelled fzf only shows up as an
+  # empty id — catch it here rather than hand docker an empty argument.
+  [[ -n "$cid" ]] || return
+  docker exec -it "$cid" sh -c 'command -v bash >/dev/null && exec bash || exec sh'
 }
 
 # Tail the logs of a container (running or exited).
@@ -83,7 +88,8 @@ dex() {
 dlogs() {
   local cid
   cid=$(docker ps -a --format '{{.ID}}\t{{.Names}}\t{{.Status}}' \
-        | fzf | awk '{print $1}') || return
+        | fzf | awk '{print $1}')
+  [[ -n "$cid" ]] || return   # cancelled fzf, same as dex
   docker logs -f --tail=100 "$cid"
 }
 
