@@ -5,8 +5,16 @@
 # Symlink $1 → $2, backing up whatever was there first. Idempotent: an existing
 # symlink is replaced silently, a real file is moved aside with a timestamp so a
 # fresh machine never loses a config it already had.
+#
+# A missing source is a soft failure checked BEFORE touching $dst: `ln -s`
+# happily creates a dangling link, so a renamed repo path would otherwise
+# replace a working config with a broken one and still print ✓.
 link() {
   local src="$1" dst="$2"
+  if [[ ! -e "$src" ]]; then
+    echo "⚠️  missing $src — not linking $dst"
+    return 0
+  fi
   if [[ -L "$dst" ]]; then
     rm "$dst"
   elif [[ -e "$dst" ]]; then
@@ -63,8 +71,12 @@ install_claude() {
 # else. Hence a bootstrap here, shared by both installers.
 #
 # Guarded on the extension already being listed — `gh extension install` errors
-# out on a re-run. Deliberately NOT convergent (no `gh extension upgrade`):
-# bumping the version is the user's call.
+# out on a re-run. `grep >/dev/null`, not `grep -q`: -q exits on the first
+# match, `gh` can die of SIGPIPE, and under the installers' pipefail that reads
+# as "not installed" and triggers the erroring re-install.
+#
+# Deliberately NOT convergent (no `gh extension upgrade`): bumping the version
+# is the user's call.
 #
 # `gh` missing is a skip, not a failure: on Linux the apt package only exists on
 # Ubuntu 23.10+/Debian 13, and the installer must not die on an older box.
@@ -73,7 +85,7 @@ bootstrap_gh_stack() {
     echo "→ gh-stack: skipped (no gh on PATH — install the GitHub CLI first)"
     return
   fi
-  if gh extension list 2>/dev/null | grep -q 'github/gh-stack'; then
+  if gh extension list 2>/dev/null | grep 'github/gh-stack' >/dev/null; then
     echo "✓ gh-stack extension already installed"
     return
   fi
