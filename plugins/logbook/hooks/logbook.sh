@@ -37,8 +37,15 @@ esac
 
 # `git commit` anywhere in the command: it is routinely the tail of a chain
 # (`git add -A && git commit -m ...`). Deliberately loose — a false positive costs
-# one line of context, a false negative costs the note.
-[[ "$CMD" == *"git commit"* ]] || exit 0
+# one line of context, a false negative costs the note. Global options may sit
+# between `git` and `commit`: `-C <dir>` / `-c <key=val>` (agents in worktrees use
+# `git -C`), whose value may be quoted and hold spaces (`C:\Users\First Last`),
+# and long ones like `--no-pager` or `--git-dir=...`. The word must end at
+# `commit`, so `commit-tree` and `committed` do not count. Case-sensitive, like
+# git itself; logbook.ps1 mirrors this pattern with -cmatch. The regex lives in a
+# variable because a quoted right-hand side of =~ is matched literally.
+commit_re="git([[:space:]]+(-[cC][[:space:]]+([^[:space:]\"']|\"[^\"]*\"|'[^']*')+|--[[:alnum:]_-]+(=[^[:space:]]+)?))*[[:space:]]+commit([^[:alnum:]_-]|\$)"
+[[ "$CMD" =~ $commit_re ]] || exit 0
 
 # --dry-run writes nothing, so there is nothing to log about it.
 [[ "$CMD" == *"--dry-run"* ]] && exit 0
