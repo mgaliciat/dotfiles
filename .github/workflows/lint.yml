@@ -1,9 +1,10 @@
 # Static checks only — nothing here installs the dotfiles or needs a Mac.
 # Everything that runs is a syntax/lint pass over the files a `git pull`
-# delivers (plus one smoke test for a hook that fails silently by design), so a
-# typo in an installer or a zsh file is caught before it lands
-# on the other machines. Runtime validation stays where it always was: running
-# the installer (CLAUDE.md, "there is no test suite").
+# delivers, a few text comparisons between files that are kept in sync by hand,
+# and one smoke test for a hook that fails silently by design, so a typo in an
+# installer or a zsh file is caught before it lands on the other machines.
+# Runtime validation stays where it always was: running the installer
+# (CLAUDE.md, "there is no test suite").
 #
 # The nvim config is NOT parsed here on purpose: it needs its plugins present
 # to load, and stubbing those out tests the stub, not the config.
@@ -14,11 +15,15 @@ on:
     branches: [main]
   pull_request:
 
+# Every job only reads the checkout; the default token can also write.
+permissions:
+  contents: read
+
 jobs:
   shell:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
       # shellcheck ships preinstalled on ubuntu runners; .shellcheckrc at the
       # repo root carries the config (external-sources, the two disables).
@@ -49,11 +54,80 @@ jobs:
       - name: stack theme in sync
         run: scripts/theme
 
+      # A theme is its two definitions (CLAUDE.md), so each must have the other.
+      # ghostty → nvim goes through scripts/theme's own valid_id (--list prints
+      # exactly the ids that pass it) rather than restating the rule here; ids
+      # are matched as any field of a line, not by column, so the mark column can
+      # change. --list is captured on its own line because the step's `bash -e`
+      # has no pipefail, and a crash inside a pipe would go unnoticed.
+      # valid_id lets solarized-osaka through with no nvim theme module because
+      # nvim renders it through its plugin spec, and does not check that the spec
+      # exists; so that is checked here.
+      # nvim/lua/themes/_*.lua are shared helpers (_base.lua), not themes.
+      - name: every theme has both definitions
+        run: |
+          listed=$(scripts/theme --list)
+          failed=0
+          for f in ghostty/themes/*; do
+            id=$(basename "$f")
+            [ "$id" = README.md ] && continue
+            if awk -v id="$id" '{ for (i = 1; i <= NF; i++) if ($i == id) found = 1 } END { exit !found }' <<<"$listed"; then
+              echo "ok    $id"
+            else echo "FAIL  $id: not selectable, nvim/lua/themes/$id.lua is missing"; failed=1; fi
+          done
+          if [ -f ghostty/themes/solarized-osaka ] && [ ! -f nvim/lua/plugins/solarized-osaka.lua ]; then
+            echo "FAIL  solarized-osaka: nvim/lua/plugins/solarized-osaka.lua is missing"; failed=1
+          fi
+          for f in nvim/lua/themes/*.lua; do
+            id=$(basename "$f" .lua)
+            case $id in _*) continue ;; esac
+            if [ ! -f "ghostty/themes/$id" ]; then
+              echo "FAIL  $id: nvim/lua/themes/$id.lua has no ghostty/themes/$id"; failed=1
+            fi
+          done
+          exit $failed
+
+      # logbook.sh and logbook.ps1 are hand-kept twins that must hand the model
+      # the same reminder. The literal is found by the skill it names rather than
+      # by the code around it, so reworking either hook's plumbing keeps the
+      # check working. Each file is read with its own quoting: in the .sh the
+      # literal is a JSON string inside a single-quoted jq program (\" and '\''),
+      # in the .ps1 a single-quoted string ('').
+      # The .ps1 spells the dash as an ASCII "-" where the .sh has an em dash on
+      # purpose: Windows PowerShell 5.1 reads a BOM-less script as cp1252 and
+      # would mangle it. So only the .sh side is folded, and the .ps1 literal
+      # must be plain ASCII.
+      - name: logbook reminder, .sh ↔ .ps1
+        run: |
+          literal() {
+            local hits
+            hits=$(grep -oE "$2" "$1" || true)
+            if [ "$(grep -c . <<<"$hits")" -ne 1 ]; then
+              echo "FAIL  $1: expected exactly one quoted string naming logbook:entry, found: ${hits:-none}" >&2
+              return 1
+            fi
+            printf '%s\n' "${hits:1:${#hits}-2}"
+          }
+          sh=$(literal plugins/logbook/hooks/logbook.sh '"([^"\\]|\\.)*logbook:entry([^"\\]|\\.)*"')
+          ps=$(literal plugins/logbook/hooks/logbook.ps1 "'([^']|'')*logbook:entry([^']|'')*'")
+          sh=$(sed -e "s/'\\\\''/'/g" -e 's/\\"/"/g' -e 's/—/-/g' <<<"$sh")
+          ps=${ps//\'\'/\'}
+          if LC_ALL=C grep -q '[^ -~]' <<<"$ps"; then
+            echo "FAIL  plugins/logbook/hooks/logbook.ps1: the reminder has a non-ASCII character, which PowerShell 5.1 mangles"
+            exit 1
+          fi
+          if [ "$sh" = "$ps" ]; then echo "ok    reminders match"
+          else
+            echo "FAIL  the two reminders differ (.sh <, .ps1 >):"
+            diff <(echo "$sh") <(echo "$ps") || true
+            exit 1
+          fi
+
       - name: zsh -n
         run: |
           sudo apt-get install -y -q zsh >/dev/null
           failed=0
-          for f in zsh/.zshenv zsh/.zshrc zsh/functions.zsh; do
+          for f in zsh/.zshenv zsh/.zprofile zsh/.zshrc zsh/path.zsh zsh/functions.zsh; do
             if zsh -n "$f"; then echo "ok    $f"; else echo "FAIL  $f"; failed=1; fi
           done
           exit $failed
@@ -61,7 +135,7 @@ jobs:
   lua-json:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
       # Syntax only (luac -p): nvim's runtime globals (`vim.*`) don't exist
       # outside the editor, so nothing is executed.
@@ -82,10 +156,24 @@ jobs:
           done
           exit $failed
 
+      # The logbook plugin carries two manifests for the same plugin, kept in
+      # sync by hand. A version bumped in one only ships a plugin that reports
+      # two different versions depending on the host that loads it.
+      - name: logbook manifests agree
+        run: |
+          fields='{name, version, description, author}'
+          if diff <(jq -S "$fields" plugins/logbook/.claude-plugin/plugin.json) \
+                  <(jq -S "$fields" plugins/logbook/plugin.json); then
+            echo "ok    name, version, description, author"
+          else
+            echo "FAIL  plugins/logbook/.claude-plugin/plugin.json (<) and plugins/logbook/plugin.json (>) disagree"
+            exit 1
+          fi
+
   python:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
       # The hooks run on the Mac's /usr/bin/python3, which is 3.9. The runner's is
       # newer, so the grammar is pinned to 3.9: syntax from a later release would
@@ -121,12 +209,12 @@ jobs:
 
   powershell:
     runs-on: ubuntu-latest
+    # One list for both pwsh steps, so a script cannot be parsed but not analyzed.
+    env:
+      PS_SCRIPTS: install-windows.ps1 claude/statusline.ps1 plugins/logbook/hooks/logbook.ps1
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
-      # Parse only — PowerShell's own parser, no execution. Catches the
-      # unbalanced-brace / bad-token class of error in the Windows installer,
-      # which otherwise only surfaces on a Windows box.
       # install-windows.ps1 replicates claude/install/settings.sh by hand and
       # nothing else keeps them in sync (CLAUDE.md admits it). This catches the
       # cheapest drift: a settings.json key that settings.sh writes and the
@@ -149,15 +237,40 @@ jobs:
           done
           exit $missing
 
+      # Parse only — PowerShell's own parser, no execution. Catches the
+      # unbalanced-brace / bad-token class of error in the Windows scripts,
+      # which otherwise only surfaces on a Windows box.
       - name: pwsh parse
         shell: pwsh
         run: |
           $failed = $false
-          foreach ($f in @('install-windows.ps1', 'claude/statusline.ps1', 'plugins/logbook/hooks/logbook.ps1')) {
+          foreach ($f in $env:PS_SCRIPTS -split ' ') {
             $tokens = $null; $errors = $null
             [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path $f), [ref]$tokens, [ref]$errors) | Out-Null
             # ${f} — a bare `$f:` is read as a drive/scope qualifier and fails to parse.
             if ($errors.Count -gt 0) { $failed = $true; $errors | ForEach-Object { Write-Host "${f}: $($_.Message)" } }
+            else { Write-Host "ok  $f" }
+          }
+          if ($failed) { exit 1 }
+
+      # Static analysis, still no execution. Error severity only: the gate is
+      # the defect class (reserved names, assignments to automatic variables,
+      # plain-text credentials), not the Warning-level style rules.
+      # PSScriptAnalyzer ships on the ubuntu image; the install is a fallback,
+      # pinned like the actions so a new release cannot move the gate unseen.
+      - name: PSScriptAnalyzer (errors)
+        shell: pwsh
+        run: |
+          if (-not (Get-Module -ListAvailable -Name PSScriptAnalyzer)) {
+            Install-Module PSScriptAnalyzer -RequiredVersion 1.25.0 -Scope CurrentUser -Force
+          }
+          $failed = $false
+          foreach ($f in $env:PS_SCRIPTS -split ' ') {
+            $found = @(Invoke-ScriptAnalyzer -Path $f -Severity Error)
+            if ($found.Count -gt 0) {
+              $failed = $true
+              $found | ForEach-Object { Write-Host "${f}:$($_.Line): $($_.RuleName): $($_.Message)" }
+            }
             else { Write-Host "ok  $f" }
           }
           if ($failed) { exit 1 }
