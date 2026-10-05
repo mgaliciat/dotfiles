@@ -69,20 +69,51 @@ if command -v apt-get >/dev/null 2>&1; then
   # plugins (lazy.nvim, blink.cmp, rustaceanvim) need 0.10+.
   # We install it via GH release tarball below.
 
+  # dpkg-query's Status, not `dpkg -s`: the latter also succeeds for a package
+  # that was `apt remove`d but not purged (config files left behind), which
+  # would then never be reinstalled.
   MISSING_APT=()
   for pkg in "${APT_PACKAGES[@]}"; do
-    dpkg -s "$pkg" >/dev/null 2>&1 || MISSING_APT+=("$pkg")
+    pkg_status=$(dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null || true)
+    [[ "$pkg_status" == "install ok installed" ]] || MISSING_APT+=("$pkg")
   done
 
   if [[ ${#MISSING_APT[@]} -gt 0 ]]; then
     echo ""
     echo "→ apt packages to install: ${MISSING_APT[*]}"
     echo "  (requires sudo)"
-    sudo apt-get update
-    # `|| true`: some packages may not exist on older Ubuntu (e.g. eza
-    # pre-23.10). We continue so cargo can cover them afterwards.
-    sudo apt-get install -y "${MISSING_APT[@]}" || \
-      echo "⚠️  Some packages failed — cargo install will cover what is missing."
+    # Soft, like every other step: with stale lists most names still resolve.
+    # With NO lists (fresh container) nothing does, and the candidate filter
+    # below reports every package as skipped — the update failure is the cause.
+    sudo apt-get update \
+      || echo "⚠️  apt-get update failed — candidates below come from the existing (possibly empty) package lists."
+
+    # `apt-get install a b c` is one transaction: a single name without an
+    # install candidate (eza/gh on Ubuntu 22.04) aborts it and NOTHING lands.
+    # So only names apt can actually resolve go in. LC_ALL=C because the
+    # `Candidate:` label is translated; an unknown name prints nothing at all
+    # and a known-but-uninstallable one prints `Candidate: (none)`. The output
+    # is captured rather than piped into `grep -q`: grep exiting on the first
+    # match can SIGPIPE apt-cache, and under pipefail that reads as "missing".
+    INSTALLABLE_APT=()
+    UNAVAILABLE_APT=()
+    for pkg in "${MISSING_APT[@]}"; do
+      pkg_policy=$(LC_ALL=C apt-cache policy "$pkg" 2>/dev/null || true)
+      if grep -q '^ *Candidate: [^(]' <<<"$pkg_policy"; then
+        INSTALLABLE_APT+=("$pkg")
+      else
+        UNAVAILABLE_APT+=("$pkg")
+      fi
+    done
+    if [[ ${#UNAVAILABLE_APT[@]} -gt 0 ]]; then
+      echo "⚠️  No apt candidate for: ${UNAVAILABLE_APT[*]} — skipped."
+      echo "   eza has a GH release fallback below and gh is optional (bootstrap_gh_stack skips"
+      echo "   itself); anything else stays missing — jq in particular, which settings.sh needs."
+    fi
+    if [[ ${#INSTALLABLE_APT[@]} -gt 0 ]]; then
+      sudo apt-get install -y "${INSTALLABLE_APT[@]}" \
+        || echo "⚠️  apt-get install failed — see the apt output above; nothing from this batch may have landed."
+    fi
   fi
 else
   echo "⚠️  apt-get not detected — skipping package installation."
@@ -122,7 +153,8 @@ bootstrap_gh_stack
 HSS_DIR="$HOME/.zsh/plugins/zsh-history-substring-search"
 if [[ ! -d "$HSS_DIR" ]]; then
   echo "→ Cloning zsh-history-substring-search"
-  git clone --depth 1 https://github.com/zsh-users/zsh-history-substring-search "$HSS_DIR"
+  git clone --depth 1 https://github.com/zsh-users/zsh-history-substring-search "$HSS_DIR" \
+    || echo "⚠️  zsh-history-substring-search clone failed — the .zshrc will skip it"
 fi
 
 # ─── zoxide (official curl installer) ──────────────────────────
@@ -147,7 +179,8 @@ fi
 # The cargo PATH block in .zshenv stays — that is for tools you install by hand.
 
 # ─── GitHub release binaries (what apt lacks or has outdated) ───────
-# Small helpers: arch detection + fetching the latest tag from the GH API.
+# Small helpers: arch detection, fetching the latest tag from the GH API, and
+# the download-unpack-install shape every release binary below shares.
 _arch_x86_arm() {
   case "$(uname -m)" in
     x86_64)        echo "$1" ;;
@@ -155,33 +188,79 @@ _arch_x86_arm() {
     *)             echo "" ;;
   esac
 }
+# `|| true`: the unauthenticated API allows 60 requests/h per IP, and grep
+# exits 1 on no match. Under `set -euo pipefail` either one, inside a
+# `X=$(_gh_latest_tag …)`, would kill the installer on the spot — so an empty
+# tag must come back as an empty string the caller can warn about.
 _gh_latest_tag() {
   curl -fsSL "https://api.github.com/repos/$1/releases/latest" \
-    | grep -Po '"tag_name":\s*"v?\K[^"]+' | head -1
+    | grep -Po '"tag_name":\s*"v?\K[^"]+' | head -1 || true
+}
+
+# _gh_install_bin <bin> <repo> <x86_64 arch> <arm64 arch> <asset path>
+# The asset path is relative to https://github.com/<repo>/releases/ and may
+# carry @VER@ (latest tag, leading `v` stripped) and @ARCH@. Only @VER@ costs
+# an API call, so assets with a versionless name use latest/download/ instead.
+# The suffix picks the unpack step: .deb goes through dpkg, the rest must yield
+# a file named <bin> that lands in ~/.local/bin.
+# Everything is downloaded into $GH_TMP — a private mktemp dir, never a fixed
+# /tmp name: `sudo dpkg -i /tmp/x.deb` on a shared host installs whatever
+# another local user planted at that path first.
+_gh_install_bin() {
+  local bin="$1" repo="$2" asset="$5" arch ver="" dir file
+  arch=$(_arch_x86_arm "$3" "$4")
+  if [[ -n "$arch" && "$asset" == *@VER@* ]]; then
+    ver=$(_gh_latest_tag "$repo")
+  fi
+  if [[ -z "$arch" || ( "$asset" == *@VER@* && -z "$ver" ) ]]; then
+    echo "⚠️  Could not resolve $bin version/arch (ver=$ver arch=$arch)"
+    return 0
+  fi
+  asset=${asset//@VER@/$ver}
+  asset=${asset//@ARCH@/$arch}
+  dir="$GH_TMP/$bin"
+  file="$dir/${asset##*/}"
+  mkdir -p "$dir"
+  {
+    curl -fsSL "https://github.com/$repo/releases/$asset" -o "$file" &&
+      case "$file" in
+        *.deb)    sudo dpkg -i "$file" ;;
+        *.tar.gz) tar -xzf "$file" -C "$dir" && install "$dir/$bin" "$HOME/.local/bin/" ;;
+        *.zip)    unzip -q -j -o "$file" "*/$bin" -d "$dir" && install "$dir/$bin" "$HOME/.local/bin/" ;;
+        *.gz)     gunzip -c "$file" >"$dir/$bin" && install "$dir/$bin" "$HOME/.local/bin/" ;;
+        *)        false ;;
+      esac
+  } || {
+    if [[ "$file" == *.deb ]]; then
+      echo "⚠️  $bin install failed (try: sudo apt --fix-broken install)"
+    else
+      echo "⚠️  $bin install failed"
+    fi
+  }
 }
 
 mkdir -p "$HOME/.local/bin"
+GH_TMP=$(mktemp -d)
+trap 'rm -rf "$GH_TMP"' EXIT
 
 # lazygit — not in apt by default. GH release tarball.
 if ! command -v lazygit >/dev/null 2>&1; then
   echo ""
   echo "→ Installing lazygit (GH release)"
-  LG_VER=$(_gh_latest_tag jesseduffield/lazygit)
-  LG_ARCH=$(_arch_x86_arm x86_64 arm64)
-  if [[ -n "$LG_VER" && -n "$LG_ARCH" ]]; then
-    curl -fsSL "https://github.com/jesseduffield/lazygit/releases/download/v${LG_VER}/lazygit_${LG_VER}_Linux_${LG_ARCH}.tar.gz" \
-      | tar -xz -C /tmp lazygit && install /tmp/lazygit "$HOME/.local/bin/" && rm /tmp/lazygit \
-      || echo "⚠️  lazygit install failed"
-  else
-    echo "⚠️  Could not resolve lazygit version/arch (LG_VER=$LG_VER LG_ARCH=$LG_ARCH)"
-  fi
+  _gh_install_bin lazygit jesseduffield/lazygit x86_64 arm64 \
+    'download/v@VER@/lazygit_@VER@_Linux_@ARCH@.tar.gz'
 fi
 
 # nvim — apt has 0.6.x, your plugins need 0.10+. Release tarball
 # (not AppImage: the tarball does not require FUSE, more robust on WSL2).
+# Not through _gh_install_bin: it is a whole tree under ~/.local/share with a
+# symlink into ~/.local/bin, not a single binary.
 NVIM_NEEDS_INSTALL=true
 if command -v nvim >/dev/null 2>&1; then
-  NVIM_VER=$(nvim --version | head -1 | grep -oP 'v\K[0-9]+\.[0-9]+' | head -1)
+  # `|| true`: an unparseable --version (grep matching nothing) must fall
+  # through to a reinstall, not abort under pipefail. An empty NVIM_VER reads
+  # as 0.0 in the arithmetic below.
+  NVIM_VER=$(nvim --version | head -1 | grep -oP 'v\K[0-9]+\.[0-9]+' | head -1 || true)
   NVIM_MAJOR=${NVIM_VER%.*}
   NVIM_MINOR=${NVIM_VER#*.}
   if (( NVIM_MAJOR > 0 )) || (( NVIM_MINOR >= 10 )); then
@@ -194,29 +273,28 @@ if $NVIM_NEEDS_INSTALL; then
   NVIM_ARCH=$(_arch_x86_arm x86_64 arm64)
   if [[ -n "$NVIM_ARCH" ]]; then
     NVIM_TARBALL="nvim-linux-${NVIM_ARCH}.tar.gz"
-    curl -fsSL "https://github.com/neovim/neovim/releases/latest/download/${NVIM_TARBALL}" -o /tmp/nvim.tar.gz \
+    # Unpacked in $GH_TMP and only then swapped in: a truncated download or a
+    # full disk must not delete a working older install before the new one is
+    # known to be whole.
+    curl -fsSL "https://github.com/neovim/neovim/releases/latest/download/${NVIM_TARBALL}" -o "$GH_TMP/nvim.tar.gz" \
+      && mkdir -p "$GH_TMP/nvim-linux" "$HOME/.local/share" \
+      && tar -xzf "$GH_TMP/nvim.tar.gz" -C "$GH_TMP/nvim-linux" --strip-components=1 \
       && rm -rf "$HOME/.local/share/nvim-linux" \
-      && mkdir -p "$HOME/.local/share/nvim-linux" \
-      && tar -xzf /tmp/nvim.tar.gz -C "$HOME/.local/share/nvim-linux" --strip-components=1 \
+      && mv "$GH_TMP/nvim-linux" "$HOME/.local/share/nvim-linux" \
       && ln -sf "$HOME/.local/share/nvim-linux/bin/nvim" "$HOME/.local/bin/nvim" \
-      && rm /tmp/nvim.tar.gz \
       || echo "⚠️  nvim install failed"
+  else
+    echo "⚠️  Could not resolve nvim arch ($(uname -m))"
   fi
 fi
 
 # delta (git-delta) — GH release .deb. Easier than a tarball and it handles
-# dependencies/uninstall via apt. dpkg with sudo.
+# dependencies/uninstall via apt. dpkg with sudo. Its tags carry no `v`.
 if ! command -v delta >/dev/null 2>&1; then
   echo ""
   echo "→ Installing delta (GH release .deb)"
-  DELTA_VER=$(_gh_latest_tag dandavison/delta)
-  DELTA_ARCH=$(_arch_x86_arm amd64 arm64)
-  if [[ -n "$DELTA_VER" && -n "$DELTA_ARCH" ]]; then
-    curl -fsSL "https://github.com/dandavison/delta/releases/download/${DELTA_VER}/git-delta_${DELTA_VER}_${DELTA_ARCH}.deb" -o /tmp/delta.deb \
-      && sudo dpkg -i /tmp/delta.deb \
-      && rm /tmp/delta.deb \
-      || echo "⚠️  delta install failed (try: sudo apt --fix-broken install)"
-  fi
+  _gh_install_bin delta dandavison/delta amd64 arm64 \
+    'download/@VER@/git-delta_@VER@_@ARCH@.deb'
 fi
 
 # eza — fallback if `command -v eza` fails after apt (apt did not ship it —
@@ -224,13 +302,8 @@ fi
 if ! command -v eza >/dev/null 2>&1; then
   echo ""
   echo "→ Installing eza (GH release fallback, apt did not have it)"
-  EZA_VER=$(_gh_latest_tag eza-community/eza)
-  EZA_ARCH=$(_arch_x86_arm x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu)
-  if [[ -n "$EZA_VER" && -n "$EZA_ARCH" ]]; then
-    curl -fsSL "https://github.com/eza-community/eza/releases/download/v${EZA_VER}/eza_${EZA_ARCH}.tar.gz" \
-      | tar -xz -C /tmp ./eza && install /tmp/eza "$HOME/.local/bin/" && rm /tmp/eza \
-      || echo "⚠️  eza install failed"
-  fi
+  _gh_install_bin eza eza-community/eza x86_64-unknown-linux-gnu aarch64-unknown-linux-gnu \
+    'download/v@VER@/eza_@ARCH@.tar.gz'
 fi
 
 # gomi — `rm` with a trash + interactive restore, behind the `gm` alias. A brew
@@ -240,15 +313,8 @@ fi
 if ! command -v gomi >/dev/null 2>&1; then
   echo ""
   echo "→ Installing gomi (GH release)"
-  GOMI_VER=$(_gh_latest_tag babarot/gomi)
-  GOMI_ARCH=$(_arch_x86_arm x86_64 arm64)
-  if [[ -n "$GOMI_VER" && -n "$GOMI_ARCH" ]]; then
-    curl -fsSL "https://github.com/babarot/gomi/releases/download/v${GOMI_VER}/gomi_Linux_${GOMI_ARCH}.tar.gz" \
-      | tar -xz -C /tmp gomi && install /tmp/gomi "$HOME/.local/bin/" && rm /tmp/gomi \
-      || echo "⚠️  gomi install failed"
-  else
-    echo "⚠️  Could not resolve gomi version/arch (GOMI_VER=$GOMI_VER GOMI_ARCH=$GOMI_ARCH)"
-  fi
+  _gh_install_bin gomi babarot/gomi x86_64 arm64 \
+    'download/v@VER@/gomi_Linux_@ARCH@.tar.gz'
 fi
 
 # ghq — clone manager for the $GHQ_ROOT tree (.zshenv). A brew formula on mac
@@ -259,21 +325,13 @@ fi
 # call with `command -v ghq`, which is precisely the kind of silent degradation
 # that left the old hardcoded find contributing nothing for months.
 # The asset is a ZIP (not a tarball like lazygit/gomi) and nests everything
-# under ghq_linux_<arch>/, hence `unzip -j` to flatten the one file out.
+# under ghq_linux_<arch>/, hence `unzip -j` (in _gh_install_bin) to flatten the
+# one file out.
 if ! command -v ghq >/dev/null 2>&1; then
   echo ""
   echo "→ Installing ghq (GH release)"
-  GHQ_VER=$(_gh_latest_tag x-motemen/ghq)
-  GHQ_ARCH=$(_arch_x86_arm amd64 arm64)
-  if [[ -n "$GHQ_VER" && -n "$GHQ_ARCH" ]]; then
-    curl -fsSL "https://github.com/x-motemen/ghq/releases/download/v${GHQ_VER}/ghq_linux_${GHQ_ARCH}.zip" -o /tmp/ghq.zip \
-      && unzip -q -j -o /tmp/ghq.zip "*/ghq" -d /tmp \
-      && install /tmp/ghq "$HOME/.local/bin/" \
-      && rm -f /tmp/ghq.zip /tmp/ghq \
-      || echo "⚠️  ghq install failed"
-  else
-    echo "⚠️  Could not resolve ghq version/arch (GHQ_VER=$GHQ_VER GHQ_ARCH=$GHQ_ARCH)"
-  fi
+  _gh_install_bin ghq x-motemen/ghq amd64 arm64 \
+    'download/v@VER@/ghq_linux_@ARCH@.zip'
 fi
 
 # tree-sitter-cli — nvim-treesitter's `main` branch shells out to it to generate
@@ -284,22 +342,18 @@ fi
 if ! command -v tree-sitter >/dev/null 2>&1; then
   echo ""
   echo "→ Installing tree-sitter-cli (GH release)"
-  TS_ARCH=$(_arch_x86_arm x64 arm64)
-  if [[ -n "$TS_ARCH" ]]; then
-    curl -fsSL "https://github.com/tree-sitter/tree-sitter/releases/latest/download/tree-sitter-linux-${TS_ARCH}.gz" -o /tmp/tree-sitter.gz \
-      && gunzip -f /tmp/tree-sitter.gz \
-      && install /tmp/tree-sitter "$HOME/.local/bin/" && rm /tmp/tree-sitter \
-      || echo "⚠️  tree-sitter-cli install failed"
-  fi
+  _gh_install_bin tree-sitter tree-sitter/tree-sitter x64 arm64 \
+    'latest/download/tree-sitter-linux-@ARCH@.gz'
 fi
 
 # ─── pyenv (official curl installer) ───────────────────────────
 # apt does not have pyenv. The official installer sets up ~/.pyenv and leaves it
-# ready for the .zshrc lazy-loader.
+# ready for the .zshrc lazy-loader. `-f` matters on a curl piped into a shell:
+# without it an HTTP error page is handed to bash as a script.
 if [[ ! -d "$HOME/.pyenv" ]]; then
   echo ""
   echo "→ Installing pyenv (official curl installer)"
-  curl https://pyenv.run | bash || echo "⚠️  pyenv install failed"
+  curl -fsSL https://pyenv.run | bash || echo "⚠️  pyenv install failed"
 fi
 
 # ─── default shell to zsh ──────────────────────────────────────
@@ -318,7 +372,7 @@ if [[ -n "${WSL_DISTRO_NAME:-}" || -n "${WSLENV:-}" ]] || \
   echo "   - Fonts: use the Windows Terminal ones (do not install fonts inside WSL)."
   echo "   - Ghostty: not applicable — its config is ignored."
   echo "   - nvim clipboard: install win32yank for Windows clipboard integration:"
-  echo "       curl -sLo /tmp/win32yank.zip https://github.com/equalsraf/win32yank/releases/download/v0.1.1/win32yank-x64.zip"
+  echo "       curl -fsSLo /tmp/win32yank.zip https://github.com/equalsraf/win32yank/releases/download/v0.1.1/win32yank-x64.zip"
   echo "       mkdir -p ~/.local/bin"
   echo "       unzip -p /tmp/win32yank.zip win32yank.exe > ~/.local/bin/win32yank.exe"
   echo "       chmod +x ~/.local/bin/win32yank.exe"
