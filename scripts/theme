@@ -13,6 +13,10 @@
 # Also rewritten, because they are mirrors of the palette rather than
 # selections: lazygit's `theme:` block (generated from the ghostty file) and
 # delta's --dark/--light flag beside it, and the "Currently" line in README.md.
+# Plus the `custom-shader` line of a shader named after a theme id
+# (ghostty/shaders/<id>.glsl): it belongs to that theme, so it is on while the
+# theme is selected and commented out otherwise. A shader not named after a
+# theme (crt) is nobody's and is left alone.
 #
 # Deliberately NOT touched:
 #   - `$WtTheme` in install-windows.ps1. Windows shares no layer with the other
@@ -174,6 +178,23 @@ EOF
   fi
 }
 
+write_shaders() {
+  local id=$1 file name line
+  for file in "$DOTFILES"/ghostty/shaders/*.glsl; do
+    [[ -e $file ]] || continue
+    name=$(basename "$file" .glsl)
+    [[ -f $DOTFILES/ghostty/themes/$name ]] || continue
+    line="custom-shader = shaders/$name.glsl"
+    if [[ $name == "$id" ]]; then
+      rewrite "$GHOSTTY_CONF" "s|^# ${line//./\\.}\$|$line|" || true
+      grep -qxF "$line" "$GHOSTTY_CONF" ||
+        echo "⚠️  $id has a shader but config.ghostty has no '# $line' line to turn on."
+    else
+      rewrite "$GHOSTTY_CONF" "s|^${line//./\\.}\$|# $line|" || true
+    fi
+  done
+}
+
 # Hand-curated `background =` / `foreground =` in config.ghostty win over any
 # theme. Say so when they would paint something other than the theme's value.
 check_overrides() {
@@ -196,6 +217,7 @@ select_theme() {
   rewrite "$NVIM_OPTS" "s/^vim\\.g\\.theme = \".+\"\$/vim.g.theme = \"$id\"/" || true
   rewrite "$README" "s/^Currently \`[^\`]+\`\\./Currently \`$id\`./" || true
   write_lazygit "$id"
+  write_shaders "$id"
 
   show_status || die "a selection line was not found — check the files by hand"
   check_overrides "$id"

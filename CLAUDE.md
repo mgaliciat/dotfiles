@@ -101,7 +101,11 @@ name. Provenance of each palette is in
 `ghostty/themes/README.md`. The Claude Code theme is optional and exists for a canvas
 the brand colours cannot read on, or for a theme whose accent should carry into the TUI
 (`dia-de-muertos`): `base: light-ansi`/`dark-ansi` makes the TUI take its colours from the
-terminal's ANSI slots, and `overrides.claude` re-tunes the spinner.
+terminal's ANSI slots, and `overrides.claude` re-tunes the spinner. A Ghostty shader is
+optional the same way: `ghostty/shaders/<id>.glsl` belongs to theme `<id>`, and
+`scripts/theme` uncomments its `custom-shader` line on selecting it and comments it out
+on selecting anything else (`blueprint`). A shader not named after a theme (`crt`) is
+left alone.
 
 ### The per-machine split
 
