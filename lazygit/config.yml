@@ -81,14 +81,11 @@ os:
   editPreset: nvim-remote
 # ─── custom commands ──────────────────────────────────────────
 # `?` inside lazygit shows ALL the available shortcuts.
+# No custom `A` for "amend HEAD, keep the message": the files panel's built-in
+# `A` already is exactly that. A global one would lose to the built-in `A` in
+# files/commits/status (a context-specific built-in beats a global custom
+# key) and only fire where amending is unexpected, e.g. branches or stash.
 customCommands:
-  # `A` in any pane → amend the last commit without editing the message.
-  # Useful for "I forgot a file, let me add it to the previous commit".
-  - key: "A"
-    command: "git commit --amend --no-edit"
-    context: "global"
-    description: "Amend last commit without editing the message"
-    loadingText: "Amending..."
   # `T` in files → see the current commit's tree with stat.
   - key: "T"
     command: "git log -1 --stat"
