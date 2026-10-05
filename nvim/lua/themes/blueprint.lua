@@ -1,10 +1,10 @@
 -- ─── theme: blueprint ────────────────────────────────────────
--- The drafting sheet at night: a Prussian-blue canvas with cyan line work,
+-- The drafting sheet at night: a near-black canvas with cyan line work,
 -- marked up in redline pencil and highlighter. Mirror of the Ghostty theme
 -- `blueprint`. tokyonight base: variant `night`.
 --
 -- DERIVED, no published hex: the blueprint/cyanotype sheet gives the HUES
--- (night Prussian blue, cyanotype white, cyan drafting line, redline
+-- (near-black canvas, cyanotype white, cyan drafting line, redline
 -- correction pencil, highlighter yellow, surveyor's orange, graphite),
 -- lightness and chroma are set per role in OKLCH. Figures and rationale are
 -- in the ghostty file.
@@ -18,21 +18,21 @@
 -- Dark theme convention: the "bright" colors are LIGHTER than the normal ones.
 
 local palette = {
-  bg          = "#04172c",       -- night Prussian blue, L 0.20
-  bg_dark     = "#020f1f",       -- L 0.165 — code bg
-  bg_highlight= "#0d2137",       -- L 0.245 — cursorline
-  bg_visual   = "#18324e",       -- L 0.31 — selection
-  bg_float    = "#0d2137",
-  bg_popup    = "#0d2137",
+  bg          = "#0a0a0a",       -- neutral near-black, L 0.145
+  bg_dark     = "#040404",       -- L 0.11 — code bg
+  bg_highlight= "#191919",       -- L 0.215 — cursorline
+  bg_visual   = "#2b2b2b",       -- L 0.29 — selection
+  bg_float    = "#191919",
+  bg_popup    = "#191919",
   bg_search   = "#0d515c",       -- cyan hue at L 0.40, fg on it 7.3:1
-  bg_sidebar  = "#0d2137",
-  bg_statusline = "#0d2137",
+  bg_sidebar  = "#191919",
+  bg_statusline = "#191919",
 
-  fg          = "#d7ecf5",       -- cyanotype white, 14.8:1
-  fg_dark     = "#a8bbc5",       -- 9.1:1
-  fg_gutter   = "#566b83",       -- 3.3:1
+  fg          = "#d7ecf5",       -- cyanotype white, 16.2:1
+  fg_dark     = "#a8bbc5",       -- 10.0:1
+  fg_gutter   = "#696969",       -- 3.6:1
 
-  black       = "#263d58",
+  black       = "#383838",
   red         = "#f75d59",       -- redline pencil
   green       = "#57c173",
   yellow      = "#e9c944",       -- highlighter
@@ -41,7 +41,7 @@ local palette = {
   cyan        = "#33c6d9",
   white       = "#becdd5",
 
-  bright_black   = "#7090ac",   -- graphite, the comment (5.4:1)
+  bright_black   = "#8c8c8c",   -- graphite, the comment (5.9:1)
   bright_red     = "#fda19a",
   bright_green   = "#95dfa4",
   bright_yellow  = "#f5de87",
@@ -53,9 +53,9 @@ local palette = {
   orange        = "#f79643",     -- surveyor's orange (no ANSI slot)
   bright_orange = "#fdbf89",
 
-  comment     = "#7090ac",
-  border      = "#394f68",       -- L 0.42
-  cursor      = "#4be4ff",       -- drafting line, 11.9:1
+  comment     = "#8c8c8c",
+  border      = "#484848",       -- L 0.40
+  cursor      = "#4be4ff",       -- drafting line, 13.0:1
   accent      = "#4be4ff",
 }
 
@@ -63,12 +63,12 @@ return require("themes._base")({
   style = "night",
   palette = palette,
 
-  -- Ghostty runs its glass (background-opacity 0.9); without this nvim paints
-  -- an opaque canvas over it and the seam shows at every split edge. The two
-  -- move together (config.ghostty).
+  -- Leaves the canvas to Ghostty, so its blueprint shader draws the grid
+  -- straight through nvim instead of having to recognise a repainted canvas,
+  -- and nothing changes if the glass comes back.
   transparent = true,
 
-  -- 13:1 on the code bg; the code bg patch, not the hue, is what sets it
+  -- 13.8:1 on the code bg; the code bg patch, not the hue, is what sets it
   -- apart from the accent.
   code = { fg = palette.bright_cyan },
 

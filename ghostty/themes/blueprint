@@ -1,53 +1,57 @@
-# blueprint — a drafting sheet read at night: a near-black Prussian canvas with
-# cyan line work, white lettering and the architect's red corrections. Mirror
-# of nvim/lua/themes/blueprint.lua.
+# blueprint — a drafting sheet read at night: a near-black canvas with cyan
+# line work, white lettering and the architect's red corrections. Mirror of
+# nvim/lua/themes/blueprint.lua. Pairs with ghostty/shaders/blueprint.glsl,
+# which lays a grey grid and paper grain over it.
 #
 # PROVENANCE: DERIVED, no published hex. The source is the blueprint itself,
 # the cyanotype / whiteprint drafting sheet, as HUES only:
-#   · canvas   — Prussian blue, the ground of the cyanotype, taken down to a
-#                night (OKLCH L 0.20, C 0.05, h 252)
+#   · canvas   — neutral near-black #0a0a0a (OKLCH L 0.145, C 0). It started
+#                as the cyanotype's Prussian blue taken down to a night
+#                (#04172c, L 0.20 C 0.05 h 252) and was dropped on 2026-10-05:
+#                the lettering read as lost on the blue. Not pure #000: the
+#                shader's grain lightens by a fraction of the canvas, and over
+#                black it could only darken.
 #   · text     — the white of the cyanotype line, a cold blue white (h 225)
 #   · accent   — the cyan of a lit drafting line (h 212)
 #   · red      — the redline, the architect's correction pencil (h 25)
 #   · yellow   — highlighter on the print (h 95)
 #   · blue     — Prussian blue at full strength, the print's own ink (h 256)
 #   · cyan     — the drafting line, one step down from the accent (h 208)
-#   · comment  — graphite pencil on blue (h 245)
+#   · comment  — graphite pencil, a neutral grey
 #   · orange   — surveyor's orange; nvim only, ANSI has no slot for it (h 58)
 # A blueprint has no green and no magenta ink: those two are filled in
 # on-palette (h 150, h 335) at the same lightness and chroma as their peers.
 #
 # Everything is set per role in OKLCH:
 #   · normals (1-6)  L 0.68–0.84, C 0.12–0.19 (yellow 0.84, a yellow at 0.70
-#     is mustard). 5.7–8.8:1 over the canvas, yellow 11.1:1.
-#   · brights (9-14) L 0.80–0.90, chroma lowered to 0.09–0.11. 9.2–13.5:1.
-#     8 is the graphite comment (L 0.64, 5.4:1) and 15 the brightest white
-#     (L 0.97, 16.6:1); both sit outside that band by role.
-#   · every neutral (grays, the bg ladder) carries the canvas hue (h 252),
-#     graphite leaning a little cyan (h 245); the text and ANSI 7/15 carry the
-#     cyanotype-white hue instead (h 224–231), so lettering reads as line work
-#     on the sheet rather than as grey.
-#   · bg ladder in L: 0.165 code bg / 0.20 canvas / 0.245 cursorline /
-#     0.31 selection / 0.355 ansi0.
+#     is mustard). 6.3–9.6:1 over the canvas, yellow 12.2:1.
+#   · brights (9-14) L 0.80–0.90, chroma lowered to 0.09–0.11. 10.1–14.8:1.
+#     8 is the graphite comment (L 0.64, 5.9:1) and 15 the brightest white
+#     (L 0.97, 18.2:1); both sit outside that band by role.
+#   · every neutral (greys, the bg ladder, graphite) is achromatic, C 0; the
+#     text and ANSI 7/15 carry the cyanotype-white hue instead (h 224–231), so
+#     lettering reads as line work on the sheet rather than as grey.
+#   · bg ladder in L: 0.11 code bg / 0.145 canvas / 0.215 cursorline /
+#     0.29 selection / 0.34 ansi0 / 0.40 border / 0.52 gutter.
 # Measured in sRGB; `window-colorspace = display-p3` renders them more saturated.
 #
 # Dark convention: the "brights" (8-15) are LIGHTER than the normals.
 
-background = #04172c
+background = #0a0a0a
 foreground = #d7ecf5
 
 # cursor — the lit drafting line, the brightest chroma on screen; the canvas on
-# it 11.9:1
+# it 13.0:1
 cursor-color = #4be4ff
-cursor-text  = #04172c
+cursor-text  = #0a0a0a
 
-# selection — the canvas three steps up the ladder; text on it 10.7:1
-selection-background = #18324e
+# selection — the canvas three steps up the ladder; text on it 11.6:1
+selection-background = #2b2b2b
 selection-foreground = #d7ecf5
 
 # ─── ANSI 16 ─────────────────────────────────────────────────
 # normals (0-7) — 0 is the ladder's top step, a background tone, not text.
-palette = 0=#263d58
+palette = 0=#383838
 palette = 1=#f75d59
 palette = 2=#57c173
 palette = 3=#e9c944
@@ -56,14 +60,14 @@ palette = 5=#dd71c8
 palette = 6=#33c6d9
 palette = 7=#becdd5
 
-# brights (8-15): LIGHTER (dark theme). 8 is graphite, the comment (5.4:1).
+# brights (8-15): LIGHTER (dark theme). 8 is graphite, the comment (5.9:1).
 #
-# 12 stays a real bright blue (#97c9fd, 10.4:1), so this file and
+# 12 stays a real bright blue (#97c9fd, 11.4:1), so this file and
 # nvim/lua/themes/blueprint.lua agree on every slot. Claude Code on a
 # `dark-ansi` theme paints inline code, paths and hashes in ANSI 12; on a
 # blueprint, blue is the theme's own ink, so nothing needs to hijack the slot
 # the way dia-de-muertos does.
-palette = 8=#7090ac
+palette = 8=#8c8c8c
 palette = 9=#fda19a
 palette = 10=#95dfa4
 palette = 11=#f5de87

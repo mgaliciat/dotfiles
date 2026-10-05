@@ -81,7 +81,7 @@ One theme id spans Ghostty and nvim (and Windows Terminal, derived from the Ghos
 - `ghostty/config.ghostty` → `theme = <id>`
 - `nvim/lua/config/options.lua` → `vim.g.theme = "<id>"`
 
-Currently `dia-de-muertos`. The mechanics are in `CLAUDE.md` ("The stack theme") and each palette's provenance in [`ghostty/themes/README.md`](ghostty/themes/README.md); the palettes live in `ghostty/themes/` and `nvim/lua/themes/`.
+Currently `blueprint`. The mechanics are in `CLAUDE.md` ("The stack theme") and each palette's provenance in [`ghostty/themes/README.md`](ghostty/themes/README.md); the palettes live in `ghostty/themes/` and `nvim/lua/themes/`.
 
 ## Claude Code through an API gateway
 

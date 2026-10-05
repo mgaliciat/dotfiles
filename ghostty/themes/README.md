@@ -66,21 +66,31 @@ and puts the message backgrounds and diffs on the theme's own ladder and hues,
 `dark-ansi` taking everything else from the Ghostty slots.
 
 **`blueprint`** · A drafting sheet read at night, made in October 2026. The
-cyanotype gives the hues and nothing else — Prussian-blue canvas taken down to
-a night, the white of the cyanotype line for text, the cyan of a lit drafting
-line as the accent, the architect's redline correction pencil for red,
-highlighter yellow, surveyor's orange (nvim only), graphite-on-blue comments.
-A blueprint carries no green or magenta ink; those two are filled in on-palette.
+cyanotype gives the hues and nothing else — the white of the cyanotype line for
+text, the cyan of a lit drafting line as the accent, the architect's redline
+correction pencil for red, highlighter yellow, surveyor's orange (nvim only),
+graphite comments. A blueprint carries no green or magenta ink; those two are
+filled in on-palette.
+
+The canvas is a neutral near-black `#0a0a0a`, not blue. It started as the
+cyanotype's Prussian blue taken down to a night (`#04172c`) and was dropped the
+day it landed: on the blue the lettering read as lost. The blue survives in
+the inks. Not pure `#000`, because the shader's paper grain lightens by a
+fraction of the canvas and over black it could only darken.
 
 Lightness and chroma are set per role in OKLCH, the same scheme as
 `dia-de-muertos`: normals at L 0.68–0.84 (yellow at the top, cyan 0.76),
-brights 9–14 at 0.80–0.90 with chroma lowered to 0.09–0.11, grays and the
-background ladder on the canvas hue (h 252, graphite at h 245), the text and
-ANSI 7/15 on the cyanotype-white hue (h 224–231), and the ladder in the same
-L steps (0.165 / 0.20 / 0.245 / 0.31 / 0.355). Normals land at 5.7–8.8:1
-over the `#04172c` canvas (yellow 11.1:1), brights at 9.2–13.5:1, graphite
-comments at 5.4:1, text at 14.8:1, measured in sRGB. The cyan
-accent `#4be4ff` is the cursor in Ghostty.
+brights 9–14 at 0.80–0.90 with chroma lowered to 0.09–0.11, every neutral
+(greys, graphite, the background ladder) achromatic, the text and ANSI 7/15
+on the cyanotype-white hue (h 224–231), and the ladder in L steps
+(0.11 / 0.145 / 0.215 / 0.29 / 0.34). Normals land at 6.3–9.6:1 over the
+canvas (yellow 12.2:1), brights at 10.1–14.8:1, graphite comments at 5.9:1,
+text at 16.2:1, measured in sRGB. The cyan accent `#4be4ff` is the cursor in
+Ghostty.
+
+It comes with a shader, `ghostty/shaders/blueprint.glsl` — a faint grey grid,
+ink bleed and paper grain — which `scripts/theme` turns on with the theme and
+off with any other.
 
 **Unlike `dia-de-muertos`, ANSI 12 stays a real bright blue `#97c9fd`**, so
 the Ghostty file and nvim agree on every slot. Claude Code still paints inline

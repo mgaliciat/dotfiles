@@ -1,11 +1,16 @@
-// blueprint — the terminal as a night blueprint sheet: a minor/major grid, a
-// margin frame with registration marks, ink bleed around the glyphs and the
-// uneven exposure of cyanotype paper.
+// blueprint — the terminal as a night blueprint sheet: a faint grey
+// minor/major grid, ink bleed around the glyphs and the uneven exposure of
+// cyanotype paper. The grid is kept barely above the canvas on purpose
+// (2026-10-05, tuned down in four steps): it should read as paper texture,
+// not compete with the lettering. A margin frame with corner registration
+// circles was tried the same day and taken out.
 //
 // Shadertoy-compatible, loaded by `custom-shader` in config.ghostty and run
 // after Ghostty's own passes over iChannel0 (the rendered terminal). Meant for
-// the `blueprint` stack theme: the ink colours below are chosen for its navy
-// canvas (#04172c). The canvas itself is NOT a constant here — it is read from
+// the `blueprint` stack theme, whose `scripts/theme` selection turns it on and
+// off. The inks are neutral, chosen for its near-black canvas (#0a0a0a); the
+// halo is white, so on a light canvas it would read as a smudge. The canvas
+// itself is NOT a constant here — it is read from
 // Ghostty's `iBackgroundColor` uniform (sRGB, 0–1), so retuning the theme's
 // `background` can never leave the shader looking for the old colour.
 //
@@ -18,13 +23,15 @@
 // pixels, tuned at 2× (Retina): the 24px minor cell is 12 logical pixels, a
 // little over half a text row at font-size 17. Ghostty passes no scale
 // factor, so on a 1× display everything is twice as large in logical terms
-// and the frame (20px in) lands just inside the 18px top padding's first text
-// row. iResolution is the surface size in the same units. Ghostty 1.3 hands
-// fragCoord with the origin at the TOP-left, unlike Shadertoy; the frame and
-// grid are laid out from the surface centre, so they come out the same
+// and the grid's edge (20px in) lands inside the first text row instead of
+// the padding. iResolution is the surface size in the same units. Ghostty 1.3
+// hands fragCoord with the origin at the TOP-left, unlike Shadertoy; the grid
+// is laid out from the surface centre, so they come out the same
 // whichever way y runs.
 //
-// What iChannel0 holds (measured on Ghostty 1.3.1, macOS, glass on): linear
+// What iChannel0 holds (measured on Ghostty 1.3.1, macOS, with the glass on —
+// background-opacity 0.9 — which is the harder case; the compositing below is
+// also right on a solid window): linear
 // light, PREMULTIPLIED alpha. The default background is not in the texture at
 // all — those pixels are (0,0,0,0) and the window's glass, already tinted with
 // the background colour, shows through them. A cell that sets its own
@@ -53,39 +60,32 @@
 // across the outer PAPER_FADE pixels, so at the edge the surface is exactly
 // the titlebar's glass. (The grain is exactly zero-mean only over a
 // canvas-coloured backdrop; over the glass a bright wallpaper tips it a hair
-// darker, which is the other reason it fades out at the edges.) The frame is
-// line work, not a tone: it sits in the top padding, 20px below the seam,
-// and the grid only starts inside it.
+// darker, which is the other reason it fades out at the edges.) The grid is
+// line work, not a tone, and starts GRID_INSET below the seam.
 //
 // window-padding-color = extend paints the padding with the nearest row's
 // background, so where an edge row has a background of its own (a status
-// line, a tabline) the frame along that edge is masked like any other ink.
+// line, a tabline) the grid along that edge is masked like any other ink.
 
 const float CANVAS_TOL_LO   = 0.02;    // sRGB distance from the canvas still fully counted as sheet
-const float CANVAS_TOL_HI   = 0.05;    // ...and where it stops counting (blueprint's cursorline, #0d2137, sits at ~0.07)
+const float CANVAS_TOL_HI   = 0.05;    // ...and where it stops counting (blueprint's cursorline, #191919, sits at ~0.10)
 
-const vec3  LINE_COLOR      = vec3(71.0, 176.0, 255.0) / 255.0;  // #47b0ff, sRGB: the cyan-blue of the grid
-const vec3  MARK_COLOR      = vec3(75.0, 228.0, 255.0) / 255.0;  // #4be4ff, sRGB: blueprint's accent, for frame and marks
-const vec3  BLEED_COLOR     = vec3(165.0, 240.0, 255.0) / 255.0; // #a5f0ff, sRGB: accent toward white, the halo's tint
+const vec3  LINE_COLOR      = vec3(176.0) / 255.0;  // #b0b0b0, sRGB: the grey of the grid
+const vec3  BLEED_COLOR     = vec3(255.0) / 255.0;  // #ffffff, sRGB: a neutral halo
 
 const float GRID_PERIOD     = 24.0;    // device px between minor lines
 const float MAJOR_EVERY     = 5.0;     // minor cells per major line
 const float MINOR_WIDTH     = 1.0;     // device px
 const float MAJOR_WIDTH     = 2.0;     // device px; a 1px core with half-covered neighbours
-const float MINOR_ALPHA     = 0.038;   // ink coverage of a minor line: over the canvas it lands near #0b2a45
-const float MAJOR_ALPHA     = 0.075;   // ink coverage of a major line
+const float MINOR_ALPHA     = 0.008;   // ink coverage of a minor line
+const float MAJOR_ALPHA     = 0.016;   // ink coverage of a major line
 
-const float FRAME_INSET     = 20.0;    // device px from the surface edge; at 2× the padding is 36–44 px, so text starts ~16 px inside
-const float FRAME_WIDTH     = 1.5;     // device px
-const float FRAME_ALPHA     = 0.30;    // frame and registration marks, the brightest ink on the sheet
-const float OVERSHOOT       = 10.0;    // device px the frame lines run past each corner, drafting-style
-const float MARK_RADIUS     = 8.0;     // device px, registration circle at each frame corner
-const float TICK_LENGTH     = 8.0;     // device px, centring tick at the middle of each frame edge, pointing outward
+const float GRID_INSET     = 20.0;    // device px from the surface edge where the grid stops; at 2× the padding is 36–44 px
 
 const float BLEED_RADIUS    = 2.5;     // device px, mean radius of the halo taps
 const float BLEED_THRESHOLD = 0.10;    // linear luma a tap must exceed to bleed: dark cell backgrounds (selection, search, panels) stay out, a bright block (the cursor) glows like a glyph
 const float BLEED           = 0.08;    // halo coverage per unit of luma above the threshold
-const float KNOCKOUT        = 0.06;    // mean tap excess at which grid and frame are fully lifted near a glyph
+const float KNOCKOUT        = 0.06;    // mean tap excess at which the grid is fully lifted near a glyph
 
 const float GRAIN           = 0.10;    // per-pixel paper grain, ± fraction of the canvas (linear)
 const float MOTTLE          = 0.16;    // low-frequency exposure unevenness, ± fraction of the canvas (linear)
@@ -102,7 +102,7 @@ const vec2 TAPS[8] = vec2[8](
 );
 
 // The exact sRGB curve, not a 2.2 power: Ghostty linearises with it, and on a
-// canvas this dark the power law misplaces #04172c by ~0.04 — enough to make
+// canvas this dark the power law misplaced the theme's first canvas, #04172c, by ~0.04 — enough to make
 // the sheet test fail to recognise the canvas itself.
 vec3 toLinear(vec3 c) {
     return mix(c / 12.92, pow((c + 0.055) / 1.055, vec3(2.4)), step(0.04045, c));
@@ -144,33 +144,23 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     vec3 canvas = iBackgroundColor;
     vec3 canvasLin = toLinear(canvas);
 
-    // Frame: exactly symmetric about the true centre, its lines on pixel
-    // centres (+0.5 from the edge) so a line covers whole pixels instead of
-    // two halves.
+    // The grid's boundary, GRID_INSET in from every edge and exactly
+    // symmetric about the true centre, so it never reaches the titlebar seam.
     vec2 q = fragCoord - res * 0.5;
     vec2 aq = abs(q);
-    vec2 halfFrame = res * 0.5 - FRAME_INSET - 0.5;
-    vec2 edgeDist = halfFrame - aq;
-    float insideFrame = step(1.5, min(edgeDist.x, edgeDist.y));
+    vec2 halfGrid = res * 0.5 - GRID_INSET - 0.5;
+    vec2 edgeDist = halfGrid - aq;
+    float insideGrid = step(1.5, min(edgeDist.x, edgeDist.y));
 
     // Grid, anchored on the pixel centre nearest the surface centre so the
-    // middle lines are major and the leftover at opposite frame edges differs
+    // middle lines are major and the leftover at opposite grid edges differs
     // by at most a pixel.
     vec2 cellPos = (fragCoord - (floor(res * 0.5) + 0.5)) / GRID_PERIOD;
     vec2 minorD = abs(fract(cellPos + 0.5) - 0.5) * GRID_PERIOD;
     vec2 majorD = abs(fract(cellPos / MAJOR_EVERY + 0.5) - 0.5) * GRID_PERIOD * MAJOR_EVERY;
     float minorK = max(stroke(minorD.x, MINOR_WIDTH), stroke(minorD.y, MINOR_WIDTH));
     float majorK = max(stroke(majorD.x, MAJOR_WIDTH), stroke(majorD.y, MAJOR_WIDTH));
-    float gridK = max(minorK * MINOR_ALPHA, majorK * MAJOR_ALPHA) * insideFrame;
-
-    // Four lines overshooting the corners, a circle on each corner, and an
-    // outward tick at the middle of each edge.
-    float hLine = stroke(abs(aq.y - halfFrame.y), FRAME_WIDTH) * step(aq.x, halfFrame.x + OVERSHOOT);
-    float vLine = stroke(abs(aq.x - halfFrame.x), FRAME_WIDTH) * step(aq.y, halfFrame.y + OVERSHOOT);
-    float ring = stroke(abs(length(aq - halfFrame) - MARK_RADIUS), FRAME_WIDTH);
-    float tickH = stroke(aq.x, FRAME_WIDTH) * step(halfFrame.y, aq.y) * step(aq.y, halfFrame.y + TICK_LENGTH);
-    float tickV = stroke(aq.y, FRAME_WIDTH) * step(halfFrame.x, aq.x) * step(aq.x, halfFrame.x + TICK_LENGTH);
-    float markK = max(max(hLine, vLine), max(ring, max(tickH, tickV))) * FRAME_ALPHA;
+    float gridK = max(minorK * MINOR_ALPHA, majorK * MAJOR_ALPHA) * insideGrid;
 
     // Paper: grain + mottling as one signed fraction of the canvas. Darkening
     // is black at coverage -n; lightening is 2×canvas at coverage n, which
@@ -202,10 +192,8 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     // letter (an O, a 0) it can still show.
     float clearance = 1.0 - smoothstep(0.0, KNOCKOUT, excess);
     gridK *= clearance;
-    markK *= clearance;
 
-    vec4 ink = over(vec4(toLinear(MARK_COLOR) * markK, markK),
-                    vec4(toLinear(LINE_COLOR) * gridK, gridK));
+    vec4 ink = vec4(toLinear(LINE_COLOR) * gridK, gridK);
     vec4 layer = over(vec4(toLinear(BLEED_COLOR) * bleedK, bleedK), over(ink, paper));
 
     // Is this pixel a canvas-coloured cell? Only meaningful once it is

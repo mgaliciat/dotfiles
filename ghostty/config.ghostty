@@ -38,7 +38,7 @@
 # other layers with nothing to mirror and break the one-id rule. The port is
 # hex-verbatim from the shipped file; provenance is in the theme file itself.
 # Canonical Solarized is not a valid source for it: this cut re-tunes every value.
-theme = dia-de-muertos
+theme = blueprint
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -53,6 +53,9 @@ theme = dia-de-muertos
 #   · dia-de-muertos — the night of the vigil: morado canvas (#1d1022),
 #     cempasúchil cursor (#fc9417), rosa mexicano, talavera, turquoise, bone
 #     text. Hues from the altar, everything else set in OKLCH.
+#   · blueprint — a drafting sheet at night: near-black canvas (#0a0a0a), cyan
+#     drafting-line cursor (#4be4ff), redline red, cyanotype-white text. Comes
+#     with its own shader (shaders/blueprint.glsl), switched with the theme.
 # ─── craftzdog's overrides ────────────────────────────────────
 # These WIN over the theme's own values regardless of order, so whatever is
 # uncommented here is what the terminal actually looks like.
@@ -287,8 +290,13 @@ macos-titlebar-style = transparent
 # `background-blur = 0`: under `typesafe` the desktop bleeding through the light
 # sage canvas muddied it, and a light theme cannot take `transparent = true` in
 # nvim anyway. With opacity at 1.0 `background-opacity-cells` goes inert.
-background-opacity = 0.9
-background-blur = macos-glass-clear
+#
+# SOLID since 2026-10-05 under `blueprint`, a dark theme, so for legibility rather
+# than for a light canvas: through the clear glass the wallpaper read behind the
+# lettering and the text got lost on the sheet. To bring the glass back, the pair
+# above (0.9 + macos-glass-clear); blueprint.lua already carries `transparent`.
+background-opacity = 1.0
+background-blur = 0
 
 # `background-opacity` applies to the WINDOW background alone, so any cell
 # carrying an explicit background colour stays fully opaque by default — Ghostty's
@@ -336,18 +344,19 @@ alpha-blending = linear-corrected
 # custom-shader = shaders/crt.glsl
 #
 # `blueprint` (2026-10-05): the terminal as a night blueprint sheet, made for
-# the `blueprint` theme — a 24px minor / 120px major cyan grid, a margin frame
-# inside the padding with registration circles on its corners, a faint ink
-# bleed around the glyphs and the grain and uneven exposure of cyanotype
+# the `blueprint` theme — a faint 24px minor / 120px major grey grid, a soft
+# ink bleed around the glyphs and the grain and uneven exposure of cyanotype
 # paper. Static like the CRT. The line work is drawn only where the canvas
 # shows (the glass, or cells a TUI paints in the canvas colour) and breaks
 # around lettering, so it never crosses text, the selection or a coloured
 # panel. The canvas is read from Ghostty's `iBackgroundColor`, so the shader
-# follows whatever `background` the theme sets; the cyan ink is tuned for
-# blueprint's navy and clashes elsewhere. Sizes are device pixels tuned at 2×:
-# the frame sits 20px in, inside the padding below as long as it stays at
-# 18/22 or more on a Retina screen (on a 1× screen it brushes the first row).
-# custom-shader = shaders/blueprint.glsl
+# follows whatever `background` the theme sets; its white halo is tuned for
+# blueprint's near-black and would smudge a light canvas. Sizes are device
+# pixels tuned at 2×: the grid stops 20px in, inside the padding below on a
+# Retina screen (on a 1× screen it reaches into the first row).
+# The line below is not hand-toggled: named after a theme, it belongs to it, and
+# `theme <id>` turns it on for `blueprint` and comments it out for anything else.
+custom-shader = shaders/blueprint.glsl
 custom-shader-animation = false
 
 # breathe sideways — generous padding so that Claude Code's dense
