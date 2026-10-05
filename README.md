@@ -27,7 +27,7 @@ The design rationale (what is versioned vs. per-machine, and why every non-obvio
 | `install.sh` | macOS entry point — symlinks + Homebrew deps + Claude Code setup |
 | `install-linux.sh` | Ubuntu/Debian/WSL2 — same symlinks minus Ghostty; apt + GitHub release binaries |
 | `install-windows.ps1` | Native Windows — Claude Code pieces, Nerd Fonts and the theme for Windows Terminal only |
-| `.github/workflows/lint.yml` | CI: shellcheck + `bash -n` / `zsh -n`, Lua and JSON syntax, PowerShell parse. Static only — nothing installs |
+| `.github/workflows/lint.yml` | CI: shellcheck + `bash -n` / `zsh -n`, Lua, JSON and Python syntax, PowerShell parse + PSScriptAnalyzer, and checks that the hand-synced pairs (theme halves, `settings.sh` ↔ `install-windows.ps1`, the logbook manifests and hooks) agree. Static only — nothing installs |
 | `runbook/` | Step-by-step bring-up per OS (`macos.md`, `linux-wsl2.md`, `windows.md`): prerequisites, order of operations, verify, troubleshooting, undo |
 
 ## Setup on a new machine

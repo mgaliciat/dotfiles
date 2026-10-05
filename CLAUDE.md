@@ -14,11 +14,24 @@ Personal dotfiles for macOS (Ghostty + Homebrew), with a portable subset for Lin
 - `exec zsh` after editing `zsh/`.
 - `Cmd+Shift+R` in Ghostty after editing `ghostty/` — it does not watch its config.
 
-No build and no test suite. CI (`.github/workflows/lint.yml`) runs static checks only:
-shellcheck + `bash -n` over the installers and `claude/install/*.sh`, `zsh -n` over the
-zsh files, `luac5.1 -p` over every nvim lua file, `jq empty` over the JSON, and a
-PowerShell parse of `install-windows.ps1`. The nvim config is deliberately not parsed
-(it needs its plugins to load). Runtime validation is running the installer.
+No build and no test suite. CI (`.github/workflows/lint.yml`, read-only token, actions
+pinned to SHAs) runs static checks only:
+
+- syntax: shellcheck + `bash -n` over every bash script, `zsh -n` over every file in
+  `zsh/`, `luac5.1 -p` over every nvim lua file, `jq empty` over the JSON, the
+  `claude/hooks/*.py` parsed against the 3.9 grammar (the Mac's `/usr/bin/python3`),
+  and the PowerShell parser plus PSScriptAnalyzer at Error severity over the three
+  `.ps1` files;
+- the pairs kept in sync by hand: `scripts/theme` bare (the two selection lines agree),
+  every `ghostty/themes/<id>` has its nvim half and the reverse (`solarized-osaka`'s is
+  `nvim/lua/plugins/solarized-osaka.lua`), every key `settings.sh` sets is mentioned in
+  `install-windows.ps1`, the two logbook manifests agree on name/version/description/
+  author, and `logbook.sh` and `logbook.ps1` hand the model the same reminder (the `.sh`
+  em dash folded to the `.ps1`'s ASCII `-`);
+- one smoke test, for `no-bash-edits.py`, which fails open by design.
+
+The nvim config is deliberately not loaded (it needs its plugins). Runtime validation is
+running the installer.
 
 ## Layout
 

@@ -121,7 +121,8 @@ cd $HOME\dotfiles; git pull; .\install-windows.ps1
 ```
 
 This script hand-replicates `claude/install/settings.sh`; CI fails when a
-`settings.json` key exists on one side only, but nothing checks the *values*.
+`settings.json` key `settings.sh` sets is never mentioned here, but nothing
+checks the *values*.
 If a mac/Linux change looks missing here, that is where to look.
 
 ## Troubleshooting
