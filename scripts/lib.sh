@@ -37,6 +37,7 @@ link() {
 link_portable() {
   link "$DOTFILES/zsh/.zshrc"             "$HOME/.zshrc"
   link "$DOTFILES/zsh/.zshenv"            "$HOME/.zshenv"
+  link "$DOTFILES/zsh/.zprofile"          "$HOME/.zprofile"
   link "$DOTFILES/git/.gitignore_global"  "$HOME/.gitignore_global"
   link "$DOTFILES/nvim"                   "$HOME/.config/nvim"
   link "$DOTFILES/lazygit/config.yml"     "$HOME/.config/lazygit/config.yml"

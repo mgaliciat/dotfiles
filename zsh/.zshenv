@@ -6,36 +6,23 @@
 # ═══════════════════════════════════════════════════════════════
 
 # ─── PATH ─────────────────────────────────────────────────────
-# Cross-platform: each block is prepended only if the dir exists.
-# Final order (first = highest priority):
-#   $HOME/.local/bin → pyenv (shims, bin) → Homebrew (mac or linux)
-#   → $HOME/.cargo/bin → rest of the PATH
-# ~/.zshenv.local can prepend afterwards and win priority.
-
-# Cargo (Rust tools on Linux/WSL: zoxide, delta, etc.)
-[[ -d "$HOME/.cargo/bin" ]] && export PATH="$HOME/.cargo/bin:$PATH"
-
-# Linuxbrew (rare, but supported for completeness)
-[[ -d "/home/linuxbrew/.linuxbrew/bin" ]] && \
-  export PATH="/home/linuxbrew/.linuxbrew/bin:/home/linuxbrew/.linuxbrew/sbin:$PATH"
-
-# Homebrew macOS Apple Silicon
-[[ -d "/opt/homebrew/bin" ]] && \
-  export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
-
-# pyenv — the shims dir is what makes `python`/`pip` resolve to the pyenv
-# version, and it is only a directory of executables: putting it on PATH costs
-# no fork, unlike `pyenv init`. Here rather than behind the lazy `pyenv()` in
-# .zshrc, which only fires when `pyenv` itself is typed and leaves `python` on
-# the system interpreter until then; and here rather than in .zshrc so scripts
-# and Claude Code's shell get the same interpreter as the prompt.
-# Ahead of Homebrew, whose python3 arrives as a dependency of other formulae.
+# In its own file because .zprofile has to apply it again after /etc/zprofile.
+# %x (prompt expansion) is the file being sourced; :A resolves the ~/.zshenv
+# symlink into the repo, where path.zsh sits beside it — the same lookup
+# .zshrc uses for functions.zsh. Not silenced: a shell without its PATH
+# should say so.
+#
+# PYENV_ROOT is set here, not in path.zsh, so the .zprofile pass reads whatever
+# ~/.zshenv.local left in it instead of resetting it.
 export PYENV_ROOT="$HOME/.pyenv"
-[[ -d "$PYENV_ROOT/bin" ]]   && export PATH="$PYENV_ROOT/bin:$PATH"
-[[ -d "$PYENV_ROOT/shims" ]] && export PATH="$PYENV_ROOT/shims:$PATH"
+source "${${(%):-%x}:A:h}/path.zsh"
 
-# ~/.local/bin always wins — preserves the original behavior.
-export PATH="$HOME/.local/bin:$PATH"
+# ─── system rc files ──────────────────────────────────────────
+# Ubuntu/Debian's /etc/zsh/zshrc runs its own full, uncached `compinit` in
+# every interactive shell unless this is set — before ~/.zshrc, whose 24h-cached
+# compinit then pays a second time. Only .zshenv is read early enough to set
+# it. A no-op on macOS, whose /etc/zshrc never calls compinit.
+skip_global_compinit=1
 
 # ─── CLI tool env vars ────────────────────────────────────────
 # bat — uses the terminal's 16 ANSI colors instead of its own theme, so it
