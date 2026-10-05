@@ -35,17 +35,31 @@ try {
 
     # `git commit` anywhere in the command: it is routinely the tail of a chain.
     # Deliberately loose — a false positive costs one line of context, a false
-    # negative costs the note.
-    if ($Cmd -notlike '*git commit*') { exit 0 }
-    if ($Cmd -like '*--dry-run*') { exit 0 }
+    # negative costs the note. Same pattern as logbook.sh: global options may
+    # precede `commit` — `-C <dir>` / `-c <key=val>` with a value that may be
+    # quoted and hold spaces (`C:\Users\First Last`), and long ones like
+    # `--no-pager` — and `commit-tree` / `committed` do not count. The c-prefixed
+    # operators keep it case-sensitive like bash; plain -match / -like ignore case.
+    if ($Cmd -cnotmatch 'git(\s+(-[cC]\s+([^\s"'']|"[^"]*"|''[^'']*'')+|--[\w-]+(=\S+)?))*\s+commit([^\w-]|$)') { exit 0 }
+    if ($Cmd -clike '*--dry-run*') { exit 0 }
 
     # PostToolUse only fires on a tool call that SUCCEEDED (failures route to
     # PostToolUseFailure), so exit status is already handled. This catches the one
     # case that succeeds without producing a commit.
+    # Serialized as JSON, like jq's `tostring` in logbook.sh — NOT Out-String,
+    # which renders a console-width table and can wrap the phrase across lines.
+    # -WarningAction: pwsh 7 warns when -Depth truncates, and a warning on the
+    # host's stdout would break the JSON this script prints.
     $Response = ''
-    if ($null -ne $In.tool_response) { $Response = ($In.tool_response | Out-String) }
-    if ($Response -like '*nothing to commit*') { exit 0 }
+    if ($In.tool_response -is [string]) {
+        $Response = $In.tool_response
+    } elseif ($null -ne $In.tool_response) {
+        $Response = $In.tool_response | ConvertTo-Json -Depth 5 -Compress -WarningAction SilentlyContinue
+    }
+    if ($Response -clike '*nothing to commit*') { exit 0 }
 
+    # " - " where logbook.sh has an em dash, on purpose: powershell.exe (5.1) reads
+    # a BOM-less script as ANSI, so a literal em dash would reach the model mangled.
     $Context = 'A git commit just landed. If this commit closes a meaningful unit of work (not a WIP step), invoke the `logbook:entry` skill now to write the per-invocation note - what changed and, above all, WHY, which the diff will not preserve. If it is a WIP step, say so in one line and skip it.'
 
     # -Depth 3: the default of 2 in Windows PowerShell 5.1 stringifies the nested

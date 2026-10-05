@@ -8,7 +8,7 @@ When this plugin is active, follow these rules for knowledge capture and vault i
 - **Vault paths:** Raw immutable notes live under `entries/YYYY-MM-DD-HHMM-<repo>.md`. Synthesized wiki pages live under `wiki/`. `logbook` is the tooling/plugin name, never a folder path in the vault.
 
 ## 2. Tooling
-- Always use the `logbook-mcp` MCP tools (`write`, `edit`, `search`, `links`, `exec`, `checkpoint`) to interact with the vault.
+- Always use the `logbook-mcp` MCP tools (e.g. `write`, `edit`, `search`, `links`, `exec`, `checkpoint`) to interact with the vault.
 - Do not use standard filesystem tools (e.g. direct file writes) for the vault: it is remote, and the MCP is the only way in.
 - If the `logbook-mcp` MCP server is unreachable, report it to the user rather than silently writing to temporary local files.
 
