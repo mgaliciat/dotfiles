@@ -16,8 +16,13 @@ return {
     view_options = {
       show_hidden = true,                             -- dotfiles visible (consistent with telescope)
     },
+    -- oil's defaults bind <C-h> (open in a split) and <C-l> (refresh) in its
+    -- buffers, which shadows the window-navigation keys from keymaps.lua the
+    -- moment the cursor is in oil. `false` drops the default; `:e` refreshes.
     keymaps = {
-      ["q"] = "actions.close",                        -- q closes the oil buffer
+      ["q"]     = "actions.close",                    -- q closes the oil buffer
+      ["<C-h>"] = false,
+      ["<C-l>"] = false,
     },
   },
   keys = {

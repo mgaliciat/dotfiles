@@ -72,7 +72,10 @@ return {
         vim.api.nvim_set_hl(0, group, {})
       end
     end
-    vim.api.nvim_create_autocmd("ColorScheme", { callback = unpaint })
+    vim.api.nvim_create_autocmd("ColorScheme", {
+      group    = vim.api.nvim_create_augroup("snacks_words_unpaint", { clear = true }),
+      callback = unpaint,
+    })
     unpaint()
   end,
   ---@type snacks.Config
