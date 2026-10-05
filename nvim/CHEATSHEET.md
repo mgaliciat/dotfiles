@@ -81,7 +81,7 @@ Every keymap below is taken from `lua/config/keymaps.lua` (native) or the `keys 
 | `]d` / `[d` | Diagnostic | native (`keymaps.lua`) |
 | `]h` / `[h` | Git hunk | gitsigns (LSP-independent, any git buffer) |
 | `]f` / `[f` | Function start | treesitter textobjects |
-| `]c` / `[c` | Class start | treesitter textobjects |
+| `]c` / `[c` | Class start; in a diff window (`nvim -d`, a mergetool), next / prev change | treesitter textobjects; native in diff mode |
 | `]t` / `[t` | Failed test | neotest |
 | `]T` / `[T` | TODO / FIX / HACK comment | todo-comments |
 | `]]` / `[[` | Reference of the symbol under the cursor | snacks.words (LSP) |

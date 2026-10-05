@@ -9,18 +9,9 @@
 # per host and was dragging personal state into a public repo. memory/ isn't even
 # symlinked anymore (see install.sh). *.backup.* is already covered above.
 #
-# skills/ is per-machine EXCEPT the skills we hand-author and version — those are
-# symlinked per-item into ~/.claude/skills/ (settings.sh) and must be tracked here.
-# So: ignore everything under skills/, then whitelist ours by name. Anything not
-# listed (`learned`, `codebase-memory`, …) stays per-machine. The `logbook` plugin
-# is NOT here: it lives in plugins/ (top level, nothing ignored) because it is
-# shared with Antigravity and no longer belongs to claude/.
-#
-# RENAMING A VERSIONED SKILL MEANS EDITING THE WHITELIST IN THE SAME COMMIT. The
-# entry is a literal name, so `git mv` on a skill dir drops the old path from the
-# index and silently declines to add the new one — `git status` then reports a
-# clean tree with the skill deleted from the repo. That is how `bitacora` + `wiki`
-# nearly vanished when they became `logbook` (sep-2026).
+# skills/ is per-machine (`learned`, `codebase-memory`, …) and nothing versioned
+# lives under claude/skills/: the `logbook` plugin is in plugins/ because it is
+# shared with Antigravity. The entry guards against a skill copied in by hand.
 #
 # RTK.md is rtk's own command reference. `rtk init` writes it to ~/.claude/ and
 # imports it from ~/.claude/CLAUDE.md — a symlink to the versioned file, so the
@@ -30,8 +21,7 @@
 claude/settings.json
 claude/memory/
 claude/RTK.md
-claude/skills/*
-!claude/skills/team/
+claude/skills/
 
 # Git config — per-machine (each Mac has its own credentials, 1Password vaults,
 # signing keys). Only .gitignore_global is versioned.

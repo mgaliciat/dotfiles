@@ -18,8 +18,8 @@ Read [`README.md`](README.md) in this folder first for the two silent guards.
   Administrator), symlinks fail and the script **copies** the files instead,
   warning on screen. Copies work today but a `git pull` no longer propagates
   until you enable Developer Mode and re-run.
-- **Claude Code** on PATH, if you want the MCP servers registered on the first
-  pass.
+- **Claude Code** on PATH, if you want the `context7` MCP server registered on
+  the first pass.
 - **Windows Terminal**, for the theme, font and keybinding blocks. Absent, they
   skip.
 - Optional: **scoop** (for the Nerd Fonts — install it in a *non-admin* shell,
@@ -83,9 +83,10 @@ fallback for symlinks, and scoop refuses to run under it.
    - a Windows Terminal colour scheme generated from `ghostty/themes/<$WtTheme>`,
      the font `$WtFont` at weight `$WtFontWeight` and size `$WtFontSize` with
      `liga` on, the rest of the ghostty look in WT's spelling (`$WtAppearance`:
+     `background` `#031219` — craftzdog's canvas over the scheme's —,
      `opacity` + `useAcrylic`, `cursorShape`, `padding`, `bellStyle`,
-     `historySize`, `adjustIndistinguishableColors`; craftzdog fg/bg overrides
-     are off under typesafe), and the keybindings `ctrl+shift+l` → `claude`,
+     `historySize`, `adjustIndistinguishableColors`; his `foreground` override
+     is off), and the keybindings `ctrl+shift+l` → `claude`,
      `ctrl+shift+y` → `claude --dangerously-skip-permissions`.
      `$WtAppearance` is **additive-only**: a key already present in
      `profiles.defaults` is reported and left alone.

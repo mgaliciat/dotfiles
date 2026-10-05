@@ -13,7 +13,9 @@ The design rationale (what is versioned vs. per-machine, and why every non-obvio
 | Path | What |
 |---|---|
 | `zsh/.zshrc` | Interactive shell config (no framework — startup ~50ms) |
-| `zsh/.zshenv` | Env vars and PATH, loaded by every zsh, non-interactive included |
+| `zsh/.zshenv` | Env vars, loaded by every zsh, non-interactive included |
+| `zsh/path.zsh` | The PATH, sourced by `.zshenv` and again by `.zprofile` |
+| `zsh/.zprofile` | Login shells only: re-applies `path.zsh` after macOS's `path_helper` has reordered PATH |
 | `zsh/functions.zsh` | Shell functions, incl. `claude --api` / `code --api` (run through the API gateway, see below) |
 | `ghostty/` | Ghostty config (`config.ghostty`) + `themes/` (the palettes of the cross-stack theme) |
 | `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*` (one file per plugin), `lua/themes/*` for the stack theme. Cheatsheet: `nvim/CHEATSHEET.md` |
@@ -48,8 +50,8 @@ cd ~/dotfiles
 
 `install.sh` is idempotent — re-run it after every `git pull`. It backs up anything it would overwrite as `<file>.backup.<timestamp>` and then:
 
-1. **Symlinks** `.zshrc`, `.zshenv`, `.gitignore_global`, ghostty (config + themes), nvim, lazygit, `~/.local/bin/{claude-api-env,theme}`, and the Claude pieces (`~/.claude/CLAUDE.md`, `statusline.sh`, `hooks/logbook.sh`, `hooks/no-bash-edits.py`, `skills/logbook`).
-2. **Installs missing Homebrew deps** (see `REQUIRED_FORMULAE` / `REQUIRED_CASKS` in the script): the zsh plugins, `eza`, `bat`, `fd`, `ripgrep`, `gomi`, `zoxide`, `fzf`, `jq`, `gh`, `git-delta`, `pyenv`, `neovim`, `tree-sitter-cli`, `lazygit`, `rtk`; casks `ghostty`, `1password-cli` and the fonts `config.ghostty` names. Paper Mono has no cask and is fetched from its GitHub release.
+1. **Symlinks** `.zshrc`, `.zshenv`, `.zprofile`, `.gitignore_global`, ghostty (config, shaders, themes), nvim, lazygit, `~/.local/bin/{claude-api-env,theme}`, and the Claude pieces (`~/.claude/CLAUDE.md`, `statusline.sh`, `themes/*.json`, `hooks/logbook.sh`, `hooks/no-bash-edits.py`, `skills/logbook`, plus `~/.gemini/config/plugins/logbook` for Antigravity).
+2. **Installs missing Homebrew deps.** The list is `REQUIRED_FORMULAE` / `REQUIRED_CASKS` in `install.sh`: the zsh plugins, the CLI tools `.zshrc` leans on, `neovim`, `lazygit`, `jq` (step 3 needs it), `rtk`; casks `ghostty`, `1password-cli` and the fonts `config.ghostty` names. Paper Mono has no cask and is fetched from its GitHub release.
 3. **Configures Claude Code** — additive, nothing you set by hand on that machine is clobbered; the one list that converges is `permissions.ask`/`deny`, where the repo's rules are unioned into whatever the machine has. Split by who writes `~/.claude/settings.json` (`claude/install/README.md`): our `jq` merges (statusline, base permissions, no attribution trailer, the logbook `PostToolUse` hook, the `no-bash-edits` `PreToolUse` hook, `CLAUDE_CODE_THRIFTY_SONIC=0`), the external binaries' own setup ([`rtk`](https://github.com/rtk-ai/rtk), [`codebase-memory-mcp`](https://github.com/DeusData/codebase-memory-mcp), the `context7` MCP endpoint, the `gh-stack` skill), and the plugin CLI (currently nothing).
 4. Installs the `gh-stack` extension for `gh`.
 5. Registers VS Code as the default app for `.ghostty` files (if VS Code is installed).
@@ -79,7 +81,7 @@ One theme id spans Ghostty and nvim (and Windows Terminal, derived from the Ghos
 - `ghostty/config.ghostty` → `theme = <id>`
 - `nvim/lua/config/options.lua` → `vim.g.theme = "<id>"`
 
-Currently `dia-de-muertos`. The family and each theme's provenance are documented in `CLAUDE.md` ("The stack theme"); the palettes live in `ghostty/themes/` and `nvim/lua/themes/`.
+Currently `dia-de-muertos`. The mechanics are in `CLAUDE.md` ("The stack theme") and each palette's provenance in [`ghostty/themes/README.md`](ghostty/themes/README.md); the palettes live in `ghostty/themes/` and `nvim/lua/themes/`.
 
 ## Claude Code through an API gateway
 
@@ -91,6 +93,7 @@ The env file holds a credential: per-machine, `chmod 600`, never versioned, and 
 
 - **`~/.gitconfig.local`** — git identity (`user.name`, `user.email`, signing key). Your `~/.gitconfig` includes it via `[include]` at the end, so it wins.
 - **`~/.zshrc.local`** — aliases/functions for this machine only; sourced last by `.zshrc`.
+- **`~/.zprofile.local`** — login-shell setup for this machine only (e.g. OrbStack's init line); sourced last by `.zprofile`, so a PATH entry prepended here is the one that beats the system dirs in a login shell.
 - **`~/.zshenv.local`** — secrets (API keys, DB passwords), sourced last by `.zshenv`:
 
   ```sh
@@ -104,4 +107,4 @@ The env file holds a credential: per-machine, `chmod 600`, never versioned, and 
 
 ## License
 
-[MIT](LICENSE). Third-party pieces keep their own: `scripts/ide` is adapted from craftzdog's dotfiles, the `solarized-osaka` palette is his plugin's, and the themes ported from elsewhere name their source in `CLAUDE.md` ("The stack theme").
+[MIT](LICENSE). Third-party pieces keep their own: the `solarized-osaka` palette is craftzdog's plugin's, and the themes ported from elsewhere name their source in [`ghostty/themes/README.md`](ghostty/themes/README.md).

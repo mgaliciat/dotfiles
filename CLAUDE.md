@@ -24,7 +24,7 @@ PowerShell parse of `install-windows.ps1`. The nvim config is deliberately not p
 
 | Path | What |
 |---|---|
-| `zsh/` | `.zshrc` (interactive), `.zshenv` (env + PATH), `functions.zsh` |
+| `zsh/` | `.zshrc` (interactive), `.zshenv` (env), `path.zsh` (PATH, sourced by `.zshenv` and again by `.zprofile` after macOS's `path_helper`), `functions.zsh` |
 | `ghostty/` | `config.ghostty` + `themes/` |
 | `nvim/` | lazy.nvim, `lua/plugins/*` one file per plugin, `lua/themes/*` |
 | `claude/` | User-level Claude Code: `CLAUDE.md`, `statusline.{sh,ps1}`, `themes/`, `hooks/`, `install/` |
@@ -76,7 +76,15 @@ lazygit's `theme:` block from the ghostty palette, and reports a pinned
 the two selection lines disagree.
 
 Adding a theme = its two definitions (`ghostty/themes/<id>`,
-`nvim/lua/themes/<id>.lua`). Provenance of each palette is in
+`nvim/lua/themes/<id>.lua`). The nvim module wraps its spec in
+`require("themes._base")`, which maps the palette onto tokyonight's slots and paints
+the fixed-role groups (cursorline, floats, telescope frame, gitsigns, markdown code);
+the module passes only what that theme does differently — its own `on_colors` /
+`on_highlights`, which run after the shared ones, and an optional `code` table for
+markdown code colours. The spec is documented in `_base.lua`'s header. The one
+exception is `solarized-osaka`: no `nvim/lua/themes/` module, it is rendered by its own
+plugin (`nvim/lua/plugins/solarized-osaka.lua`), and `scripts/theme` accepts that id by
+name. Provenance of each palette is in
 `ghostty/themes/README.md`. The Claude Code theme is optional and exists for a canvas
 the brand colours cannot read on, or for a theme whose accent should carry into the TUI
 (`dia-de-muertos`): `base: light-ansi`/`dark-ansi` makes the TUI take its colours from the

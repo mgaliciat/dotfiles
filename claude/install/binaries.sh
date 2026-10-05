@@ -251,7 +251,7 @@ fi
 # ── convergent cleanup: the line the binary puts in ~/.zshrc ──
 # The binary (src/cli/cli.c, cbm_detect_shell_rc) does its own
 # fopen(~/.zshrc, "a") and appends `export PATH=...` if it does not find an exact
-# TEXTUAL match. Our PATH lives in zsh/.zshenv with `$HOME` (not the expanded
+# TEXTUAL match. Our PATH lives in zsh/path.zsh with `$HOME` (not the expanded
 # absolute path), so that naive check never recognizes it and it always re-adds
 # its line, with THIS machine's path hardcoded. Since ~/.zshrc is a symlink into
 # the repo, that dirties the VERSIONED file — and since `install -y` runs on
