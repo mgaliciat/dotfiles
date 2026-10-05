@@ -334,6 +334,20 @@ alpha-blending = linear-corrected
 # get it back. `custom-shader-animation` is left set — it is inert without a
 # shader and the CRT wants it false.
 # custom-shader = shaders/crt.glsl
+#
+# `blueprint` (2026-10-05): the terminal as a night blueprint sheet, made for
+# the `blueprint` theme — a 24px minor / 120px major cyan grid, a margin frame
+# inside the padding with registration circles on its corners, a faint ink
+# bleed around the glyphs and the grain and uneven exposure of cyanotype
+# paper. Static like the CRT. The line work is drawn only where the canvas
+# shows (the glass, or cells a TUI paints in the canvas colour) and breaks
+# around lettering, so it never crosses text, the selection or a coloured
+# panel. The canvas is read from Ghostty's `iBackgroundColor`, so the shader
+# follows whatever `background` the theme sets; the cyan ink is tuned for
+# blueprint's navy and clashes elsewhere. Sizes are device pixels tuned at 2×:
+# the frame sits 20px in, inside the padding below as long as it stays at
+# 18/22 or more on a Retina screen (on a 1× screen it brushes the first row).
+# custom-shader = shaders/blueprint.glsl
 custom-shader-animation = false
 
 # breathe sideways — generous padding so that Claude Code's dense
