@@ -19,19 +19,17 @@
 return {
   "nvim-mini/mini.bracketed",
   event = "BufReadPost",
-  config = function()
-    require("mini.bracketed").setup({
-      buffer     = { suffix = "" },
-      comment    = { suffix = "" },
-      diagnostic = { suffix = "" },
-      file       = { suffix = "" },
-      jump       = { suffix = "" },
-      location   = { suffix = "" },
-      oldfile    = { suffix = "" },
-      quickfix   = { suffix = "" },
-      treesitter = { suffix = "" },
-      undo       = { suffix = "" },
-      window     = { suffix = "" },
-    })
-  end,
+  opts = {
+    buffer     = { suffix = "" },
+    comment    = { suffix = "" },
+    diagnostic = { suffix = "" },
+    file       = { suffix = "" },
+    jump       = { suffix = "" },
+    location   = { suffix = "" },
+    oldfile    = { suffix = "" },
+    quickfix   = { suffix = "" },
+    treesitter = { suffix = "" },
+    undo       = { suffix = "" },
+    window     = { suffix = "" },
+  },
 }

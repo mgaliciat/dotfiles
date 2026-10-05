@@ -20,9 +20,14 @@
 return {
   "mrcjkb/rustaceanvim",
   version = "^6",
-  lazy = false,                     -- the plugin auto-activates by ft; "lazy = false" is the author's convention
-  ft = { "rust" },
-  config = function()
+  -- The plugin is already lazy by itself: it attaches from its own ftplugin
+  -- on the first .rs buffer, so `lazy = false` (upstream's advice) costs
+  -- nothing and an `ft` trigger would add nothing.
+  lazy = false,
+  -- `init`, not `config`: rustaceanvim reads `vim.g.rustaceanvim` once, the
+  -- first time it initialises, and `:checkhealth rustaceanvim` errors when the
+  -- variable was set after that. `init` runs before anything can load it.
+  init = function()
     vim.g.rustaceanvim = {
       tools = {
         -- Runnables/testables run in a neotest-style task, not a split

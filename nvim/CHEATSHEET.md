@@ -519,7 +519,7 @@ Everything starts **expanded** (`foldlevel = 99`). nvim-ufo used to do this (pee
 
 Also on: snacks indent guides with scope highlight, incline (the filename floating in each window's top-right corner — what tells the splits apart, with the focused one on an accent background), highlight-colors (inline `#hex` swatches), snacks.bigfile (files over 1.5 MB or with 1000-char lines open with treesitter, LSP and folds off — `ft=bigfile`). Smooth scroll is off (it fought the trackpad).
 
-**Statusline (lualine), right side, left to right:** `󰑊 @q` while recording a macro · `` + the LSP clients attached to this buffer · `󰁨` + the nvim-lint linters for this filetype · `󰉼` + the conform formatters that are actually available (a configured-but-missing one is not shown — that is the tell) · filetype. On the left, after the diagnostics, `󱡅 2/4` when the file is in the harpoon list.
+**Statusline (lualine), right side, left to right:** `󰑊 @q` while recording a macro · `` + the LSP clients attached to this buffer · `󰁨` + the nvim-lint linters for this filetype · `󰉼` + the conform formatters that are actually available (a configured-but-missing one is not shown — that is the tell, once conform has loaded: the segment stays empty until the first save or `<leader>cf`) · filetype. On the left, after the diagnostics, `󱡅 2/4` when the file is in the harpoon list (from the first harpoon key of the session on — the statusline does not load harpoon itself).
 
 ---
 
