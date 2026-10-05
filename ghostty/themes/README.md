@@ -65,6 +65,33 @@ at 5.9:1 here. It turns the spinner cempasúchil (`#fc9417`, shimmer `#ffbb76`)
 and puts the message backgrounds and diffs on the theme's own ladder and hues,
 `dark-ansi` taking everything else from the Ghostty slots.
 
+**`blueprint`** · A drafting sheet read at night, made in October 2026. The
+cyanotype gives the hues and nothing else — Prussian-blue canvas taken down to
+a night, the white of the cyanotype line for text, the cyan of a lit drafting
+line as the accent, the architect's redline correction pencil for red,
+highlighter yellow, surveyor's orange (nvim only), graphite-on-blue comments.
+A blueprint carries no green or magenta ink; those two are filled in on-palette.
+
+Lightness and chroma are set per role in OKLCH, the same scheme as
+`dia-de-muertos`: normals at L 0.68–0.84 (yellow at the top, cyan 0.76),
+brights 9–14 at 0.80–0.90 with chroma lowered to 0.09–0.11, grays and the
+background ladder on the canvas hue (h 252, graphite at h 245), the text and
+ANSI 7/15 on the cyanotype-white hue (h 224–231), and the ladder in the same
+L steps (0.165 / 0.20 / 0.245 / 0.31 / 0.355). Normals land at 5.7–8.8:1
+over the `#04172c` canvas (yellow 11.1:1), brights at 9.2–13.5:1, graphite
+comments at 5.4:1, text at 14.8:1, measured in sRGB. The cyan
+accent `#4be4ff` is the cursor in Ghostty.
+
+**Unlike `dia-de-muertos`, ANSI 12 stays a real bright blue `#97c9fd`**, so
+the Ghostty file and nvim agree on every slot. Claude Code still paints inline
+code in ANSI 12, but on a blueprint blue is the theme's own ink, so there is
+nothing to redirect.
+
+Its Claude Code theme (`claude/themes/blueprint.json`) exists for the accent:
+on `dark-ansi` it turns the spinner the drafting-line cyan (`#4be4ff`, shimmer
+`#86e2f0`) and puts the message backgrounds and diffs on the theme's own ladder
+and hues, taking everything else from the Ghostty slots.
+
 ## `solarized-osaka` — the one with a plugin behind it
 
 craftzdog's deep-ocean theme. The id is the full plugin name in both
