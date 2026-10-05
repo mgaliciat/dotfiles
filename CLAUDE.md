@@ -90,6 +90,7 @@ Some things are versioned, some deliberately are not:
 |---|---|
 | `zsh/.zshrc` | `~/.zshrc.local` (sourced last) |
 | `zsh/.zshenv` | `~/.zshenv.local` (sourced last) |
+| `zsh/.zprofile` | `~/.zprofile.local` (sourced last) |
 | `git/.gitignore_global` | `~/.gitconfig` (not symlinked at all) |
 | `claude/CLAUDE.md` | `~/.claude/settings.json` |
 | `claude/install/*` | `~/.claude/skills/`, `~/.claude/projects/*/memory/` |
