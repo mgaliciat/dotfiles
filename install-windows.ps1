@@ -84,11 +84,67 @@ function Test-SameContent {
     return $false
 }
 
+# Run a native command (claude/rtk/scoop/mklink...) reporting success via its exit
+# code, WITHOUT letting stderr kill the script. Under this script's
+# $ErrorActionPreference='Stop', PowerShell 5.1 turns ANY stderr write by a native
+# exe into a TERMINATING NativeCommandError -- even through 2>&1 -- and `claude mcp
+# get` (server absent) / `claude plugin add` ("already installed") write to stderr
+# on perfectly benign paths. Flip EAP to Continue for just the call and return the
+# exit code; it never throws. Output is swallowed unless the caller passes a [ref] to receive it
+# (stdout lines as strings and stderr lines as ErrorRecords, interleaved;
+# stringify before matching).
+#
+# $LASTEXITCODE is zeroed first, both through `$global:`. A PowerShell SCRIPT (scoop is
+# one) sets it only when it calls `exit`, so without the reset a script that simply
+# finishes would report whatever the previous native command left behind. Plain
+# `$LASTEXITCODE = 0` here would create a function-local shadow that the native
+# call never updates.
+#
+# The scriptblock runs in a child of THIS function's scope, so it resolves the
+# caller's variables dynamically -- and a caller variable named like one of the
+# locals below would be shadowed by it. Hence the unusual names.
+function Invoke-Native {
+    param([scriptblock]$Cmd, [ref]$NativeOutputRef)
+    $NativePrevEap = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        $global:LASTEXITCODE = 0
+        $NativeLines = @(& $Cmd 2>&1)
+        if ($NativeOutputRef) { $NativeOutputRef.Value = $NativeLines }
+        return $global:LASTEXITCODE
+    }
+    catch {
+        # A command that cannot even start (not found, blocked by policy) is a
+        # failure like any non-zero exit, not a reason to kill the installer.
+        if ($NativeOutputRef) { $NativeOutputRef.Value = @("$_") }
+        return 1
+    }
+    finally { $ErrorActionPreference = $NativePrevEap }
+}
+
+# Append $Dir to the user PATH (persistent) and to this process's PATH, once.
+# Compared entry by entry, not as a substring of the whole string: `-like "*$Dir*"`
+# matched `...\rtk` inside `...\rtk2` and read `[` in a path as a wildcard. An
+# empty user PATH must not become ";<dir>" either -- hence the join over the
+# non-empty entries.
+function Add-UserPath {
+    param([string]$Dir)
+    $Entries = @([Environment]::GetEnvironmentVariable("PATH", "User") -split ';' | Where-Object { $_ })
+    if ($Entries | Where-Object { $_.TrimEnd('\') -eq $Dir.TrimEnd('\') }) { return }
+    $NewUserPath = (@($Entries) + $Dir) -join ';'
+    [Environment]::SetEnvironmentVariable("PATH", $NewUserPath, "User")
+    $env:PATH = "$env:PATH;$Dir"
+    Write-Host "OK  $Dir added to the user PATH"
+}
+
 function Set-DotfileSymlink {
     param([string]$Source, [string]$Destination)
 
-    if (Test-Path $Destination) {
-        $existing = Get-Item $Destination -Force
+    # Get-Item, NOT Test-Path: Test-Path follows the link and answers $false for a
+    # DANGLING symlink, so the stale link was left in place, mklink failed on it,
+    # and the fallback copied the file onto the broken link.
+    $existing = Get-Item -LiteralPath $Destination -Force -ErrorAction SilentlyContinue
+    if ($existing) {
         if ($existing.LinkType -eq "SymbolicLink") {
             # .Delete() drops a DIRECTORY symlink's reparse point WITHOUT recursing
             # into the target -- `Remove-Item` on a dir symlink can delete the target's
@@ -124,13 +180,8 @@ function Set-DotfileSymlink {
     $mkArgs += @($Destination, $Source)
 
     # mklink reports failure on stderr, which this script's $ErrorActionPreference
-    # ='Stop' would turn into a terminating NativeCommandError (see Invoke-Native).
-    $prevEap = $ErrorActionPreference
-    $ErrorActionPreference = "Continue"
-    cmd /c mklink @mkArgs 2>&1 | Out-Null
-    $ErrorActionPreference = $prevEap
-
-    if ($LASTEXITCODE -eq 0) {
+    # ='Stop' would turn into a terminating NativeCommandError -- hence Invoke-Native.
+    if ((Invoke-Native { cmd /c mklink @mkArgs }) -eq 0) {
         Write-Host "OK  $Destination -> $Source"
     } else {
         Write-Host "!!  could not symlink $Destination (enable Developer Mode: Settings > System > For developers)" -ForegroundColor Yellow
@@ -139,20 +190,6 @@ function Set-DotfileSymlink {
         # dir. Harmless/ignored for a single-file target.
         Copy-Item $Source $Destination -Recurse -Force
     }
-}
-
-# Run a native command (claude/rtk) reporting success via its exit code, WITHOUT
-# letting stderr kill the script. Under this script's $ErrorActionPreference='Stop',
-# PowerShell 5.1 turns ANY stderr write by a native exe into a TERMINATING
-# NativeCommandError -- even through 2>&1 -- and `claude mcp get` (server absent) /
-# `claude plugin add` ("already installed") write to stderr on perfectly benign
-# paths. Flip EAP to Continue for just the call, swallow all output, return $LASTEXITCODE.
-function Invoke-Native {
-    param([scriptblock]$Cmd)
-    $prev = $ErrorActionPreference
-    $ErrorActionPreference = "Continue"
-    try { & $Cmd 2>&1 | Out-Null; return $LASTEXITCODE }
-    finally { $ErrorActionPreference = $prev }
 }
 
 # ─── symlinks ──────────────────────────────────────────────────
@@ -230,10 +267,10 @@ foreach ($StaleAgentPath in @(
 # $WtTheme generated, so `/theme` inside Claude Code is where it gets picked.
 # Every JSON in the repo dir is linked, the same rule as settings.sh, so adding
 # or deleting a theme never needs an edit here.
-$ThemesDir = Join-Path $ClaudeDir "themes"
-New-Item -ItemType Directory -Path $ThemesDir -Force | Out-Null
+$ClaudeThemesDir = Join-Path $ClaudeDir "themes"
+New-Item -ItemType Directory -Path $ClaudeThemesDir -Force | Out-Null
 foreach ($ThemeJson in (Get-ChildItem (Join-Path $Dotfiles "claude\themes") -Filter *.json -File)) {
-    Set-DotfileSymlink $ThemeJson.FullName (Join-Path $ThemesDir $ThemeJson.Name)
+    Set-DotfileSymlink $ThemeJson.FullName (Join-Path $ClaudeThemesDir $ThemeJson.Name)
 }
 
 # The logbook's event half: a skill cannot fire on a git event, so the "log after
@@ -615,20 +652,14 @@ if (-not $RtkCmd -and -not (Test-Path $RtkExe)) {
 if ($RtkCmd) { $RtkExe = $RtkCmd.Source }
 
 if (Test-Path $RtkExe) {
-    $UserPath = [Environment]::GetEnvironmentVariable("PATH", "User")
-    if ($UserPath -notlike "*$RtkDir*") {
-        [Environment]::SetEnvironmentVariable("PATH", "$UserPath;$RtkDir", "User")
-        $env:PATH = "$env:PATH;$RtkDir"
-        Write-Host "OK  $RtkDir added to the user PATH"
-    }
-    try {
-        # --hook-only: without it rtk init also writes ~/.claude/RTK.md and
-        # appends an @RTK.md import to ~/.claude/CLAUDE.md -- which is a symlink
-        # into this public repo. The hook rewrites Bash transparently; there is
-        # nothing for the agent to invoke, so there is nothing to document.
-        & $RtkExe init --global --auto-patch --hook-only | Out-Null
+    Add-UserPath $RtkDir
+    # --hook-only: without it rtk init also writes ~/.claude/RTK.md and
+    # appends an @RTK.md import to ~/.claude/CLAUDE.md -- which is a symlink
+    # into this public repo. The hook rewrites Bash transparently; there is
+    # nothing for the agent to invoke, so there is nothing to document.
+    if ((Invoke-Native { & $RtkExe init --global --auto-patch --hook-only }) -eq 0) {
         Write-Host "OK  rtk Claude Code hook configured (or already there)"
-    } catch {
+    } else {
         Write-Host "!!  rtk init --global failed -- check by hand ($RtkExe init --global -v)" -ForegroundColor Yellow
     }
 
@@ -653,9 +684,8 @@ if (Test-Path $RtkExe) {
     # comment-stripped by rtk) must not spawn a backup on every run.
     $RtkCfgSrc = Join-Path $Dotfiles "claude\install\rtk-config.toml"
     $RtkCfg = $null
-    $prevEap = $ErrorActionPreference
-    $ErrorActionPreference = "Continue"
-    try { $RtkCfgOut = @(& $RtkExe config 2>&1) } finally { $ErrorActionPreference = $prevEap }
+    $RtkCfgOut = @()
+    [void](Invoke-Native { & $RtkExe config } ([ref]$RtkCfgOut))
     foreach ($ln in $RtkCfgOut) {
         if ("$ln" -match '^\s*Config:\s*(.+?)\s*$') { $RtkCfg = $Matches[1]; break }
     }
@@ -702,11 +732,27 @@ $CbmExe = Join-Path $CbmDir "codebase-memory-mcp.exe"
 # what catches that on the next run.
 $CbmStamp = Join-Path $CbmDir ".codebase-memory-mcp-ui"
 
-$CbmCmd = if (Test-Path $CbmExe) { $CbmExe } else { (Get-Command codebase-memory-mcp -ErrorAction SilentlyContinue).Source }
-$CbmHave = if ($CbmCmd) { (& $CbmCmd --version) -replace '^\S+\s+', '' } else { $null }
-$CbmStamped = if (Test-Path $CbmStamp) { (Get-Content $CbmStamp -Raw).Trim() } else { $null }
+# `--version` prints "codebase-memory-mcp <version>"; the stamp holds the version
+# alone. $null when the binary cannot report one, which the guard below treats as
+# "reinstall" -- a binary that fails its own --version is not one to keep.
+function Get-CbmVersion {
+    param([string]$Exe)
+    $CbmVerOut = @()
+    if ((Invoke-Native { & $Exe --version } ([ref]$CbmVerOut)) -ne 0) { return $null }
+    # stdout only: a stderr line (a log line, an update notice) that varies between
+    # runs would never match the stamp and force a reinstall on every run.
+    $Stdout = @($CbmVerOut | Where-Object { $_ -isnot [System.Management.Automation.ErrorRecord] })
+    $Version = (@($Stdout | ForEach-Object { "$_" -replace '^\S+\s+', '' }) -join "`n").Trim()
+    if ($Version) { return $Version } else { return $null }
+}
 
-if (-not $CbmCmd -or $CbmStamped -ne $CbmHave) {
+$CbmCmd = if (Test-Path $CbmExe) { $CbmExe } else { (Get-Command codebase-memory-mcp -ErrorAction SilentlyContinue).Source }
+$CbmHave = if ($CbmCmd) { Get-CbmVersion $CbmCmd } else { $null }
+# "$(...)" because Get-Content -Raw returns $null for an empty file, and .Trim()
+# on $null throws -- terminating, under this script's EAP.
+$CbmStamped = if (Test-Path $CbmStamp) { "$(Get-Content $CbmStamp -Raw)".Trim() } else { $null }
+
+if (-not $CbmCmd -or -not $CbmHave -or $CbmStamped -ne $CbmHave) {
     Write-Host ""
     Write-Host "-> Installing codebase-memory-mcp (UI build)"
     $Arch = if ($env:PROCESSOR_ARCHITECTURE -eq "ARM64") { "arm64" } else { "amd64" }
@@ -737,7 +783,9 @@ if (-not $CbmCmd -or $CbmStamped -ne $CbmHave) {
         Copy-Item (Join-Path $TmpDir "codebase-memory-mcp.exe") $CbmExe -Force
         Remove-Item "$CbmExe.old" -Force -ErrorAction SilentlyContinue
 
-        ((& $CbmExe --version) -replace '^\S+\s+', '') | Set-Content $CbmStamp -Encoding utf8
+        $CbmNewVersion = Get-CbmVersion $CbmExe
+        if (-not $CbmNewVersion) { throw "the new binary does not answer --version" }
+        Set-Content $CbmStamp -Value $CbmNewVersion -Encoding utf8
         Write-Host "OK  codebase-memory-mcp: UI build installed"
     } catch {
         Write-Host "!!  codebase-memory-mcp install failed: $_" -ForegroundColor Yellow
@@ -758,18 +806,28 @@ if (-not $CbmCmd -or $CbmStamped -ne $CbmHave) {
 # the binary we just wrote.
 $Cbm = if (Test-Path $CbmExe) { $CbmExe } else { (Get-Command codebase-memory-mcp -ErrorAction SilentlyContinue).Source }
 if ($Cbm) {
-    & $Cbm install -y | Out-Null
-    Write-Host "OK  codebase-memory-mcp: MCP server + skill registered"
-    & $Cbm config set auto_index true | Out-Null
-    Write-Host "OK  codebase-memory-mcp: auto_index=true"
+    if ((Invoke-Native { & $Cbm install -y }) -eq 0) {
+        Write-Host "OK  codebase-memory-mcp: MCP server + skill registered"
+    } else {
+        Write-Host "!!  codebase-memory-mcp install -y failed -- check by hand ($Cbm install -y)" -ForegroundColor Yellow
+    }
+    if ((Invoke-Native { & $Cbm config set auto_index true }) -eq 0) {
+        Write-Host "OK  codebase-memory-mcp: auto_index=true"
+    } else {
+        Write-Host "!!  codebase-memory-mcp: could not set auto_index -- check by hand" -ForegroundColor Yellow
+    }
     # 3D graph viewer on http://localhost:9749, served by the binary itself
     # (owned by the shared daemon, so parallel agent sessions do not each spawn
     # an HTTP server). `config set`, NOT the documented `--ui=true --port=N`:
     # those flags persist the same two keys but then BLOCK running the server,
-    # which would hang the installer.
-    & $Cbm config set ui_enabled true | Out-Null
-    & $Cbm config set ui_port 9749 | Out-Null
-    Write-Host "OK  codebase-memory-mcp: UI on http://localhost:9749"
+    # which would hang the installer. Both run even if the first fails.
+    $CbmUiEnabled = Invoke-Native { & $Cbm config set ui_enabled true }
+    $CbmUiPort    = Invoke-Native { & $Cbm config set ui_port 9749 }
+    if ($CbmUiEnabled -eq 0 -and $CbmUiPort -eq 0) {
+        Write-Host "OK  codebase-memory-mcp: UI on http://localhost:9749"
+    } else {
+        Write-Host "!!  codebase-memory-mcp: could not enable the UI -- check by hand" -ForegroundColor Yellow
+    }
 }
 
 # Mirror of the hook cleanup in claude/install/binaries.sh -- the why lives there.
@@ -852,14 +910,13 @@ if (-not $TgrepCmd -and -not (Test-Path $TgrepExe)) {
 if ($TgrepCmd) { $TgrepExe = $TgrepCmd.Source }
 
 if (Test-Path $TgrepExe) {
-    $UserPath = [Environment]::GetEnvironmentVariable("PATH", "User")
-    if ($UserPath -notlike "*$TgrepDir*") {
-        [Environment]::SetEnvironmentVariable("PATH", "$UserPath;$TgrepDir", "User")
-        $env:PATH = "$env:PATH;$TgrepDir"
-        Write-Host "OK  $TgrepDir added to the user PATH"
+    Add-UserPath $TgrepDir
+    $TgrepVerOut = @()
+    if ((Invoke-Native { & $TgrepExe --version } ([ref]$TgrepVerOut)) -eq 0) {
+        Write-Host "OK  tgrep installed ($(@($TgrepVerOut | ForEach-Object { "$_" }) -join ' '))"
+    } else {
+        Write-Host "!!  tgrep is present but '$TgrepExe --version' failed -- check by hand" -ForegroundColor Yellow
     }
-    $TgrepVer = (& $TgrepExe --version) -join " "
-    Write-Host "OK  tgrep installed ($TgrepVer)"
 }
 
 # ─── marketplace plugins (mechanism 3) ──────────────────────────
@@ -933,13 +990,12 @@ if ((Get-Command claude -ErrorAction SilentlyContinue) -and $env:CONTEXT7_API_KE
 # out on a re-run. Deliberately NOT convergent (no `gh extension upgrade`):
 # bumping the version is the user's call.
 if (Get-Command gh -ErrorAction SilentlyContinue) {
-    # Needs the OUTPUT, so Invoke-Native (which swallows it) is no use here --
-    # same EAP dance by hand so a stderr write cannot kill the script.
-    $prevEap = $ErrorActionPreference
-    $ErrorActionPreference = "Continue"
-    try { $GhExts = @(gh extension list 2>&1) } finally { $ErrorActionPreference = $prevEap }
+    # The exit code is not read: a failed listing just looks like "not
+    # installed", and the install below then reports the real error.
+    $GhExts = @()
+    [void](Invoke-Native { gh extension list } ([ref]$GhExts))
 
-    if ($GhExts -match 'github/gh-stack') {
+    if (@($GhExts | ForEach-Object { "$_" }) -match 'github/gh-stack') {
         Write-Host "OK  gh-stack extension already installed"
     } elseif ((Invoke-Native { $null | gh extension install github/gh-stack }) -eq 0) {
         Write-Host "OK  gh-stack installed (gh stack --help)"
@@ -989,12 +1045,13 @@ if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
 
 # ─── Nerd Fonts via scoop ───────────────────────────────────────
 # The subset of install.sh's REQUIRED_CASKS that (a) is an actual Nerd Font and
-# (b) exists in scoop's `nerd-fonts` bucket: Maple Mono NF (the primary, the one
-# ghostty sets as font-family) and Monaspace NF. Manifest names verified against
-# the bucket, not guessed — a typo would 404, not silently fall back. PlemolJP NF
-# is NOT in the bucket (it self-patches, it is not one of ryanoasis's fonts), so
-# it is installed separately below by direct download. iA Writer Mono is dropped
-# entirely — it is not a Nerd Font.
+# (b) exists in scoop's `nerd-fonts` bucket: Maple Mono NF and Monaspace NF, both
+# fallback coverage. Manifest names verified against the bucket, not guessed -- a
+# typo would 404, not silently fall back. The primary, the one ghostty sets as
+# font-family ($WtFont below), is PlemolJP Console NF, and it is NOT in the bucket
+# (it self-patches, it is not one of ryanoasis's fonts), so it is installed
+# separately below by direct download. iA Writer Mono is dropped entirely -- it is
+# not a Nerd Font.
 #
 # Guarded on scoop, NOT auto-installed: scoop's own installer refuses to run
 # under an elevated shell, and this script may be running as Administrator (for
@@ -1002,12 +1059,21 @@ if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
 # admin. If scoop is missing we print the one-liner and skip — best-effort, same
 # tone as the rest of the script. scoop itself is idempotent (re-runs say
 # "already installed"), so no guard around the install call.
+#
+# Through Invoke-Native although scoop is a PowerShell script, not an exe: a
+# Write-Error inside it would otherwise be terminating under this script's EAP.
+# `bucket add` is not branched on -- re-adding an existing bucket is not a
+# failure worth reporting, and a bucket that truly failed to add surfaces as the
+# install failing.
 if (Get-Command scoop -ErrorAction SilentlyContinue) {
     Write-Host ""
     Write-Host "-> Installing Nerd Fonts via scoop"
-    scoop bucket add nerd-fonts 2>&1 | Out-Null   # idempotent: "already added" if present
-    scoop install nerd-fonts/Maple-Mono-NF nerd-fonts/Monaspace-NF
-    Write-Host "OK  Nerd Fonts installed (or already there)"
+    [void](Invoke-Native { scoop bucket add nerd-fonts })
+    if ((Invoke-Native { scoop install nerd-fonts/Maple-Mono-NF nerd-fonts/Monaspace-NF }) -eq 0) {
+        Write-Host "OK  Nerd Fonts installed (or already there)"
+    } else {
+        Write-Host "!!  scoop install of the Nerd Fonts failed -- check by hand (scoop install nerd-fonts/Maple-Mono-NF nerd-fonts/Monaspace-NF)" -ForegroundColor Yellow
+    }
     Write-Host "    Set one in Windows Terminal: Settings > profile > Appearance > Font face"
     Write-Host "    Family names: 'Maple Mono NF', 'Monaspace ... NF' (check the exact"
     Write-Host "    name in the font viewer -- Nerd Fonts sometimes rename, e.g. MonaspiceNe)"
@@ -1255,8 +1321,8 @@ $WtBinds = @(
     @{ id = "User.claudeYolo"; keys = "ctrl+shift+y"; input = "claude --dangerously-skip-permissions`r" }
 )
 
-$ThemesDir    = Join-Path $Dotfiles "ghostty\themes"
-$GhosttyTheme = Join-Path $ThemesDir $WtTheme
+$GhosttyThemesDir = Join-Path $Dotfiles "ghostty\themes"
+$GhosttyTheme     = Join-Path $GhosttyThemesDir $WtTheme
 
 Write-Host ""
 Write-Host "-> Windows Terminal: scheme $WtTheme, font $WtFont ($WtFontWeight, ${WtFontSize}pt)"
@@ -1352,7 +1418,7 @@ if (-not (Test-Path $GhosttyTheme)) {
         # is bounded to values WE could have written -- any id in ghostty/themes/
         # -- so a scheme you picked by hand ("Campbell", a downloaded one) is left
         # alone and reported instead of being clobbered.
-        $Family  = @(Get-ChildItem $ThemesDir -File | Select-Object -ExpandProperty Name)
+        $Family  = @(Get-ChildItem $GhosttyThemesDir -File | Select-Object -ExpandProperty Name)
         $Current = $Wt.profiles.defaults.colorScheme
         if ($Current -and ($Family -notcontains $Current)) {
             Write-Host "i   $WtPath keeps its own colorScheme ('$Current') -- scheme installed, not applied"
@@ -1405,19 +1471,6 @@ if (-not (Test-Path $GhosttyTheme)) {
                     }
                 }
             }
-        }
-
-        # Convergent cleanup: craftzdog's fg/bg overrides were turned off (2026-09-18)
-        # when typesafe became the theme, because typesafe owns its canvas.
-        # If profiles.defaults still has the exact pair written by our earlier installer,
-        # strip them so the active colorScheme can own its background/foreground.
-        if ($Wt.profiles.defaults.PSObject.Properties.Name -contains "background" -and $Wt.profiles.defaults.background -eq "#031219") {
-            $Wt.profiles.defaults.PSObject.Properties.Remove("background")
-            Write-Host "OK  removed craftzdog background override (#031219) from $WtPath"
-        }
-        if ($Wt.profiles.defaults.PSObject.Properties.Name -contains "foreground" -and $Wt.profiles.defaults.foreground -eq "#ffffff") {
-            $Wt.profiles.defaults.PSObject.Properties.Remove("foreground")
-            Write-Host "OK  removed craftzdog foreground override (#ffffff) from $WtPath"
         }
 
         # The rest of the appearance. Additive-only -- see $WtAppearance above for
