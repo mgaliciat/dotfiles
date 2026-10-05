@@ -123,18 +123,34 @@ CTX_COLOR=$(hue "$PCT")
 # holding "tokens-now changed-at tokens-before", read with `read` and written
 # with `printf` so the state costs no process. A DROP in tokens is /compact or
 # /clear: the file resets and nothing animates — the bar just jumps down.
+#
+# ⚠️ Nothing in that state is trusted. On Linux $TMPDIR is usually unset, so
+# the dir lands in the world-writable /tmp under a predictable name, and any
+# local user can create it first. What is read back goes into `(( … ))`, where
+# bash expands a value like `a[$(cmd)]` — runs cmd — so a planted file is code
+# execution as whoever renders this line. Hence: the dir must be a real
+# directory (no symlink) that WE own, or the animation is skipped; and every
+# field must be a plain decimal (no leading zero either, which `(( ))` would
+# read as octal and choke on `08`) before it reaches arithmetic, or the state
+# counts as absent. No `mkdir -p`: its -m applies only to the last component,
+# so a missing parent would be created with the umask's looser mode.
 state_dir="${TMPDIR:-/tmp}/claude-statusline-${UID}"
-[[ -d $state_dir ]] || mkdir -p "$state_dir" 2>/dev/null
-state_file="$state_dir/${SESSION:-default}"
+[[ -d $state_dir ]] || mkdir -m 700 "$state_dir" 2>/dev/null
 
 last_used=0 changed_at=0 from_used=0
-[[ -r $state_file ]] && read -r last_used changed_at from_used < "$state_file"
-if (( USED > last_used )); then
-  from_used=$last_used changed_at=$NOW
-  printf '%s %s %s\n' "$USED" "$NOW" "$from_used" > "$state_file" 2>/dev/null
-elif (( USED < last_used )); then
-  from_used=$USED changed_at=0
-  printf '%s %s %s\n' "$USED" 0 "$USED" > "$state_file" 2>/dev/null
+if [[ -d $state_dir && ! -L $state_dir && -O $state_dir ]]; then
+  state_file="$state_dir/${SESSION:-default}"
+  [[ -r $state_file ]] && read -r last_used changed_at from_used < "$state_file"
+  nat='^(0|[1-9][0-9]*)$'
+  [[ $last_used =~ $nat && $changed_at =~ $nat && $from_used =~ $nat ]] \
+    || last_used=0 changed_at=0 from_used=0
+  if (( USED > last_used )); then
+    from_used=$last_used changed_at=$NOW
+    printf '%s %s %s\n' "$USED" "$NOW" "$from_used" > "$state_file" 2>/dev/null
+  elif (( USED < last_used )); then
+    from_used=$USED changed_at=0
+    printf '%s %s %s\n' "$USED" 0 "$USED" > "$state_file" 2>/dev/null
+  fi
 fi
 AGE=$(( NOW - changed_at ))
 
