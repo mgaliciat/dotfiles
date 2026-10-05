@@ -11,6 +11,14 @@
 -- that actually attached is the first thing to check when something
 -- doesn't fire. Each component is empty when it has nothing to say,
 -- so a plain-text buffer shows only the filetype.
+--
+-- Components that read a plugin check `package.loaded` instead of calling
+-- `require`: lazy.nvim hooks `require`, so a statusline component that
+-- requires conform or harpoon loads it on the first redraw and defeats the
+-- trigger its own spec declares (conform on BufWritePre, harpoon on its
+-- keys). Until that trigger fires the component stays empty — no formatter
+-- before the first save or `<leader>cf`, no harpoon slot before the first
+-- harpoon key.
 
 -- LSP clients attached to the current buffer, by name. Hides the ones
 -- that are infrastructure rather than a language (copilot-style helpers
@@ -26,12 +34,24 @@ local function lsp_clients()
 end
 
 -- nvim-lint linters registered for this filetype (not "currently
--- running" — that's a flash; this is "what will run on save").
+-- running" — that's a flash; this is "what will run on save"). Resolved the
+-- way nvim-lint's try_lint does: the exact filetype's entry if it has one,
+-- otherwise the union of its dotted parts (`markdown.mdx` → markdown's).
+-- An exact-only lookup showed nothing on .mdx while lint.lua linted it.
 local function linters()
-  local ok, lint = pcall(require, "lint")
-  if not ok then return "" end
-  local ls = lint.linters_by_ft[vim.bo.filetype]
-  return ls and #ls > 0 and ("󰁨 " .. table.concat(ls, " ")) or ""
+  local lint = package.loaded["lint"]
+  if not lint then return "" end
+  local ft    = vim.bo.filetype
+  local names = lint.linters_by_ft[ft]
+  if not names then
+    names = {}
+    for part in ft:gmatch("[^.]+") do
+      for _, name in ipairs(lint.linters_by_ft[part] or {}) do
+        if not vim.tbl_contains(names, name) then names[#names + 1] = name end
+      end
+    end
+  end
+  return #names > 0 and ("󰁨 " .. table.concat(names, " ")) or ""
 end
 
 -- conform formatters that would run on `<leader>cf` / on save. Only the
@@ -39,8 +59,8 @@ end
 -- situation the cheatsheet's "formatter that silently never runs"
 -- warns about, and showing it as active would hide that.
 local function formatters()
-  local ok, conform = pcall(require, "conform")
-  if not ok then return "" end
+  local conform = package.loaded["conform"]
+  if not conform then return "" end
   local names = {}
   for _, f in ipairs(conform.list_formatters(0)) do
     if f.available then names[#names + 1] = f.name end
@@ -57,8 +77,8 @@ end
 
 -- Harpoon slot of the current file, `󱡅 2/4`, when it is marked.
 local function harpoon_slot()
-  local ok, harpoon = pcall(require, "harpoon")
-  if not ok then return "" end
+  local harpoon = package.loaded["harpoon"]
+  if not harpoon then return "" end
   local list = harpoon:list()
   local current = vim.fn.expand("%:.")
   for i, item in ipairs(list.items) do
@@ -108,7 +128,7 @@ return {
   -- on an opaque theme. The `a`/`b` blocks keep theirs: the mode badge and the
   -- branch are meant to read as colored blocks.
   config = function(_, opts)
-    if vim.api.nvim_get_hl(0, { name = "Normal", link = false }).bg == nil then
+    if require("config.util").hl_hex("Normal", "bg") == nil then
       local theme = vim.deepcopy(require("lualine.themes.auto"))
       for name, mode in pairs(theme) do
         for section, colors in pairs(mode) do

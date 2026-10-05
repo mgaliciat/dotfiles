@@ -14,6 +14,11 @@
 --
 -- Bonus: `r` in operator-pending = remote ops (e.g. `yr` + jump
 -- = yank somewhere else without moving the cursor).
+--
+-- `event` is NOT redundant with `keys`: flash's setup also maps its
+-- labelled `f`/`F`/`t`/`T`/`;`/`,` (char mode, on by default). Loaded by
+-- `keys` alone, those stay native until the first `s` of the session and
+-- then change under you.
 
 return {
   "folke/flash.nvim",

@@ -16,10 +16,7 @@ return {
   version = "*",                          -- uses the precompiled binary release (no Rust toolchain required)
   opts = {
     keymap = { preset = "default" },
-    appearance = {
-      use_nvim_cmp_as_default = true,     -- highlights compatible with themes that don't support blink yet
-      nerd_font_variant = "mono",
-    },
+    appearance = { nerd_font_variant = "mono" },
     completion = {
       documentation = { auto_show = true, auto_show_delay_ms = 200 },
       menu = { border = "rounded" },

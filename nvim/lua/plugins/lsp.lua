@@ -17,7 +17,7 @@
 
 return {
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     cmd = { "Mason", "MasonInstall", "MasonUpdate" },
     build = ":MasonUpdate",
     opts = {
@@ -32,7 +32,7 @@ return {
   -- nothing here goes to brew (see "Mason doesn't pollute brew", CLAUDE.md).
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
-    dependencies = { "williamboman/mason.nvim" },
+    dependencies = { "mason-org/mason.nvim" },
     event = "VeryLazy",
     opts = {
       ensure_installed = {
@@ -76,8 +76,14 @@ return {
     "neovim/nvim-lspconfig",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
-      "williamboman/mason.nvim",
-      "williamboman/mason-lspconfig.nvim",
+      "mason-org/mason.nvim",
+      "mason-org/mason-lspconfig.nvim",
+      -- Listed for a side effect, so don't trim it as unused: loading blink
+      -- sources its plugin/ file, which runs
+      -- `vim.lsp.config("*", { capabilities = … })` — the completion
+      -- capabilities every server below inherits. It has to load BEFORE the
+      -- first server starts (BufReadPre), not at its own InsertEnter, or
+      -- those clients come up without them, silently.
       "saghen/blink.cmp",
       "b0o/SchemaStore.nvim",
     },
@@ -86,7 +92,6 @@ return {
       -- vim.lsp.enable(). lspconfig is still a dependency because it exposes
       -- each server's defaults (cmd, root_dir, filetypes) via
       -- vim.lsp.config[name] when it loads — but we do NOT use its .setup().
-      local capabilities = require("blink.cmp").get_lsp_capabilities()
 
       -- on_attach via LspAttach autocmd (idiomatic post-0.10).
       -- Runs once for every LSP that attaches to a buffer.
@@ -159,7 +164,7 @@ return {
       })
 
       -- Per-server configurations. Overrides go here; defaults come
-      -- from lspconfig. Each entry merges with capabilities at the end.
+      -- from lspconfig, capabilities from the "*" config blink sets.
       local servers = {
         -- ─── Web / JS ecosystem ────────────────────────────────
         ts_ls = {
@@ -387,7 +392,6 @@ return {
       -- that lspconfig publishes in vim.lsp.config[name]. vim.lsp.enable()
       -- activates them for the corresponding filetypes.
       for name, cfg in pairs(servers) do
-        cfg.capabilities = capabilities
         vim.lsp.config(name, cfg)
       end
 

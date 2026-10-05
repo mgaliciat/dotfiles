@@ -30,17 +30,12 @@
 -- fallback is the live path under solarized-patched: without it the
 -- inactive label would paint its text in the fg colour on its own bg.
 
-local function hl_hex(group, attr)
-  local hl = vim.api.nvim_get_hl(0, { name = group, link = false })
-  return hl[attr] and string.format("#%06x", hl[attr]) or nil
-end
-
 return {
   "b0o/incline.nvim",
   event = "BufReadPre",
-  priority = 1200,
   dependencies = { "nvim-tree/nvim-web-devicons" },
   config = function()
+    local hl_hex = require("config.util").hl_hex
     local accent = hl_hex("Function", "fg") or "#7aa2f7"
     local canvas = hl_hex("Normal", "bg") or hl_hex("NormalFloat", "bg") or "#000000"
     local muted  = hl_hex("Comment", "fg") or "#666666"

@@ -46,16 +46,12 @@
 -- tabs carry), `Comment` the inactive text, `WinSeparator` the dividers.
 -- Every `bg` stays NONE on purpose — see above.
 
-local function hl_hex(group, attr)
-  local hl = vim.api.nvim_get_hl(0, { name = group, link = false })
-  return hl[attr] and string.format("#%06x", hl[attr]) or nil
-end
-
 return {
   "akinsho/bufferline.nvim",
   event = "VeryLazy",
   dependencies = { "nvim-tree/nvim-web-devicons" },
   opts = function()
+    local hl_hex = require("config.util").hl_hex
     local accent = hl_hex("Special", "fg") or "#d97757"
     local muted  = hl_hex("Comment", "fg") or "#666666"
     local border = hl_hex("WinSeparator", "fg") or muted
