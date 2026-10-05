@@ -38,7 +38,7 @@
 # other layers with nothing to mirror and break the one-id rule. The port is
 # hex-verbatim from the shipped file; provenance is in the theme file itself.
 # Canonical Solarized is not a valid source for it: this cut re-tunes every value.
-theme = blueprint
+theme = solarized-patched
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -95,7 +95,10 @@ theme = blueprint
 #
 # Off again on 2026-10-01 under `dia-de-muertos`, whose morado canvas (#1d1022)
 # is the theme; the osaka blue under it would read as a different palette.
-# background = #031219
+#
+# Back on 2026-10-05 with `solarized-patched`, together with his opacity and
+# blur in the glass block below.
+background = #031219
 # foreground = #ffffff
 
 # Display P3 wide-gamut — orange and cream saturate more on M-chip / Retina
@@ -134,9 +137,6 @@ window-colorspace = display-p3
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
-# PlemolJP Console NF — primary (2026-09-08) after Google Sans Code
-# (2026-08-22), Paper Mono (2026-08-19), Google Sans Code (2026-08-13), the
-# first PlemolJP Console NF trial (2026-08-03), Paper Mono (2026-07-30), Google
 # CaskaydiaCove Nerd Font (Cascadia Code, NF build) — primary (2026-10-05),
 # picked off a screenshot. The plain family, not `CaskaydiaCove Nerd Font Mono`:
 # the Mono cut squeezes every icon into one cell and was rejected on sight the
@@ -146,6 +146,9 @@ minimum-contrast = 1.1
 # four `font-style` lines below carry over unchanged.
 # To go back: font-family = "PlemolJP Console NF".
 #
+# PlemolJP Console NF — primary (2026-09-08) after Google Sans Code
+# (2026-08-22), Paper Mono (2026-08-19), Google Sans Code (2026-08-13), the
+# first PlemolJP Console NF trial (2026-08-03), Paper Mono (2026-07-30), Google
 # Sans Code (2026-07-29) and 0xProto (2026-07-28).
 # IS a Nerd Font, so it carries its own powerline/devicon glyphs instead of
 # leaning on Ghostty's fallback into the other NF families. It also has real
@@ -306,8 +309,13 @@ macos-titlebar-style = transparent
 # than for a light canvas: through the clear glass the wallpaper read behind the
 # lettering and the text got lost on the sheet. To bring the glass back, the pair
 # above (0.9 + macos-glass-clear); blueprint.lua already carries `transparent`.
-background-opacity = 1.0
-background-blur = 0
+#
+# His exact pair since 2026-10-05, back on `solarized-patched`: 0.9 and the
+# gaussian blur at radius 20, written with the modern key (`background-blur`
+# takes the radius directly). Not macos-glass-clear — the point this time is
+# to match his screen, not to improve on it.
+background-opacity = 0.9
+background-blur = 20
 
 # `background-opacity` applies to the WINDOW background alone, so any cell
 # carrying an explicit background colour stays fully opaque by default — Ghostty's
@@ -367,7 +375,7 @@ alpha-blending = linear-corrected
 # Retina screen (on a 1× screen it reaches into the first row).
 # The line below is not hand-toggled: named after a theme, it belongs to it, and
 # `theme <id>` turns it on for `blueprint` and comments it out for anything else.
-custom-shader = shaders/blueprint.glsl
+# custom-shader = shaders/blueprint.glsl
 custom-shader-animation = false
 
 # breathe sideways — generous padding so that Claude Code's dense
