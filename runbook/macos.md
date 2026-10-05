@@ -14,8 +14,8 @@ per-machine files and the two silent guards.
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   ```
 
-- **Claude Code** installed and on PATH, if you want the MCP servers registered
-  on the first pass. Neither installer installs it.
+- **Claude Code** installed and on PATH, if you want the `context7` MCP server
+  registered on the first pass. Neither installer installs it.
 - **Node.js** (for `npx`), only for the `gh-stack` skill. Without it that one
   step prints `→ skipped` and everything else proceeds.
 - **1Password** running, only if this machine signs commits through
@@ -56,17 +56,36 @@ per-machine files and the two silent guards.
    ```
 
    What it does, in order:
-   - symlinks the portable set (`.zshrc`, `.zshenv`, `.gitignore_global`,
-     `nvim`, lazygit, `~/.local/bin/{claude-api-env,theme}`) plus Ghostty
-     (`config.ghostty` into Application Support, `themes/` into
-     `~/.config/ghostty/` — two different dirs, both required);
+   - symlinks the portable set (`.zshrc`, `.zshenv`, `.zprofile`,
+     `.gitignore_global`, `nvim`, lazygit, `~/.local/bin/{claude-api-env,theme}`)
+     plus Ghostty (`config.ghostty` and `shaders/` into Application Support,
+     `themes/` into `~/.config/ghostty/` — two different dirs, both required);
    - installs the missing Homebrew formulae and casks (fonts included) and Paper
      Mono by direct download, since it has no cask;
    - configures Claude Code: `settings.json` keys (additive, guarded), the
      `CLAUDE.md` / statusline / hook / skill symlinks, `rtk`,
-     `codebase-memory-mcp`, the two MCP endpoints, the `gh-stack` skill;
+     `codebase-memory-mcp`, the `context7` MCP endpoint, the `gh-stack` skill;
    - installs the `gh-stack` extension;
    - registers VS Code as the default app for `.ghostty` files, if installed.
+
+   On a machine that already has a `~/.zprofile` (OrbStack writes its init line
+   there), the run moves it aside as `~/.zprofile.backup.<ts>` like any other
+   real file. Put what it held into `~/.zprofile.local`, which `.zprofile`
+   sources last:
+
+   ```bash
+   echo 'source ~/.orbstack/shell/init.zsh 2>/dev/null || :' >> ~/.zprofile.local
+   ```
+
+   Leave out Homebrew's `eval "$(/opt/homebrew/bin/brew shellenv)"`, which its
+   installer asks for in the same file. `zsh/path.zsh` already
+   puts `/opt/homebrew/{bin,sbin}` on PATH, and re-prepending them last would
+   put Homebrew's `python3` ahead of the pyenv shims.
+
+   From then on a tool that appends to `~/.zprofile` writes into the versioned
+   file and shows up in `git status`: move its line to `~/.zprofile.local`,
+   revert the repo file, and turn off that tool's automatic shell setup if it
+   has one, or the line comes back.
 
 3. Bring the per-machine git config: `~/.gitconfig` with an `[include]` of
    `~/.gitconfig.local` as its **last** line, identity and signing in the
@@ -105,7 +124,7 @@ per-machine files and the two silent guards.
    glyphs look wrong, check the family name resolved:
 
    ```bash
-   ghostty +list-fonts | grep -i 'paper mono'
+   ghostty +list-fonts | grep -i 'plemoljp console nf'
    ```
 
 7. **Caps Lock → Option**: System Settings → Keyboard → Keyboard Shortcuts →
@@ -115,9 +134,10 @@ per-machine files and the two silent guards.
 ## Verify
 
 ```bash
-readlink ~/.zshrc ~/.config/nvim ~/.local/bin/claude-api-env         # all into the repo
+readlink ~/.zshrc ~/.zprofile ~/.config/nvim ~/.local/bin/claude-api-env   # all into the repo
 readlink ~/.claude/CLAUDE.md ~/.claude/skills/logbook ~/.claude/hooks/logbook.sh
-readlink ~/.gemini/config/plugins/logbook && jq '.mcpServers | keys' ~/.gemini/config/mcp_config.json   # Antigravity: same plugin
+readlink ~/.gemini/config/plugins/logbook                           # Antigravity: same plugin
+jq '.mcpServers | keys' ~/.gemini/config/mcp_config.json            # optional: only where an MCP was added to Antigravity by hand
 claude mcp list                                                     # context7, codebase-memory, and logbook-mcp once added by hand
 rtk --version && rtk config                                         # config path under ~/Library/Application Support/rtk
 tgrep --version                                                     # brew formula; index/serve are per-repo, opt-in
@@ -156,7 +176,8 @@ file does nothing on screen until `Cmd+Shift+R`.
   installer says which one and how to get it.
 - **`codebase-memory` skill vanished after deleting `~/.claude`.** Re-run the
   installer; `codebase-memory-mcp install -y` runs unguarded on purpose and
-  rebuilds hooks, server and skill.
+  rebuilds the MCP server and the skill. Its hooks are stripped again right
+  after, on purpose — their absence is not a failed install.
 
 ## Undo
 

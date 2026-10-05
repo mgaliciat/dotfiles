@@ -16,8 +16,8 @@ Windows side, so also run [`windows.md`](windows.md) there.
   when it gets there.
 - `git` and `curl` to clone and to fetch the release binaries. `apt-get install
   git curl` if the image is bare.
-- **Claude Code** on PATH before the run, if you want the MCP servers
-  registered on the first pass.
+- **Claude Code** on PATH before the run, if you want the `context7` MCP
+  server registered on the first pass.
 - **Node.js** (`npx`) only for the `gh-stack` skill; optional.
 - **`gh` (GitHub CLI)** comes from apt only on Ubuntu 23.10+ / Debian 13. Older
   releases: install it from GitHub's apt repo first, or accept that
@@ -57,16 +57,19 @@ Windows side, so also run [`windows.md`](windows.md) there.
    ```
 
    What it does, in order:
-   - symlinks the portable set (same list as macOS, from `scripts/lib.sh`);
+   - symlinks the portable set (same list as macOS, from `scripts/lib.sh`). An
+     existing `~/.zprofile` is moved aside like any other real file; move what
+     it held into `~/.zprofile.local`, which `.zprofile` sources last;
    - `apt-get install` for what apt has (zsh, ripgrep, fd-find, bat, fzf,
      jq, gh, eza, the zsh plugins, python3, build-essential…);
    - shims `fd → fdfind` and `bat → batcat` into `~/.local/bin` where apt uses
-     the renamed binaries — the `cat` alias in `.zshrc` is unguarded, so
-     without the shim every `cat` breaks;
+     the renamed binaries — `.zshrc` guards the `cat` and `find` aliases on
+     `command -v bat` / `fd`, so without the shim they silently stay the
+     plain tools and the shell drifts from macOS;
    - configures Claude Code (same three scripts as macOS);
    - GitHub release binaries for what apt lacks or ships too old: lazygit,
      **nvim 0.10+** (tarball, no FUSE), delta (`.deb`), eza fallback, gomi,
-     tree-sitter-cli; zoxide and pyenv via their official curl installers;
+     ghq, tree-sitter-cli; zoxide and pyenv via their official curl installers;
    - `chsh -s $(which zsh)` if zsh is not the login shell. It may ask for your
      password; it takes effect on the **next login**, not the current shell.
 
@@ -98,7 +101,7 @@ The installer detects WSL2 and prints these; they are manual on purpose:
 - **Clipboard for nvim**: `win32yank` on PATH inside the distro.
 
   ```bash
-  curl -sLo /tmp/win32yank.zip https://github.com/equalsraf/win32yank/releases/download/v0.1.1/win32yank-x64.zip
+  curl -fsSLo /tmp/win32yank.zip https://github.com/equalsraf/win32yank/releases/download/v0.1.1/win32yank-x64.zip
   mkdir -p ~/.local/bin
   unzip -p /tmp/win32yank.zip win32yank.exe > ~/.local/bin/win32yank.exe
   chmod +x ~/.local/bin/win32yank.exe
@@ -109,10 +112,10 @@ The installer detects WSL2 and prints these; they are manual on purpose:
 ## Verify
 
 ```bash
-readlink ~/.zshrc ~/.config/nvim ~/.local/bin/claude-api-env
+readlink ~/.zshrc ~/.zprofile ~/.config/nvim ~/.local/bin/claude-api-env
 echo $SHELL                                   # /usr/bin/zsh after re-login
 nvim --version | head -1                      # v0.10 or newer
-command -v fd bat eza zoxide lazygit delta gomi tree-sitter rtk
+command -v fd bat eza zoxide lazygit delta gomi ghq tree-sitter rtk
 claude mcp list
 ```
 
@@ -131,17 +134,19 @@ remove it from `~/.local/bin` and re-run.
 
 ## Troubleshooting
 
-- **`E: Unable to locate package eza` / `gh`.** Old Ubuntu. `eza` falls back to
-  a GitHub release automatically. `gh` does not — install it from GitHub's apt
+- **`⚠️  No apt candidate for: eza gh`.** Old Ubuntu; those two are skipped and
+  the rest of the batch still installs. `eza` falls back to a GitHub release
+  automatically. `gh` does not — install it from GitHub's apt
   repo and re-run so `bootstrap_gh_stack` finds it.
 - **`dpkg` left a broken state after `delta`.** `sudo apt --fix-broken install`,
   then re-run.
 - **`nvim` still reports 0.6/0.9.** The apt one is shadowing the tarball. The
   installer symlinks `~/.local/bin/nvim`; make sure `~/.local/bin` is first on
-  PATH (`.zshenv` does this — you are still in bash if it is not).
-- **`command not found: fd` / `cat: broken alias`.** The apt package installed
-  `fdfind` / `batcat` and the shim step did not run. Re-run the installer; it
-  is guarded on the shim being absent.
+  PATH (`zsh/path.zsh` does this, through `.zshenv` — you are still in bash if
+  it is not).
+- **`command not found: fd`, or `cat` is plain `cat`.** The apt package
+  installed `fdfind` / `batcat` and the shim step did not run. Re-run the
+  installer; it is guarded on the shim being absent.
 - **`chsh: PAM: Authentication failure`.** Run it by hand:
   `chsh -s "$(command -v zsh)"`. On WSL2 you can also set it in
   `/etc/wsl.conf` under `[user]`.

@@ -121,7 +121,7 @@ fi
 
 # fd: the apt package is fd-find and its binary is called `fdfind`. The .zshrc
 # (shared with mac) expects `fd` — symlink it in ~/.local/bin (already in PATH
-# via .zshenv) so fd/the find alias work the same on both.
+# via zsh/path.zsh) so fd/the find alias work the same on both.
 if ! command -v fd >/dev/null 2>&1 && command -v fdfind >/dev/null 2>&1; then
   mkdir -p "$HOME/.local/bin"
   ln -sf "$(command -v fdfind)" "$HOME/.local/bin/fd"
@@ -129,10 +129,10 @@ if ! command -v fd >/dev/null 2>&1 && command -v fdfind >/dev/null 2>&1; then
 fi
 
 # bat: same clash, same shim. On Ubuntu 20.04 the apt package installs `batcat`
-# (the name `bat` was taken by bacula-console-qt). This is NOT cosmetic parity
-# with mac: `alias cat='bat …'` in .zshrc is UNGUARDED (unlike the MANPAGER
-# export in .zshenv, which does check), so on a box that only has `batcat`
-# every `cat` in the shell is a broken alias.
+# (the name `bat` was taken by bacula-console-qt). The `cat` alias in .zshrc
+# and the MANPAGER export in .zshenv are both guarded on `command -v bat`, so
+# nothing breaks without it — they just silently stay plain `cat`/`man`, and
+# the shell drifts from mac's with no message saying why.
 if ! command -v bat >/dev/null 2>&1 && command -v batcat >/dev/null 2>&1; then
   mkdir -p "$HOME/.local/bin"
   ln -sf "$(command -v batcat)" "$HOME/.local/bin/bat"
@@ -176,7 +176,7 @@ fi
 # nvim-treesitter's `main` branch (which shells out to it to build parsers) was
 # broken on Linux while it worked on mac. Don't reintroduce it: a ~400MB toolchain
 # to compile two binaries that ship prebuilt is the definition of a worse install.
-# The cargo PATH block in .zshenv stays — that is for tools you install by hand.
+# The cargo PATH entry in zsh/path.zsh stays — that is for tools you install by hand.
 
 # ─── GitHub release binaries (what apt lacks or has outdated) ───────
 # Small helpers: arch detection, fetching the latest tag from the GH API, and
