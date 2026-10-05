@@ -9,22 +9,33 @@ autocmd("TextYankPost", {
   callback = function() vim.hl.on_yank({ timeout = 200 }) end,
 })
 
--- Trim whitespace on save. Restores the cursor to avoid jumps.
--- Two guards, both for buffers this has no business touching:
+-- Trim whitespace on save. The view (cursor + scroll) is restored so the
+-- save doesn't jump, and `keeppatterns` leaves `@/` alone — a bare `:s`
+-- makes `n` after a save search for trailing whitespace instead of what
+-- you searched last. Same command nvim's own editorconfig trim runs.
+-- Three guards, all for buffers this has no business touching:
 --   · `modifiable` off — `:w <file>` from a help/checkhealth/qf buffer fires
 --     BufWritePre too, and there the substitute aborts the write with E21.
 --   · markdown — two trailing spaces are a hard line break, not dirt. The
 --     match covers `markdown.mdx` as well (see the filetype table in
 --     options.lua).
+--   · a project `.editorconfig` with `trim_trailing_whitespace = false` —
+--     nvim's built-in editorconfig records it in `b:editorconfig` (as the
+--     string "false"; a boolean is accepted too in case that changes) and
+--     the project's choice wins over this global habit.
 autocmd("BufWritePre", {
   group = augroup("trim_whitespace", { clear = true }),
   callback = function(ev)
     if not vim.bo[ev.buf].modifiable or vim.bo[ev.buf].filetype:match("markdown") then
       return
     end
-    local pos = vim.api.nvim_win_get_cursor(0)
-    vim.cmd([[%s/\s\+$//e]])
-    pcall(vim.api.nvim_win_set_cursor, 0, pos)
+    local trim = (vim.b[ev.buf].editorconfig or {}).trim_trailing_whitespace
+    if trim == false or trim == "false" then
+      return
+    end
+    local view = vim.fn.winsaveview()
+    vim.cmd([[silent keepjumps keeppatterns %s/\s\+$//e]])
+    vim.fn.winrestview(view)
   end,
 })
 

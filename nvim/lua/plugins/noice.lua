@@ -58,12 +58,15 @@ return {
     -- like a shell's menu-select. noice's popupmenu would float in the
     -- middle of the screen once the cmdline is no longer up there with it.
     popupmenu = { enabled = false },
-    -- LSP UI replacements
+    -- LSP UI replacements. `vim.lsp.util.stylize_markdown` is not overridden:
+    -- it is deprecated in nvim 0.12 and core no longer calls it (floats use
+    -- treesitter markdown). Signature help is blink.cmp's (completion.lua) —
+    -- with noice's on too, typing `(` opened two popups.
     lsp = {
       override = {
         ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
-        ["vim.lsp.util.stylize_markdown"]               = true,
       },
+      signature = { enabled = false },
     },
   },
   config = function(_, opts)
@@ -75,8 +78,9 @@ return {
     opts.routes = opts.routes or {}
     if vim.fn.executable("notify-send") == 1 then
       local focused = true
-      vim.api.nvim_create_autocmd("FocusGained", { callback = function() focused = true end })
-      vim.api.nvim_create_autocmd("FocusLost",   { callback = function() focused = false end })
+      local group   = vim.api.nvim_create_augroup("noice_focus_route", { clear = true })
+      vim.api.nvim_create_autocmd("FocusGained", { group = group, callback = function() focused = true end })
+      vim.api.nvim_create_autocmd("FocusLost",   { group = group, callback = function() focused = false end })
       table.insert(opts.routes, 1, {
         filter = { cond = function() return not focused end },
         view   = "notify_send",

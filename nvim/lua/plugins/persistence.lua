@@ -30,13 +30,17 @@ return {
     { "<leader>Sd", function() require("persistence").stop() end,                desc = "Session: don't save this one" },
   },
   init = function()
-    -- What a session records. `localoptions` keeps per-buffer settings
-    -- (the Go tabs / PHP 4-space autocmds set them, so they'd come back
-    -- anyway, but filetype-detected `commentstring` etc. do not).
+    -- What a session records. `localoptions` is left out on purpose: every
+    -- per-buffer setting here comes from a FileType autocmd (the Go tabs /
+    -- PHP 4-space ones in autocmds.lua, ftplugins, treesitter's indentexpr),
+    -- and those fire again when the session reopens the file. Saving them
+    -- would pin the values from the run that wrote the session over
+    -- whatever the config says by the time it is restored.
     vim.opt.sessionoptions = {
       "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds",
     }
     vim.api.nvim_create_autocmd("User", {
+      group   = vim.api.nvim_create_augroup("persistence_close_neotree", { clear = true }),
       pattern = "PersistenceSavePre",
       callback = function()
         pcall(vim.cmd, "Neotree close")

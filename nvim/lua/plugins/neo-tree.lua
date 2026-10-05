@@ -44,6 +44,11 @@ return {
     },
 
     filesystem = {
+      -- Directories belong to oil (`default_file_explorer`, oil.lua). neo-tree's
+      -- default "open_default" also grabs `:e <dir>` / `nvim <dir>`, and the
+      -- two race for the same buffer. The VimEnter `:Neotree show` below
+      -- still opens the sidebar for `nvim .`.
+      hijack_netrw_behavior = "disabled",
       follow_current_file = { enabled = true },   -- automatic highlight of the open file
       use_libuv_file_watcher = true,              -- updates on external changes (git pull, etc.)
       filtered_items = {

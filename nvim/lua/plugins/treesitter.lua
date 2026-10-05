@@ -44,6 +44,7 @@ return {
       -- turn them on per filetype. `vim.treesitter.start()` fails silently
       -- if the parser isn't installed, hence the pcall.
       vim.api.nvim_create_autocmd("FileType", {
+        group    = vim.api.nvim_create_augroup("treesitter_start", { clear = true }),
         callback = function(args)
           local ft = args.match
           if pcall(vim.treesitter.start, args.buf) then
@@ -81,15 +82,27 @@ return {
       vim.keymap.set({ "n", "x", "o" }, "]f", function()
         move.goto_next_start("@function.outer", "textobjects")
       end, { desc = "next function start" })
-      vim.keymap.set({ "n", "x", "o" }, "]c", function()
-        move.goto_next_start("@class.outer", "textobjects")
-      end, { desc = "next class start" })
       vim.keymap.set({ "n", "x", "o" }, "[f", function()
         move.goto_previous_start("@function.outer", "textobjects")
       end, { desc = "prev function start" })
-      vim.keymap.set({ "n", "x", "o" }, "[c", function()
-        move.goto_previous_start("@class.outer", "textobjects")
-      end, { desc = "prev class start" })
+
+      -- ]c / [c are also vim's next/prev change in a diff window (`nvim -d`,
+      -- `:Gdiffsplit`, a mergetool), and a global map hides those. So in a
+      -- diff window the keys are handed back to the built-in motion (count
+      -- included). An expr map can't move the cursor itself, so the class
+      -- move is returned as a <Cmd> instead of called.
+      local function class_move(native, fn)
+        return function()
+          if vim.wo.diff then
+            return native
+          end
+          return ("<Cmd>lua require('nvim-treesitter-textobjects.move').%s('@class.outer', 'textobjects')<CR>"):format(fn)
+        end
+      end
+      vim.keymap.set({ "n", "x", "o" }, "]c", class_move("]c", "goto_next_start"),
+        { expr = true, desc = "next class start (next change in diff)" })
+      vim.keymap.set({ "n", "x", "o" }, "[c", class_move("[c", "goto_previous_start"),
+        { expr = true, desc = "prev class start (prev change in diff)" })
     end,
   },
 }
