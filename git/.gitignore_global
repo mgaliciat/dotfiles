@@ -2,7 +2,11 @@
 .DS_Store
 .AppleDouble
 .LSOverride
-Icon?
+# A custom folder icon is a file named "Icon" + carriage return. The CR is a
+# raw byte inside the brackets so whitespace trimming cannot strip it; `Icon?`
+# would also swallow `Icons/`. An editor that normalises line endings turns it
+# into a line break, so check `git diff` after editing this file.
+Icon[]
 ._*
 .Spotlight-V100
 .fseventsd
