@@ -137,6 +137,15 @@ minimum-contrast = 1.1
 # PlemolJP Console NF — primary (2026-09-08) after Google Sans Code
 # (2026-08-22), Paper Mono (2026-08-19), Google Sans Code (2026-08-13), the
 # first PlemolJP Console NF trial (2026-08-03), Paper Mono (2026-07-30), Google
+# CaskaydiaCove Nerd Font (Cascadia Code, NF build) — primary (2026-10-05),
+# picked off a screenshot. The plain family, not `CaskaydiaCove Nerd Font Mono`:
+# the Mono cut squeezes every icon into one cell and was rejected on sight the
+# same day. The Cascadia ligatures survive the patch. Installed by brew
+# (`font-caskaydia-cove-nerd-font`). Its style strings are the stock
+# Regular/Italic/Bold/Bold Italic, confirmed with `ghostty +list-fonts`, so the
+# four `font-style` lines below carry over unchanged.
+# To go back: font-family = "PlemolJP Console NF".
+#
 # Sans Code (2026-07-29) and 0xProto (2026-07-28).
 # IS a Nerd Font, so it carries its own powerline/devicon glyphs instead of
 # leaning on Ghostty's fallback into the other NF families. It also has real
@@ -157,7 +166,7 @@ minimum-contrast = 1.1
 # face, 12px/300) and Geist Mono (a grotesk mono stand-in, at the body's
 # recipe, then at Medium) were both tried and rejected on sight: neither
 # carries the page's stroke. Nothing of that round survives here.
-font-family = "PlemolJP Console NF"
+font-family = "CaskaydiaCove Nerd Font"
 
 # Weight lives in the STYLE here, not in a variation axis (2026-09-08).
 # PlemolJP is not a variable font — it has no `fvar` at all, so a
@@ -194,7 +203,9 @@ font-style-bold-italic = Bold Italic
 # (0.501 × 17 = 8.52px against 8.38), i.e. the right value on paper. It was dropped
 # to 16 on 2026-09-08 for reading a touch big, and came back today. 19 was the
 # earliest try and overshot in both axes; 16 is the step down if 17 crowds the columns.
-font-size = 17
+# 16 since 2026-10-05, with the switch to CaskaydiaCove: Cascadia's x-height is
+# taller than PlemolJP's, so the 17 above read big in it.
+font-size = 16
 
 # Standard ligatures — and here they are REAL. Unlike Google Sans Code (whose
 # GSUB has no `liga` at all, so this line was inert for months), PlemolJP ships

@@ -150,6 +150,7 @@ if command -v brew >/dev/null 2>&1; then
     font-plemol-jp-nf
     font-monaspace-nf
     font-ia-writer-mono
+    font-caskaydia-cove-nerd-font   # Cascadia Code NF, the current primary
   )
 
   MISSING_FORMULAE=()
