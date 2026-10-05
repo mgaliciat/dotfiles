@@ -156,6 +156,93 @@ unset _stale
 # into a PUBLIC repo dragged personal state along (enabledPlugins, marketplaces).
 # What follows are controlled exceptions: additive-only, guarded. If the key
 # already exists on this machine, we leave it alone.
+#
+# The helpers are defined BEFORE the jq bail-out below on purpose: binaries.sh,
+# sourced next, rewrites settings.json through `_settings_apply` too, and a
+# function that only exists when jq does would turn a skipped step there into a
+# "command not found" under the installer's `set -e`.
+
+# Atomic write: $1 = jq filter, $2 / $3 = the message on success / failure,
+# anything after that goes to jq as-is (`--arg`, `--slurpfile`). settings.json
+# is a REAL file (not a symlink), so mktemp + mv is correct here — unlike the
+# ~/.zshrc cleanup in binaries.sh, which writes with `cat >` precisely because a
+# symlink is involved there. The temp file sits NEXT TO settings.json, not in
+# $TMPDIR: rename(2) is only atomic within one filesystem, and on Linux /tmp is
+# usually a tmpfs, where `mv` silently degrades to copy + unlink and a crash
+# mid-copy leaves a truncated settings.json. Always returns 0: a failed write is
+# a warning, never an abort of the parent installer's `set -e`.
+_settings_apply() {
+  local filter="$1" ok="$2" fail="$3" tmp
+  shift 3
+  if ! tmp="$(mktemp "$SETTINGS.XXXXXX")"; then
+    echo "⚠️  $fail"
+    return 0
+  fi
+  if jq "$@" "$filter" "$SETTINGS" > "$tmp"; then
+    mv "$tmp" "$SETTINGS"
+    echo "✓ $ok"
+  else
+    rm -f "$tmp"
+    echo "⚠️  $fail"
+  fi
+}
+
+# Guarded write: $1 = key to check (jq path), $2 = jq filter to apply, $3 =
+# human-readable name for the messages. The guard tests PRESENCE (`!= null`),
+# not truthiness: a bare `jq -e "$key"` also fails on `false`, so a key set to
+# false by hand read as absent and was overwritten on every run — and
+# install-windows.ps1, which checks presence, kept it. `""`, `0` and `false` all
+# count as set.
+_settings_set_if_absent() {
+  local key="$1" filter="$2" label="$3"
+  if jq -e "($key) != null" "$SETTINGS" >/dev/null 2>&1; then
+    echo "✓ $label already set in settings.json — leaving it alone"
+    return 0
+  fi
+  _settings_apply "$filter" \
+    "$label added to settings.json" \
+    "could not add $label — settings.json left untouched" \
+    --slurpfile perms "$PERMISSIONS"
+}
+
+# Appends one command hook to .hooks[$1] unless it is already registered.
+# $1 = event, $2 = matcher, $3 = command, $4 = regex that recognises our own
+# entry, $5 = name for the messages. Guarded on $4 appearing in ANY string of
+# the file rather than on a jq path: the per-event arrays are shared with other
+# tools (rtk, codebase-memory-mcp), so a path guard would be satisfied by
+# somebody else's hook, and an exact-command match would duplicate an entry
+# whose command was edited by hand. The why per hook is at each call.
+_settings_add_hook() {
+  local event="$1" matcher="$2" command="$3" needle="$4" label="$5"
+  if jq -e --arg re "$needle" '[.. | strings] | any(test($re))' "$SETTINGS" >/dev/null 2>&1; then
+    echo "✓ $label already in settings.json — leaving it alone"
+    return 0
+  fi
+  _settings_apply '.hooks //= {}
+      | .hooks[$ev] //= []
+      | .hooks[$ev] += [{
+          matcher: $m,
+          hooks: [{type: "command", command: $c, timeout: 5}]
+        }]' \
+    "$label added to settings.json" \
+    "could not add the $label — settings.json left untouched" \
+    --arg ev "$event" --arg m "$matcher" --arg c "$command"
+}
+
+# Drops every hook ENTRY (matcher + its hooks) whose command matches regex $1,
+# then any event left empty — the rest of .hooks is untouched. $2 / $3 = the
+# messages. A no-op, silent, when nothing matches.
+_settings_strip_hooks() {
+  local re="$1" ok="$2" fail="$3"
+  jq -e --arg re "$re" '[.. | strings] | any(test($re))' "$SETTINGS" >/dev/null 2>&1 || return 0
+  _settings_apply '.hooks |= (to_entries
+      | map(.value |= map(select(
+          (.hooks // []) | any(.command? // "" | test($re)) | not
+        )))
+      | map(select((.value | length) > 0))
+      | from_entries)' \
+    "$ok" "$fail" --arg re "$re"
+}
 
 if ! command -v jq >/dev/null 2>&1; then
   echo "⚠️  jq not found — skipping settings.json config"
@@ -164,27 +251,6 @@ fi
 
 mkdir -p "$(dirname "$SETTINGS")"
 [[ -f "$SETTINGS" ]] || echo '{}' > "$SETTINGS"
-
-# Atomic write behind a guard. $1 = key to check (jq path), $2 = jq filter to
-# apply, $3 = human-readable name for the messages. settings.json is a REAL file
-# (not a symlink), so mktemp + mv is correct here — unlike the ~/.zshrc cleanup
-# in binaries.sh, which writes with `cat >` precisely because a symlink is
-# involved there.
-_settings_set_if_absent() {
-  local key="$1" filter="$2" label="$3" tmp
-  if jq -e "$key" "$SETTINGS" >/dev/null 2>&1; then
-    echo "✓ $label already set in settings.json — leaving it alone"
-    return 0
-  fi
-  tmp="$(mktemp)"
-  if jq --slurpfile perms "$PERMISSIONS" "$filter" "$SETTINGS" > "$tmp"; then
-    mv "$tmp" "$SETTINGS"
-    echo "✓ $label added to settings.json"
-  else
-    rm -f "$tmp"
-    echo "⚠️  could not add $label — settings.json left untouched"
-  fi
-}
 
 # ── statusLine ──
 # The script is versioned (above); its ACTIVATION is per-machine.
@@ -210,14 +276,9 @@ _settings_set_if_absent '.statusLine.refreshInterval' \
 # exactly 60 got it from here, not from a person, so it moves to 1; any other
 # value was picked by hand and the guard above leaves it alone.
 if [[ "$(jq -r '.statusLine.refreshInterval // empty' "$SETTINGS")" == 60 ]]; then
-  _ri_tmp="$(mktemp)"
-  if jq '.statusLine.refreshInterval = 1' "$SETTINGS" > "$_ri_tmp"; then
-    mv "$_ri_tmp" "$SETTINGS"
-    echo "✓ statusLine.refreshInterval 60 → 1 (the context bar animates per frame)"
-  else
-    rm -f "$_ri_tmp"
-  fi
-  unset _ri_tmp
+  _settings_apply '.statusLine.refreshInterval = 1' \
+    "statusLine.refreshInterval 60 → 1 (the context bar animates per frame)" \
+    "could not move statusLine.refreshInterval off 60 — settings.json left untouched"
 fi
 
 # ── theme: follows the stack theme ──
@@ -237,14 +298,10 @@ if [[ -n "$_stack_theme" && -f "$DOTFILES/claude/themes/$_stack_theme.json" ]]; 
   if [[ "$(jq -r '.theme // ""' "$SETTINGS")" == "custom:$_stack_theme" ]]; then
     echo "✓ theme already custom:$_stack_theme (follows ghostty's theme line)"
   else
-    SETTINGS_TMP="$(mktemp)"
-    if jq --arg t "custom:$_stack_theme" '.theme = $t' "$SETTINGS" > "$SETTINGS_TMP"; then
-      mv "$SETTINGS_TMP" "$SETTINGS"
-      echo "✓ theme set to custom:$_stack_theme (follows ghostty's theme line)"
-    else
-      rm -f "$SETTINGS_TMP"
-      echo "⚠️  could not set theme — settings.json left untouched"
-    fi
+    _settings_apply '.theme = $t' \
+      "theme set to custom:$_stack_theme (follows ghostty's theme line)" \
+      "could not set theme — settings.json left untouched" \
+      --arg t "custom:$_stack_theme"
   fi
 else
   echo "i   no claude/themes/${_stack_theme:-?}.json — Claude Code theme left as is"
@@ -268,8 +325,13 @@ unset _stack_theme
 #   retired — rules this repo used to ship, removed from all three lists, so a
 #           rule that turned out wrong does not linger on old installs.
 # Order-preserving: existing entries keep their place, new ones append.
-_perms_tmp="$(mktemp)"
-if jq --slurpfile perms "$PERMISSIONS" '
+#
+# Not through `_settings_apply`: the result is compared with the file before the
+# mv, so a run that changes nothing does not rewrite settings.json. The temp file
+# goes next to it for the reason given at that helper.
+if ! _perms_tmp="$(mktemp "$SETTINGS.XXXXXX")"; then
+  echo "⚠️  could not merge permissions — settings.json left untouched"
+elif jq --slurpfile perms "$PERMISSIONS" '
     $perms[0] as $p
     | def converge($list): ((. // []) - $p.retired) as $cur | $cur + ($list - $cur);
     .permissions //= {}
@@ -301,8 +363,8 @@ unset _perms_tmp
 # Keyed per FIELD rather than on `.attribution`, for the same reason as
 # refreshInterval above: a machine where /config or a hand edit already created
 # the object for ONE field would never get the other. The empty string survives
-# the guard correctly — `jq -e` only fails on `false` and `null`, so `""` reads
-# as present and a re-run leaves it alone instead of rewriting it.
+# the guard correctly — it tests `!= null`, so `""` reads as present and a re-run
+# leaves it alone instead of rewriting it.
 #
 # There is a third field in the schema, `attribution.sessionUrl` (bool, appends
 # the claude.ai session link on commits/PRs from web or Remote Control sessions).
@@ -497,21 +559,9 @@ _settings_set_if_absent '.env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH' \
 # settings.json with no "hooks/logbook" string, appends ours, and leaves the dead
 # `hooks/bitacora.sh` entry beside it firing exit 127 on every commit. Same shape
 # as the state.sh cleanup at the bottom of this file. TEMPORARY, same terms.
-if jq -e '[.. | strings] | any(test("hooks/bitacora"))' "$SETTINGS" >/dev/null 2>&1; then
-  SETTINGS_TMP="$(mktemp)"
-  if jq '.hooks |= (to_entries
-          | map(.value |= map(select(
-              (.hooks // []) | any(.command? // "" | test("hooks/bitacora")) | not
-            )))
-          | map(select((.value | length) > 0))
-          | from_entries)' "$SETTINGS" > "$SETTINGS_TMP"; then
-    mv "$SETTINGS_TMP" "$SETTINGS"
-    echo "✓ pre-rename bitacora hook stripped from settings.json"
-  else
-    rm -f "$SETTINGS_TMP"
-    echo "⚠️  pre-rename hook cleanup failed — settings.json left untouched"
-  fi
-fi
+_settings_strip_hooks 'hooks/bitacora' \
+  "pre-rename bitacora hook stripped from settings.json" \
+  "pre-rename hook cleanup failed — settings.json left untouched"
 
 # ── PostToolUse hook: logbook entry after a commit ──
 # The one thing a SKILL cannot do is fire on an event: it self-activates on what
@@ -535,27 +585,9 @@ fi
 # its key would be satisfied by somebody else's hook and ours would never land,
 # or a re-run would append a duplicate. Deep-scanning for our own command is the
 # only check that is both idempotent and additive.
-if ! jq -e '[.. | strings] | any(test("hooks/logbook"))' "$SETTINGS" >/dev/null 2>&1; then
-  SETTINGS_TMP="$(mktemp)"
-  if jq '.hooks //= {}
-         | .hooks.PostToolUse //= []
-         | .hooks.PostToolUse += [{
-             matcher: "Bash|PowerShell",
-             hooks: [{
-               type: "command",
-               command: "bash ~/.claude/hooks/logbook.sh",
-               timeout: 5
-             }]
-           }]' "$SETTINGS" > "$SETTINGS_TMP"; then
-    mv "$SETTINGS_TMP" "$SETTINGS"
-    echo "✓ logbook PostToolUse hook added to settings.json"
-  else
-    rm -f "$SETTINGS_TMP"
-    echo "⚠️  could not add the logbook hook — settings.json left untouched"
-  fi
-else
-  echo "✓ logbook PostToolUse hook already in settings.json — leaving it alone"
-fi
+_settings_add_hook PostToolUse 'Bash|PowerShell' \
+  'bash ~/.claude/hooks/logbook.sh' \
+  'hooks/logbook' 'logbook PostToolUse hook'
 
 # ── PreToolUse hook: file changes go through Edit/Write, not Bash ──
 # The enforcement half of the THRIFTY_SONIC block above: that switch removes the
@@ -575,26 +607,10 @@ fi
 # is shared with rtk's own entry.
 if [[ ! -x /usr/bin/python3 ]]; then
   echo "⚠️  /usr/bin/python3 not found — skipping the no-bash-edits hook"
-elif ! jq -e '[.. | strings] | any(test("hooks/no-bash-edits"))' "$SETTINGS" >/dev/null 2>&1; then
-  SETTINGS_TMP="$(mktemp)"
-  if jq '.hooks //= {}
-         | .hooks.PreToolUse //= []
-         | .hooks.PreToolUse += [{
-             matcher: "Bash",
-             hooks: [{
-               type: "command",
-               command: "/usr/bin/python3 ~/.claude/hooks/no-bash-edits.py",
-               timeout: 5
-             }]
-           }]' "$SETTINGS" > "$SETTINGS_TMP"; then
-    mv "$SETTINGS_TMP" "$SETTINGS"
-    echo "✓ no-bash-edits PreToolUse hook added to settings.json"
-  else
-    rm -f "$SETTINGS_TMP"
-    echo "⚠️  could not add the no-bash-edits hook — settings.json left untouched"
-  fi
 else
-  echo "✓ no-bash-edits PreToolUse hook already in settings.json — leaving it alone"
+  _settings_add_hook PreToolUse 'Bash' \
+    '/usr/bin/python3 ~/.claude/hooks/no-bash-edits.py' \
+    'hooks/no-bash-edits' 'no-bash-edits PreToolUse hook'
 fi
 
 # ── convergent cleanup: stale tmux-claude-session-manager hooks ──
@@ -604,18 +620,6 @@ fi
 # deleted state.sh upstream, so those hooks now fail (exit 127) on every event.
 # We strip them if present, without touching the rest of .hooks. TEMPORARY
 # block: once every machine has run this version of the installer, delete it.
-if jq -e '[.. | strings] | any(test("tmux-claude-session-manager/scripts/state.sh"))' "$SETTINGS" >/dev/null 2>&1; then
-  SETTINGS_TMP="$(mktemp)"
-  if jq '.hooks |= (to_entries
-          | map(.value |= map(select(
-              (.hooks // []) | any(.command? // "" | test("tmux-claude-session-manager/scripts/state.sh")) | not
-            )))
-          | map(select((.value | length) > 0))
-          | from_entries)' "$SETTINGS" > "$SETTINGS_TMP"; then
-    mv "$SETTINGS_TMP" "$SETTINGS"
-    echo "✓ stale claude-session-manager hooks (state.sh) stripped from settings.json"
-  else
-    rm -f "$SETTINGS_TMP"
-    echo "⚠️  stale-hook cleanup failed — settings.json left untouched"
-  fi
-fi
+_settings_strip_hooks 'tmux-claude-session-manager/scripts/state.sh' \
+  "stale claude-session-manager hooks (state.sh) stripped from settings.json" \
+  "stale-hook cleanup failed — settings.json left untouched"

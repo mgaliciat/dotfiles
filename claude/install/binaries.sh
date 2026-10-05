@@ -146,22 +146,21 @@ fi
 # Matched on the script path, not on event or matcher: those arrays are shared
 # (rtk's Bash hook, the logbook plugin's). Must stay AFTER `install -y`, which
 # re-adds all three on every run.
-CBM_SETTINGS="$HOME/.claude/settings.json"
-if [[ -f "$CBM_SETTINGS" ]] && jq -e '[.hooks[]?[]?.hooks[]?.command // "" | select(contains("hooks/cbm-"))] | length > 0' \
-     "$CBM_SETTINGS" >/dev/null 2>&1; then
-  CBM_TMP="$(mktemp)"
-  if jq '.hooks |= (map_values(map(.hooks |= map(select((.command // "") | contains("hooks/cbm-") | not)))
+#
+# Not `_settings_strip_hooks`: that one drops a whole entry when ANY of its
+# commands matches, this drops the matching commands and keeps whatever else
+# shares their entry. `$SETTINGS` and `_settings_apply` come from settings.sh,
+# sourced first; when it bailed out for lack of jq, the `jq -e` guard fails too
+# and this is skipped.
+if [[ -f "${SETTINGS:-}" ]] && jq -e '[.hooks[]?[]?.hooks[]?.command // "" | select(contains("hooks/cbm-"))] | length > 0' \
+     "$SETTINGS" >/dev/null 2>&1; then
+  _settings_apply '.hooks |= (map_values(map(.hooks |= map(select((.command // "") | contains("hooks/cbm-") | not)))
                                | map(select(.hooks | length > 0)))
-                    | with_entries(select(.value | length > 0)))' "$CBM_SETTINGS" > "$CBM_TMP"; then
-    mv "$CBM_TMP" "$CBM_SETTINGS"
-    echo "✓ codebase-memory-mcp hooks stripped from settings.json"
-  else
-    rm -f "$CBM_TMP"
-    echo "⚠️  could not strip the codebase-memory-mcp hooks — settings.json left untouched"
-  fi
+                    | with_entries(select(.value | length > 0)))' \
+    "codebase-memory-mcp hooks stripped from settings.json" \
+    "could not strip the codebase-memory-mcp hooks — settings.json left untouched"
 fi
 rm -f "$HOME"/.claude/hooks/cbm-*
-unset CBM_SETTINGS CBM_TMP
 
 # ─── context7 (up-to-date library docs MCP) ───────────────────
 # Hosted HTTP server — nothing to install, no binary, no local port: we only
