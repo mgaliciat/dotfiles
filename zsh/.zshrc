@@ -28,6 +28,27 @@ setopt PUSHD_IGNORE_DUPS
 setopt INTERACTIVE_COMMENTS    # allows # comments at the prompt
 
 # ─── completions ──────────────────────────────────────────────
+# Homebrew's completions (_brew, _bat, _eza, _fd, _delta, _gh, _rg…) live in
+# its own site-functions, which neither macOS's /bin/zsh nor a distro zsh has in
+# its default fpath. Without these dirs every brew-installed tool gets plain
+# file completion. (/usr/local/share/zsh/site-functions is already there.)
+#
+# Appended, not prepended the way `brew shellenv` does it: the one name both
+# sides ship is `_git`, and brew's is git's contrib wrapper around the bash
+# completion, which would shadow zsh's own native `_git`. Appending adds the
+# ~20 completions zsh lacks and changes none it already had.
+#
+# Being in fpath puts these dirs under compinit's compaudit. On a multi-user
+# brew (group-writable, or owned by another account) compinit will ask about
+# "insecure directories"; `compaudit | xargs chmod go-w` is the fix.
+() {
+  local d
+  for d in /opt/homebrew/share/zsh/site-functions \
+           /home/linuxbrew/.linuxbrew/share/zsh/site-functions; do
+    [[ -d $d ]] && (( ! ${fpath[(Ie)$d]} )) && fpath+=($d)
+  done
+}
+
 # Load compinit with a 24h cache: the full check (compaudit + rescanning fpath)
 # at most once a day, `compinit -C` against the existing dump otherwise.
 #
@@ -36,14 +57,20 @@ setopt INTERACTIVE_COMMENTS    # allows # comments at the prompt
 # `(#q…)` AND `setopt extendedglob`; without the option it is a literal string,
 # `-n` is always true and every shell pays for the full compinit.
 #
+# `compinit -C` never looks at fpath, it trusts the dump — so a dir added to
+# fpath above would stay invisible for up to a day. A dump older than this file
+# (which is what adds those dirs) therefore takes the full branch too, which
+# rescans and rewrites it. One stat, no glob.
+#
 # The `touch` is what keeps the cache a cache: a full compinit only rewrites the
 # dump when the set of completion functions changed, so without it the dump
 # stays older than 24h and every later shell takes the slow branch again.
 autoload -Uz compinit
 () {
-  if (( $# )); then
+  local dump=${ZDOTDIR:-$HOME}/.zcompdump
+  if (( $# )) || [[ $dump -ot ${${(%):-%x}:A} ]]; then
     compinit
-    touch "$1"
+    touch $dump
   else
     compinit -C   # skip security check (faster)
   fi
@@ -58,8 +85,6 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' # case-insensitive
 
 # ─── key bindings (emacs style, zsh default) ──────────────────
 bindkey -e
-bindkey '^[[A' history-substring-search-up    # ↑ by substring (requires zsh-history-substring-search)
-bindkey '^[[B' history-substring-search-down  # ↓ by substring
 
 # ⌥←/⌥→ — move by "word". I take '/' out of the default WORDCHARS so that
 # in a path (/dev/user/foo/bar) it stops at every slash instead of eating
@@ -117,16 +142,27 @@ command -v fzf >/dev/null && source <(fzf --zsh)
 # ─── helper functions ─────────────────────────────────────────
 # mkcd, port, server, gco, dex, dlogs, etc. (see zsh/functions.zsh).
 # %x (prompt expansion) gives the real path of the file being sourced,
-# following the symlink ~/.zshrc → dotfiles/zsh/.zshrc.
-source "${${(%):-%x}:A:h}/functions.zsh" 2>/dev/null
+# following the symlink ~/.zshrc → dotfiles/zsh/.zshrc. Tested with -r rather
+# than silenced with 2>/dev/null, which would also swallow the file's own errors.
+# A plain variable, not an anonymous function: sourcing from inside a function
+# would turn any typeset in functions.zsh that lacks -g into a local.
+_zshrc_functions="${${(%):-%x}:A:h}/functions.zsh"
+[[ -r $_zshrc_functions ]] && source "$_zshrc_functions"
+unset _zshrc_functions
 
 # ─── aliases ──────────────────────────────────────────────────
-# Modern CLI tools (replacements for the macOS defaults)
-alias ls='eza --group-directories-first'
-alias ll='eza -lah --git --group-directories-first'
-alias lt='eza --tree --level=2 --git-ignore'
-alias cat='bat --paging=never --style=plain'     # real `cat` available as \cat
-alias catp='bat'                                  # bat with paging + full header
+# Modern CLI tools (replacements for the macOS defaults). command -v guard on
+# each: install-linux.sh lets eza fail, and on a box without it a bare `ls`
+# alias to a missing binary breaks the most-typed command there is.
+if command -v eza >/dev/null; then
+  alias ls='eza --group-directories-first'
+  alias ll='eza -lah --git --group-directories-first'
+  alias lt='eza --tree --level=2 --git-ignore'
+fi
+if command -v bat >/dev/null; then
+  alias cat='bat --paging=never --style=plain'   # real `cat` available as \cat
+  alias catp='bat'                                # bat with paging + full header
+fi
 # command -v guard: on apt the binary is `fdfind` (install-linux.sh
 # symlinks fdfind → fd in ~/.local/bin); if neither exists, the classic
 # `find` is better than a broken alias.
@@ -160,7 +196,7 @@ alias ....='cd ../../..'
 # Strict order required by the plugins:
 #   1. autosuggestions       (grey from history, → accepts)
 #   2. syntax-highlighting   (green/red depending on whether the command is valid)
-#   3. history-substring-search   (↑/↓ by substring — enables the bindkeys above)
+#   3. history-substring-search   (↑/↓ by substring — bound right below it)
 # If you invert order 2↔3, the history-substring matches end up
 # unhighlighted. Documented in the plugin's docs.
 #
@@ -182,10 +218,16 @@ _load_zsh_plugin() {
       [[ -f "$file" ]] && { source "$file"; return 0; }
     done
   done
+  return 1
 }
 _load_zsh_plugin zsh-autosuggestions
 _load_zsh_plugin zsh-syntax-highlighting
-_load_zsh_plugin zsh-history-substring-search
+# Bound only when the plugin loaded: without it the widgets don't exist and
+# ↑/↓ would do nothing at all instead of zsh's plain history walk.
+if _load_zsh_plugin zsh-history-substring-search; then
+  bindkey '^[[A' history-substring-search-up
+  bindkey '^[[B' history-substring-search-down
+fi
 
 # ─── highlight: valid commands in the theme's green ───────────
 # `fg=green` is the plugin's own default, restated here on purpose. Until
@@ -407,14 +449,34 @@ add-zsh-hook precmd _prompt_expand
 #    inherits the directory.
 #
 # add-zsh-hook is already autoloaded by the prompt section above.
+#
+# Ghostty's own shell integration already does both (cwd always, the title
+# with the `title` feature, which config.ghostty enables) and runs its precmd
+# last, so there these hooks would be duplicates whose output gets overwritten.
+# They stay for every other terminal, and for a shell Ghostty did not inject
+# into — a nested `zsh`, tmux, `exec zsh` (refresh) — which is why the test is
+# "is the integration loaded in THIS shell", not $GHOSTTY_RESOURCES_DIR: that
+# is inherited by all of those, the integration is not. At this point its
+# precmd is still `_ghostty_deferred_init`; `_ghostty_precmd` covers a re-source.
+# Both are Ghostty-internal names: if they ever change, this degrades to the
+# harmless duplicates, never to no title/cwd at all.
+_zshrc_in_ghostty() { (( $+functions[_ghostty_deferred_init] || $+functions[_ghostty_precmd] )) }
 
 _set_title() { print -Pn "\e]2;%~\a" }
-add-zsh-hook precmd _set_title
+_zshrc_in_ghostty && [[ $GHOSTTY_SHELL_FEATURES == *title* ]] \
+  || add-zsh-hook precmd _set_title
 
+# OSC 7 carries a file:// URL, so the path is percent-encoded: a raw space, `#`
+# or `%` in $PWD makes the URL mean a different path (or none). LC_ALL=C makes
+# zsh see bytes, so a non-ASCII name is encoded byte by byte as UTF-8.
 _report_cwd() {
-  printf '\e]7;file://%s%s\e\\' "$HOST" "$PWD"
+  emulate -L zsh -o extended_glob
+  local LC_ALL=C
+  printf '\e]7;file://%s%s\e\\' "$HOST" \
+    "${PWD//(#m)[^A-Za-z0-9\/._~-]/%${(l:2::0:)$(( [##16] #MATCH ))}}"
 }
-add-zsh-hook precmd _report_cwd
+_zshrc_in_ghostty || add-zsh-hook precmd _report_cwd
+unfunction _zshrc_in_ghostty
 
 # ─── local overrides (not versioned) ──────────────────────────
 # ~/.zshrc.local for per-machine aliases / functions / overrides.
