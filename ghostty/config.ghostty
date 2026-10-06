@@ -372,8 +372,8 @@ alpha-blending = linear-corrected
 #
 # `blueprint` (2026-10-05): the terminal as a night blueprint sheet, made for
 # the `blueprint` theme — a faint 24px minor / 120px major grey grid, a soft
-# ink bleed around the glyphs and the grain and uneven exposure of cyanotype
-# paper. Static like the CRT. The line work is drawn only where the canvas
+# ink bleed around the glyphs and the grain of cyanotype paper (its uneven
+# exposure is off: on a solid window it read as blotches). Static like the CRT. The line work is drawn only where the canvas
 # shows (the glass, or cells a TUI paints in the canvas colour) and breaks
 # around lettering, so it never crosses text, the selection or a coloured
 # panel. The canvas is read from Ghostty's `iBackgroundColor`, so the shader
