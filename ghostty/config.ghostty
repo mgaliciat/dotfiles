@@ -208,7 +208,10 @@ font-style-bold-italic = Bold Italic
 # earliest try and overshot in both axes; 16 is the step down if 17 crowds the columns.
 # 16 since 2026-10-05, with the switch to CaskaydiaCove: Cascadia's x-height is
 # taller than PlemolJP's, so the 17 above read big in it.
-font-size = 16
+#
+# PER-MACHINE since 2026-10-05: the right size depends on the screen, so the key
+# lives in ~/.config/ghostty/config.local (see `config-file` at the end of this
+# file), not here. A machine without that file gets Ghostty's 13.
 
 # Standard ligatures — and here they are REAL. Unlike Google Sans Code (whose
 # GSUB has no `liga` at all, so this line was inert for months), PlemolJP ships
@@ -314,8 +317,13 @@ macos-titlebar-style = transparent
 # gaussian blur at radius 20, written with the modern key (`background-blur`
 # takes the radius directly). Not macos-glass-clear — the point this time is
 # to match his screen, not to improve on it.
-background-opacity = 0.9
-background-blur = 20
+#
+# SOLID again later the same day, still on `solarized-patched`, to put the
+# blueprint grid under it: the grid reads as paper only over a canvas that holds
+# still, and through the blur the wallpaper moved behind it. To bring his pair
+# back, the two values in the paragraph above.
+background-opacity = 1.0
+background-blur = 0
 
 # `background-opacity` applies to the WINDOW background alone, so any cell
 # carrying an explicit background colour stays fully opaque by default — Ghostty's
@@ -375,7 +383,10 @@ alpha-blending = linear-corrected
 # Retina screen (on a 1× screen it reaches into the first row).
 # The line below is not hand-toggled: named after a theme, it belongs to it, and
 # `theme <id>` turns it on for `blueprint` and comments it out for anything else.
-# custom-shader = shaders/blueprint.glsl
+# On by hand under `solarized-patched` since 2026-10-05: its #031219 canvas is
+# near-black too, so the white halo holds. The next `theme <id>` other than
+# blueprint comments it out again.
+custom-shader = shaders/blueprint.glsl
 custom-shader-animation = false
 
 # breathe sideways — generous padding so that Claude Code's dense
@@ -672,4 +683,10 @@ macos-non-native-fullscreen = visible-menu
 # If you prefer to hide the traffic lights (red/yellow/green) when
 # you enter fullscreen for a cleaner view, uncomment:
 # macos-window-buttons = hidden
+
+# ─── per-machine ──────────────────────────────────────────────
+# Unversioned overrides for this machine (font-size lives there). Ghostty loads
+# an included file after this one wherever the line sits, so its values win; the
+# `?` makes a missing file a no-op rather than an error.
+config-file = ?~/.config/ghostty/config.local
 

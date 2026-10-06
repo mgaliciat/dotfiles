@@ -31,6 +31,7 @@ installers do not create any of these.
 | `~/.zshenv.local` | secrets and tokens as `export` lines (`CONTEXT7_API_KEY`) | every zsh, and the installers |
 | `~/.zshrc.local` | aliases and functions for this machine only | interactive zsh |
 | `~/.zprofile.local` | login-shell setup for this machine only (OrbStack's init line) | login zsh, after the PATH is re-applied |
+| `~/.config/ghostty/config.local` | Ghostty keys for this machine only (`font-size = 16`) | Ghostty, after `config.ghostty` |
 | `~/.claude/claude-api.env` | the API-gateway credential (`ANTHROPIC_BASE_URL=…`, `chmod 600`) | `claude --api`, `code --api` |
 | `~/.claude/settings.json` | Claude Code permissions and UI prefs | Claude Code; the installers only add keys that are absent, except `permissions.ask`/`deny`, which they union with `permissions.json` |
 

@@ -93,6 +93,7 @@ The env file holds a credential: per-machine, `chmod 600`, never versioned, and 
 
 - **`~/.gitconfig.local`** — git identity (`user.name`, `user.email`, signing key). Your `~/.gitconfig` includes it via `[include]` at the end, so it wins.
 - **`~/.zshrc.local`** — aliases/functions for this machine only; sourced last by `.zshrc`.
+- **`~/.config/ghostty/config.local`** — Ghostty keys for this machine only (`font-size`); included by `config.ghostty`, so it wins. Without it Ghostty uses its default size, 13.
 - **`~/.zprofile.local`** — login-shell setup for this machine only (e.g. OrbStack's init line); sourced last by `.zprofile`, so a PATH entry prepended here is the one that beats the system dirs in a login shell.
 - **`~/.zshenv.local`** — secrets (API keys, DB passwords), sourced last by `.zshenv`:
 
