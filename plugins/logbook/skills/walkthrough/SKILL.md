@@ -1,13 +1,12 @@
 ---
 name: walkthrough
-description: Trace a process through the real code and write it up as a flow document (flows/<repo>-<process>, type flow) in the logmd vault — mermaid diagrams whose every node carries a code anchor (symbol + file:line), pinned to a commit SHA so the document can be mechanically re-verified later. Use when the user says "walkthrough", "flujo", "cómo funciona X por dentro", "traza el proceso", "/logbook:walkthrough", or asks how a service, repo or feature actually executes end to end.
+description: Trace a process through the real code and write it up as a flow document (flows/<repo>-<process>, type flow) in the Logbook vault — mermaid diagrams whose every node carries a code anchor (symbol + file:line), pinned to a commit SHA so the document can be mechanically re-verified later. Use when the user says "walkthrough", "flujo", "cómo funciona X por dentro", "traza el proceso", "/logbook:walkthrough", or asks how a service, repo or feature actually executes end to end.
 ---
 
 # logbook · walkthrough
 
 **Read three files first, in this order**: `ENGINE.md` at the plugin root (two
-directories above this SKILL.md: `~/.claude/skills/logbook/` under Claude Code,
-`~/.gemini/config/plugins/logbook/` under Antigravity — the layers, the MCP tools,
+directories above this SKILL.md, `${CLAUDE_PLUGIN_ROOT}/ENGINE.md` — the layers, the MCP tools,
 the link rule), the vault's own `wiki/CLAUDE.md` (the per-vault contract — it
 outranks everything), and `AUTHORING.md` beside the engine (the evidence rule, the
 four channels, the frontmatter and the closing loop). Then run this workflow.
@@ -45,11 +44,12 @@ with a plausible arrow.
 Created on first use. `exec` `ls -A`; if `flows/` is absent, create it before the
 first document:
 
-- `flows/.ok/frontmatter.yml` — the folder's `title`, `description` and `tags`.
-  The folder description is part of the retrieval index, not decoration.
+- The folder itself, with the `folder` tool: `frontmatter` carrying its `title`,
+  `description` and `tags`. The folder description is part of the retrieval
+  index, not decoration.
 - `flows/index.md` — hand-written, no frontmatter, `## <Category>` headings,
-  `- [flow](./flow.md) — <its description>` entries. Do **not** enable the `okf`
-  plugin's index generation; it would replace this file.
+  `- [flow](./flow.md) — <its description>` entries. Nothing generates it, so it
+  is only complete if every flow adds itself.
 
 ## Workflow
 
@@ -113,8 +113,7 @@ path beats a read one.
 
 ### 4. Draw only what you can anchor
 
-Mermaid renders natively in the vault: a plain ` ```mermaid ` fence, no library,
-no `<Diagram>` component. **Several small diagrams beat one large one** — each
+A diagram is a plain ` ```mermaid ` fence — no library, no component. **Several small diagrams beat one large one** — each
 answers a question a reader actually has:
 
 | The process is… | Diagram |
@@ -138,9 +137,13 @@ Rules, all of them enforced by the anchor table below:
 - Keep the palette out of it: the vault themes the diagram, and hand-picked
   colours break in the other theme.
 
-After writing, **check the tool's response for a `mermaid-parse-error`
-warning** — the edit lands anyway and the fence silently fails to render. Fix and
-re-edit.
+After writing, **check the response's `warnings` for `kind: mermaid-parse-error`**
+— it names the line and what is wrong. The write lands anyway and the fence fails
+to render with no other sign, so fix it and `edit` again until the array is empty.
+The server's check is deliberately conservative — it never flags a diagram mermaid
+accepts, but it does not catch every one mermaid rejects — so the most reliable
+diagram is still a simple one: quote any label holding brackets
+(`A["f(x)"]`), and give every message in a `sequenceDiagram` its `: text`.
 
 ### 5. The anchor table — the section that makes the document verifiable
 

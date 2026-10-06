@@ -1,16 +1,17 @@
-# Logbook (logmd) — engine
+# Logbook — engine
 
-Shared spec for every `logbook` skill except the three self-contained ones — the synthesis
+Shared spec for every `logbook` skill except the four self-contained ones — the synthesis
 three (`/logbook:ingest`, `/logbook:query`, `/logbook:lint`) and the authoring
 four (`/logbook:guide`, `/logbook:runbook`, `/logbook:document`,
 `/logbook:walkthrough`). **Each of those reads this file first**, then runs its
 workflow. Everything common — where the contract lives, which tools to use, the
 layers, the watermark — is here once; the skills hold only their own steps. The
-other three are self-contained on purpose, because reading three spec files
+other four are self-contained on purpose, because reading three spec files
 first is a cost none of them would earn back: `/logbook:entry` (the capture gate,
-fired from a commit hook), `/logbook:task` (the pending-work board) and
+fired from a commit hook), `/logbook:task` (the pending-work board),
 `/logbook:run` (executes the job a note describes, recording the outcome in that
-note). None reads this file.
+note) and `/logbook:template` (designs a reusable note shape). None reads this
+file.
 
 `/logbook:entry` captures work as immutable per-invocation notes, but capture is
 write-only: notes pile up, they never come back synthesized. The synthesis three
@@ -39,7 +40,7 @@ config and it **outranks this file** on everything it covers: the type vocabular
 the frontmatter fields, the repo-tag alias table, the index and log formats, the
 external-research procedure, the human/agent split, the cadence. This file is the
 engine; that one is the configuration, and it is versioned inside the vault so it
-travels with the content rather than with these dotfiles.
+travels with the content rather than with this plugin.
 
 If `wiki/CLAUDE.md` is missing you are pointed at the wrong project — stop and say
 so. Do **not** bootstrap a replacement from memory: a hand-written contract that
@@ -47,44 +48,85 @@ disagrees with 200 existing documents is worse than no contract.
 
 Two things it defers to in turn:
 
-- **OKF semantics** — the `okf-knowledge-base` skill (installed separately, ships
-  with OpenKnowledge). It carries OKF v0.2: reserved files, the open type
-  vocabulary, provenance (`generated` vs `verified`, ISO 8601 with an explicit UTC
-  offset), `sources`, and what the `okf` plugin's warnings mean. Read it instead of
-  re-deriving the spec here. This engine only records where *this* vault
-  deliberately sits: it still carries the legacy `timestamp` field rather than
-  v0.2 `generated.at`, and migrating a page is a decision, not a cleanup — never
-  invent provenance for a page you did not generate.
+- **OKF semantics** — `/logbook:okf`, this plugin's own skill (`skills/okf/SKILL.md`).
+  It carries OKF v0.2: reserved files, the open type vocabulary, provenance
+  (`generated` vs `verified`, ISO 8601 with an explicit UTC offset), `sources`, and
+  what the server's `okf` diagnostics mean. Read it instead of re-deriving the spec
+  here. This engine only records where *this* vault deliberately sits: it still
+  carries the legacy `timestamp` field rather than v0.2 `generated.at`, and
+  migrating a page is a decision, not a cleanup — never invent provenance for a page
+  you did not generate.
 - **The `.ok/okf/*.schema.json` files** in the vault, for exact field contracts.
-  Generated; read them, never edit them.
+  Generated; read them, never edit them. A vault the Logbook server initialized
+  carries only `required`, `reserved-index` and `root-index`; the others exist only
+  where a vault brought them along.
 
 ## Tools: use the MCP, not the filesystem
 
-The vault is remote (an HTTP logmd server behind Cloudflare Access). There is no local copy, so
-`Read`/`Grep`/`Glob` cannot reach it at all — and even where a project has an
-`.ok/` on disk, the native tools skip the frontmatter, backlinks, unresolved
-comments and attribution that `exec` returns per file. The mapping:
+The vault is remote: a Logbook server, reached through the `logbook-mcp` MCP server this
+plugin registers. There is no local copy, so `Read`/`Grep`/`Glob` cannot reach it at
+all — and even where a vault is on disk, the native tools skip the frontmatter,
+backlinks and attribution that `exec` returns per file. The mapping:
 
 | Need | Tool |
 |---|---|
 | List, `cat`, `grep`, `find` over the vault | `exec` (read-only allowlist, one pipe per call) |
-| Ranked lookup by title/body | `search` (lexical BM25 + recency; semantic is off) |
+| Ranked lookup by title/body | `search` (`query`; lexical BM25 + recency, no semantic signal) |
 | Create a document | `write` (`document`, or `documents` for a batch) |
 | Change part of one | `edit` (`find`/`replace`, or a `frontmatter` merge-patch) |
-| Backlinks, forward links, dead, orphans, hubs, suggest | `links` |
+| A folder's title, description and tags | `folder` (`frontmatter` merge-patch; creates the folder) |
+| Backlinks, forward links, dead, orphans, hubs, suggest | `links` (one `kind`, or an array) |
 | Broken links + lint violations in one pass | `audit` |
-| Lint one doc, optionally auto-fix | `lint` |
+| Lint one doc, optionally auto-fix | `lint` (`fix: true` with `document`) |
 | Who wrote a version, and when | `history` |
+| A restore point, and going back to one | `checkpoint`, `restore_version` |
+| Point the reader at what matters in a page | `highlight` (`quote`s or `heading`s, each with a `kind` and a `note`) |
 
 **`write` with `position: replace` overwrites the entire body.** That is correct
 for a document that does not exist yet and destructive for one that does — it is
-how this vault lost its `log.md` once. To change an existing page use `edit`; to
-add to one, `write` with an explicit `append`/`prepend`, or `edit` against a
-unique anchor. Passing `frontmatter` alongside literal `content` silently forces
-`replace`, so never do that to a live page.
+how this vault lost its `log.md` once. The server refuses a `write` with `content`
+at a live path unless a `position` is named, so the destructive write always has
+to be asked for by name; when it happens the response's `advisories` say how many
+bytes it replaced. To change an existing page use `edit`; to add to one, `write`
+with an explicit `append`/`prepend`, or `edit` against a unique anchor.
+`frontmatter` passed to `write` is merged into what the page already has, never a
+replacement for it.
+
+**Read the response, not just its `ok`.** `write` and `edit` return `warnings` for
+what landed but will not render — a `mermaid-parse-error` names the line of a
+fence mermaid cannot draw. The write is not refused for it, so nothing else will
+tell you.
+
+**Write a page to be scanned, not only read.** A person reads these in the Logbook
+app, which draws GitHub/Obsidian callouts as coloured boxes. A page longer than a
+screen opens with a `> [!SUMMARY]` callout — two to four lines with the conclusion.
+Decisions, risks and next steps sit where they occur in `> [!IMPORTANT]`,
+`> [!WARNING]`, `> [!CAUTION]`, `> [!TIP]` or `> [!NOTE]` (text after the marker is
+the box's title). Sections of a screen or less under `##`/`###`; paragraphs of a few
+sentences; parallel facts as a list; anything with attributes — options, costs,
+owners — as a table. `write` and `edit` answer with `suggestions` when a page falls
+short of this (`no-summary`, `wall-of-text`, `long-section`, `list-as-table`,
+`no-highlight`): act on them with `edit` before moving on. Log entries are raw
+capture and keep their own shape; they are never asked for a summary.
+
+**Finish a long page by pointing at it, not by asking for it to be read.** After
+writing or reworking anything the user has to review — a document, a walkthrough, a
+plan, a research note — call `highlight` on it with the few places that matter: the
+conclusion (`important`), the decision they must take (`decision`), what is still
+open (`question`), what comes next (`next`), each with a one-sentence `note`. The app
+marks them in the note and steps the reader through them. A `quote` is exact body
+text within one paragraph, a `heading` covers its section; if one misses, nothing is
+set and the error says which. It replaces the page's earlier highlights and changes
+nothing in the page itself.
+
+**Paths under `.ok/` are not documents.** `write` and `edit` refuse them: a
+folder's own frontmatter goes through `folder`, a template through
+`template_write` — a folder template too, with `files` and `stages` — and a new
+folder is made from a folder template with `folder_from_template`.
 
 `exec` is read-only and is **not a shell**: one command or one pipe, no `&&`, no
-`;`, no redirection. Several things = several calls.
+`;`, no redirection, and no backtick, `$(` or `${` anywhere — not even inside
+quotes. Several things = several calls.
 
 ## The layers
 
@@ -130,13 +172,12 @@ it may write to.
 ## Links
 
 Standard markdown links in the **relative** form — `[service-x](./service-x.md)`,
-`[note](../entries/….md)`. That is OpenKnowledge's own recommended form, and the
-reason is portability: a relative link still resolves on GitHub, in Obsidian, in
-VS Code and on a published site, none of which know where this vault's content
-root is.
+`[note](../entries/….md)`. The reason is portability: a relative link still
+resolves on GitHub, in Obsidian, in VS Code and on a published site, none of which
+know where this vault's content root is.
 
 The root-absolute form (`/folder/x.md`, leading slash = content root) is equally
-valid to OpenKnowledge and handy across folders. **The rule is that the two never
+valid to the server — and the one OKF itself recommends — and handy across folders. **The rule is that the two never
 mix**: prefixing `./` to a root-style path from a document already inside that
 folder duplicates the segment (`wiki/wiki/x.md`) and the link dies silently. This
 vault picks the relative form and holds it everywhere, which is what makes that
@@ -145,15 +186,16 @@ wrong for consistency, not because the form is invalid.
 
 A page with no backlink to the raw note(s) it synthesizes is unfinished.
 
-Links are not decoration here. Retrieval here is a **lexical loop** —
-BM25 plus recency plus graph traversal, with no semantic search — so links,
+Links are not decoration here. The server's retrieval is a **lexical loop** —
+BM25 plus recency plus graph traversal, with semantic search off — so links,
 folders, titles and folder descriptions *are* the index. Every link shortens the
 next agent's loop.
 
 ### A folder's description carries its rule, not just its name
 
 Each layer's `.ok/frontmatter.yml` holds a `title`, a `description` and `tags`,
-and the agent reads that description **on every listing of the folder** — before
+set with the `folder` tool, and the agent reads that description **on every listing
+of the folder** — before
 any contract file, and whether or not it ever opens one. So the description is
 where a layer's discipline belongs, in one line and in the imperative:
 `entries/` says it is immutable and one file per invocation, `sources/` that it
@@ -170,11 +212,11 @@ index makes pages unreachable for anyone reading the bundle without listing the
 directory. `wiki/log.md` is **newest-first**, one `## YYYY-MM-DD: <op> | <summary>`
 heading per operation.
 
-**Never let anything generate them.** logmd generates no index, and nothing
-should: a generated index is machine-owned and replaces its file's contents,
-taking every hand-written one with it — OpenKnowledge's `okf` plugin did exactly
-that, and would again if the vault were ever opened there — `wiki/`'s two and the per-folder `index.md` each
-authored layer keeps.
+**Nothing generates them.** The server has no index generator, so an index is only
+as complete as the last workflow that closed its loop — which is why every
+workflow that adds a page updates the folder's `index.md` in the same run. Both are
+reserved by OKF (§3.1): they need no `type`, and an `index.md` below the vault root
+carries no frontmatter at all.
 
 ### The watermark
 

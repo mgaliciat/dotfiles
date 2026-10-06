@@ -1,4 +1,4 @@
-# Logbook (logmd) — authoring engine
+# Logbook — authoring engine
 
 Shared spec for the `logbook` plugin's **document-writing** skills —
 `/logbook:guide`, `/logbook:runbook`, `/logbook:document`, `/logbook:walkthrough`.
@@ -143,25 +143,23 @@ sources:                           # one entry per `sources/` capture this docum
 ```
 
 - **`sources` is the machine-readable half of the evidence rule.** Prose links
-  serve the reader; this array is what `links`, `audit` and the next agent can
-  actually follow, and it is OKF v0.2's replacement for a body `# Citations`
-  list. A document built on `sources/` captures that names none of them in
+  serve the reader; this array is what the next agent can follow without parsing
+  prose, and it is OKF v0.2's replacement for a body `# Citations` list. A document built on `sources/` captures that names none of them in
   frontmatter is grounded only by convention. Omit the key entirely when the
   document was built from the code and the vault alone — an empty array claims
   something false.
 
 - **`write` for a document that does not exist; `edit` for one that does.** A
   `write` with `position: replace` at a live path destroys the whole body — that
-  is how this vault lost its `log.md` once. Passing `frontmatter` alongside
-  literal `content` silently forces `replace`, so never combine the two on a live
-  page.
+  is how this vault lost its `log.md` once. The server refuses content at a live
+  path without an explicit `position`, so the only way to get there is to ask for
+  it by name; don't.
 - **Check the path first** with `exec` (`ls <folder>/`) before the first write.
-- **Relative markdown links** (`[nvim](../wiki/nvim.md)`) — OpenKnowledge's
-  recommended form, and the one that still resolves on GitHub, in Obsidian and on
-  a published site. The root-absolute `/folder/x.md` form is equally valid to
-  OpenKnowledge but is not used here: what breaks is **mixing** the two, since a
-  `./` glued onto a root-style path doubles the folder segment and the link dies
-  silently. One form, everywhere.
+- **Relative markdown links** (`[nvim](../wiki/nvim.md)`) — the form that still
+  resolves on GitHub, in Obsidian and on a published site. The root-absolute
+  `/folder/x.md` form is equally valid to the server but is not used here: what breaks
+  is **mixing** the two, since a `./` glued onto a root-style path doubles the
+  folder segment and the link dies silently. One form, everywhere.
 - **English**, whatever language the session is being conducted in — paths,
   file names, headings and prose alike.
 

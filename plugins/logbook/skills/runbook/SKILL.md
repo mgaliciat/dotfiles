@@ -1,13 +1,12 @@
 ---
 name: runbook
-description: Author a detailed operating procedure (runbooks/<repo>-<topic>, type runbook) in the logmd vault — prerequisites, the exact commands in the order that works, per-step verification, troubleshooting and undo — built by reading the real scripts and running the real commands, never from the conversation's own context. Use when the user says "runbook", "procedimiento", "/logbook:runbook", or asks how to bring something up, deploy, migrate or recover it step by step.
+description: Author a detailed operating procedure (runbooks/<repo>-<topic>, type runbook) in the Logbook vault — prerequisites, the exact commands in the order that works, per-step verification, troubleshooting and undo — built by reading the real scripts and running the real commands, never from the conversation's own context. Use when the user says "runbook", "procedimiento", "/logbook:runbook", or asks how to bring something up, deploy, migrate or recover it step by step.
 ---
 
 # logbook · runbook
 
 **Read three files first, in this order**: `ENGINE.md` at the plugin root (two
-directories above this SKILL.md: `~/.claude/skills/logbook/` under Claude Code,
-`~/.gemini/config/plugins/logbook/` under Antigravity — the layers, the MCP tools,
+directories above this SKILL.md, `${CLAUDE_PLUGIN_ROOT}/ENGINE.md` — the layers, the MCP tools,
 the link rule), the vault's own `wiki/CLAUDE.md` (the per-vault contract — it
 outranks everything), and `AUTHORING.md` beside the engine (the evidence rule, the
 four channels, the frontmatter and the closing loop). Then run this workflow.

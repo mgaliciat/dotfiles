@@ -1,13 +1,12 @@
 ---
 name: guide
-description: Author a detailed reference or usage guide (guides/<topic>, type guide) in the logmd vault — a cheatsheet, a keymap table, how a tool is used day to day — built from verified sources (the code and the binary itself, the vault, and gated web research), never from the conversation's own context. Use when the user says "guide", "guía", "cheatsheet", "/logbook:guide", or asks for reference documentation on a tool or config.
+description: Author a detailed reference or usage guide (guides/<topic>, type guide) in the Logbook vault — a cheatsheet, a keymap table, how a tool is used day to day — built from verified sources (the code and the binary itself, the vault, and gated web research), never from the conversation's own context. Use when the user says "guide", "guía", "cheatsheet", "/logbook:guide", or asks for reference documentation on a tool or config.
 ---
 
 # logbook · guide
 
 **Read three files first, in this order**: `ENGINE.md` at the plugin root (two
-directories above this SKILL.md: `~/.claude/skills/logbook/` under Claude Code,
-`~/.gemini/config/plugins/logbook/` under Antigravity — the layers, the MCP tools,
+directories above this SKILL.md, `${CLAUDE_PLUGIN_ROOT}/ENGINE.md` — the layers, the MCP tools,
 the link rule), the vault's own `wiki/CLAUDE.md` (the per-vault contract — it
 outranks everything), and `AUTHORING.md` beside the engine (the evidence rule, the
 four channels, the frontmatter and the closing loop). Then run this workflow.
@@ -34,7 +33,7 @@ in the body. `guides/index.md` is hand-written and lists every file in the folde
    each thing the guide will list, name where it came from:
    - keymaps → the config files that define them (`keys = {}` blocks, the
      keymap file), plus the tool's own lister where it has one
-     (`ghostty +list-keybinds`, `<leader>fk`)
+     (`ghostty +list-keybinds`, `tmux list-keys`, `<leader>fk`)
    - flags, keys and subcommands → `<tool> --help`, `<tool> api-json`,
      `ghostty +show-config`, `brew info`. A tool is the only authority on itself
    - what is installed and at which version → `--version`, not a lockfile you

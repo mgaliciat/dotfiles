@@ -1,13 +1,12 @@
 ---
 name: query
-description: Answer a question from the logmd wiki without re-deriving it from scratch, filing any new knowledge worth keeping. Use when the user says "query wiki", "pregunta a la wiki", "/logbook:query", or asks a question meant to be answered from the vault.
+description: Answer a question from the Logbook wiki without re-deriving it from scratch, filing any new knowledge worth keeping. Use when the user says "query wiki", "pregunta a la wiki", "/logbook:query", or asks a question meant to be answered from the vault.
 ---
 
 # logbook · query
 
 **First read `ENGINE.md` at the plugin root** — two directories above this
-SKILL.md: `~/.claude/skills/logbook/` under Claude Code,
-`~/.gemini/config/plugins/logbook/` under Antigravity (the shared engine: where the
+SKILL.md, `${CLAUDE_PLUGIN_ROOT}/ENGINE.md` (the shared engine: where the
 contract lives, which MCP tools to use, the layers, the link rule). Then read the
 vault's own `wiki/CLAUDE.md`. Then run this workflow.
 

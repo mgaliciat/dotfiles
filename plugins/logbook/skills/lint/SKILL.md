@@ -1,13 +1,12 @@
 ---
 name: lint
-description: Health-check the logmd wiki for rot — OKF conformance, broken links, orphans, contradictions, stale claims, missing cross-refs, gaps. Report, don't fix without confirming. Use when the user says "lint wiki", "lint logbook", "/logbook:lint", or asks to check the vault for rot.
+description: Health-check the Logbook wiki for rot — OKF conformance, broken links, orphans, contradictions, stale claims, missing cross-refs, gaps. Report, don't fix without confirming. Use when the user says "lint wiki", "lint logbook", "/logbook:lint", or asks to check the vault for rot.
 ---
 
 # logbook · lint
 
 **First read `ENGINE.md` at the plugin root** — two directories above this
-SKILL.md: `~/.claude/skills/logbook/` under Claude Code,
-`~/.gemini/config/plugins/logbook/` under Antigravity (the shared engine: where the
+SKILL.md, `${CLAUDE_PLUGIN_ROOT}/ENGINE.md` (the shared engine: where the
 contract lives, which MCP tools to use, the layers, the link rule). Then read the
 vault's own `wiki/CLAUDE.md`. Then run this workflow.
 

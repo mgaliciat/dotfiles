@@ -1,6 +1,6 @@
 ---
 name: run
-description: Execute what a note in the logmd vault asks for — a feature review, a feature build, a PR review, any note (often made from a template) whose body is a job to do — then record the outcome back in that same note so the run can be resumed or audited. Use when the user says "run the note", "ejecuta la nota", "corre la nota", "haz lo que dice la nota", "/logbook:run", or names a vault note and asks for its work to be done.
+description: Execute what a note in the Logbook vault asks for — a feature review, a feature build, a PR review, any note (often made from a template) whose body is a job to do — then record the outcome back in that same note so the run can be resumed or audited. Use when the user says "run the note", "ejecuta la nota", "corre la nota", "haz lo que dice la nota", "/logbook:run", or names a vault note and asks for its work to be done.
 ---
 
 # logbook · run

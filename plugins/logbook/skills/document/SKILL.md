@@ -1,13 +1,12 @@
 ---
 name: document
-description: Author a long-form technical document (docs/<topic>, type document) in the logmd vault — a design doc, an architecture explanation, a deep analysis or a comparison — researched from verified sources (the code and the tools themselves, the vault, and gated web research), never from the conversation's own context. Use when the user says "document", "documento", "design doc", "documenta X a fondo", "/logbook:document", or asks for a detailed written treatment of a system or decision.
+description: Author a long-form technical document (docs/<topic>, type document) in the Logbook vault — a design doc, an architecture explanation, a deep analysis or a comparison — researched from verified sources (the code and the tools themselves, the vault, and gated web research), never from the conversation's own context. Use when the user says "document", "documento", "design doc", "documenta X a fondo", "/logbook:document", or asks for a detailed written treatment of a system or decision.
 ---
 
 # logbook · document
 
 **Read three files first, in this order**: `ENGINE.md` at the plugin root (two
-directories above this SKILL.md: `~/.claude/skills/logbook/` under Claude Code,
-`~/.gemini/config/plugins/logbook/` under Antigravity — the layers, the MCP tools,
+directories above this SKILL.md, `${CLAUDE_PLUGIN_ROOT}/ENGINE.md` — the layers, the MCP tools,
 the link rule), the vault's own `wiki/CLAUDE.md` (the per-vault contract — it
 outranks everything), and `AUTHORING.md` beside the engine (the evidence rule, the
 four channels, the frontmatter and the closing loop). Then run this workflow.
@@ -39,11 +38,12 @@ in the body.
 The folder is created on first use. Check with `exec` `ls -A`; if `docs/` is not
 there, create it before the first document:
 
-- `docs/.ok/frontmatter.yml` with the folder's `title`, `description` and `tags`
-  — the folder description is part of the retrieval index, not decoration.
+- The folder itself, with the `folder` tool: `frontmatter` carrying its `title`,
+  `description` and `tags` — the folder description is part of the retrieval
+  index, not decoration.
 - `docs/index.md` — hand-written, no frontmatter, `## <Category>` headings and
-  `- [doc](./doc.md) — <the doc's description>` entries. Do **not** turn on the
-  `okf` plugin's index generation: it would replace this file.
+  `- [doc](./doc.md) — <the doc's description>` entries. Nothing generates it, so
+  it is only complete if every document adds itself.
 
 ## Workflow
 

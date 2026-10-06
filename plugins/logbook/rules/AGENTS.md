@@ -1,4 +1,4 @@
-# Logbook & logmd Rules
+# Logbook Rules
 
 When this plugin is active, follow these rules for knowledge capture and vault interaction:
 

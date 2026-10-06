@@ -1,13 +1,12 @@
 ---
 name: ingest
-description: Synthesize the raw entries/ per-invocation notes into cross-linked wiki/ pages (OKF v0.2) in the logmd vault — one per service, concept, decision or entity, linking notes that share a topic. Use when the user says "ingest", "sintetiza la bitácora", "logbook ingest", "/logbook:ingest", or asks to process the logbook into the wiki.
+description: Synthesize the raw entries/ per-invocation notes into cross-linked wiki/ pages (OKF v0.2) in the Logbook vault — one per service, concept, decision or entity, linking notes that share a topic. Use when the user says "ingest", "sintetiza la bitácora", "logbook ingest", "/logbook:ingest", or asks to process the logbook into the wiki.
 ---
 
 # logbook · ingest
 
 **First read `ENGINE.md` at the plugin root** — two directories above this
-SKILL.md: `~/.claude/skills/logbook/` under Claude Code,
-`~/.gemini/config/plugins/logbook/` under Antigravity (the shared engine: where the
+SKILL.md, `${CLAUDE_PLUGIN_ROOT}/ENGINE.md` (the shared engine: where the
 contract lives, which MCP tools to use, the layers, the link rule, the watermark).
 Then read the vault's own `wiki/CLAUDE.md`. Then run this workflow.
 

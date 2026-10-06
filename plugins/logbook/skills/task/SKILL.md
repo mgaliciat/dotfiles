@@ -1,6 +1,6 @@
 ---
 name: task
-description: Capture, list and close pending work on a per-repo board (tasks/<repo>, type task-board) in the logmd vault, with enough context to pick it up cold and a code anchor confirmed against the real code when the task is technical. Use when the user says "task", "tarea", "pendiente", "apunta esto", "queda pendiente", "/logbook:task", describes work to do later, or wants to see or close what is open.
+description: Capture, list and close pending work on a per-repo board (tasks/<repo>, type task-board) in the Logbook vault, with enough context to pick it up cold and a code anchor confirmed against the real code when the task is technical. Use when the user says "task", "tarea", "pendiente", "apunta esto", "queda pendiente", "/logbook:task", describes work to do later, or wants to see or close what is open.
 ---
 
 # logbook · task
@@ -34,9 +34,9 @@ one `/logbook:entry` uses.
   destroys the whole body — every open task on it. Boards change constantly, so
   **the board is always `edit`**; `write` is only for creating one that is not
   there.
-- **Bootstrap on demand**: if `tasks/` is absent, create `tasks/.ok/frontmatter.yml`
-  (the folder's `title` / `description` / `tags`) and a hand-written
-  `tasks/index.md` listing every board. A new repo's board starts as the two
+- **Bootstrap on demand**: if `tasks/` is absent, create it with the `folder` tool
+  (`frontmatter` with the folder's `title` / `description` / `tags` — `write` refuses
+  paths under `.ok/`) and a hand-written `tasks/index.md` listing every board. A new repo's board starts as the two
   headings, `## Open` and `## Done`, and nothing else.
 - **MCP down → say so and stop.** No `curl`, no writing the task to a local file
   "for later". A pending item that only exists in this session's context is
