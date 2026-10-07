@@ -383,10 +383,7 @@ alpha-blending = linear-corrected
 # Retina screen (on a 1× screen it reaches into the first row).
 # The line below is not hand-toggled: named after a theme, it belongs to it, and
 # `theme <id>` turns it on for `blueprint` and comments it out for anything else.
-# On by hand under `solarized-patched` since 2026-10-05: its #031219 canvas is
-# near-black too, so the white halo holds. The next `theme <id>` other than
-# blueprint comments it out again.
-custom-shader = shaders/blueprint.glsl
+# custom-shader = shaders/blueprint.glsl
 custom-shader-animation = false
 
 # breathe sideways — generous padding so that Claude Code's dense
