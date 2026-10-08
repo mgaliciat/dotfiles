@@ -137,7 +137,43 @@ window-colorspace = display-p3
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
-# Paper Mono — primary again (2026-10-07), its third turn. One variable ttf
+# Lilex — primary (2026-10-07), on trial, the NF build. IBM Plex Mono redrawn
+# for code, with its ligatures on `calt` (on by default). Static ttfs with real
+# italics, 0.6 em advance, a 1.3 em line (ascent 999 + descent 301). The plain
+# family, not `Lilex Nerd Font Mono`, for the same reason as CaskaydiaCove
+# below: the Mono cut squeezes every icon into one cell. Installed by brew
+# (`font-lilex-nerd-font`).
+# To go back: font-family = "Datatype".
+#
+# Datatype (Google Fonts) — primary (2026-10-07), on trial. A typeface for
+# charts in text: its `liga`/`calt` turn brace syntax like `{l:1,5,3}` into
+# inline sparklines and bars. One variable ttf, `wght` 100–900 and `wdth`
+# 50–150. Every ASCII glyph is 0.5 em, narrow next to the 0.6 em of most
+# monos; the space alone is 0.25 em, which the grid ignores. No italic file,
+# so Ghostty obliques. NOT a Nerd Font, and it carries no box drawing or
+# arrows: Ghostty draws the box glyphs itself and pulls the rest from the NF
+# casks in install.sh. Installed by brew (`font-datatype`).
+# To go back: font-family = "Intel One Mono".
+#
+# Intel One Mono — primary (2026-10-07), on trial. Built for low-vision
+# legibility: big x-height, open counters, a tall 1.38 em line (ascent 1090 +
+# descent 290). Static otfs with real italics in Light/Regular/Medium/Bold.
+# NOT a Nerd Font: icons fall back into the NF casks in install.sh, which are
+# load-bearing while this is the primary. The patched build exists as
+# `font-intone-mono-nerd-font` (family "IntoneMono Nerd Font") if the fallback
+# icons read wrong. Installed by brew (`font-intel-one-mono`).
+# To go back: the Monaspace pair below.
+#
+# Monaspace (GitHub Next) — primary (2026-10-07), the NF build: Neon, the
+# neo-grotesque face, for roman and bold, and Radon, the handwritten one, for
+# both italics, the mix Monaspace itself proposes. Xenon (the slab) held the
+# roman slot first, the same day. It IS a Nerd Font, so the icons come from
+# the family and not from fallback. Static otfs with real italics, no `wght`
+# axis. Installed by brew (`font-monaspace-nf`, already in install.sh's cask
+# list). Same 0.62 em advance in all five faces, so mixing them keeps the grid.
+# To go back: font-family = "Paper Mono".
+#
+# Paper Mono — primary (2026-10-07), its third turn. One variable ttf
 # (Thin→ExtraBold, `wght` axis) with no Italic file, so italics are obliqued by
 # Ghostty. NOT a Nerd Font: every powerline/devicon glyph falls back into the
 # NF casks in install.sh, which are load-bearing while this is the primary.
@@ -176,7 +212,7 @@ minimum-contrast = 1.1
 # face, 12px/300) and Geist Mono (a grotesk mono stand-in, at the body's
 # recipe, then at Medium) were both tried and rejected on sight: neither
 # carries the page's stroke. Nothing of that round survives here.
-font-family = "Paper Mono"
+font-family = "Lilex Nerd Font"
 
 # Weight lives in the STYLE here, not in a variation axis (2026-09-08).
 # PlemolJP is not a variable font — it has no `fvar` at all, so a
@@ -200,19 +236,22 @@ font-family = "Paper Mono"
 # matches nothing and would silently fall back.
 # Under Paper Mono (2026-10-07) only Regular and Bold resolve — its named
 # instances, checked with `ghostty +list-fonts --family="Paper Mono" --style=…`.
-# It has no italic style to name, so the two italic keys are left at their
-# default and Ghostty obliques the roman and bold cuts.
+# It had no italic style to name, so the two italic keys were left at their
+# default and Ghostty obliqued the roman and bold cuts. Under Paper Mono the
+# weight sat on its `wght` axis instead (470 roman, 700 bold, 2026-10-07):
+# Monaspace NF is static, so a `font-variation` line would be ignored.
+# Monaspace (2026-10-07) advertises the stock four, checked with
+# `ghostty +list-fonts` against Neon, Xenon and Radon. Regular against Bold is the
+# same three-step gap the PlemolJP paragraph above settled on.
+# So did Intel One Mono (2026-10-07), whose nameID 2 values are the stock four.
+# Datatype (2026-10-07) names Regular and Bold among its fvar instances and has
+# no italic, so the italic keys went back to their default and Ghostty
+# obliqued, as under Paper Mono.
+# Lilex NF (2026-10-07) advertises the stock four again in nameID 2.
 font-style = Regular
 font-style-bold = Bold
-
-# Paper Mono IS variable (one `wght` axis, 100–800), so the weight can sit
-# between its named instances. 450 (2026-10-07): a touch over Regular, keeping
-# the 250-step gap to bold that SGR 1 needs. The italic keys mirror these,
-# since the obliqued italic is built from the same roman/bold faces.
-font-variation = wght=450
-font-variation-italic = wght=450
-font-variation-bold = wght=700
-font-variation-bold-italic = wght=700
+font-style-italic = Italic
+font-style-bold-italic = Bold Italic
 
 # 17 — the one place this config does NOT follow craftzdog (2026-09-11). He sets no
 # font-size at all, which means Ghostty's default of 13 (verified with
@@ -238,6 +277,19 @@ font-variation-bold-italic = wght=700
 # `font-feature = zero` on its own line to get the slashed zero.
 font-feature = +liga
 
+# Lilex (2026-10-07) has no `liga` either: its code ligatures live in `calt`,
+# on by default. Its stylistic sets, named in its GSUB, all stay off: ss01
+# turns && || into arrows, ss02 breaks the equals ligatures, ss03 thins the
+# backslash, ss04 breaks the number signs. A `font-feature = -calt` would
+# switch every ligature off.
+# Under Datatype `liga` was the chart engine, not code ligatures: text shaped
+# like `{b:20,40,80}` rendered as a bar chart. Intel One Mono had no `liga`;
+# its code ligatures were opt-in as ss01. Under Monaspace ss01–ss10 were its
+# ten ligature sets (equals, comparisons, arrows, tags, F#, markdown, centred
+# colon and period, double arrows, other tags), all on, with texture healing on
+# `calt`. Under Paper Mono ss01–ss04 were ligatures, duospace, narrow space and
+# small arrows, plus cv01 for the single-story a.
+
 # Off on Retina (2026-08-26). This exists to compensate 1x panels; on a 2x
 # display `true` implies the max `font-thicken-strength = 255` (that's the
 # default when thickening is on, NOT a mild setting), which reads like a
@@ -247,15 +299,17 @@ font-feature = +liga
 # `font-thicken-strength = 40` for a bit of body without the smear.
 font-thicken = false
 
-# Compact line spacing — a touch over the default so that
-# accents/descenders don't stick together, without wasting verticals.
-# Raise to 10-15% if you want more air, drop to 0% for Iosevka's native.
-adjust-cell-height = 3%
+# The font's own line (2026-10-07): 1.3 em under Lilex and Datatype, 1.38 em
+# under Intel One Mono, 1.245 em under Monaspace. Under Paper Mono this was
+# -17.5%, its specimen's 99% line height. Intel One Mono ran at -10% (near
+# 1.24 em) after -8%. Lilex starts at its own line.
+adjust-cell-height = 0%
 
-# Paper Mono's advance runs wide, so the columns read airy (2026-10-07).
-# Shrinks the cell, not the glyphs — past about -8% wide glyphs (m, w, @)
-# start touching their neighbours.
-adjust-cell-width = -6%
+# Lilex starts at its own 0.6 em advance (2026-10-07), as Datatype did at its
+# 0.5 em. Intel One Mono ran at -7% (its glyphs sat narrow inside a
+# 0.614 em advance; past -8% m, w, @ touched) after -5%. Under Paper Mono -5.4%
+# letter spacing was tried (-9% here, since CSS spaces in em and the cell
+# scales by its own width) and dropped, back to the font's own advance.
 
 # Faint (SGR 2) text at 70% instead of the default 50%. Claude Code leans on
 # faint constantly — paths, timestamps, hints, the dimmed half of a diff — and

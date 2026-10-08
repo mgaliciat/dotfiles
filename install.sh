@@ -127,17 +127,20 @@ if command -v brew >/dev/null 2>&1; then
     ghostty
     1password-cli         # `op` — a cask on Homebrew, not a formula (lives in Caskroom)
     # Fonts referenced by ghostty/config.ghostty.
-    # The primary (font-family) is PlemolJP Console NF (`font-plemol-jp-nf`),
-    # a Nerd Font that carries its own powerline/devicon glyphs. It has traded
+    # The primary (font-family) is Lilex Nerd Font (`font-lilex-nerd-font`),
+    # a Nerd Font that carries its own powerline/devicon glyphs. Datatype,
+    # Intel One Mono and Monaspace Neon NF with Radon NF italics held the slot
+    # before it. It has traded
     # places with the others several times — the config file is the source of
     # truth, not this comment.
-    # Google Sans Code, Paper Mono, 0xProto NF and Maple Mono NF are all
+    # PlemolJP, CaskaydiaCove, Google Sans Code, Paper Mono, 0xProto NF and
+    # Maple Mono NF are all
     # former primaries, each one line away from returning (0xProto resolves
     # as its "Mono" family; see the typography block there). Paper Mono
     # is NOT a Nerd Font: whenever it is the primary, the NF
     # families here stop being optional coverage and become load-bearing,
-    # since Ghostty pulls every powerline/devicon glyph from them. Monaspace
-    # NF and iA Writer Mono round out the fallback chain (Ghostty falls back
+    # since Ghostty pulls every powerline/devicon glyph from them. iA Writer
+    # Mono rounds out the fallback chain (Ghostty falls back
     # to them + bundled JBM NF automatically). Every font named in
     # the config must be installed by this list: a font-family pointing at a
     # missing family falls back silently, the exact drift 0430d08 fixed.
@@ -150,6 +153,9 @@ if command -v brew >/dev/null 2>&1; then
     font-monaspace-nf
     font-ia-writer-mono
     font-caskaydia-cove-nerd-font   # Cascadia Code NF
+    font-intel-one-mono
+    font-datatype
+    font-lilex-nerd-font
     # Ships the 8 static otf AND the variable ttf, so "Paper Mono" registers
     # twice and Ghostty's CoreText scoring does not prefer the variable face —
     # the `font-variation` weight in config.ghostty only holds when it wins.
