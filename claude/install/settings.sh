@@ -521,11 +521,10 @@ _settings_set_if_absent '.env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS' \
 # observed agent drags an observer along, so 20 is a stampede waiting for a
 # prompt that says "in parallel".
 #
-# 3 is a deliberate choice over the 6 this held until 2026-10-01: few agents
-# alive at once, each one watched. The cap is global, not scoped to teams, so it
-# also bounds an ordinary Explore fan-out — and an observer takes a slot like
-# any other agent, so 3 fits one observed teammate plus one more agent. Raise it
-# here, not in a prompt, when parallel work starts hitting the wall.
+# 6 keeps room for real parallel work while staying far below that stampede.
+# The cap is global, not scoped to teams, so it also bounds an ordinary Explore
+# fan-out — and an observer takes a slot like any other agent, so 6 fits two
+# observed teammates plus two more agents. Tune it here, not in a prompt.
 #
 # It is genuinely ENFORCED, unlike a budget written in a prompt: past the limit
 # the Agent call is refused with "Concurrent subagent limit reached. Do not
@@ -538,8 +537,8 @@ _settings_set_if_absent '.env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS' \
 # Guarded like every key here, so a machine that already carries another value
 # keeps it: changing the number below reaches new machines only.
 _settings_set_if_absent '.env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS' \
-  '.env //= {} | .env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS = "3"' \
-  'env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS (3)'
+  '.env //= {} | .env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS = "6"' \
+  'env.CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS (6)'
 
 # ── env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH: how deep agents may nest ──
 # How many levels of subagent-inside-subagent are allowed; past it the Agent

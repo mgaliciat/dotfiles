@@ -543,11 +543,11 @@ if ($Settings.env -is [PSCustomObject]) {
         @{ Name = "CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS"; Value = "1" },
         # The ceiling on the two above: the harness default is 20 concurrent
         # agents, and with teams on every named subagent is a teammate and every
-        # observed agent carries an observer. 3 is enforced by the harness (the
+        # observed agent carries an observer. 6 is enforced by the harness (the
         # Agent call is refused past it) and global rather than team-scoped:
-        # few agents alive at once, each one watched. Its sibling
+        # room for real parallel work, far below the stampede. Its sibling
         # MAX_SUBAGENTS_PER_SESSION had no reader in the binary -- don't add it.
-        @{ Name = "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS";     Value = "3" },
+        @{ Name = "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS";     Value = "6" },
         # Nesting depth, pinned AT its documented default of 3: unset hands the
         # number to a server-side value (tengu_hazel_trellis), set keeps it
         # versioned. Rationale in settings.sh.
