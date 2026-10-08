@@ -141,7 +141,7 @@ minimum-contrast = 1.1
 # (Thin→ExtraBold, `wght` axis) with no Italic file, so italics are obliqued by
 # Ghostty. NOT a Nerd Font: every powerline/devicon glyph falls back into the
 # NF casks in install.sh, which are load-bearing while this is the primary.
-# Not installed by brew today — install.sh downloads the release ttf.
+# Installed by brew (`font-paper-mono`, in install.sh's cask list).
 # To go back: font-family = "CaskaydiaCove Nerd Font".
 #
 # CaskaydiaCove Nerd Font (Cascadia Code, NF build) — primary (2026-10-05),

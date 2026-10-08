@@ -42,9 +42,9 @@
 # What is still deliberately ABSENT vs install.sh, and why: zsh/nvim/ghostty
 # and their symlinks (do not run natively), the shell tools behind their aliases
 # (eza/bat/fd/gomi/zoxide/fzf — no zsh to alias them from), 1password-cli
-# (nothing in this repo references `op`), and Paper Mono (a former ghostty
-# font-family with no cask; no ghostty here, and the NF families below are what
-# Windows Terminal needs).
+# (nothing in this repo references `op`), and Paper Mono (ghostty's
+# font-family; no ghostty here, and the NF families below are what Windows
+# Terminal needs).
 # Note the theme block reads ghostty/themes/ anyway — that dir is just where the
 # palettes are versioned, and needing them here is not the same as running ghostty.
 #

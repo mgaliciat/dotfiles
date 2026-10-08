@@ -133,9 +133,8 @@ if command -v brew >/dev/null 2>&1; then
     # truth, not this comment.
     # Google Sans Code, Paper Mono, 0xProto NF and Maple Mono NF are all
     # former primaries, each one line away from returning (0xProto resolves
-    # as its "Mono" family; see the typography block there). Paper Mono has
-    # no cask — it is installed by direct download below, right after this
-    # block — and is NOT a Nerd Font: whenever it is the primary, the NF
+    # as its "Mono" family; see the typography block there). Paper Mono
+    # is NOT a Nerd Font: whenever it is the primary, the NF
     # families here stop being optional coverage and become load-bearing,
     # since Ghostty pulls every powerline/devicon glyph from them. Monaspace
     # NF and iA Writer Mono round out the fallback chain (Ghostty falls back
@@ -151,6 +150,10 @@ if command -v brew >/dev/null 2>&1; then
     font-monaspace-nf
     font-ia-writer-mono
     font-caskaydia-cove-nerd-font   # Cascadia Code NF
+    # Ships the 8 static otf AND the variable ttf, so "Paper Mono" registers
+    # twice and Ghostty's CoreText scoring does not prefer the variable face —
+    # the `font-variation` weight in config.ghostty only holds when it wins.
+    font-paper-mono
   )
 
   MISSING_FORMULAE=()
@@ -179,46 +182,6 @@ if command -v brew >/dev/null 2>&1; then
 
   if [[ ${#MISSING_FORMULAE[@]} -eq 0 && ${#MISSING_CASKS[@]} -eq 0 ]]; then
     echo "✓ All Homebrew dependencies are already installed"
-  fi
-  # ─── Paper Mono (font, no cask) ─────────────────────────────
-  # A former (and recurring) font-family in ghostty/config.ghostty — check
-  # that file for the current one, not this comment. Kept installed so
-  # switching back is a one-line config edit. Paper released it in jul-2026
-  # and Homebrew has no cask yet — so this is the one font here not installed
-  # by brew. Same shape as the PlemolJP block
-  # in install-windows.ps1: resolve the latest release, grab its asset, drop
-  # the file in place.
-  # Only the VARIABLE ttf: one file covers Thin→ExtraBold and the family
-  # reports as plain "Paper Mono" (verify with `ghostty +list-fonts`).
-  # Installing the 8 static otf/ttf too would register the same family twice.
-  # Guarded on the file, not on a `brew list` — nothing else knows about it.
-  # If a cask ever appears, delete this block and add it to REQUIRED_CASKS.
-  if [[ ! -f "$HOME/Library/Fonts/PaperMono[wght].ttf" ]]; then
-    echo ""
-    echo "→ Installing Paper Mono font (direct download — no Homebrew cask)"
-    # `|| true`: under `set -euo pipefail` a failed curl (offline, rate
-    # limit) or a grep with no match would abort the whole installer here,
-    # and the hand-install fallback below would never be reached.
-    PM_URL=$(curl -fsSL "https://api.github.com/repos/paper-design/paper-mono/releases/latest" \
-      | grep -o '"browser_download_url": *"[^"]*\.zip"' | cut -d'"' -f4 | head -1) || true
-    if [[ -n "$PM_URL" ]]; then
-      PM_TMP=$(mktemp -d)
-      # The zip nests everything under paper-mono-vX.Y/, hence the leading `*`.
-      # Match the DIRECTORY, not the filename: unzip reads `[wght]` in a
-      # pattern as a character class, and Info-ZIP's `[[]` escape doesn't work
-      # here. fonts/variable/ holds exactly that one file, so this is exact.
-      if curl -fsSL "$PM_URL" -o "$PM_TMP/pm.zip" \
-         && unzip -q -j -o "$PM_TMP/pm.zip" '*/fonts/variable/*' -d "$HOME/Library/Fonts"; then
-        echo "✓ Paper Mono installed ($HOME/Library/Fonts)"
-      else
-        echo "⚠️  Paper Mono install failed — get it by hand:"
-        echo "     https://github.com/paper-design/paper-mono/releases"
-      fi
-      rm -rf "$PM_TMP"
-    else
-      echo "⚠️  Could not resolve the Paper Mono release asset — install by hand:"
-      echo "     https://github.com/paper-design/paper-mono/releases"
-    fi
   fi
 else
   echo ""
