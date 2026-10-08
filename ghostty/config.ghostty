@@ -137,6 +137,13 @@ window-colorspace = display-p3
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
+# Paper Mono — primary again (2026-10-07), its third turn. One variable ttf
+# (Thin→ExtraBold, `wght` axis) with no Italic file, so italics are obliqued by
+# Ghostty. NOT a Nerd Font: every powerline/devicon glyph falls back into the
+# NF casks in install.sh, which are load-bearing while this is the primary.
+# Not installed by brew today — install.sh downloads the release ttf.
+# To go back: font-family = "CaskaydiaCove Nerd Font".
+#
 # CaskaydiaCove Nerd Font (Cascadia Code, NF build) — primary (2026-10-05),
 # picked off a screenshot. The plain family, not `CaskaydiaCove Nerd Font Mono`:
 # the Mono cut squeezes every icon into one cell and was rejected on sight the
@@ -169,7 +176,7 @@ minimum-contrast = 1.1
 # face, 12px/300) and Geist Mono (a grotesk mono stand-in, at the body's
 # recipe, then at Medium) were both tried and rejected on sight: neither
 # carries the page's stroke. Nothing of that round survives here.
-font-family = "CaskaydiaCove Nerd Font"
+font-family = "Paper Mono"
 
 # Weight lives in the STYLE here, not in a variation axis (2026-09-08).
 # PlemolJP is not a variable font — it has no `fvar` at all, so a
@@ -191,10 +198,21 @@ font-family = "CaskaydiaCove Nerd Font"
 # `ghostty +list-fonts --family="PlemolJP Console NF" --style=Regular`. Note the
 # roman italic advertises as plain `Italic`, NOT `Regular Italic` — that string
 # matches nothing and would silently fall back.
+# Under Paper Mono (2026-10-07) only Regular and Bold resolve — its named
+# instances, checked with `ghostty +list-fonts --family="Paper Mono" --style=…`.
+# It has no italic style to name, so the two italic keys are left at their
+# default and Ghostty obliques the roman and bold cuts.
 font-style = Regular
-font-style-italic = Italic
 font-style-bold = Bold
-font-style-bold-italic = Bold Italic
+
+# Paper Mono IS variable (one `wght` axis, 100–800), so the weight can sit
+# between its named instances. 450 (2026-10-07): a touch over Regular, keeping
+# the 250-step gap to bold that SGR 1 needs. The italic keys mirror these,
+# since the obliqued italic is built from the same roman/bold faces.
+font-variation = wght=450
+font-variation-italic = wght=450
+font-variation-bold = wght=700
+font-variation-bold-italic = wght=700
 
 # 17 — the one place this config does NOT follow craftzdog (2026-09-11). He sets no
 # font-size at all, which means Ghostty's default of 13 (verified with
@@ -233,6 +251,11 @@ font-thicken = false
 # accents/descenders don't stick together, without wasting verticals.
 # Raise to 10-15% if you want more air, drop to 0% for Iosevka's native.
 adjust-cell-height = 3%
+
+# Paper Mono's advance runs wide, so the columns read airy (2026-10-07).
+# Shrinks the cell, not the glyphs — past about -8% wide glyphs (m, w, @)
+# start touching their neighbours.
+adjust-cell-width = -6%
 
 # Faint (SGR 2) text at 70% instead of the default 50%. Claude Code leans on
 # faint constantly — paths, timestamps, hints, the dimmed half of a diff — and
