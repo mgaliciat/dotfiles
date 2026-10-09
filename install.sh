@@ -127,10 +127,11 @@ if command -v brew >/dev/null 2>&1; then
     ghostty
     1password-cli         # `op` — a cask on Homebrew, not a formula (lives in Caskroom)
     # Fonts referenced by ghostty/config.ghostty.
-    # The primary (font-family) is Lilex Nerd Font (`font-lilex-nerd-font`),
-    # a Nerd Font that carries its own powerline/devicon glyphs. Datatype,
-    # Intel One Mono and Monaspace Neon NF with Radon NF italics held the slot
-    # before it. It has traded
+    # The primary (font-family) is Monaspace Argon NF with Radon NF italics
+    # (`font-monaspace-nf`), a Nerd Font that carries its own powerline/devicon
+    # glyphs. Monaspace Neon NF, Lilex NF, Datatype and Intel One Mono held the
+    # slot before it.
+    # It has traded
     # places with the others several times — the config file is the source of
     # truth, not this comment.
     # PlemolJP, CaskaydiaCove, Google Sans Code, Paper Mono, 0xProto NF and
