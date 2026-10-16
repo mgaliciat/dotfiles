@@ -1,5 +1,5 @@
 -- ─── nvim-bqf ─────────────────────────────────────────────────
--- Better quickfix window, now that the quickfix is a real destination
+-- Better quickfix window; the quickfix is a real destination
 -- here: `<C-q>` from any telescope picker, `<space>q` from grug-far,
 -- `:cdo` for bulk edits. What it adds on top of the stock window:
 --
@@ -14,7 +14,7 @@
 --
 -- fzf filtering needs the junegunn/fzf vim plugin for `fzf#run`; the
 -- `fzf` binary itself comes from brew (install.sh), so no `build` step.
--- Trouble.nvim was the alternative and lost: it is a whole panel that
+-- Not Trouble.nvim: it is a whole panel that
 -- overlaps glance (LSP lists) and telescope (diagnostics, todos); bqf
 -- improves the window nvim already has.
 

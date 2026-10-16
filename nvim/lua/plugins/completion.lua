@@ -1,6 +1,6 @@
 -- ─── blink.cmp ────────────────────────────────────────────────
 -- Completion engine. Faster than nvim-cmp (written in Rust),
--- simpler API, default in LazyVim 2025. Replaces nvim-cmp +
+-- simpler API, LazyVim's default. One plugin where nvim-cmp needs
 -- LuaSnip + cmp-* sources.
 --
 -- Default keymaps ("default" preset):

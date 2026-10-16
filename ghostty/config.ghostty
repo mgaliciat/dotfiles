@@ -1,7 +1,7 @@
 # ═══════════════════════════════════════════════════════════════
 #  Ghostty — Claude Code edition
 #  Active theme: see the `theme =` line below (a custom from ghostty/themes/,
-#  the "stack theme" family). Typeface: PlemolJP Console NF.
+#  the "stack theme" family). Typeface: Recursive.
 #
 #  NOTE: Ghostty does NOT allow inline comments on the same line
 #  as a value. They always go on their own line.
@@ -21,23 +21,10 @@
 # machines. To change the look: `theme <id>` (scripts/theme edits this line
 # and the equivalent one in nvim — they share the id), then commit.
 #
-# craftzdog's theme, ported into the family (2026-09-11). His line reads
-# `theme = "Solarized Dark - Patched"` and that string DOES NOT RESOLVE — the
-# built-in is named "Solarized Dark Patched", no hyphen:
-#
-#   theme "Solarized Dark - Patched" not found, tried path
-#   .../Ghostty.app/Contents/Resources/ghostty/themes/Solarized Dark - Patched
-#
-# His file is from feb-2025 with two commits total, so the line has been dead a
-# while and he is really looking at Ghostty's default palette. This is the theme
-# he MEANT.
-#
-# Selected here as `solarized-patched`, a versioned copy in ghostty/themes/, and
-# NOT by the built-in name. The built-in lives inside Ghostty.app, where nvim
-# and Windows Terminal cannot reach it — naming it there would leave the
-# other layers with nothing to mirror and break the one-id rule. The port is
-# hex-verbatim from the shipped file; provenance is in the theme file itself.
-# Canonical Solarized is not a valid source for it: this cut re-tunes every value.
+# `solarized-patched` is a versioned, hex-verbatim copy of Ghostty's built-in
+# "Solarized Dark Patched" (provenance in the theme file). It is selected by
+# the copy, not the built-in name: the built-in lives inside Ghostty.app, where
+# nvim and Windows Terminal cannot reach it, which would break the one-id rule.
 theme = solarized-patched
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
@@ -46,8 +33,8 @@ theme = solarized-patched
 #   · solarized-osaka — deep-ocean craftzdog style (near-black blue). In
 #     Ghostty it's the `solarized-osaka` theme; the palette comes from the nvim plugin.
 #   · solarized-patched — the "Solarized Dark Patched" cut, ported hex-verbatim
-#     from the Ghostty built-in of that name because craftzdog's config selects
-#     it. Darker canvas (#001e27) and every accent re-tuned against canonical.
+#     from the Ghostty built-in of that name. Darker canvas (#001e27) and every
+#     accent re-tuned against canonical.
 #   · retta — port of the Eclipse "Retta" theme: true black + cream text,
 #     pumpkin keywords (#e79e3c).
 #   · dia-de-muertos — the night of the vigil: morado canvas (#1d1022),
@@ -56,60 +43,27 @@ theme = solarized-patched
 #   · blueprint — a drafting sheet at night: near-black canvas (#0a0a0a), cyan
 #     drafting-line cursor (#4be4ff), redline red, cyanotype-white text. Comes
 #     with its own shader (shaders/blueprint.glsl), switched with the theme.
-# ─── craftzdog's overrides ────────────────────────────────────
+# ─── canvas overrides ─────────────────────────────────────────
 # These WIN over the theme's own values regardless of order, so whatever is
 # uncommented here is what the terminal actually looks like.
 #
-# `background = #031219` is his, verbatim: a deep ocean near-black blue, over the
-# patched cut's own #001e27. Comment it out the day a theme should own its canvas.
+# `background = #031219` is a deep ocean near-black blue over the patched cut's
+# own #001e27. Comment it out when the active theme should own its canvas
+# (`dia-de-muertos`, light themes).
 #
-# `foreground = #ffffff` is NOT his, and the whole point of this block is the
-# difference. He writes no foreground line at all, so Ghostty's default applies,
-# and that default is pure white (`ghostty +show-config --default`). It only
-# applies because his `theme =` does not resolve (see above); with the theme
-# loaded the text is the cut's own #708284. So white is what his config produces
-# today, by accident, and #708284 is the look he is actually known for.
-#
-# Measured, not argued. His README screenshot (images/screenshot-1.png, committed
-# 2022-04-11, three years before he added a ghostty config at all) samples #6d7e84
-# for body text over a #030f14 canvas — #708284 on #031219, both softened by the
-# window's 0.9 opacity over the wallpaper. In 2022 he was on iTerm2, and that is
-# where the string "Solarized Dark - Patched" comes from: it is an iTerm2 preset
-# name, hyphen and all. He pasted it into Ghostty, which spells the same theme
-# without the hyphen, and has been reading Ghostty's default palette ever since.
-#
-# OFF since 2026-09-21, which hands the text back to the theme. Pin it again only
-# to reproduce what his screen shows now rather than what his screenshots show.
-# The difference is a big one: white on #031219 is 19.01:1 against 4.72:1 for
-# #708284, and Solarized keeps body text muted on purpose so that the accents
-# carry the meaning. Intermediate options if #708284 is too quiet: #819090 (the
-# cut's base1, 5.73:1) or #eae3cb (its ANSI white, warmer).
-#
-# Only the terminal. His nvim runs solarized-osaka.nvim with that theme's own
-# muted fg, so nvim keeps the patched palette here either way.
-#
-# `background` is back on 2026-09-21 with `solarized-patched`. Both were off
-# between 2026-09-18 and then, under the typesafe pair: a theme that owns its
-# canvas (#abbab9 light, #182221 dark) and where white text would be invisible or
-# too loud. Comment the background out again the day such a theme is active.
-#
-# Off again on 2026-10-01 under `dia-de-muertos`, whose morado canvas (#1d1022)
-# is the theme; the osaka blue under it would read as a different palette.
-#
-# Back on 2026-10-05 with `solarized-patched`, together with his opacity and
-# blur in the glass block below.
+# `foreground` is off, so the text is the theme's own (#708284 under
+# solarized-patched, 4.72:1 on #031219). Solarized keeps body text muted on
+# purpose so the accents carry the meaning. Louder options: #819090 (the cut's
+# base1, 5.73:1), #eae3cb (its ANSI white, warmer) or #ffffff (19.01:1).
+# Terminal only: nvim keeps its own theme's fg either way.
 background = #031219
 # foreground = #ffffff
 
 # Display P3 wide-gamut — orange and cream saturate more on M-chip / Retina
-# screens. No downside on non-P3 machines. Back on 2026-09-21 under
-# solarized-patched, a palette that was never matched against a browser.
-#
-# `srgb` held the slot between 2026-09-18 and today, under the typesafe pair:
-# `display-p3` reads every hex as a P3 coordinate, which on a wide-gamut screen
-# pushes the sage greener and more saturated than the browser paints it — CSS
-# `rgb()` is sRGB, and matching that page is the whole point of those two. It is
-# also the default Ghostty documents for this key.
+# screens. No downside on non-P3 machines. `srgb` (Ghostty's default) is the
+# choice for a palette that must match a browser exactly: `display-p3` reads
+# every hex as a P3 coordinate, which pushes colours more saturated than CSS
+# `rgb()` paints them.
 window-colorspace = display-p3
 # window-colorspace = srgb
 
@@ -122,90 +76,39 @@ window-colorspace = display-p3
 #         cream or white canvas.
 #   4.5 = WCAG AA body text. Rescues every gray but DISTORTS brand
 #         colors: Claude orange ends up nearly black. Not recommended.
-# Still 1.1 (2026-09-11) under solarized-osaka, which is also what craftzdog runs:
-# he sets no minimum-contrast at all, so anything above 1.1 would already be a
-# departure from his look. It was 1.1 under naysayer too (2026-09-09, where it was
-# load-bearing — his near-invisible Ghost_Character depends on no enforcement) and
-# 3.0 under solarized-dark (2026-08-13).
-#
-# It stayed 1.1 under typesafe (2026-09-18) even though that one is a light
-# theme: the "3.0 for light themes" rule above assumes a cream or white canvas,
-# where Claude orange clears 3:1 untouched; over the sage #abbab9 the brand set
-# sits at 1.1–1.8:1 (orange 1.55, blue 1.46, green 1.83) and 3.0 rewrote all of
-# it into dark mud. Worth keeping in mind before raising this for any light
-# canvas that is not cream or white.
+# The "3.0 for light themes" rule assumes a cream or white canvas; over a
+# mid-tone light canvas (e.g. sage #abbab9) brand colours sit at 1.1–1.8:1 and
+# 3.0 rewrites all of them into dark mud.
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
-# Recursive, the variable font (Arrow Type) — primary (2026-10-16), at the
-# recipe picked on recursive.design: MONO 1, CASL 1, wght 300, slnt 0, CRSV 1,
-# at 15pt. One ttf with five axes, so the whole look is the `font-variation`
-# lines below, not a family name: MONO 1 is the monospace, CASL 1 the fully
-# casual (signpainter) shapes, wght 300 its lightest weight, slnt 0 upright,
-# and CRSV 1 cursive forms always on, upright included. The family is plain
-# "Recursive" (nameID 16), with 64 named instances ("Mono Casual Light" …)
-# as its styles. NOT a Nerd Font, and it carries no box drawing or powerline:
-# Ghostty draws the box glyphs itself and the icons fall back into the NF
-# casks in install.sh, as under Paper Mono. Installed by brew
-# (`font-recursive`, the Google Fonts build).
-# wght is 400, not the recipe's 300 (2026-10-16): with the family finally
-# loading, 300 read too thin for light text on the dark canvas.
-# The 15pt is per-machine: `font-size = 15` in config.local, not here.
-# To go back: the earlier primaries (Rec Mono NF, Monaspace Argon/Neon,
-# Lilex, Datatype, Intel One Mono, Paper Mono, CaskaydiaCove, PlemolJP …)
-# and the notes on each live in git: `git log -p -- ghostty/config.ghostty`,
-# from 01a0904 back. Their paragraphs were cut here (2026-10-16) because
-# with them in the file Ghostty 1.3.1 lost the family on load and drew every
-# style in its JetBrains Mono fallback; `ghostty +show-face --string=a
-# --style=italic` is the check after touching this block, since
-# +validate-config passes and +show-config prints no font-* lines.
+# Recursive, the variable font (Arrow Type), at the recipe from
+# recursive.design: MONO 1, CASL 1, wght 400, slnt 0, CRSV 1. One ttf with five
+# axes, so the whole look is the `font-variation` lines below, not a family
+# name: MONO 1 is the monospace, CASL 1 the fully casual (signpainter) shapes,
+# slnt 0 upright, and CRSV 1 cursive forms always on, upright included. The
+# family is plain "Recursive" (nameID 16), with 64 named instances ("Mono
+# Casual Light" …) as its styles. NOT a Nerd Font, and it carries no box
+# drawing or powerline: Ghostty draws the box glyphs itself and the icons fall
+# back into the NF casks in install.sh. Installed by brew (`font-recursive`, the
+# Google Fonts build).
+# The size is per-machine: `font-size` in config.local, not here.
+# `ghostty +show-face --string=a --style=italic` is the check after touching
+# this block: +validate-config passes and +show-config prints no font-* lines,
+# so a family that fails to load only shows as Ghostty's JetBrains Mono fallback.
 font-family = "Recursive"
 font-family-italic = "Recursive"
 font-family-bold-italic = "Recursive"
 
-# Weight lives in the STYLE here, not in a variation axis (2026-09-08).
-# PlemolJP is not a variable font — it has no `fvar` at all, so a
-# `font-variation = wght=…` line would be read and silently ignored. What it
-# ships instead is eight drawn weights, which Ghostty groups as styles of the
-# one family: Thin 100 · ExtraLight 200 · Light 300 · Regular 400 · Text 450 ·
-# Medium 500 · SemiBold 600 · Bold 700.
-# Regular (400) since 2026-09-21, for the bold. Medium (500) held the slot from
-# 2026-09-08, settled after trying Text (450, too light) and SemiBold (600, heavy
-# enough to collapse against bold — 700 is one step away, so the roman and bold
-# stop reading as different). Two steps of separation was judged enough then; it
-# is not, once the body colour stopped being pure white. Claude Code emits bold
-# as SGR 1 over its own text colour, so weight is the ONLY signal — `bold-color`
-# cannot help, since truecolor text has no bright palette slot to promote to.
-# 400 against 700 is three steps and the widest gap this family can give without
-# going under Text, which was already rejected as too light on its own.
 # Ghostty matches `font-style` against the style string the font advertises;
-# these four are its nameID 17/2 values verbatim, confirmed with
-# `ghostty +list-fonts --family="PlemolJP Console NF" --style=Regular`. Note the
-# roman italic advertises as plain `Italic`, NOT `Regular Italic` — that string
-# matches nothing and would silently fall back.
-# Under Paper Mono (2026-10-07) only Regular and Bold resolve — its named
-# instances, checked with `ghostty +list-fonts --family="Paper Mono" --style=…`.
-# It had no italic style to name, so the two italic keys were left at their
-# default and Ghostty obliqued the roman and bold cuts. Under Paper Mono the
-# weight sat on its `wght` axis instead (470 roman, 700 bold, 2026-10-07):
-# Monaspace NF is static, so a `font-variation` line would be ignored.
-# Monaspace (2026-10-07) advertises the stock four, checked with
-# `ghostty +list-fonts` against Neon, Xenon and Radon. Regular against Bold is the
-# same three-step gap the PlemolJP paragraph above settled on.
-# So did Intel One Mono (2026-10-07), whose nameID 2 values are the stock four.
-# Datatype (2026-10-07) names Regular and Bold among its fvar instances and has
-# no italic, so the italic keys went back to their default and Ghostty
-# obliqued, as under Paper Mono.
-# Lilex NF (2026-10-07) advertises the stock four again in nameID 2, as do
-# Monaspace Neon, Argon and Radon (2026-10-08). So do Rec Mono Linear and
-# Casual (2026-10-16), checked with fc-scan against the release ttfs.
-# Recursive (2026-10-16) is variable: its styles are the fvar instance names,
-# read with fc-scan, and the four below are the nearest named instances to the
-# recipe. What actually pins the face is `font-variation`, which sets all
-# five axes per style: wght 400 roman and 700 bold (the three-step gap the
-# PlemolJP paragraph settled on), and slnt -15, the axis
-# minimum, for both italics, since with CRSV 1 the roman already wears the
-# cursive shapes and the slant is the only thing left to tell italic apart.
+# for a variable font those are its fvar instance names (read with fc-scan),
+# and the four below are the nearest named instances to the recipe. What
+# actually pins the face is `font-variation`, which sets all five axes per
+# style: wght 400 roman and 700 bold, and slnt -15, the axis minimum, for both
+# italics, since with CRSV 1 the roman already wears the cursive shapes and the
+# slant is the only thing left to tell italic apart.
+# Claude Code emits bold as SGR 1 over its own text colour, so weight is the
+# ONLY bold signal there: 400 against 700 is a wide enough gap to read.
 font-style = Mono Casual
 font-style-bold = Mono Casual Bold
 font-style-italic = Mono Casual Italic
@@ -231,76 +134,31 @@ font-variation-bold-italic = wght=700
 font-variation-bold-italic = slnt=-15
 font-variation-bold-italic = CRSV=1
 
-# 17 — the one place this config does NOT follow craftzdog (2026-09-11). He sets no
-# font-size at all, which means Ghostty's default of 13 (verified with
-# `ghostty +show-config --default`, and his file has never had the key: 2 commits,
-# both feb-2025). That reads far too small here, because PlemolJP's Latin sits on a
-# JP half-width body — x-height 0.501 em, advance 0.528 — so 13 in this family is
-# optically smaller than 13 in most monos.
-# 17 is the size that matches the x-height of the Google Sans Code this replaced
-# (0.501 × 17 = 8.52px against 8.38), i.e. the right value on paper. It was dropped
-# to 16 on 2026-09-08 for reading a touch big, and came back today. 19 was the
-# earliest try and overshot in both axes; 16 is the step down if 17 crowds the columns.
-# 16 since 2026-10-05, with the switch to CaskaydiaCove: Cascadia's x-height is
-# taller than PlemolJP's, so the 17 above read big in it.
-#
-# PER-MACHINE since 2026-10-05: the right size depends on the screen, so the key
+# font-size is PER-MACHINE: the right size depends on the screen, so the key
 # lives in ~/.config/ghostty/config.local (see `config-file` at the end of this
 # file), not here. A machine without that file gets Ghostty's 13.
 
-# Standard ligatures — and here they are REAL. Unlike Google Sans Code (whose
-# GSUB has no `liga` at all, so this line was inert for months), PlemolJP ships
-# an actual `liga`, so this one does something.
-# It also has a real `zero` feature, which Google Sans Code did not: add
-# `font-feature = zero` on its own line to get the slashed zero.
+# Standard ligatures.
 font-feature = +liga
 
-# Monaspace's code ligatures are split over ten stylistic sets, named in its
-# GSUB (2026-10-08): ss01 equals (=== !=), ss02 comparisons (>= <=), ss03
-# arrows (-> <-), ss04 tags (</ />), ss05 F# (|> ::), ss06 markdown (##),
-# ss07 centred colon, ss08 centred period, ss09 double arrows (=> <=>), ss10
-# other tags. All on. Each ligature pads itself with empty-advance glyphs, so
-# it spans its own cells and the grid holds. Texture healing — a wide glyph
-# borrowing room from a narrow neighbour — is `calt`, on by default: a
-# `font-feature = -calt` in config.local switches it off.
-# The same tags mean other things in other fonts. Lilex keeps its ligatures in
-# `calt` and its ss01 turns && || into arrows, so under it none were on. Under
-# Datatype `liga` was the chart engine: `{b:20,40,80}` rendered as a bar chart.
-# Intel One Mono had no `liga`; its code ligatures were opt-in as ss01. Under
-# Paper Mono ss01–ss04 were ligatures, duospace, narrow space and small arrows,
-# plus cv01 for the single-story a.
-# Rec Mono NF (2026-10-16) had `calt` and nothing else in its GSUB: its code
-# ligatures and stylistic picks were baked into that build.
-# Recursive (2026-10-16) has its own ss01–ss12 and ss20, and they are glyph
-# swaps, not ligatures: ss01 single-story a, ss02 single-story g, ss03–ss06
-# simplified f i l r, ss07 simplified italic diagonals, ss08 no-serif L and
-# Z, ss09 simplified 6 and 9, ss10 dotted zero, ss11 simplified 1, ss12
-# simplified @, ss20 slashed zero. Monaspace's ten lines would have redrawn
-# half the alphabet away from the recursive.design recipe, so they are gone;
-# going back to Monaspace means restoring them (+ss01 … +ss10). Recursive's
-# code ligatures are `dlig`, off by default, so it is turned on here.
+# Recursive's code ligatures are `dlig`, off by default, so it is turned on here.
+# Its ss01–ss12 and ss20 are glyph swaps, not ligatures, and stay off to keep
+# the recursive.design recipe: ss01 single-story a, ss02 single-story g,
+# ss03–ss06 simplified f i l r, ss07 simplified italic diagonals, ss08 no-serif
+# L and Z, ss09 simplified 6 and 9, ss10 dotted zero, ss11 simplified 1, ss12
+# simplified @, ss20 slashed zero.
 font-feature = +dlig
 
-# Off on Retina (2026-08-26). This exists to compensate 1x panels; on a 2x
+# Off on Retina. This exists to compensate 1x panels; on a 2x
 # display `true` implies the max `font-thicken-strength = 255` (that's the
 # default when thickening is on, NOT a mild setting), which reads like a
-# heavier weight but with smeared contours. Doubly pointless here: the weight
-# is already picked by `font-style` above, from a drawn cut. On a non-Retina
+# heavier weight but with smeared contours. On a non-Retina
 # external monitor turn it back on — or keep it on with
 # `font-thicken-strength = 40` for a bit of body without the smear.
 font-thicken = false
 
-# The font's own line (2026-10-07): 1.3 em under Lilex and Datatype, 1.38 em
-# under Intel One Mono, 1.245 em under Monaspace, 1.2 em under Rec Mono. Under
-# Paper Mono this was -17.5%, its specimen's 99% line height. Intel One Mono ran at -10% (near
-# 1.24 em) after -8%. Rec Mono, Monaspace and Lilex run at their own line.
+# The font's own line height and advance.
 adjust-cell-height = 0%
-
-# Rec Mono runs at its own 0.6 em advance (2026-10-16), as Monaspace did at
-# 0.62 (2026-10-08), Lilex at 0.6 and Datatype at 0.5. Intel One Mono ran at -7% (its glyphs sat narrow inside a
-# 0.614 em advance; past -8% m, w, @ touched) after -5%. Under Paper Mono -5.4%
-# letter spacing was tried (-9% here, since CSS spaces in em and the cell
-# scales by its own width) and dropped, back to the font's own advance.
 
 # Faint (SGR 2) text at 70% instead of the default 50%. Claude Code leans on
 # faint constantly — paths, timestamps, hints, the dimmed half of a diff — and
@@ -309,21 +167,15 @@ adjust-cell-height = 0%
 faint-opacity = 0.7
 
 # Bold uses the bright half of the palette rather than the same colour at a
-# heavier weight. It earns its place now that `foreground` is pure white: against
-# white body text a bold glyph in the same colour reads as barely different, and
-# the drawn Bold cut (font-style-bold above) is doing all the work alone.
+# heavier weight, so it reads as different from body text by colour too.
 # In this palette the brights are the Solarized base greys plus orange and violet.
 bold-color = bright
 
 # ─── window ───────────────────────────────────────────────────
-# `transparent` (2026-09-11), which is also Ghostty's own default. It was `tabs`
-# — the Chrome/Arc style that integrates the tab bar into the titlebar and frees
-# ~1 vertical line — and that style is incompatible with the glass: the binary's
-# docs describe it as a fully custom titlebar that ALWAYS matches the terminal's
-# background colour, so it paints an opaque strip while the body below is
-# translucent. Visible as a hard band across the top of the window.
-# `transparent` lets the window background through instead, at the cost of the
-# tab bar becoming its own row again.
+# `transparent`, Ghostty's own default, lets the window background through.
+# `tabs` (the Chrome/Arc style, tab bar in the titlebar) is incompatible with
+# the glass: it is a custom titlebar that ALWAYS paints the terminal's
+# background colour, an opaque band across the top of a translucent window.
 # Alternatives: tabs (opaque, integrated) · native (standard macOS, opaque) ·
 # hidden (no titlebar; the top area then can't drag the window).
 #
@@ -331,65 +183,23 @@ bold-color = bright
 # only affects NEW windows. ⌘N after ⌘⇧R, or the old titlebar stays.
 macos-titlebar-style = transparent
 
-# GLASS (2026-09-11, off 2026-09-18 under the light `typesafe`, back on 2026-09-20
-# under `typesafe-dark`). It returned as craftzdog's pair, but neither value is
-# still his.
+# GLASS. Solid right now (opacity 1.0, no blur): the blueprint grid shader
+# reads as paper only over a canvas that holds still.
 #
 # The other half of this lives in nvim: `transparent = true` on the ACTIVE theme's
-# spec (solarized-patched.lua and dia-de-muertos.lua carry it; retta.lua does
-# not). Without it nvim paints an opaque canvas over the glass and the seam shows
-# at every split edge, so the two move together — and the setting does not follow
-# a theme around, so a theme swap means checking the new spec carries it. A light
-# theme cannot: a light canvas over the glass is unreadable (see colorscheme.lua),
-# so selecting one means turning the pair below off again.
+# spec. Without it nvim paints an opaque canvas over the glass and the seam shows
+# at every split edge, so the two move together, and a theme swap means checking
+# the new spec carries it. A light theme cannot take glass: a light canvas over
+# the glass is unreadable (see colorscheme.lua).
 #
-# NATIVE GLASS instead of his blur. His line is `background-blur-radius = 20` —
-# the pre-1.1 name of the key, still accepted as an alias, and 20 is simply what
-# `true` means, so he picked the plain default rather than a tuned radius. That is
-# a gaussian blur Ghostty computes itself.
-#
-# `macos-glass-clear` is the system's own glass material, available since macOS
-# 26 and therefore impossible in his config (feb-2025). Written with the modern key
-# name on purpose: the value is a material, not a radius. This is the highly
-# transparent cut; the other material is `macos-glass-regular`, the standard one
-# and the closest analogue to Windows Terminal's acrylic, which held the slot for
-# part of 2026-09-20. Clear ran from 2026-09-11 and was dropped for letting the
-# desktop read through too much — over the LIGHT sage canvas. It came back on
-# 2026-09-20 under `typesafe-dark` and held under `solarized-patched`, the dark
-# canvas it was tuned on in the first place. Regular took the slot on 2026-10-01
-# under `dia-de-muertos` — the frosted material keeps the morado canvas reading as
-# morado, where clear lets the wallpaper's colours through and tints it — and lost
-# it the same day: the tint is the accepted price of a window that reads as glass.
-#
-# 0.9, his value, down from the 0.95 this held through the regular-glass days: the
-# point of going back to clear was more transparency, not the same amount through
-# a thinner material. The glass carries its own opacity on top of this one, and
-# `background-opacity-cells` below pushes both down onto cells that set their own
-# background — with the clear material that compounding is what can leave lazygit
-# panels and diff hunks looking thin, and the cells key below is the dial for it.
-#
-# To restore his exact pair: `background-opacity = 0.9` and
-# `background-blur-radius = 20`.
-#
-# The solid pair for a light theme is `background-opacity = 1.0` and
-# `background-blur = 0`: under `typesafe` the desktop bleeding through the light
-# sage canvas muddied it, and a light theme cannot take `transparent = true` in
-# nvim anyway. With opacity at 1.0 `background-opacity-cells` goes inert.
-#
-# SOLID since 2026-10-05 under `blueprint`, a dark theme, so for legibility rather
-# than for a light canvas: through the clear glass the wallpaper read behind the
-# lettering and the text got lost on the sheet. To bring the glass back, the pair
-# above (0.9 + macos-glass-clear); blueprint.lua already carries `transparent`.
-#
-# His exact pair since 2026-10-05, back on `solarized-patched`: 0.9 and the
-# gaussian blur at radius 20, written with the modern key (`background-blur`
-# takes the radius directly). Not macos-glass-clear — the point this time is
-# to match his screen, not to improve on it.
-#
-# SOLID again later the same day, still on `solarized-patched`, to put the
-# blueprint grid under it: the grid reads as paper only over a canvas that holds
-# still, and through the blur the wallpaper moved behind it. To bring his pair
-# back, the two values in the paragraph above.
+# Glass options:
+#   background-opacity = 0.9 + background-blur = 20  (Ghostty's gaussian blur)
+#   background-opacity = 0.9 + background-blur = macos-glass-clear  (the
+#     system's own, highly transparent material, macOS 26+)
+#   macos-glass-regular  (frosted; keeps a coloured canvas reading as itself)
+# The glass carries its own opacity on top of `background-opacity`, and
+# `background-opacity-cells` below pushes both onto cells that set their own
+# background, which can leave lazygit panels and diff hunks looking thin.
 background-opacity = 1.0
 background-blur = 0
 
@@ -422,26 +232,23 @@ alpha-blending = linear-corrected
 # ghostty/shaders/ (symlinked beside this file by install.sh; the path is
 # relative to this file's directory). Repeat the key to chain passes.
 #
-# `crt` (2026-09-18): a still CRT — scanlines, aperture grille, faint bloom,
-# vignette. No curvature, no rolling band: the shader never reads iTime, so
-# the animation loop below is off and the pass only re-renders when the
-# terminal does. Strengths are tuned for the light typesafe canvas and live
-# as constants at the top of the file.
+# `crt`: a still CRT — scanlines, aperture grille, faint bloom, vignette. No
+# curvature, no rolling band: the shader never reads iTime, so the animation
+# loop below is off and the pass only re-renders when the terminal does.
+# Strengths live as constants at the top of the file.
 #
 # A shader that fails to compile is silently skipped — the error goes to the
 # system log, not to `+show-config`:
 #   log show --predicate 'process == "ghostty"' --last 5m | grep -i shader
 #
-# OFF since 2026-09-18, the same day it landed: tried for an afternoon and
-# taken out by taste. The file and the symlink stay; uncomment the one line to
-# get it back. `custom-shader-animation` is left set — it is inert without a
-# shader and the CRT wants it false.
+# Off; uncomment the one line to turn it on. `custom-shader-animation` stays
+# set: it is inert without a shader and the CRT wants it false.
 # custom-shader = shaders/crt.glsl
 #
-# `blueprint` (2026-10-05): the terminal as a night blueprint sheet, made for
+# `blueprint`: the terminal as a night blueprint sheet, made for
 # the `blueprint` theme — a faint 24px minor / 120px major grey grid, a soft
-# ink bleed around the glyphs and the grain of cyanotype paper (its uneven
-# exposure is off: on a solid window it read as blotches). Static like the CRT. The line work is drawn only where the canvas
+# ink bleed around the glyphs and the grain of cyanotype paper. Static like
+# the CRT. The line work is drawn only where the canvas
 # shows (the glass, or cells a TUI paints in the canvas colour) and breaks
 # around lettering, so it never crosses text, the selection or a coloured
 # panel. The canvas is read from Ghostty's `iBackgroundColor`, so the shader
@@ -470,14 +277,13 @@ window-padding-color = extend
 window-save-state = always
 
 # ─── cursor ───────────────────────────────────────────────────
-# Block + blink — craftzdog's pair, and also Ghostty's own default shape. The
-# color comes from the active theme (cursor-color + cursor-text); under osaka
-# that is the magenta #d23681, and with a block `cursor-text` matters again
-# because the cursor covers the glyph underneath. Other options: bar (a thin
-# caret, what was here between 2026-08 and today), block_hollow, underline.
+# Block + blink, Ghostty's own default shape. The
+# color comes from the active theme (cursor-color + cursor-text); with a block
+# `cursor-text` matters because the cursor covers the glyph underneath. Other
+# options: bar (a thin caret), block_hollow, underline.
 cursor-style = block
 
-# Blinking, his setting too. A block that blinks is the loudest combination of
+# A block that blinks is the loudest combination of
 # the two axes — set this false for a steady cursor if it gets distracting.
 cursor-style-blink = true
 
@@ -624,14 +430,12 @@ macos-option-as-alt = left
 # `esc:b` / `esc:f` (readline word-jump, confirmed with
 # `ghostty +list-keybinds --default`), which it then sends INSTEAD of the raw
 # key — so nvim and any TUI that wants ⌥+arrow never sees it.
-# `alt+left` / `alt+right` is craftzdog's spelling verbatim; `arrow_left` /
-# `arrow_right` is what Ghostty prints in `+list-keybinds`, and both parse.
+# `arrow_left` / `arrow_right` is what Ghostty prints in `+list-keybinds`;
+# `alt+left` / `alt+right` parses too.
 keybind = alt+left=unbind
 keybind = alt+right=unbind
 
-# Global show/hide of every Ghostty window from any app — his line, the only one
-# in his config we didn't already have. Note it is COMMENTED OUT in his repo, so
-# this is one step past copying him: he wrote it and chose not to run it.
+# Global show/hide of every Ghostty window from any app.
 # Distinct from the quick terminal below (⌥` ), which summons a separate floating
 # surface instead of toggling the real windows.
 keybind = global:cmd+ctrl+shift+j=toggle_visibility
@@ -705,19 +509,14 @@ keybind = cmd+nine=goto_tab:9
 #  PACKAGE 5 — dock icon: the built-in `official` style
 # ═══════════════════════════════════════════════════════════════
 
-# `official` (2026-09-15) — Ghostty's own icon: a blue CRT gradient behind the
-# glowing ghost and its `>_` prompt, in a dark chrome frame. It is the only style
-# that carries the project's real colours, and the one the update dialog always
-# shows regardless of this setting, so dock and updater stop disagreeing.
+# `official` — Ghostty's own icon: a blue CRT gradient behind the
+# glowing ghost and its `>_` prompt, in a dark chrome frame. It is the one the
+# update dialog always shows regardless of this setting, so dock and updater
+# agree.
 #
-# Third icon of the day. `xray` (white ghost over a monochrome PCB) read too
-# industrial next to a Tahoe dock; `glass` was the macOS 26 answer to that and
-# went too far the other way — the material is so clear that the icon reads as an
-# empty slot in the dock. Colour beats matching the OS material here.
-#
-# Still a stock style on purpose. The icon never followed `theme =` (Ghostty has no
-# such binding), so a `custom-style` icon would be a second palette to keep in sync
-# by hand for a 128px square you glance at. If the blue ever has to go, that is the
+# The icon does not follow `theme =` (Ghostty has no such binding), so a
+# `custom-style` icon is a second palette to keep in sync by hand. If the blue
+# has to go, that is the
 # escape hatch — e.g. the terminal's own canvas as the screen:
 #   macos-icon = custom-style
 #   macos-icon-frame = aluminum

@@ -29,15 +29,15 @@ return {
     -- presets: applies common configs as a block
     presets = {
       bottom_search          = true,    -- search on the bottom line, not a float
-      command_palette        = false,   -- was the top-center floating bar; see cmdline below
+      command_palette        = false,   -- the top-center floating bar; see cmdline below
       long_message_to_split  = true,    -- long messages open a split
       lsp_doc_border         = true,    -- border on hover/signature
       inc_rename             = true,    -- integrated inc-rename.nvim preview
     },
 
-    -- ─── cmdline: terminal style (sep-2026) ───────────────────
+    -- ─── cmdline: terminal style ─────────────────────────────────
     -- `:` lives on the bottom line, like a shell prompt, not in a floating
-    -- bar at the top (that was the `command_palette` preset). noice still
+    -- bar at the top (the `command_palette` preset, off above). noice still
     -- owns it — syntax highlighting of the command as you type, the
     -- `:lua`/`:!`/`:h` modes — it just draws it where the cmdline is.
     -- The icons are the literal prompt characters: the typed `:` is
@@ -56,12 +56,12 @@ return {
     -- Completion in the cmdline is nvim's own popup menu (`wildoptions=pum`,
     -- `wildmode` in options.lua), which sits directly above the bottom line
     -- like a shell's menu-select. noice's popupmenu would float in the
-    -- middle of the screen once the cmdline is no longer up there with it.
+    -- middle of the screen, away from the cmdline on the bottom line.
     popupmenu = { enabled = false },
     -- LSP UI replacements. `vim.lsp.util.stylize_markdown` is not overridden:
-    -- it is deprecated in nvim 0.12 and core no longer calls it (floats use
+    -- it is deprecated in nvim 0.12 and core doesn't call it (floats use
     -- treesitter markdown). Signature help is blink.cmp's (completion.lua) —
-    -- with noice's on too, typing `(` opened two popups.
+    -- with noice's on too, typing `(` opens two popups.
     lsp = {
       override = {
         ["vim.lsp.util.convert_input_to_markdown_lines"] = true,

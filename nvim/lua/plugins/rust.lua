@@ -2,7 +2,7 @@
 -- rust-analyzer done properly: it replaces the lspconfig+rust_analyzer route
 -- with runnables/testables, expand-macro, explain-error, the rendered
 -- diagnostic, hover actions and a neotest adapter. (It also ships a dap
--- config; unused here — DAP was dropped from this config in sep-2026.)
+-- config; unused here — there is no DAP in this config.)
 --
 -- It is NOT set up via lspconfig — the plugin registers itself when a
 -- .rs buffer loads. That's why it stays out of the loop in lsp.lua, and why
@@ -14,8 +14,8 @@
 --   rustup component add rust-analyzer rustfmt rust-src clippy
 -- rust-src is the one people forget: without it rust-analyzer starts but
 -- knows nothing about std (no completion on `Vec`, no go-to-def into the
--- library). This machine had rust-analyzer as a rustup PROXY with no
--- component behind it until sep-2026 — the LSP had never actually run.
+-- library). Without the rust-analyzer component, the rustup PROXY is on
+-- PATH but the LSP never actually runs.
 
 return {
   "mrcjkb/rustaceanvim",
@@ -26,7 +26,7 @@ return {
   lazy = false,
   -- `init`, not `config`: rustaceanvim reads `vim.g.rustaceanvim` once, the
   -- first time it initialises, and `:checkhealth rustaceanvim` errors when the
-  -- variable was set after that. `init` runs before anything can load it.
+  -- variable is set after that. `init` runs before anything can load it.
   init = function()
     vim.g.rustaceanvim = {
       tools = {
@@ -73,7 +73,7 @@ return {
             procMacro = { enable = true },
             -- Clippy on save, as `cargo clippy`, not `cargo check`: the
             -- lints land as diagnostics in the buffer. `checkOnSave = { command }`
-            -- is the pre-2024 shape and is ignored now.
+            -- is an older shape and is ignored.
             checkOnSave = true,
             check = {
               command = "clippy",

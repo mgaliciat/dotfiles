@@ -14,9 +14,9 @@
 // text row at the current font size. iResolution is the surface size in the
 // same units.
 //
-// Tuned on typesafe's sage canvas (#abbab9). Every effect darkens, so on a
+// Tuned on a light sage canvas (#abbab9). Every effect darkens, so on a
 // light background the strengths sit lower than a dark-theme CRT would use;
-// raise SCANLINE and MASK first if a dark theme comes back.
+// raise SCANLINE and MASK first for a dark theme.
 //
 // Brightness-neutral on average. The shader covers the terminal surface only:
 // the titlebar (`macos-titlebar-style = transparent`) is painted in the bare

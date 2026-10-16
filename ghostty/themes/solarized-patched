@@ -19,8 +19,8 @@
 # white #eae3cb against #eee8d5. Same design, different numbers.
 #
 # NOTE craftzdog's own config spells it `theme = "Solarized Dark - Patched"`, with
-# a hyphen, and that string does not resolve in current Ghostty. His terminal has
-# been falling back to the default palette. This is the theme he meant.
+# a hyphen, and that string does not resolve in current Ghostty, which falls back
+# to the default palette. This is the theme he means.
 
 # background and text
 background = #001e27

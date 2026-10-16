@@ -1,8 +1,8 @@
 -- ─── neotest ──────────────────────────────────────────────────
 -- Tests from the editor: run the test under the cursor, the file or the
 -- whole suite, with pass/fail signs in the gutter, a summary tree and the
--- failing test's output in a float. gopls dropped its `test` code lens in
--- 0.18, and `go test ./...` in a terminal can't point at a line.
+-- failing test's output in a float. gopls's `test` code lens stays off
+-- (lsp.lua), and `go test ./...` in a terminal can't point at a line.
 --
 -- Go adapter: neotest-golang (fredrikaverpil), the maintained one — the
 -- older nvim-neotest/neotest-go is archived. It runs `gotestsum` when
@@ -30,8 +30,8 @@
 -- would add a dependency for zero tests. Add it the day one exists.
 --
 -- Keys under <leader>t (group registered in which-key.lua). No debug
--- strategy: DAP was dropped from this config (sep-2026) — a failing test's
--- output plus the LSP is what gets read now, not a stepping session.
+-- strategy: there is no DAP in this config — a failing test's output plus
+-- the LSP is what gets read, not a stepping session.
 
 return {
   "nvim-neotest/neotest",

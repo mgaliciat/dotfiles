@@ -23,17 +23,16 @@
 -- starts one row lower than it does.
 --
 -- ─── why no `separator_style = "slant"` ───────────────────────
--- The angled edge was tried and reverted. A slant is not a glyph drawn
+-- A slant is not a glyph drawn
 -- in the foreground: it is a powerline wedge whose fg is one tab's
 -- BACKGROUND and whose bg is its neighbour's, so the diagonal is the
 -- boundary between two filled blocks. This stack has no filled blocks:
 -- every group below sets `bg = NONE`, so the wedges come out as unfilled
--- shapes. That was first noticed under solarized-osaka's `transparent =
--- true` over Ghostty's glass, but it does not depend on it — the glass is
--- gone (2026-09-09) and the `bg = NONE` table is still the reason.
+-- shapes. It does not depend on Ghostty's glass or a `transparent = true`
+-- theme: the `bg = NONE` table alone is the reason.
 --
 -- Giving the tabs a solid background to slice would put an opaque strip
--- back over the glass, the same seam lualine.lua fixes for the statusline.
+-- over the glass, the same seam lualine.lua fixes for the statusline.
 -- So the geometry goes and the accent stays: a left bar on the active tab,
 -- italic bold text, thin dividers. That is also what
 -- craftzdog's own screenshots show — his `separator_style` line is
@@ -65,8 +64,8 @@ return {
         -- `highlights` table below and you get a single mismatched slot with
         -- no error. solarized-osaka does exactly that: its
         -- `groups/bufferline.lua` sets `BufferLineIndicatorSelected` to
-        -- yellow500 and nothing else, which is why the active tab's bar came
-        -- out amber against an orange name. Off, because the palette here is
+        -- yellow500 and nothing else, which would turn the active tab's bar
+        -- amber against an orange name. Off, because the palette here is
         -- already derived from the active theme — this table IS the theming.
         themable = false,
         -- bufferline's setup forces `showtabline = 2`, so the row is reserved
@@ -78,7 +77,7 @@ return {
         always_show_bufferline = false,
         -- oil buffers are named `oil:///path/to/dir/`, and the default label is
         -- `fnamemodify(name, ":t")` — which returns "" for anything ending in a
-        -- slash. That is why an oil tab rendered as an icon with no text at all.
+        -- slash, so an oil tab would render as an icon with no text at all.
         name_formatter = function(buf)
           local dir = (buf.path or ""):match("^oil://(.*)$")
           if dir then

@@ -1,5 +1,5 @@
 -- ─── conform.nvim ─────────────────────────────────────────────
--- Formatter runner. Replaces null-ls/none-ls (deprecated).
+-- Formatter runner (the role of the deprecated null-ls/none-ls).
 -- Why separate the formatter from the LSP: many LSPs (intelephense,
 -- bashls) don't format; others (gopls) do, but conform unifies the UX.
 --
@@ -23,7 +23,7 @@ return {
       -- conform already runs stylua with --respect-ignores, but stylua only
       -- looks for .styluaignore in its CWD, and conform's default cwd for
       -- stylua is wherever a stylua.toml lives — a repo with an ignore file
-      -- and no toml (this one) got formatted anyway. Anchor the cwd on the
+      -- and no toml (this one) gets formatted anyway. Anchor the cwd on the
       -- ignore file too, so the dotfiles opt-out actually applies.
       -- Wrapped in a function: `opts` is read when lazy parses the spec,
       -- before conform is on the runtimepath, so a bare require() here
@@ -74,13 +74,13 @@ return {
     },
     format_on_save = function(bufnr)
       -- Only languages with a canonical formatter (not negotiable in the community).
-      -- Python is in because ruff is the de facto standard in 2026.
+      -- Python is in because ruff is the de facto standard.
       local fts_on_save = { go = true, rust = true, lua = true, python = true }
       if fts_on_save[vim.bo[bufnr].filetype] then
         -- `lsp_format = "fallback"` is the current name; `lsp_fallback` is
-        -- the pre-2025 one and now warns. The formatters themselves come
-        -- from mason-tool-installer (lsp.lua) — without it this silently
-        -- fell back to the LSP for Go and Lua because none was installed.
+        -- deprecated and warns. The formatters themselves come from
+        -- mason-tool-installer (lsp.lua) — without it this silently falls
+        -- back to the LSP for Go and Lua because none is installed.
         return { timeout_ms = 1500, lsp_format = "fallback" }
       end
     end,
