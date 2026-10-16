@@ -148,6 +148,8 @@ minimum-contrast = 1.1
 # Ghostty draws the box glyphs itself and the icons fall back into the NF
 # casks in install.sh, as under Paper Mono. Installed by brew
 # (`font-recursive`, the Google Fonts build).
+# wght is 400, not the recipe's 300 (2026-10-16): with the family finally
+# loading, 300 read too thin for light text on the dark canvas.
 # The 15pt is per-machine: `font-size = 15` in config.local, not here.
 # To go back: the earlier primaries (Rec Mono NF, Monaspace Argon/Neon,
 # Lilex, Datatype, Intel One Mono, Paper Mono, CaskaydiaCove, PlemolJP …)
@@ -200,17 +202,17 @@ font-family-bold-italic = "Recursive"
 # Recursive (2026-10-16) is variable: its styles are the fvar instance names,
 # read with fc-scan, and the four below are the nearest named instances to the
 # recipe. What actually pins the face is `font-variation`, which sets all
-# five axes per style: wght 300 roman and 700 bold (the three-step gap the
-# PlemolJP paragraph settled on, from a lighter base), and slnt -15, the axis
+# five axes per style: wght 400 roman and 700 bold (the three-step gap the
+# PlemolJP paragraph settled on), and slnt -15, the axis
 # minimum, for both italics, since with CRSV 1 the roman already wears the
 # cursive shapes and the slant is the only thing left to tell italic apart.
-font-style = Mono Casual Light
+font-style = Mono Casual
 font-style-bold = Mono Casual Bold
-font-style-italic = Mono Casual Light Italic
+font-style-italic = Mono Casual Italic
 font-style-bold-italic = Mono Casual Bold Italic
 font-variation = MONO=1
 font-variation = CASL=1
-font-variation = wght=300
+font-variation = wght=400
 font-variation = slnt=0
 font-variation = CRSV=1
 font-variation-bold = MONO=1
@@ -220,7 +222,7 @@ font-variation-bold = slnt=0
 font-variation-bold = CRSV=1
 font-variation-italic = MONO=1
 font-variation-italic = CASL=1
-font-variation-italic = wght=300
+font-variation-italic = wght=400
 font-variation-italic = slnt=-15
 font-variation-italic = CRSV=1
 font-variation-bold-italic = MONO=1
