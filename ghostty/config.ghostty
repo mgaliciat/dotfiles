@@ -149,7 +149,8 @@ minimum-contrast = 1.1
 # casks in install.sh, as under Paper Mono. Installed by brew
 # (`font-recursive`, the Google Fonts build).
 # wght is 400, not the recipe's 300 (2026-10-16): with the family finally
-# loading, 300 read too thin for light text on the dark canvas.
+# loading, 300 read too thin for light text on the dark canvas. CRSV is 0.5,
+# not 1, for the same reason in shape: see the font-style paragraph.
 # The 15pt is per-machine: `font-size = 15` in config.local, not here.
 # To go back: the earlier primaries (Rec Mono NF, Monaspace Argon/Neon,
 # Lilex, Datatype, Intel One Mono, Paper Mono, CaskaydiaCove, PlemolJP …)
@@ -204,8 +205,9 @@ font-family-bold-italic = "Recursive"
 # recipe. What actually pins the face is `font-variation`, which sets all
 # five axes per style: wght 400 roman and 700 bold (the three-step gap the
 # PlemolJP paragraph settled on), and slnt -15, the axis
-# minimum, for both italics, since with CRSV 1 the roman already wears the
-# cursive shapes and the slant is the only thing left to tell italic apart.
+# minimum, for both italics. CRSV is 0.5, Recursive's own "auto" (2026-10-16,
+# the recipe's 1 read too cursive in the roman): cursive shapes switch on only
+# past slnt -14, so the roman stays plain and both italics stay cursive.
 font-style = Mono Casual
 font-style-bold = Mono Casual Bold
 font-style-italic = Mono Casual Italic
@@ -214,22 +216,22 @@ font-variation = MONO=1
 font-variation = CASL=1
 font-variation = wght=400
 font-variation = slnt=0
-font-variation = CRSV=1
+font-variation = CRSV=0.5
 font-variation-bold = MONO=1
 font-variation-bold = CASL=1
 font-variation-bold = wght=700
 font-variation-bold = slnt=0
-font-variation-bold = CRSV=1
+font-variation-bold = CRSV=0.5
 font-variation-italic = MONO=1
 font-variation-italic = CASL=1
 font-variation-italic = wght=400
 font-variation-italic = slnt=-15
-font-variation-italic = CRSV=1
+font-variation-italic = CRSV=0.5
 font-variation-bold-italic = MONO=1
 font-variation-bold-italic = CASL=1
 font-variation-bold-italic = wght=700
 font-variation-bold-italic = slnt=-15
-font-variation-bold-italic = CRSV=1
+font-variation-bold-italic = CRSV=0.5
 
 # 17 — the one place this config does NOT follow craftzdog (2026-09-11). He sets no
 # font-size at all, which means Ghostty's default of 13 (verified with
