@@ -284,6 +284,11 @@ font-feature = +liga
 # going back to Monaspace means restoring them (+ss01 … +ss10). Recursive's
 # code ligatures are `dlig`, off by default, so it is turned on here.
 font-feature = +dlig
+# Three of those glyph swaps, picked on 2026-10-16: ss01 single-story a,
+# ss02 single-story g, ss20 slashed zero.
+font-feature = +ss01
+font-feature = +ss02
+font-feature = +ss20
 
 # Off on Retina (2026-08-26). This exists to compensate 1x panels; on a 2x
 # display `true` implies the max `font-thicken-strength = 255` (that's the
