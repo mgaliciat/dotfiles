@@ -210,6 +210,45 @@ install_claude
 
 bootstrap_gh_stack
 
+# ─── Mouser ───────────────────────────────────────────────────
+# Mouser (TomBadash/Mouser) — button remapping for Logitech mice without
+# Logi Options+. It is NOT in REQUIRED_CASKS because there is no cask: neither
+# homebrew/cask nor a tap ships it, only release zips. So it comes from the
+# latest GitHub release, one zip per arch.
+#
+# Guarded on the .app existing, like gh-stack: deliberately NOT convergent —
+# Mouser checks for its own updates, and bumping the version is the user's
+# call. curl does not set com.apple.quarantine, so there is no Gatekeeper
+# prompt; the Accessibility grant it needs is still a click in System Settings.
+if [[ ! -d "/Applications/Mouser.app" ]]; then
+  if [[ "$(uname -m)" == "arm64" ]]; then
+    MOUSER_ZIP="Mouser-macOS.zip"
+  else
+    MOUSER_ZIP="Mouser-macOS-intel.zip"
+  fi
+  MOUSER_TMP="$(mktemp -d)"
+  echo ""
+  echo "→ Installing Mouser from github.com/TomBadash/Mouser ($MOUSER_ZIP)"
+  if curl -fsSL -o "$MOUSER_TMP/$MOUSER_ZIP" \
+       "https://github.com/TomBadash/Mouser/releases/latest/download/$MOUSER_ZIP" \
+     && ditto -x -k "$MOUSER_TMP/$MOUSER_ZIP" "$MOUSER_TMP/x"; then
+    # The .app may sit at the zip's root or one folder down.
+    MOUSER_APP="$(find "$MOUSER_TMP/x" -maxdepth 2 -name 'Mouser.app' -type d -print -quit)"
+    if [[ -n "$MOUSER_APP" ]]; then
+      mv "$MOUSER_APP" /Applications/
+      echo "✓ Mouser installed — grant it Accessibility in System Settings → Privacy & Security"
+    else
+      echo "⚠️  Mouser.app not found inside $MOUSER_ZIP — install it by hand"
+    fi
+  else
+    echo "⚠️  Mouser download failed — re-run ./install.sh or install it by hand"
+  fi
+  rm -rf "$MOUSER_TMP"
+fi
+# Its config is a plain JSON file, and Mouser saves it atomically while keeping
+# a symlinked config.json a symlink, so it is linked like any other config.
+link "$DOTFILES/mouser/config.json" "$HOME/Library/Application Support/Mouser/config.json"
+
 # macOS file associations — open config.ghostty in VS Code (not TextEdit).
 # .ghostty has no registered UTI, so macOS falls back to TextEdit by default.
 # Idempotent: checks whether the entry already exists before adding it.
