@@ -137,6 +137,20 @@ window-colorspace = display-p3
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
+# Recursive, the variable font (Arrow Type) — primary (2026-10-16), at the
+# recipe picked on recursive.design: MONO 1, CASL 1, wght 300, slnt 0, CRSV 1,
+# at 15pt. One ttf with five axes, so the whole look is the `font-variation`
+# lines below, not a family name: MONO 1 is the monospace, CASL 1 the fully
+# casual (signpainter) shapes, wght 300 its lightest weight, slnt 0 upright,
+# and CRSV 1 cursive forms always on, upright included. The family is plain
+# "Recursive" (nameID 16), with 64 named instances ("Mono Casual Light" …)
+# as its styles. NOT a Nerd Font, and it carries no box drawing or powerline:
+# Ghostty draws the box glyphs itself and the icons fall back into the NF
+# casks in install.sh, as under Paper Mono. Installed by brew
+# (`font-recursive`, the Google Fonts build).
+# The 15pt is per-machine: `font-size = 15` in config.local, not here.
+# To go back: the Rec Mono NF pair below.
+#
 # Rec Mono (Recursive Mono, Arrow Type) — primary (2026-10-16), the NF build:
 # Linear, the boxy everyday face, for roman and bold, and Casual, the
 # signpainter one, for both italics. The same split as Monaspace's Argon/Radon,
@@ -236,9 +250,9 @@ minimum-contrast = 1.1
 # face, 12px/300) and Geist Mono (a grotesk mono stand-in, at the body's
 # recipe, then at Medium) were both tried and rejected on sight: neither
 # carries the page's stroke. Nothing of that round survives here.
-font-family = "RecMonoLinear Nerd Font"
-font-family-italic = "RecMonoCasual Nerd Font"
-font-family-bold-italic = "RecMonoCasual Nerd Font"
+font-family = "Recursive"
+font-family-italic = "Recursive"
+font-family-bold-italic = "Recursive"
 
 # Weight lives in the STYLE here, not in a variation axis (2026-09-08).
 # PlemolJP is not a variable font — it has no `fvar` at all, so a
@@ -276,10 +290,37 @@ font-family-bold-italic = "RecMonoCasual Nerd Font"
 # Lilex NF (2026-10-07) advertises the stock four again in nameID 2, as do
 # Monaspace Neon, Argon and Radon (2026-10-08). So do Rec Mono Linear and
 # Casual (2026-10-16), checked with fc-scan against the release ttfs.
-font-style = Regular
-font-style-bold = Bold
-font-style-italic = Italic
-font-style-bold-italic = Bold Italic
+# Recursive (2026-10-16) is variable: its styles are the fvar instance names,
+# read with fc-scan, and the four below are the nearest named instances to the
+# recipe. What actually pins the face is `font-variation`, which sets all
+# five axes per style: wght 300 roman and 700 bold (the three-step gap the
+# PlemolJP paragraph settled on, from a lighter base), and slnt -15, the axis
+# minimum, for both italics, since with CRSV 1 the roman already wears the
+# cursive shapes and the slant is the only thing left to tell italic apart.
+font-style = Mono Casual Light
+font-style-bold = Mono Casual Bold
+font-style-italic = Mono Casual Light Italic
+font-style-bold-italic = Mono Casual Bold Italic
+font-variation = MONO=1
+font-variation = CASL=1
+font-variation = wght=300
+font-variation = slnt=0
+font-variation = CRSV=1
+font-variation-bold = MONO=1
+font-variation-bold = CASL=1
+font-variation-bold = wght=700
+font-variation-bold = slnt=0
+font-variation-bold = CRSV=1
+font-variation-italic = MONO=1
+font-variation-italic = CASL=1
+font-variation-italic = wght=300
+font-variation-italic = slnt=-15
+font-variation-italic = CRSV=1
+font-variation-bold-italic = MONO=1
+font-variation-bold-italic = CASL=1
+font-variation-bold-italic = wght=700
+font-variation-bold-italic = slnt=-15
+font-variation-bold-italic = CRSV=1
 
 # 17 — the one place this config does NOT follow craftzdog (2026-09-11). He sets no
 # font-size at all, which means Ghostty's default of 13 (verified with
@@ -319,20 +360,17 @@ font-feature = +liga
 # Intel One Mono had no `liga`; its code ligatures were opt-in as ss01. Under
 # Paper Mono ss01–ss04 were ligatures, duospace, narrow space and small arrows,
 # plus cv01 for the single-story a.
-# Rec Mono (2026-10-16) has `calt` and nothing else in its GSUB: its code
-# ligatures and stylistic picks are baked into that build, so the `+liga`
-# above and all ten lines below are inert under it. Left in so going back to
-# Monaspace stays one font-family line.
-font-feature = +ss01
-font-feature = +ss02
-font-feature = +ss03
-font-feature = +ss04
-font-feature = +ss05
-font-feature = +ss06
-font-feature = +ss07
-font-feature = +ss08
-font-feature = +ss09
-font-feature = +ss10
+# Rec Mono NF (2026-10-16) had `calt` and nothing else in its GSUB: its code
+# ligatures and stylistic picks were baked into that build.
+# Recursive (2026-10-16) has its own ss01–ss12 and ss20, and they are glyph
+# swaps, not ligatures: ss01 single-story a, ss02 single-story g, ss03–ss06
+# simplified f i l r, ss07 simplified italic diagonals, ss08 no-serif L and
+# Z, ss09 simplified 6 and 9, ss10 dotted zero, ss11 simplified 1, ss12
+# simplified @, ss20 slashed zero. Monaspace's ten lines would have redrawn
+# half the alphabet away from the recursive.design recipe, so they are gone;
+# going back to Monaspace means restoring them (+ss01 … +ss10). Recursive's
+# code ligatures are `dlig`, off by default, so it is turned on here.
+font-feature = +dlig
 
 # Off on Retina (2026-08-26). This exists to compensate 1x panels; on a 2x
 # display `true` implies the max `font-thicken-strength = 255` (that's the
