@@ -149,107 +149,14 @@ minimum-contrast = 1.1
 # casks in install.sh, as under Paper Mono. Installed by brew
 # (`font-recursive`, the Google Fonts build).
 # The 15pt is per-machine: `font-size = 15` in config.local, not here.
-# To go back: the Rec Mono NF pair below.
-#
-# Rec Mono (Recursive Mono, Arrow Type) — primary (2026-10-16), the NF build:
-# Linear, the boxy everyday face, for roman and bold, and Casual, the
-# signpainter one, for both italics. The same split as Monaspace's Argon/Radon,
-# and the one Rec Mono's own Duotone cut ships, except Duotone puts bold on
-# Casual too; here bold stays Linear. Static ttfs, Regular 400 / Bold 700, no
-# `wght` or `CASL` axis in the NF build. 0.6 em advance, 1.2 em line (ascent
-# 950 + descent 250), same in both faces, so the grid holds. The family names
-# are the patched ones, "RecMonoLinear Nerd Font" / "RecMonoCasual Nerd Font",
-# read off the release's name tables, not the `NF` short form. The plain
-# family, not `… Nerd Font Mono`, for the CaskaydiaCove reason below. Installed
-# by brew (`font-recursive-mono-nerd-font`).
-# To go back: font-family = "Monaspace Argon NF", italics on
-# "Monaspace Radon NF".
-#
-# Monaspace Argon NF with Radon NF italics — primary (2026-10-08). Argon, the
-# humanist face, took the roman slot from Neon the same day; the italics stay
-# on Radon. The Monaspace paragraph below has the why.
-# To go back: font-family = "Monaspace Neon NF".
-#
-# Monaspace Neon NF with Radon NF italics — primary again (2026-10-08), the
-# morning after Lilex was committed.
-# To go back: font-family = "Lilex Nerd Font", without the two italic
-# families.
-#
-# Lilex — primary (2026-10-07), the NF build. IBM Plex Mono redrawn
-# for code, with its ligatures on `calt` (on by default). Static ttfs with real
-# italics, 0.6 em advance, a 1.3 em line (ascent 999 + descent 301). The plain
-# family, not `Lilex Nerd Font Mono`, for the same reason as CaskaydiaCove
-# below: the Mono cut squeezes every icon into one cell. Installed by brew
-# (`font-lilex-nerd-font`).
-# To go back: font-family = "Datatype".
-#
-# Datatype (Google Fonts) — primary (2026-10-07), on trial. A typeface for
-# charts in text: its `liga`/`calt` turn brace syntax like `{l:1,5,3}` into
-# inline sparklines and bars. One variable ttf, `wght` 100–900 and `wdth`
-# 50–150. Every ASCII glyph is 0.5 em, narrow next to the 0.6 em of most
-# monos; the space alone is 0.25 em, which the grid ignores. No italic file,
-# so Ghostty obliques. NOT a Nerd Font, and it carries no box drawing or
-# arrows: Ghostty draws the box glyphs itself and pulls the rest from the NF
-# casks in install.sh. Installed by brew (`font-datatype`).
-# To go back: font-family = "Intel One Mono".
-#
-# Intel One Mono — primary (2026-10-07), on trial. Built for low-vision
-# legibility: big x-height, open counters, a tall 1.38 em line (ascent 1090 +
-# descent 290). Static otfs with real italics in Light/Regular/Medium/Bold.
-# NOT a Nerd Font: icons fall back into the NF casks in install.sh, which are
-# load-bearing while this is the primary. The patched build exists as
-# `font-intone-mono-nerd-font` (family "IntoneMono Nerd Font") if the fallback
-# icons read wrong. Installed by brew (`font-intel-one-mono`).
-# To go back: the Monaspace pair below.
-#
-# Monaspace (GitHub Next) — primary (2026-10-07), the NF build: Neon, the
-# neo-grotesque face, for roman and bold, and Radon, the handwritten one, for
-# both italics, the mix Monaspace itself proposes. Xenon (the slab) held the
-# roman slot first, the same day. It IS a Nerd Font, so the icons come from
-# the family and not from fallback. Static otfs with real italics, no `wght`
-# axis. Installed by brew (`font-monaspace-nf`, already in install.sh's cask
-# list). Same 0.62 em advance in all five faces, so mixing them keeps the grid.
-# To go back: font-family = "Paper Mono".
-#
-# Paper Mono — primary (2026-10-07), its third turn. One variable ttf
-# (Thin→ExtraBold, `wght` axis) with no Italic file, so italics are obliqued by
-# Ghostty. NOT a Nerd Font: every powerline/devicon glyph falls back into the
-# NF casks in install.sh, which are load-bearing while this is the primary.
-# Installed by brew (`font-paper-mono`, in install.sh's cask list).
-# To go back: font-family = "CaskaydiaCove Nerd Font".
-#
-# CaskaydiaCove Nerd Font (Cascadia Code, NF build) — primary (2026-10-05),
-# picked off a screenshot. The plain family, not `CaskaydiaCove Nerd Font Mono`:
-# the Mono cut squeezes every icon into one cell and was rejected on sight the
-# same day. The Cascadia ligatures survive the patch. Installed by brew
-# (`font-caskaydia-cove-nerd-font`). Its style strings are the stock
-# Regular/Italic/Bold/Bold Italic, confirmed with `ghostty +list-fonts`, so the
-# four `font-style` lines below carry over unchanged.
-# To go back: font-family = "PlemolJP Console NF".
-#
-# PlemolJP Console NF — primary (2026-09-08) after Google Sans Code
-# (2026-08-22), Paper Mono (2026-08-19), Google Sans Code (2026-08-13), the
-# first PlemolJP Console NF trial (2026-08-03), Paper Mono (2026-07-30), Google
-# Sans Code (2026-07-29) and 0xProto (2026-07-28).
-# IS a Nerd Font, so it carries its own powerline/devicon glyphs instead of
-# leaning on Ghostty's fallback into the other NF families. It also has real
-# italic files, no obliquing (Paper Mono ships none and gets slanted).
-# Installed by brew (`font-plemol-jp-nf`, already in install.sh's cask list) —
-# nothing to add there.
-# To go back: font-family = "Google Sans Code", "Paper Mono",
-# "0xProto Nerd Font Mono" or "Maple Mono NF".
-# Cross-checked against `ghostty +list-fonts` — the family reports as
-# "PlemolJP Console NF". Note the SEPARATE "PlemolJP35 Console NF" family that
-# also ships in the cask: that is the 3:5 width cut for JP text, not this one.
-# +validate-config does NOT catch a missing family, it falls back silently.
-#
-# Tried and dropped the same day (2026-09-18): the typography of typesafe.ai,
-# the page the `typesafe` theme is built on. Its body is "Die Grotesk C
-# Regular" at 17px / 400 / 0.05em tracking / 120% leading — proportional and
-# commercial, so it cannot come to a terminal grid. JetBrains Mono (its caption
-# face, 12px/300) and Geist Mono (a grotesk mono stand-in, at the body's
-# recipe, then at Medium) were both tried and rejected on sight: neither
-# carries the page's stroke. Nothing of that round survives here.
+# To go back: the earlier primaries (Rec Mono NF, Monaspace Argon/Neon,
+# Lilex, Datatype, Intel One Mono, Paper Mono, CaskaydiaCove, PlemolJP …)
+# and the notes on each live in git: `git log -p -- ghostty/config.ghostty`,
+# from 01a0904 back. Their paragraphs were cut here (2026-10-16) because
+# with them in the file Ghostty 1.3.1 lost the family on load and drew every
+# style in its JetBrains Mono fallback; `ghostty +show-face --string=a
+# --style=italic` is the check after touching this block, since
+# +validate-config passes and +show-config prints no font-* lines.
 font-family = "Recursive"
 font-family-italic = "Recursive"
 font-family-bold-italic = "Recursive"
