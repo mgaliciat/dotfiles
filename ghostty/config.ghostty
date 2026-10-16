@@ -150,7 +150,8 @@ minimum-contrast = 1.1
 # (`font-recursive`, the Google Fonts build).
 # wght is 400, not the recipe's 300 (2026-10-16): with the family finally
 # loading, 300 read too thin for light text on the dark canvas. CRSV is 0.5,
-# not 1, for the same reason in shape: see the font-style paragraph.
+# not 1, for the same reason in shape: see the font-style paragraph. CASL
+# is 0.5, Rec Mono's SemiCasual, not 1: fully casual read too loose.
 # The 15pt is per-machine: `font-size = 15` in config.local, not here.
 # To go back: the earlier primaries (Rec Mono NF, Monaspace Argon/Neon,
 # Lilex, Datatype, Intel One Mono, Paper Mono, CaskaydiaCove, PlemolJP …)
@@ -213,22 +214,22 @@ font-style-bold = Mono Casual Bold
 font-style-italic = Mono Casual Italic
 font-style-bold-italic = Mono Casual Bold Italic
 font-variation = MONO=1
-font-variation = CASL=1
+font-variation = CASL=0.5
 font-variation = wght=400
 font-variation = slnt=0
 font-variation = CRSV=0.5
 font-variation-bold = MONO=1
-font-variation-bold = CASL=1
+font-variation-bold = CASL=0.5
 font-variation-bold = wght=700
 font-variation-bold = slnt=0
 font-variation-bold = CRSV=0.5
 font-variation-italic = MONO=1
-font-variation-italic = CASL=1
+font-variation-italic = CASL=0.5
 font-variation-italic = wght=400
 font-variation-italic = slnt=-15
 font-variation-italic = CRSV=0.5
 font-variation-bold-italic = MONO=1
-font-variation-bold-italic = CASL=1
+font-variation-bold-italic = CASL=0.5
 font-variation-bold-italic = wght=700
 font-variation-bold-italic = slnt=-15
 font-variation-bold-italic = CRSV=0.5
