@@ -141,14 +141,12 @@ font-variation-bold-italic = CRSV=0.5
 font-feature = +liga
 
 # Recursive's code ligatures are `dlig`, off by default, so it is turned on here.
-# Its ss01–ss12 and ss20 are glyph swaps, not ligatures, and stay off to keep
-# the recursive.design recipe: ss01 single-story a, ss02 single-story g,
-# ss03–ss06 simplified f i l r, ss07 simplified italic diagonals, ss08 no-serif
-# L and Z, ss09 simplified 6 and 9, ss10 dotted zero, ss11 simplified 1, ss12
-# simplified @, ss20 slashed zero.
+# Its ss01–ss12 and ss20 are glyph swaps, not ligatures: ss01 single-story a,
+# ss02 single-story g, ss03–ss06 simplified f i l r, ss07 simplified italic
+# diagonals, ss08 no-serif L and Z, ss09 simplified 6 and 9, ss10 dotted zero,
+# ss11 simplified 1, ss12 simplified @, ss20 slashed zero.
 font-feature = +dlig
-# Three of those glyph swaps, picked on 2026-10-16: ss01 single-story a,
-# ss02 single-story g, ss20 slashed zero.
+# On: ss01 single-story a, ss02 single-story g, ss20 slashed zero.
 font-feature = +ss01
 font-feature = +ss02
 font-feature = +ss20
