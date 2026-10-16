@@ -3,8 +3,8 @@
 -- `solarized-patched`.
 -- tokyonight base: variant `night`.
 --
--- craftzdog's Ghostty names this theme; it ships inside Ghostty.app, so nvim had
--- nothing to point at until it was ported. Provenance and the full ANSI table
+-- craftzdog's Ghostty names this theme; it ships inside Ghostty.app, so nvim
+-- has nothing to point at without this port. Provenance and the full ANSI table
 -- live in ghostty/themes/solarized-patched — that file is the source of truth
 -- for these values, this one only maps them onto tokyonight's slots.
 --

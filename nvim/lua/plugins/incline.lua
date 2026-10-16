@@ -1,24 +1,20 @@
 -- ─── incline.nvim ─────────────────────────────────────────────
 -- A floating filename anchored to the top-right corner of every
--- window. Replaces dropbar.nvim (sep-2026), which put a navigable
+-- window. The alternative is dropbar.nvim, a navigable
 -- `path → symbol → cursor` breadcrumb in the winbar of each window.
 --
--- The trade, deliberately: dropbar answered "where am I inside this
--- file" and cost a permanent row per split plus the `<leader>h` picker;
+-- The trade, deliberately: dropbar answers "where am I inside this
+-- file" and costs a permanent row per split plus a picker;
 -- incline answers "which file is this split, and does it have focus"
 -- and costs no row at all — it floats over the buffer instead of
 -- reserving space. With splits, telling them apart at a glance is the
--- job that actually came up; the breadcrumb was read far less than the
--- row it occupied would suggest. Symbol context is still reachable
+-- job that actually comes up; the breadcrumb is read far less than the
+-- row it occupies would suggest. Symbol context is still reachable
 -- through the LSP (`gd`, the symbol pickers, treesitter's `]f`/`[f`).
 --
 -- Don't run both: incline's float lands on the right end of the winbar
 -- dropbar draws into, so they overlap and each hides half of the other.
--- That overlap is why incline was dropped in e51e305 (2026-09-06) — a
--- dedupe pass that kept dropbar. This is the same call resolved the
--- other way a day later, not a new plugin: if it goes again, the
--- question to settle first is which of the two owns the winbar, because
--- adding one back on top of the other is what gets undone every time.
+-- Decide which of the two owns the winbar; never stack one on the other.
 --
 -- Colours are DERIVED from the active colorscheme, not hardcoded.
 -- craftzdog reads `solarized-osaka.colors` directly, which only works

@@ -5,12 +5,10 @@
 #
 # PROVENANCE: DERIVED, no published hex. The source is the blueprint itself,
 # the cyanotype / whiteprint drafting sheet, as HUES only:
-#   · canvas   — neutral near-black #0a0a0a (OKLCH L 0.145, C 0). It started
-#                as the cyanotype's Prussian blue taken down to a night
-#                (#04172c, L 0.20 C 0.05 h 252) and was dropped on 2026-10-05:
-#                the lettering read as lost on the blue. Not pure #000: the
-#                shader's grain lightens by a fraction of the canvas, and over
-#                black it could only darken.
+#   · canvas   — neutral near-black #0a0a0a (OKLCH L 0.145, C 0), not the
+#                cyanotype's Prussian blue: the lettering reads as lost on the
+#                blue. Not pure #000: the shader's grain lightens by a fraction
+#                of the canvas, and over black it could only darken.
 #   · text     — the white of the cyanotype line, a cold blue white (h 225)
 #   · accent   — the cyan of a lit drafting line (h 212)
 #   · red      — the redline, the architect's correction pencil (h 25)

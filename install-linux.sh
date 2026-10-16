@@ -31,13 +31,13 @@ link_portable
 
 # Claude Code per-machine (same pattern as install.sh).
 # settings.json is NOT symlinked (100% per-machine, like ~/.gitconfig).
-# skills/ is not either (since jul-2026): its content is per-machine and was
-# never versioned, so the symlink to the repo was pure indirection — and it
-# leaked personal state into the public repo if the .gitignore was loosened.
+# skills/ is not either: its content is per-machine and unversioned, so a
+# symlink to the repo is pure indirection — and it leaks personal state into
+# the public repo if the .gitignore is loosened.
 # ~/.claude/skills is a real dir; the codebase-memory-mcp binary creates it if
 # missing.
 # memory/ is not either: Claude Code handles it per-project, deriving the real
-# path of the directory, so a guessed symlink was ignored.
+# path of the directory, so a guessed symlink is ignored.
 
 # ─── apt packages ──────────────────────────────────────────────
 # What apt has out-of-the-box on Ubuntu 24.04 / Debian 12.
@@ -55,7 +55,7 @@ if command -v apt-get >/dev/null 2>&1; then
     imagemagick                   # snacks.image converts anything but PNG with `magick`
     ripgrep
     fd-find                       # the binary is 'fdfind' — apt names it that way because of a clash with another 'fd'
-    bat                           # on Ubuntu 20.04 it was 'batcat'; 22.04+ it is 'bat'
+    bat                           # 'batcat' on Ubuntu 20.04; 'bat' on 22.04+
     fzf
     jq                            # required by claude/install/settings.sh
     gh                            # GitHub CLI — universe on Ubuntu 23.10+/Debian 13; older releases fail here and bootstrap_gh_stack skips itself
@@ -168,14 +168,13 @@ if ! command -v zoxide >/dev/null 2>&1; then
     || echo "⚠️  zoxide install failed — the .zshrc will skip smart cd"
 fi
 
-# ─── no cargo block (deliberately removed) ─────────────────────
-# There used to be a `cargo install` step here for git-delta and tree-sitter-cli,
-# the two mac formulae apt has no equivalent for. It is gone: both now come from
-# a GitHub release below, which needs no Rust toolchain. That closed a real parity
-# gap — tree-sitter was silently skipped on any box without rustup, so
-# nvim-treesitter's `main` branch (which shells out to it to build parsers) was
-# broken on Linux while it worked on mac. Don't reintroduce it: a ~400MB toolchain
-# to compile two binaries that ship prebuilt is the definition of a worse install.
+# ─── no cargo block (deliberately) ────────────────────────────
+# git-delta and tree-sitter-cli, the two mac formulae apt has no equivalent for,
+# come from a GitHub release below, which needs no Rust toolchain. A `cargo
+# install` step would be silently skipped on any box without rustup, leaving
+# nvim-treesitter's `main` branch (which shells out to tree-sitter to build
+# parsers) broken on Linux while it works on mac. Don't add one: a ~400MB
+# toolchain to compile two binaries that ship prebuilt is a worse install.
 # The cargo PATH entry in zsh/path.zsh stays — that is for tools you install by hand.
 
 # ─── GitHub release binaries (what apt lacks or has outdated) ───────
@@ -308,7 +307,7 @@ fi
 
 # gomi — `rm` with a trash + interactive restore, behind the `gm` alias. A brew
 # formula on mac with no apt equivalent, so without this Linux silently loses the
-# alias: .zshrc guards it with `command -v gomi`, which is exactly why the gap was
+# alias: .zshrc guards it with `command -v gomi`, which makes the gap
 # invisible. goreleaser tarball with the binary at the root, same as lazygit.
 if ! command -v gomi >/dev/null 2>&1; then
   echo ""
@@ -320,10 +319,9 @@ fi
 # ghq — clone manager for the $GHQ_ROOT tree (.zshenv). A brew formula on mac
 # with no apt equivalent; upstream documents brew/scoop/nixpkgs/Void/Guix and
 # `go install`, but nothing for Debian/Ubuntu, so the release binary it is
-# (no Go toolchain required — same reasoning as the cargo tombstone above).
+# (no Go toolchain required — same reasoning as the no-cargo note above).
 # WITHOUT IT THE Ctrl+F WIDGET LOSES ITS REPO LIST: functions.zsh guards the
-# call with `command -v ghq`, which is precisely the kind of silent degradation
-# that left the old hardcoded find contributing nothing for months.
+# call with `command -v ghq`, so the list just comes up empty, silently.
 # The asset is a ZIP (not a tarball like lazygit/gomi) and nests everything
 # under ghq_linux_<arch>/, hence `unzip -j` (in _gh_install_bin) to flatten the
 # one file out.
@@ -335,8 +333,8 @@ if ! command -v ghq >/dev/null 2>&1; then
 fi
 
 # tree-sitter-cli — nvim-treesitter's `main` branch shells out to it to generate
-# parsers, so nvim is degraded without it. This replaces the old `cargo install`
-# (see the tombstone above). The asset is a gzipped BARE BINARY, not a tarball:
+# parsers, so nvim is degraded without it (no cargo: see the note above). The
+# asset is a gzipped BARE BINARY, not a tarball:
 # `gunzip`, not `tar`. Its name carries no version, so the stable
 # latest/download/ URL works and no API call for the tag is needed here.
 if ! command -v tree-sitter >/dev/null 2>&1; then

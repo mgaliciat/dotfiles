@@ -2,19 +2,17 @@
 # Claude Code status line, in two zones:
 #   left  — WHERE you are:    model + effort, cwd, git branch
 #   right — WHAT you've spent: the context bar, 5h quota
-# The split is the whole layout decision (ago-2026). Everything on the right is
-# a meter that only grows; everything on the left changes when you move. Reading
-# order follows that: you scan left to orient, right to check the budget, and
-# the two never interleave (ctx used to sit on the left, between branch and the
-# quota — a gauge stranded in the identity half).
+# The split is the whole layout decision. Everything on the right is a meter
+# that only grows; everything on the left changes when you move. Reading order
+# follows that: you scan left to orient, right to check the budget, and the two
+# never interleave.
 # JSON session data arrives on stdin (see: https://code.claude.com/docs/en/statusline).
 shopt -s extglob   # needed by vis() to match an ANSI escape; see below
 
 # ONE jq for every field, one value per line. This script runs every second
 # (`statusLine.refreshInterval`, set by claude/install/settings.sh, is what
-# drives the bar's animation), so it used to cost nine jq processes, a `cut`
-# per percentage and a `date` for the countdown — per second. `now` gives the
-# clock from inside jq, and `floor` does what the `cut -d.` did.
+# drives the bar's animation), so every process counts. `now` gives the clock
+# from inside jq and `floor` truncates the percentages: no `cut`, no `date`.
 #
 # Line-per-value rather than @tsv: `read` with a tab IFS collapses empty
 # fields, and EFFORT / the quota are empty often.
@@ -47,8 +45,8 @@ shopt -s extglob   # needed by vis() to match an ANSI escape; see below
 
 # $'…' (ANSI-C quoting), NOT '\033[…m': these have to be REAL escape characters,
 # not a backslash-0-3-3 string that only becomes an escape inside `echo -e`. The
-# literal form cost 7 invisible-but-counted characters per reset in vis() below,
-# which silently ate 28 columns of the right-alignment. One representation only.
+# literal form costs 7 invisible-but-counted characters per reset in vis()
+# below, which silently eats columns of the right-alignment. One representation only.
 #
 # Colours are plain ANSI (not hex) on purpose: the active stack theme remaps
 # them, so the statusline follows whatever Ghostty/nvim are wearing. FAINT
@@ -57,8 +55,8 @@ shopt -s extglob   # needed by vis() to match an ANSI escape; see below
 # mirrors its brights, so 8 is near-invisible there).
 #
 # ACCENT is ANSI 12, bright blue by name, and NOT a blue under dia-de-muertos:
-# that theme moved the slot to the bright cempasúchil (#ffbb76) so Claude Code's
-# inline code would pick it up, and the meters ride the same lever. Under the
+# that theme sets the slot to the bright cempasúchil (#ffbb76) so Claude Code's
+# inline code picks it up, and the meters ride the same lever. Under the
 # other themes it is whatever their 12 is — blue in solarized-osaka, the body
 # grey in solarized-patched.
 ACCENT=$'\033[94m'; RED=$'\033[31m'; RESET=$'\033[0m'
@@ -73,8 +71,8 @@ FAINT=$'\033[2m'
 BRAIN=$'\xf3\xb0\xa7\x91' # nf-md-brain, U+F09D1
 
 # One ladder for every gauge on the line (ctx, quota) so a colour means the same
-# thing wherever it appears — there used to be a copy of this `if` per gauge,
-# which is how they drift apart.
+# thing wherever it appears — a copy of this `if` per gauge is how they drift
+# apart.
 #
 # Two steps: the accent, and red at 90%. Red is kept for the point where a meter
 # asks for action; a green/yellow stage before it would put a status colour on
@@ -92,8 +90,8 @@ CTX_COLOR=$(hue "$PCT")
 # something laid ON the track rather than a second line beside it. Block
 # elements, NOT the geometric shapes: Ghostty draws U+2580–259F itself as
 # sprites, exactly one cell wide and seamless cell to cell in any font. The
-# ■/◼/⬛ cubes of an earlier version here were font glyphs of ambiguous width,
-# which is what broke the right-alignment and got the first bar removed.
+# ■/◼/⬛ cubes are font glyphs of ambiguous width, which breaks the
+# right-alignment.
 #
 # Why a rail and not a dimmed slab for the empty part: FAINT is the only
 # theme-safe way to dim, and this config sets `faint-opacity = 0.7` — a faint
@@ -104,16 +102,15 @@ CTX_COLOR=$(hue "$PCT")
 # One step per cell (5% on 20 cells). The quadrant glyph that would give half
 # steps leaves a hole in the rail under its empty half.
 #
-# No token count beside it: the `121k/1M` that sat there was dropped, and the
-# bar is the whole context meter. The cost is known — on a 1M window it reads
-# as nearly empty for most of a session. Add the count back only on purpose;
-# it is NOT missing by oversight.
+# No token count (`121k/1M`) beside it: the bar is the whole context meter. The
+# cost is known — on a 1M window it reads as nearly empty for most of a
+# session. It is NOT missing by oversight.
 #
 # THE ANIMATION: when the context grows, the cells it grew into rise and
 # settle — a full block `█`, then three quarters `▆`, then the slab `▄` like the
 # rest — in the ladder colour throughout. Height, not a colour flash: the only
 # theme-safe "brighter" colour is the foreground, which some palettes keep
-# muted on purpose (solarized-patched's #708284 read as an EMPTY cell next to
+# muted on purpose (solarized-patched's #708284 reads as an EMPTY cell next to
 # the fill) and light palettes make dark. It only ever plays on growth: an idle
 # session is a still bar, never a shimmer.
 # The frames come from `statusLine.refreshInterval = 1`; each run of this
@@ -202,9 +199,8 @@ bar() {
 # was there to imply, and the ` | ` that parts it from the bar keeps the % from
 # reading as the bar's own.
 #
-# The weekly window (`.rate_limits.seven_day`, same two fields) was here and was
-# dropped: it isn't a budget this user acts on. Add it back only if that
-# changes — it is NOT missing by oversight.
+# The weekly window (`.rate_limits.seven_day`, same two fields) is left out: it
+# isn't a budget this user acts on. It is NOT missing by oversight.
 #
 # ⚠️ Only a PERCENTAGE is on stdin — there is NO token count for the window, and
 # it is not derivable: the limit weights models and output differently, so
@@ -257,9 +253,9 @@ esac
 # it IS a model parameter, and the level names (low/medium/high/xhigh/max) can't
 # be mistaken for part of the id.
 #
-# The context hue rides on the BRAIN GLYPH ALONE, not on the model name. The
-# whole segment used to be tinted, which read as "the model is red" — a colour
-# saying something about a value that isn't in that segment. As a single leading
+# The context hue rides on the BRAIN GLYPH ALONE, not on the model name.
+# Tinting the whole segment reads as "the model is red" — a colour saying
+# something about a value that isn't in that segment. As a single leading
 # dot it's ambient: peripheral pressure at the start of the line, with the bar
 # over on the right where the meters live.
 MODEL_SEG="${CTX_COLOR}${BRAIN}${RESET} ${MODEL}"
@@ -278,16 +274,16 @@ MODEL_SEG="${CTX_COLOR}${BRAIN}${RESET} ${MODEL}"
 # straight back to the inline ` | ` join instead of guessing a width.
 #
 # ⚠️ EDGE_RESERVE is EMPIRICAL — tune this number, not the arithmetic, if the
-# line ever clips again. It started at 2 and Claude Code truncated the tail to
-# `↻3h…`, because two separate widths are invisible from in here and they stack:
+# line clips. Too small and Claude Code truncates the tail to `↻3h…`, because
+# two separate widths are invisible from in here and they stack:
 #
 #   1. COLUMNS is the whole terminal, not this row. The status line renders
 #      inside a bordered box with its own border and padding (what the `padding`
 #      setting adds *to*), and that chrome's width is not on stdin.
 #   2. Nerd Font glyphs count 1 CHARACTER but can render 2 CELLS. The brain,
 #      ⎇ and ↻ are one codepoint each to `${#s}` and there is no way to ask the
-#      terminal how wide the font drew them — the same ambiguous-width trap that
-#      killed the ■/◼/⬛ cubes in an earlier version of this file.
+#      terminal how wide the font drew them — the same ambiguous-width trap as
+#      the ■/◼/⬛ cubes in the context bar notes above.
 #
 # So the true usable width is COLUMNS minus an unknown, and the only safe move
 # is to under-fill it. Overshooting costs a truncated tail with an ellipsis —

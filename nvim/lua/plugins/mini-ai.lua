@@ -1,8 +1,7 @@
 -- ─── mini.ai ──────────────────────────────────────────────────
--- Extends `a`/`i` text objects. Replaces the `select` mappings that lived
--- in treesitter.lua (same keys, same treesitter queries — mini.ai's
--- `gen_spec.treesitter` reads nvim-treesitter-textobjects' `textobjects.scm`)
--- and adds what those could not do:
+-- Extends `a`/`i` text objects. Owns the treesitter `select` mappings
+-- (mini.ai's `gen_spec.treesitter` reads nvim-treesitter-textobjects'
+-- `textobjects.scm`) and adds what that plugin's `select` cannot do:
 --
 --   iq / aq      any quote  (`"`, `'`, `` ` `` — whichever is closest)
 --   ib / ab      any bracket (`()`, `[]`, `{}`)

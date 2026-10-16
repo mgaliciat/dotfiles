@@ -8,7 +8,7 @@
 # The selection stays what CLAUDE.md says it is: a direct, versioned value in
 # each config (ghostty `theme =`, nvim `vim.g.theme`). This only edits those
 # lines in the repo, so the result is a diff to commit, and a `git pull`
-# carries it to the other machines as before.
+# carries it to the other machines.
 #
 # Also rewritten, because they are mirrors of the palette rather than
 # selections: lazygit's `theme:` block (generated from the ghostty file) and
@@ -118,10 +118,10 @@ list_ids() {
   done
 }
 
-# lazygit's `theme:` block, regenerated whole. The roles are the ones the
-# hand-mirrored block used: ANSI 4 for the active border and option text,
-# ANSI 8 for the inactive border, ghostty's selection for the cursor line,
-# ANSI 3 on the canvas for cherry-picks, ANSI 1 for unstaged changes.
+# lazygit's `theme:` block, regenerated whole. The roles: ANSI 4 for the active
+# border and option text, ANSI 8 for the inactive border, ghostty's selection
+# for the cursor line, ANSI 3 on the canvas for cherry-picks, ANSI 1 for
+# unstaged changes.
 write_lazygit() {
   local id=$1 block tmp
   local subtle blue sel yellow bg red fg

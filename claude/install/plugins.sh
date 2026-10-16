@@ -18,7 +18,7 @@
 # on GitHub (verified by comparing the clone log of both forms).
 #
 # `</dev/null` on both commands: running install.sh in a real terminal, one of
-# them hung waiting for an invisible interactive prompt. Closed stdin → EOF → the
+# them hangs waiting for an invisible interactive prompt. Closed stdin → EOF → the
 # command continues with its default (same fix as rtk in binaries.sh).
 #
 # Idempotence: handled by the CLI itself (verified by running both commands twice
@@ -47,9 +47,7 @@ if ! command -v claude >/dev/null 2>&1; then
 fi
 
 # ── no plugins installed right now ──
-# `ponytail` and `andrej-karpathy-skills` lived here until aug-2026; both were
-# always-on rulesets ("be lazy", "don't over-build") injected into every session,
-# and they were dropped. The mechanism stays — adding one back is a single
+# The mechanism stays — adding one is a single
 # _claude_plugin_install call with the full https:// marketplace URL, the
 # `plugin@marketplace` id from the repo's .claude-plugin/marketplace.json (NOT
 # from its README, which often lags a transfer), and a label.

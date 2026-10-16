@@ -54,10 +54,9 @@ gui:
   # writes no config of its own, so the nvim float reads this line too.
   nerdFontsVersion: "3"
 git:
-  # No `pull.mode` here: lazygit dropped the key and now honours git's own
-  # `pull.rebase`. Rebase-by-default therefore lives in ~/.gitconfig (per-machine,
-  # not versioned) — `git config --global pull.rebase true`. Putting it back
-  # makes lazygit reject the whole file, not just the key.
+  # No `pull.mode` here: lazygit honours git's own `pull.rebase` and rejects the
+  # whole file over an unknown key. Rebase-by-default therefore lives in
+  # ~/.gitconfig (per-machine, not versioned) — `git config --global pull.rebase true`.
   # Auto-fetch disabled (doesn't hang if the network is slow).
   autoFetch: false
   # Paginate diffs with delta if it's installed (you have it via brew).

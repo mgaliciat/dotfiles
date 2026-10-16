@@ -1,7 +1,7 @@
 -- ─── nvim-treesitter (main branch) ────────────────────────────
 -- The `master` branch is archived and incompatible with nvim ≥0.12
--- (the query directives API changed). The plugin was rewritten on
--- `main` with a different interface: there's no `setup{}` with modules like
+-- (the query directives API changed). `main` has a different
+-- interface: there's no `setup{}` with modules like
 -- `highlight`/`indent`/`textobjects` — those are built-in nvim features
 -- enabled via `vim.treesitter.start()` in a FileType autocmd.
 --
@@ -49,7 +49,7 @@ return {
           local ft = args.match
           if pcall(vim.treesitter.start, args.buf) then
             -- Treesitter-based indent (experimental upstream). PHP is left
-            -- out — TS indent for PHP is as flaky as it used to be.
+            -- out — TS indent for PHP is flaky.
             if ft ~= "php" then
               vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
             end
@@ -65,7 +65,7 @@ return {
   -- `move`) that you map to keys manually.
   --
   -- Only `move` is mapped here. The `select` half (`vaf`, `dic`, `cia`…)
-  -- moved to mini.ai (plugins/mini-ai.lua), which reads the SAME
+  -- lives in mini.ai (plugins/mini-ai.lua), which reads the SAME
   -- `textobjects.scm` queries this plugin ships — so the plugin stays
   -- installed for its queries even where `move` isn't used.
   {

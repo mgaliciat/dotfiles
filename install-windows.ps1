@@ -68,10 +68,8 @@ New-Item -ItemType Directory -Path $ClaudeDir -Force | Out-Null
 # True if $a and $b have identical content (recursively for dirs) -- used to make
 # the no-Developer-Mode copy path IDEMPOTENT: without it, every re-run backs up and
 # re-copies our own prior copy, piling up `.backup.<timestamp>` files beside the
-# real one. Same content -> no-op. The dir arm is dead while every target is a
-# single file, and stays because a dir target is one `Set-DotfileSymlink` away
-# (that arm is what kept `.backup` copies of a skill dir from being loaded as
-# phantom skills back when this script linked two of them).
+# real one. Same content -> no-op. The dir arm covers a directory target (a
+# skill dir), whose `.backup` copies would otherwise load as phantom skills.
 function Test-SameContent {
     param([string]$A, [string]$B)
     $la = Test-Path $A -PathType Leaf; $lb = Test-Path $B -PathType Leaf
@@ -124,7 +122,7 @@ function Invoke-Native {
 
 # Append $Dir to the user PATH (persistent) and to this process's PATH, once.
 # Compared entry by entry, not as a substring of the whole string: `-like "*$Dir*"`
-# matched `...\rtk` inside `...\rtk2` and read `[` in a path as a wildcard. An
+# would match `...\rtk` inside `...\rtk2` and read `[` in a path as a wildcard. An
 # empty user PATH must not become ";<dir>" either -- hence the join over the
 # non-empty entries.
 function Add-UserPath {
@@ -141,8 +139,8 @@ function Set-DotfileSymlink {
     param([string]$Source, [string]$Destination)
 
     # Get-Item, NOT Test-Path: Test-Path follows the link and answers $false for a
-    # DANGLING symlink, so the stale link was left in place, mklink failed on it,
-    # and the fallback copied the file onto the broken link.
+    # DANGLING symlink, so the stale link would stay in place, mklink would fail
+    # on it, and the fallback would copy the file onto the broken link.
     $existing = Get-Item -LiteralPath $Destination -Force -ErrorAction SilentlyContinue
     if ($existing) {
         if ($existing.LinkType -eq "SymbolicLink") {
@@ -153,8 +151,8 @@ function Set-DotfileSymlink {
         } elseif (Test-SameContent $Destination $Source) {
             # Our own prior copy, unchanged (no Developer Mode -> we copy, not link).
             # DELETE rather than return: enabling Developer Mode later has to be able to
-            # UPGRADE that copy into a real symlink, and an early return froze it as a
-            # copy forever (the re-run kept reporting "already up to date"). No backup --
+            # UPGRADE that copy into a real symlink, and an early return would freeze
+            # it as a copy forever. No backup --
             # the content is identical to the repo by definition, and if the symlink
             # below still fails, the catch copies it straight back.
             Remove-Item $Destination -Recurse -Force
@@ -216,12 +214,10 @@ Set-DotfileSymlink (Join-Path $Dotfiles "claude\CLAUDE.md")      (Join-Path $Cla
 # Runtime note: all ten read and write through the `logbook-mcp` MCP, which is
 # registered by hand from the vault's 1Password item, not by this script.
 #
-# $SkillsDir is also read by the gh-stack block far below. It was defined HERE,
-# and when these symlinks were dropped in aug-2026 the definition went with them
-# while that use stayed -- with $ErrorActionPreference = "Stop", `Join-Path
-# $null` throws and everything after it (the gh-stack skill, Nerd Fonts, the
-# Windows Terminal theme and keybindings) silently stopped installing. Keep the
-# assignment above the symlinks, not inside them.
+# $SkillsDir is also read by the gh-stack block far below. Keep the assignment
+# above the symlinks, not inside them: with $ErrorActionPreference = "Stop",
+# `Join-Path $null` throws and everything after it (the gh-stack skill, Nerd
+# Fonts, the Windows Terminal theme and keybindings) silently stops installing.
 $SkillsDir = Join-Path $ClaudeDir "skills"
 New-Item -ItemType Directory -Path $SkillsDir -Force | Out-Null
 Set-DotfileSymlink (Join-Path $Dotfiles "plugins\logbook") (Join-Path $SkillsDir "logbook")
@@ -233,13 +229,11 @@ $AgyPluginsDir = Join-Path $HOME ".gemini\config\plugins"
 New-Item -ItemType Directory -Path $AgyPluginsDir -Force | Out-Null
 Set-DotfileSymlink (Join-Path $Dotfiles "plugins\logbook") (Join-Path $AgyPluginsDir "logbook")
 
-# ─── convergent cleanup: the agent-teams skill and agents (sep-2026) ───
-# Twin of the block in settings.sh. The `team` skill and the three agent
-# definitions were dropped in sep-2026; the env flags they served are written
-# again further down, these files are not. They were symlinks, so deleting
-# them from the repo leaves a DANGLING link on every box that ran the old
-# version -- and a dangling skill dir is one Claude Code tries to load and
-# cannot. $AgentsDir is no longer created, only swept.
+# ─── convergent cleanup: the agent-teams skill and agents ───
+# Twin of the block in settings.sh. Sweeps DANGLING symlinks to the `team` skill
+# and three agent definitions the repo does not ship (the env flags are written
+# further down, these files are not) -- a dangling skill dir is one Claude Code
+# tries to load and cannot. $AgentsDir is only swept, never created.
 #
 # ReparsePoint-guarded and .Delete() rather than Remove-Item, for the same two
 # reasons the pre-rename cleanup further down gives: a real per-machine file of
@@ -282,10 +276,9 @@ $HooksDir = Join-Path $ClaudeDir "hooks"
 New-Item -ItemType Directory -Path $HooksDir -Force | Out-Null
 Set-DotfileSymlink (Join-Path $Dotfiles "plugins\logbook\hooks\logbook.ps1") (Join-Path $HooksDir "logbook.ps1")
 
-# Convergent cleanup of the pre-rename names (sep-2026): the plugin was `wiki` and
-# capture was a separate plain skill, `bitacora`. A machine that ran the old
-# installer still has those symlinks and they now dangle -- a dangling skill dir is
-# a skill Claude Code tries to load and cannot. ReparsePoint-guarded so a REAL
+# Convergent cleanup of the pre-rename names `wiki` and `bitacora`: those
+# symlinks dangle where present -- a dangling skill dir is a skill Claude Code
+# tries to load and cannot. ReparsePoint-guarded so a REAL
 # per-machine dir carrying one of those names is never touched, and .Delete() not
 # Remove-Item for the same reason Set-DotfileSymlink uses it: Remove-Item on a
 # directory symlink recurses into the target and would wipe the repo's own files.
@@ -369,8 +362,8 @@ if (-not ($Settings.PSObject.Properties.Name -contains "permissions")) {
 }
 
 # The lists come from claude/install/permissions.json -- the same file the bash
-# side reads with jq. Single source of truth: adding a permission in one place
-# used to leave the other platform silently behind.
+# side reads with jq. Single source of truth, so adding a permission never
+# leaves the other platform silently behind.
 #
 # Same merge as settings.sh: "allow" only when the machine has none, "ask" and
 # "deny" unioned with the repo's rules on every run, "retired" rules removed
@@ -408,8 +401,8 @@ if (($Settings.permissions | ConvertTo-Json -Depth 5 -Compress) -ceq $PermsBefor
 # `attribution.commit` / `.pr` override the text Claude Code appends to commit
 # messages and PR bodies; an EMPTY STRING is the documented sentinel for "hide it
 # entirely", not a no-op and not the same as omitting the key (which means "use
-# the default trailer"). Supersedes `includeCoAuthoredBy`, now deprecated in the
-# CLI -- don't add that one back beside it. The prose half of this rule lives in
+# the default trailer"). Supersedes `includeCoAuthoredBy`, deprecated in the
+# CLI -- don't set it beside it. The prose half of this rule lives in
 # claude/CLAUDE.md, symlinked above; both are needed (setting stops the harness
 # injecting the trailer, prose stops it being written by hand).
 #
@@ -546,7 +539,7 @@ if ($Settings.env -is [PSCustomObject]) {
         # observed agent carries an observer. 6 is enforced by the harness (the
         # Agent call is refused past it) and global rather than team-scoped:
         # room for real parallel work, far below the stampede. Its sibling
-        # MAX_SUBAGENTS_PER_SESSION had no reader in the binary -- don't add it.
+        # MAX_SUBAGENTS_PER_SESSION has no reader in the binary -- don't add it.
         @{ Name = "CLAUDE_CODE_MAX_CONCURRENT_SUBAGENTS";     Value = "6" },
         # Nesting depth, pinned AT its documented default of 3: unset hands the
         # number to a server-side value (tengu_hazel_trellis), set keeps it
@@ -581,9 +574,9 @@ if ($Settings.env -is [PSCustomObject]) {
 # landing -- or append a duplicate on every re-run.
 $LogbookPs1 = Join-Path $HooksDir "logbook.ps1"
 
-# Strip the pre-rename entry FIRST (sep-2026). Without this the guard below sees
-# no "logbook.ps1" string, appends ours, and leaves the dead `bitacora.ps1` entry
-# beside it failing on every commit. Mirror of the same cleanup in settings.sh.
+# Strip the pre-rename `bitacora.ps1` entry FIRST. Without this the guard below
+# sees no "logbook.ps1" string, appends ours, and leaves the dead entry beside it
+# failing on every commit. Mirror of the same cleanup in settings.sh.
 # TEMPORARY, same terms.
 if (($Settings.PSObject.Properties.Name -contains "hooks") -and
     ($Settings.hooks.PSObject.Properties.Name -contains "PostToolUse")) {
@@ -762,7 +755,7 @@ if (-not $CbmCmd -or -not $CbmHave -or $CbmStamped -ne $CbmHave) {
     try {
         # latest/download/<asset> resolves without an API call (same trick as
         # the rtk block above). checksums.txt covers the -ui- assets too, and we
-        # verify because nobody upstream is verifying for us any more.
+        # verify because the official installer, which would, is bypassed.
         $Base = "https://github.com/DeusData/codebase-memory-mcp/releases/latest/download"
         Invoke-WebRequest -Uri "$Base/$CbmAsset" -OutFile $TmpZip
         $Sums = (Invoke-WebRequest -Uri "$Base/checksums.txt").Content
@@ -931,8 +924,8 @@ if (Test-Path $TgrepExe) {
 # and fails on a fresh machine with no key registered on GitHub. Idempotent: the
 # second run detects "already installed" and does not duplicate.
 #
-# `$null |` closes stdin: on mac one of these commands hung waiting for an
-# invisible interactive prompt (equivalent to the `</dev/null` in plugins.sh).
+# `$null |` closes stdin so no command can hang on an invisible interactive
+# prompt (equivalent to the `</dev/null` in plugins.sh).
 function Install-ClaudePlugin {
     param([string]$Url, [string]$Plugin, [string]$Label)
 
@@ -973,8 +966,7 @@ if ((Get-Command claude -ErrorAction SilentlyContinue) -and $env:CONTEXT7_API_KE
 # that is (personal or work) is a per-machine choice with its own Access token. It is
 # registered by hand with the one-line command kept in that vault's 1Password item.
 
-# No plugins installed right now: ponytail and andrej-karpathy-skills lived here
-# until aug-2026 and were dropped. Install-ClaudePlugin stays for the next one --
+# No plugins installed right now. Install-ClaudePlugin stays for the next one --
 # same reasoning as the bash side (claude/install/plugins.sh).
 
 # ─── gh-stack: the `gh` extension ───────────────────────────────
@@ -1023,7 +1015,7 @@ if (Get-Command gh -ErrorAction SilentlyContinue) {
 #   -a claude-code  only Claude Code; without it the CLI prompts per detected agent
 #   -s gh-stack     the repo ships one skill, but naming it skips the picker
 #   -y + npx -y     no prompts, and `$null |` on top to close stdin: an installer
-#                   that blocks on invisible stdin is the rtk footgun all over again
+#                   that blocks on invisible stdin hangs the whole run
 #
 # Idempotence is OURS (the CLI re-downloads and re-copies on every `add`), so the
 # guard is the destination dir. That also means it never updates: for that,
@@ -1050,8 +1042,8 @@ if (-not (Get-Command npx -ErrorAction SilentlyContinue)) {
 # typo would 404, not silently fall back. The primary, the one ghostty sets as
 # font-family ($WtFont below), is PlemolJP Console NF, and it is NOT in the bucket
 # (it self-patches, it is not one of ryanoasis's fonts), so it is installed
-# separately below by direct download. iA Writer Mono is dropped entirely -- it is
-# not a Nerd Font.
+# separately below by direct download. iA Writer Mono is left out -- it is not a
+# Nerd Font.
 #
 # Guarded on scoop, NOT auto-installed: scoop's own installer refuses to run
 # under an elevated shell, and this script may be running as Administrator (for
@@ -1135,8 +1127,8 @@ function Install-FontFromRelease {
             # so Copy-Item copies nothing and returns clean -- while the
             # New-ItemProperty below still registers a path to a file that was
             # never written. Symptom: the font is in the registry, absent from
-            # disk, and invisible to every app. PlemolJP never hit this because
-            # its filenames have no brackets.
+            # disk, and invisible to every app. PlemolJP's filenames have no
+            # brackets.
             Copy-Item -LiteralPath $FontFile.FullName -Destination $target -Force
             $title = [System.IO.Path]::GetFileNameWithoutExtension($FontFile.Name)
             New-ItemProperty -Path $RegKey -Name "$title (TrueType)" -Value $target -PropertyType String -Force | Out-Null
@@ -1171,13 +1163,8 @@ function Install-FontFromRelease {
 
 Install-FontFromRelease -Repo "yuru7/PlemolJP" -AssetPattern '^PlemolJP_NF_.*\.zip$' -Label "PlemolJP NF"
 
-# A former mac primary, kept installed as fallback coverage. It STOPPED being
-# what $WtFont points at when the Mac moved to PlemolJP (2026-09-08) — the
-# install stays because it is one line away from returning on either box, and
-# because it is a reasonable DirectWrite fallback. NOT a Nerd Font, so while it
-# WAS the primary the powerline/devicon glyphs (and the statusline's
-# nf-fa-microchip) came from DirectWrite falling back to the NF families above.
-# That is no longer load-bearing: the current primary is itself a Nerd Font.
+# Kept installed as fallback coverage, not what $WtFont points at: a reasonable
+# DirectWrite fallback, and listed in $WtFonts. NOT a Nerd Font.
 # The desktop zip, NOT the -Android one, which ships a different name table.
 Install-FontFromRelease -Repo "googlefonts/googlesans-code" -AssetPattern '^GoogleSansCode-v[\d.]+\.zip$' -Label "Google Sans Code"
 
@@ -1203,19 +1190,18 @@ Install-FontFromRelease -Repo "googlefonts/googlesans-code" -AssetPattern '^Goog
 $WtTheme = "solarized-patched"
 
 # $WtFont is the font half of the same idea, and it DOES track the Mac: it is
-# ghostty's `font-family` (`250235e`). Kept as its own line rather than parsed
+# ghostty's `font-family`. Kept as its own line rather than parsed
 # out of config.ghostty because the two boxes have different font inventories --
 # a family the Mac has via brew may simply not exist here, and a `font-family`
 # WT cannot resolve falls back SILENTLY (same trap as ghostty's, which is why
 # the repo's rule is to verify the family name, never to trust the config).
 # $WtFonts is what we are allowed to overwrite: the families this installer
 # itself puts on the box. Anything else in that field was chosen by hand.
-# PlemolJP since 2026-09-08, tracking ghostty's move off Google Sans Code.
-# The bare family name is right HERE and would have been wrong for the font it
-# replaced: Google Sans Code needed "Google Sans Code Monospace", because that
-# release ships ONE variable font with a `MONO` axis and DirectWrite splits its
-# named instances into TWO families (`… Monospace` / `… Proportional`), so the
-# bare name renders the fallback with no error at all. PlemolJP has no such
+# The bare family name is right for PlemolJP, unlike for a variable font with
+# a named-instance axis: Google Sans Code ships ONE variable font with a `MONO`
+# axis and DirectWrite splits it into TWO families (`… Monospace` /
+# `… Proportional`), so its bare name renders the fallback with no error at all.
+# PlemolJP has no such
 # axis — it ships plain static ttfs whose typographic family (name ID 16) is
 # "PlemolJP Console NF" for every weight, which is the name DirectWrite groups
 # them under. Not inferred from the Mac's cask either: brew's
@@ -1270,8 +1256,8 @@ $WtFonts = @("PlemolJP Console NF", "PlemolJP35 Console NF", "Google Sans Code M
 #   alpha-blending            → antialiasingMode is a different knob (grayscale /
 #                               cleartype / aliased), not a colour space. Not a port.
 #   cursor-style-blink        → WT exposes no blink toggle.
-# Tracking config.ghostty: `background` back on 2026-09-21 (craftzdog's canvas
-# pin over solarized-patched), `foreground` left off — white is what his config
+# Tracking config.ghostty: `background` pinned (craftzdog's canvas over
+# solarized-patched), `foreground` left off — white is what his config
 # falls back to, not the look he is known for, and the scheme's own #708284 is.
 # The reasoning, with the measurement behind it, is in ghostty/config.ghostty.
 $WtAppearance = [ordered]@{

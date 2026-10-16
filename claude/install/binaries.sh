@@ -7,10 +7,7 @@
 # that is mechanism 1 (settings.sh).
 #
 # Sourced by install.sh and install-linux.sh — NOT a standalone executable.
-# It goes AFTER settings.sh, which needs the deps block's jq. (It used to also
-# matter because `rtk init` wrote an @RTK.md line into ~/.claude/CLAUDE.md and we
-# wanted that on the versioned file; `--hook-only` stopped it writing there at
-# all, so that reason is retired — the order is not.)
+# It goes AFTER settings.sh, whose `$SETTINGS` and `_settings_apply` it uses.
 
 # ─── rtk (token-reducing proxy CLI) ───────────────────────────
 # Adds a PreToolUse hook (matcher Bash → "rtk hook claude") that rewrites common
@@ -20,17 +17,15 @@
 # `--hook-only` is the point: without it `rtk init` also writes ~/.claude/RTK.md
 # and appends an `@RTK.md` import to ~/.claude/CLAUDE.md. Neither earns its
 # place — the hook rewrites Bash calls transparently, so there is nothing for the
-# agent to invoke and nothing to instruct it about. The generated RTK.md was
-# worse than neutral: it ended by pointing back at CLAUDE.md, which pointed at
-# it. A machine that ran an older installer keeps a stale ~/.claude/RTK.md; it is
-# per-machine and harmless, delete it by hand.
+# agent to invoke and nothing to instruct it about. A leftover ~/.claude/RTK.md
+# is per-machine and harmless; delete it by hand.
 #
 # On mac the binary already comes from Homebrew (REQUIRED_FORMULAE); on Linux
 # there is no formula, so it falls back to the official curl installer. The
 # `command -v` guard unifies both cases: if brew already put it there, the curl
 # is not even attempted.
 #
-# `</dev/null` is NOT cosmetic: without it the command hung in a real terminal
+# `</dev/null` is NOT cosmetic: without it the command hangs in a real terminal
 # waiting for an invisible interactive prompt (probably the trust prompt for
 # filters.toml). --auto-patch only avoids the "patch settings.json?" prompt, not
 # that other one. Closed stdin → EOF → the command continues with its default.
@@ -54,7 +49,7 @@ if command -v rtk >/dev/null 2>&1; then
   # ── rtk config.toml: COPIED, not symlinked ──
   # The only copy-instead-of-link in this repo, and the exception is earned. rtk
   # does a load → mutate → serialize round-trip on its config: `rtk telemetry
-  # disable` alone rewrote the file, dropped every comment, and appended
+  # disable` alone rewrites the file, drops every comment, and appends
   # `consent_date = "<ISO timestamp>"`. Through a symlink that lands in a PUBLIC
   # repo — the exact failure that keeps ~/.claude/settings.json unversioned. So
   # the repo file is the source of truth and this pushes it out; the installed
@@ -116,9 +111,9 @@ fi
 # the binary's guard (that is, implicitly inside the curl above), a ~/.claude
 # deleted by hand is NEVER rebuilt: the binary is still in PATH → guard false →
 # zero re-registration, and ./install.sh appears to run fine. The state of the
-# binary and the state of ~/.claude are independent. If you see the
-# `codebase-memory` skill missing again after an install.sh, someone put this
-# back inside the `if`.
+# binary and the state of ~/.claude are independent. If the `codebase-memory`
+# skill goes missing after an install.sh, check this has not moved inside the
+# `if`.
 # It is idempotent (verified with --dry-run: it detects the existing config and
 # does not duplicate it).
 if command -v codebase-memory-mcp >/dev/null 2>&1; then
@@ -259,10 +254,10 @@ fi
 # way around, the binary would dirty the file again and `git status` would be
 # dirty after every run.
 #
-# Two details that are NOT cosmetic (both used to break silently):
+# Two details that are NOT cosmetic (both break silently):
 #  - The binary writes THREE lines: a BLANK one, the marker, and the export. A
-#    `skip = 2` from the marker leaves the blank one orphaned and the diff still
-#    showed a `+`. The awk defers the blanks (pending) and drops them if what
+#    `skip = 2` from the marker leaves the blank one orphaned, a `+` in the
+#    diff. The awk defers the blanks (pending) and drops them if what
 #    follows is the marker.
 #  - It writes with `cat >`, NEVER with `mv`: ~/.zshrc is a SYMLINK into the repo.
 #    `mv` replaces the symlink with a regular file (it breaks the dotfile AND
