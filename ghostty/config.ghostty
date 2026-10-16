@@ -38,7 +38,7 @@
 # other layers with nothing to mirror and break the one-id rule. The port is
 # hex-verbatim from the shipped file; provenance is in the theme file itself.
 # Canonical Solarized is not a valid source for it: this cut re-tunes every value.
-theme = solarized-patched
+theme = dia-de-muertos
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -98,7 +98,10 @@ theme = solarized-patched
 #
 # Back on 2026-10-05 with `solarized-patched`, together with his opacity and
 # blur in the glass block below.
-background = #031219
+#
+# Off again on 2026-10-16, `dia-de-muertos` back for the season: the morado
+# canvas is the theme, same reason as on 2026-10-01.
+# background = #031219
 # foreground = #ffffff
 
 # Display P3 wide-gamut — orange and cream saturate more on M-chip / Retina
