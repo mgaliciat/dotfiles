@@ -147,6 +147,11 @@ font-feature = +liga
 # L and Z, ss09 simplified 6 and 9, ss10 dotted zero, ss11 simplified 1, ss12
 # simplified @, ss20 slashed zero.
 font-feature = +dlig
+# Three of those glyph swaps, picked on 2026-10-16: ss01 single-story a,
+# ss02 single-story g, ss20 slashed zero.
+font-feature = +ss01
+font-feature = +ss02
+font-feature = +ss20
 
 # Off on Retina. This exists to compensate 1x panels; on a 2x
 # display `true` implies the max `font-thicken-strength = 255` (that's the
