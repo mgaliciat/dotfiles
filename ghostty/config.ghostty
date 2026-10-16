@@ -25,7 +25,7 @@
 # "Solarized Dark Patched" (provenance in the theme file). It is selected by
 # the copy, not the built-in name: the built-in lives inside Ghostty.app, where
 # nvim and Windows Terminal cannot reach it, which would break the one-id rule.
-theme = solarized-patched
+theme = dia-de-muertos
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -56,7 +56,11 @@ theme = solarized-patched
 # purpose so the accents carry the meaning. Louder options: #819090 (the cut's
 # base1, 5.73:1), #eae3cb (its ANSI white, warmer) or #ffffff (19.01:1).
 # Terminal only: nvim keeps its own theme's fg either way.
-background = #031219
+#
+# `background` pins the osaka canvas over the theme's own. Off under
+# `dia-de-muertos`, whose morado canvas (#1d1022) is the theme; on for
+# `solarized-patched`.
+# background = #031219
 # foreground = #ffffff
 
 # Display P3 wide-gamut — orange and cream saturate more on M-chip / Retina

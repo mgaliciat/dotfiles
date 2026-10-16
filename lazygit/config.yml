@@ -11,24 +11,24 @@ gui:
   # entry points — a lazygit run in the terminal and the nvim float (snacks,
   # `configure = false` so it never overlays its own theme) — read this file,
   # so it paints the same in both.
-  theme: # stack theme: solarized-patched
+  theme: # stack theme: dia-de-muertos
     activeBorderColor:
-      - "#2176c7" # ansi4
+      - "#5d9bf7" # ansi4
       - bold
     inactiveBorderColor:
-      - "#475b62" # ansi8
+      - "#9385a5" # ansi8
     optionsTextColor:
-      - "#2176c7" # ansi4
+      - "#5d9bf7" # ansi4
     selectedLineBgColor:
-      - "#002831" # ghostty selection-background
+      - "#3d2644" # ghostty selection-background
     cherryPickedCommitBgColor:
-      - "#a57706" # ansi3
+      - "#e6b731" # ansi3
     cherryPickedCommitFgColor:
-      - "#001e27" # ghostty background
+      - "#1d1022" # ghostty background
     unstagedChangesColor:
-      - "#d11c24" # ansi1
+      - "#f75c61" # ansi1
     defaultFgColor:
-      - "#708284" # ghostty foreground
+      - "#ede3d2" # ghostty foreground
   # showFileTree: shows the change organized as a tree (default true).
   showFileTree: true
   showCommandLog: false # more room for the main panels
