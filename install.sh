@@ -127,10 +127,11 @@ if command -v brew >/dev/null 2>&1; then
     ghostty
     1password-cli         # `op` — a cask on Homebrew, not a formula (lives in Caskroom)
     # Fonts referenced by ghostty/config.ghostty.
-    # The primary (font-family) is RecMonoLinear Nerd Font with RecMonoCasual
-    # italics (`font-recursive-mono-nerd-font`), a Nerd Font that carries its
-    # own powerline/devicon glyphs. Monaspace Argon/Neon NF, Lilex NF, Datatype
-    # and Intel One Mono held the slot before it.
+    # The primary (font-family) is Recursive, the variable font
+    # (`font-recursive`), pinned by `font-variation` in the config. NOT a Nerd Font: its icons fall
+    # back into the NF casks below, which are load-bearing while it is the
+    # primary. Monaspace Argon/Neon NF, Lilex NF, Datatype and Intel One Mono
+    # held the slot before it.
     # It has traded
     # places with the others several times — the config file is the source of
     # truth, not this comment.
@@ -157,7 +158,7 @@ if command -v brew >/dev/null 2>&1; then
     font-intel-one-mono
     font-datatype
     font-lilex-nerd-font
-    font-recursive-mono-nerd-font
+    font-recursive
     # Ships the 8 static otf AND the variable ttf, so "Paper Mono" registers
     # twice and Ghostty's CoreText scoring does not prefer the variable face —
     # the `font-variation` weight in config.ghostty only holds when it wins.
