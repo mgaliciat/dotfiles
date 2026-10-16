@@ -82,16 +82,15 @@ window-colorspace = display-p3
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
-# Recursive, the variable font (Arrow Type), at the recipe from
-# recursive.design: MONO 1, CASL 1, wght 400, slnt 0, CRSV 1. One ttf with five
-# axes, so the whole look is the `font-variation` lines below, not a family
-# name: MONO 1 is the monospace, CASL 1 the fully casual (signpainter) shapes,
-# slnt 0 upright, and CRSV 1 cursive forms always on, upright included. The
+# Recursive, the variable font (Arrow Type). One ttf with five axes, so the
+# whole look is the `font-variation` lines below, not a family name: MONO 1 is
+# the monospace, CASL 0 the Linear (non-casual) shapes, wght 400 roman and 700
+# bold, slnt 0 upright, and CRSV 0.5 cursive forms only in the italics. The
 # family is plain "Recursive" (nameID 16), with 64 named instances ("Mono
-# Casual Light" …) as its styles. NOT a Nerd Font, and it carries no box
-# drawing or powerline: Ghostty draws the box glyphs itself and the icons fall
-# back into the NF casks in install.sh. Installed by brew (`font-recursive`, the
-# Google Fonts build).
+# Linear" …) as its styles. NOT a Nerd Font, and it carries no box drawing or
+# powerline: Ghostty draws the box glyphs itself and the icons fall back into
+# the NF casks in install.sh. Installed by brew (`font-recursive`, the Google
+# Fonts build).
 # The size is per-machine: `font-size` in config.local, not here.
 # `ghostty +show-face --string=a --style=italic` is the check after touching
 # this block: +validate-config passes and +show-config prints no font-* lines,
@@ -102,37 +101,37 @@ font-family-bold-italic = "Recursive"
 
 # Ghostty matches `font-style` against the style string the font advertises;
 # for a variable font those are its fvar instance names (read with fc-scan),
-# and the four below are the nearest named instances to the recipe. What
-# actually pins the face is `font-variation`, which sets all five axes per
-# style: wght 400 roman and 700 bold, and slnt -15, the axis minimum, for both
-# italics, since with CRSV 1 the roman already wears the cursive shapes and the
-# slant is the only thing left to tell italic apart.
+# and the four below are the nearest named instances. What actually pins the
+# face is `font-variation`, which sets all five axes per style: slnt -15, the
+# axis minimum, for both italics. CRSV 0.5 is Recursive's own "auto": cursive
+# shapes switch on only past slnt -14, so the roman stays plain and both
+# italics are cursive.
 # Claude Code emits bold as SGR 1 over its own text colour, so weight is the
 # ONLY bold signal there: 400 against 700 is a wide enough gap to read.
-font-style = Mono Casual
-font-style-bold = Mono Casual Bold
-font-style-italic = Mono Casual Italic
-font-style-bold-italic = Mono Casual Bold Italic
+font-style = Mono Linear
+font-style-bold = Mono Linear Bold
+font-style-italic = Mono Linear Italic
+font-style-bold-italic = Mono Linear Bold Italic
 font-variation = MONO=1
-font-variation = CASL=1
+font-variation = CASL=0
 font-variation = wght=400
 font-variation = slnt=0
-font-variation = CRSV=1
+font-variation = CRSV=0.5
 font-variation-bold = MONO=1
-font-variation-bold = CASL=1
+font-variation-bold = CASL=0
 font-variation-bold = wght=700
 font-variation-bold = slnt=0
-font-variation-bold = CRSV=1
+font-variation-bold = CRSV=0.5
 font-variation-italic = MONO=1
-font-variation-italic = CASL=1
+font-variation-italic = CASL=0
 font-variation-italic = wght=400
 font-variation-italic = slnt=-15
-font-variation-italic = CRSV=1
+font-variation-italic = CRSV=0.5
 font-variation-bold-italic = MONO=1
-font-variation-bold-italic = CASL=1
+font-variation-bold-italic = CASL=0
 font-variation-bold-italic = wght=700
 font-variation-bold-italic = slnt=-15
-font-variation-bold-italic = CRSV=1
+font-variation-bold-italic = CRSV=0.5
 
 # font-size is PER-MACHINE: the right size depends on the screen, so the key
 # lives in ~/.config/ghostty/config.local (see `config-file` at the end of this
