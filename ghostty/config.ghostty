@@ -137,6 +137,20 @@ window-colorspace = display-p3
 minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
+# Rec Mono (Recursive Mono, Arrow Type) — primary (2026-10-16), the NF build:
+# Linear, the boxy everyday face, for roman and bold, and Casual, the
+# signpainter one, for both italics. The same split as Monaspace's Argon/Radon,
+# and the one Rec Mono's own Duotone cut ships, except Duotone puts bold on
+# Casual too; here bold stays Linear. Static ttfs, Regular 400 / Bold 700, no
+# `wght` or `CASL` axis in the NF build. 0.6 em advance, 1.2 em line (ascent
+# 950 + descent 250), same in both faces, so the grid holds. The family names
+# are the patched ones, "RecMonoLinear Nerd Font" / "RecMonoCasual Nerd Font",
+# read off the release's name tables, not the `NF` short form. The plain
+# family, not `… Nerd Font Mono`, for the CaskaydiaCove reason below. Installed
+# by brew (`font-recursive-mono-nerd-font`).
+# To go back: font-family = "Monaspace Argon NF", italics on
+# "Monaspace Radon NF".
+#
 # Monaspace Argon NF with Radon NF italics — primary (2026-10-08). Argon, the
 # humanist face, took the roman slot from Neon the same day; the italics stay
 # on Radon. The Monaspace paragraph below has the why.
@@ -222,9 +236,9 @@ minimum-contrast = 1.1
 # face, 12px/300) and Geist Mono (a grotesk mono stand-in, at the body's
 # recipe, then at Medium) were both tried and rejected on sight: neither
 # carries the page's stroke. Nothing of that round survives here.
-font-family = "Monaspace Argon NF"
-font-family-italic = "Monaspace Radon NF"
-font-family-bold-italic = "Monaspace Radon NF"
+font-family = "RecMonoLinear Nerd Font"
+font-family-italic = "RecMonoCasual Nerd Font"
+font-family-bold-italic = "RecMonoCasual Nerd Font"
 
 # Weight lives in the STYLE here, not in a variation axis (2026-09-08).
 # PlemolJP is not a variable font — it has no `fvar` at all, so a
@@ -260,7 +274,8 @@ font-family-bold-italic = "Monaspace Radon NF"
 # no italic, so the italic keys went back to their default and Ghostty
 # obliqued, as under Paper Mono.
 # Lilex NF (2026-10-07) advertises the stock four again in nameID 2, as do
-# Monaspace Neon, Argon and Radon (2026-10-08).
+# Monaspace Neon, Argon and Radon (2026-10-08). So do Rec Mono Linear and
+# Casual (2026-10-16), checked with fc-scan against the release ttfs.
 font-style = Regular
 font-style-bold = Bold
 font-style-italic = Italic
@@ -304,6 +319,10 @@ font-feature = +liga
 # Intel One Mono had no `liga`; its code ligatures were opt-in as ss01. Under
 # Paper Mono ss01–ss04 were ligatures, duospace, narrow space and small arrows,
 # plus cv01 for the single-story a.
+# Rec Mono (2026-10-16) has `calt` and nothing else in its GSUB: its code
+# ligatures and stylistic picks are baked into that build, so the `+liga`
+# above and all ten lines below are inert under it. Left in so going back to
+# Monaspace stays one font-family line.
 font-feature = +ss01
 font-feature = +ss02
 font-feature = +ss03
@@ -325,13 +344,13 @@ font-feature = +ss10
 font-thicken = false
 
 # The font's own line (2026-10-07): 1.3 em under Lilex and Datatype, 1.38 em
-# under Intel One Mono, 1.245 em under Monaspace. Under Paper Mono this was
-# -17.5%, its specimen's 99% line height. Intel One Mono ran at -10% (near
-# 1.24 em) after -8%. Monaspace and Lilex both run at their own line.
+# under Intel One Mono, 1.245 em under Monaspace, 1.2 em under Rec Mono. Under
+# Paper Mono this was -17.5%, its specimen's 99% line height. Intel One Mono ran at -10% (near
+# 1.24 em) after -8%. Rec Mono, Monaspace and Lilex run at their own line.
 adjust-cell-height = 0%
 
-# Monaspace runs at its own 0.62 em advance (2026-10-08), as Lilex did at 0.6
-# and Datatype at 0.5. Intel One Mono ran at -7% (its glyphs sat narrow inside a
+# Rec Mono runs at its own 0.6 em advance (2026-10-16), as Monaspace did at
+# 0.62 (2026-10-08), Lilex at 0.6 and Datatype at 0.5. Intel One Mono ran at -7% (its glyphs sat narrow inside a
 # 0.614 em advance; past -8% m, w, @ touched) after -5%. Under Paper Mono -5.4%
 # letter spacing was tried (-9% here, since CSS spaces in em and the cell
 # scales by its own width) and dropped, back to the font's own advance.
