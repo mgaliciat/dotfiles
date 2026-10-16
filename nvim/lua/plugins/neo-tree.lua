@@ -6,13 +6,12 @@
 --     edits of filenames as text. Pure vim-style workflow.
 --
 -- Keybind: <leader>n (toggle) — `n` for "neo-tree".
--- The `git_status` source (changed files as a tree) was bound and dropped
--- the same day: the working tree is codediff's job (<leader>gv) and history
--- is the commit pickers' (<leader>gf); a third list of the same files
--- added nothing.
+-- No `git_status` source (changed files as a tree): the working tree is
+-- codediff's job (<leader>gv) and history is the commit pickers'
+-- (<leader>gf); a third list of the same files adds nothing.
 -- Auto-opens at startup if you didn't open a specific file
--- (e.g. `nvim .` or plain `nvim`) — replicates the behavior you
--- liked with oil but without it disappearing when you edit a file.
+-- (e.g. `nvim .` or plain `nvim`) — like oil, but without it
+-- disappearing when you edit a file.
 
 return {
   "nvim-neo-tree/neo-tree.nvim",
@@ -82,8 +81,8 @@ return {
   -- you start in the file and open the tree with <leader>n if you want it.
   --
   -- In `init`, not `config`: this plugin loads on its command or keys, which
-  -- is always after VimEnter, so an autocmd registered from `config` waited
-  -- for an event that had already fired. `:Neotree show` is what loads it.
+  -- is always after VimEnter, so an autocmd registered from `config` would
+  -- wait for an event that has already fired. `:Neotree show` is what loads it.
   init = function()
     vim.api.nvim_create_autocmd("VimEnter", {
       once = true,

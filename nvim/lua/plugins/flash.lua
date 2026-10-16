@@ -9,8 +9,8 @@
 --
 -- `S` goes ONLY in n/o (not in x): in visual, `S` is nvim-surround's
 -- wrap (S<char> wraps the selection — see surround.lua).
--- With x here, flash loaded later (VeryLazy > BufReadPost) and silently
--- clobbered that mapping. Treesitter-select in visual still works via `R`.
+-- With x here, flash loads later (VeryLazy > BufReadPost) and silently
+-- clobbers that mapping. Treesitter-select in visual still works via `R`.
 --
 -- Bonus: `r` in operator-pending = remote ops (e.g. `yr` + jump
 -- = yank somewhere else without moving the cursor).

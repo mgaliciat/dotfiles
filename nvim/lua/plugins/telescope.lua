@@ -12,7 +12,7 @@
 --   <leader>fG  live grep rooted at the current file's directory — the
 --               monorepo case, where the cwd is the whole world.
 --   <leader>fR  reopen the last picker with its prompt and selection
---               (closing a grep by accident no longer costs the query).
+--               (closing a grep by accident doesn't cost the query).
 -- Replacing across the project is grug-far's job (plugins/grug-far.lua).
 --
 -- `--hidden` goes in `vimgrep_arguments` so every rg-backed picker

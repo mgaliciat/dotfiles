@@ -65,7 +65,7 @@ return require("themes._base")({
 
   -- Leaves the canvas to Ghostty, so its blueprint shader draws the grid
   -- straight through nvim instead of having to recognise a repainted canvas,
-  -- and nothing changes if the glass comes back.
+  -- and nothing changes if Ghostty runs its glass.
   transparent = true,
 
   -- 13.8:1 on the code bg; the code bg patch, not the hue, is what sets it

@@ -77,9 +77,7 @@ autoload -Uz compinit
 } ${ZDOTDIR:-$HOME}/.zcompdump(N.mh+24)
 
 # Native zsh menu: first Tab completes the common prefix, second Tab
-# opens the navigable menu. (fzf-tab used to live here — it was removed
-# because the interactive fzf list wasn't liked; the classic menu feels
-# more terminal-native.)
+# opens the navigable menu.
 zstyle ':completion:*' menu select
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' # case-insensitive
 
@@ -230,13 +228,10 @@ if _load_zsh_plugin zsh-history-substring-search; then
 fi
 
 # ─── highlight: valid commands in the theme's green ───────────
-# `fg=green` is the plugin's own default, restated here on purpose. Until
-# 2026-09-18 this was a literal `#87a96b`, the olive of the Anthropic Warm
-# palette, picked to tone down a laser ANSI green that no theme in the family
-# has any more — and over a light canvas (typesafe's sage) that olive sat at
-# 1.3:1, so every command you typed was nearly invisible. ANSI 2 is whatever
-# the active stack theme tuned it to be, which is the only value that stays
-# readable across the family. MUST come after loading the plugin, otherwise
+# `fg=green` is the plugin's own default, restated here on purpose: ANSI 2 is
+# whatever the active stack theme tuned it to be, which is the only value that
+# stays readable across the family — a literal hex green disappears on a light
+# canvas. MUST come after loading the plugin, otherwise
 # the ZSH_HIGHLIGHT_STYLES array doesn't exist — which is also why it is
 # guarded: on a box without the plugin, assigning `[command]` to an array
 # nobody declared fails with "invalid subscript range" on every shell start.
@@ -250,9 +245,8 @@ fi
 # ─── prompt ───────────────────────────────────────────────────
 # Two lines: where you are on the first (path, branch, background jobs, a
 # failed exit code), and nothing but `❯` on the second.
-# The command always starts at column 3 with the whole width to itself —
-# the reason Starship was removed (aug-2026) — without the prompt having
-# to be plain to get there. Once a line is accepted the prompt collapses
+# The command always starts at column 3 with the whole width to itself,
+# without the prompt having to be plain to get there. Once a line is accepted the prompt collapses
 # to `❯ cmd` (see the transient section), so the scrollback keeps one line
 # per command, not two.
 #
@@ -269,7 +263,7 @@ fi
 # Only slots 1-7 are used, NOT 8-15. The bright half is unusable here:
 # solarized-osaka mirrors its ANSI flat (brights == normals, deliberate,
 # see CLAUDE.md) so 8 is not a dim grey, it is `#001014` against a
-# `#001419` background — the "dim" text it painted was invisible. 7 is
+# `#001419` background, so "dim" text in it is invisible. 7 is
 # the theme's own foreground, which every theme has to keep readable by
 # definition, so it is the safe choice for the secondary bits.
 setopt PROMPT_SUBST      # PROMPT re-expands $_prompt_line1 every draw
@@ -369,8 +363,7 @@ _prompt_dirty() {
 add-zsh-hook precmd _prompt_dirty
 
 # ─── first line ───────────────────────────────────────────────
-# Plain coloured text, one space apart. Rounded powerline pills were tried
-# here (oct-2026) and dropped for this.
+# Plain coloured text, one space apart.
 #
 # The branch glyph (U+E0A0) is spelled as UTF-8 bytes: Private Use
 # codepoints get dropped by editors and tools, the same trap
@@ -391,8 +384,8 @@ _prompt_seg() { _prompt_line1+="${_prompt_line1:+ }%F{$1}$2%f" }
 #
 # `%(5~|…|…)` = ternary on "does the path have 5+ components": short
 # paths print whole, long ones keep the first and the last three. Plain
-# %1~ was losing the only part that identifies the project — in
-# ~/dev/api/src/routes it printed `routes` and nothing else.
+# %1~ would lose the only part that identifies the project — in
+# ~/dev/api/src/routes it prints `routes` and nothing else.
 #
 # Jobs and the exit code are prompt ternaries rather than tests here,
 # because only draw time knows them: `%(1j.….)` is absent at zero jobs,

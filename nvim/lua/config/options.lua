@@ -61,9 +61,9 @@ opt.relativenumber = true            -- jumps with `5j`, `10k` without counting
 opt.cursorline = true
 opt.scrolloff = 8                    -- 8 lines of margin when scrolling
 opt.sidescrolloff = 8
--- Wrap ON (2026-09-04): a long line continues on the next screen row instead
--- of scrolling the whole pane sideways — with a 32-col tree on the left the
--- horizontal scroll hid the start of every line you were reading.
+-- Wrap on: a long line continues on the next screen row instead of
+-- scrolling the whole pane sideways — with a 32-col tree on the left the
+-- horizontal scroll hides the start of every line you are reading.
 -- linebreak breaks at a word, not mid-token; breakindent keeps the
 -- continuation under the code's indent so a wrapped line still reads as one
 -- statement; showbreak marks where that happened. codediff sets nowrap on
@@ -111,12 +111,10 @@ opt.clipboard = "unnamedplus"        -- shares yank with the system clipboard
 -- ignores it.)
 opt.wildmode = "longest:full,full"
 
--- Folding: native, from the treesitter tree (nvim 0.9+). nvim-ufo did this
--- with two plugins and was dropped (sep-2026) — the peek-on-K and the
--- "N lines" suffix weren't worth them. `foldtext = ""` keeps the folded
--- line syntax-highlighted instead of the grey `+--` text. Buffers without
--- a parser get no folds rather than indent folds; the only ones that
--- matter here (logs, plain text) aren't folded anyway.
+-- Folding: native, from the treesitter tree (nvim 0.9+). `foldtext = ""`
+-- keeps the folded line syntax-highlighted instead of the grey `+--` text.
+-- Buffers without a parser get no folds rather than indent folds; the only
+-- ones that matter here (logs, plain text) aren't folded anyway.
 opt.foldmethod = "expr"
 opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 opt.foldtext = ""
@@ -132,10 +130,10 @@ opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 -- Diagnostic UI. Two renderings that split by cursor line (nvim 0.11+):
 -- the short `●` virtual text on every line EXCEPT the one you're on, and
 -- the full multi-line message (`virtual_lines`) under the current line
--- only. Long rustc / tsc messages used to be truncated at the window
--- edge; now they wrap below the line you are reading, and the rest of
--- the buffer stays as quiet as before. Both `current_line` flags are
--- needed — with only the second, the current line shows both.
+-- only. Long rustc / tsc messages wrap below the line you are reading
+-- instead of being cut at the window edge, and the rest of the buffer
+-- stays quiet. Both `current_line` flags are needed — with only the
+-- second, the current line shows both.
 vim.diagnostic.config({
   virtual_text = { prefix = "●", spacing = 4, current_line = false },
   virtual_lines = { current_line = true },

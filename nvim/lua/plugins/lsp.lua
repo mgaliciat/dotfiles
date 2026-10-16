@@ -26,9 +26,8 @@ return {
   },
 
   -- Non-LSP tools mason must ALSO own: formatters, linters, test runners.
-  -- mason-lspconfig only knows servers — so `stylua`, `goimports` and
-  -- `gofumpt` were all referenced by conform and none was ever installed.
-  -- This runs at startup and closes that gap;
+  -- mason-lspconfig only knows servers, and conform needs `stylua`,
+  -- `goimports` and `gofumpt` installed. This runs at startup;
   -- nothing here goes to brew (see "Mason doesn't pollute brew", CLAUDE.md).
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
@@ -130,13 +129,13 @@ return {
           local client = vim.lsp.get_client_by_id(ev.data.client_id)
           if client and client:supports_method("textDocument/codeLens") then
             map("n", "<leader>cl", vim.lsp.codelens.run, "Run code lens")
-            -- nvim 0.12+: enable() auto-refreshes via the decoration provider (on_win).
-            -- Replaces the old refresh() + BufEnter/BufWritePost autocmd pattern.
+            -- nvim 0.12+: enable() auto-refreshes via the decoration provider (on_win),
+            -- so no refresh() + BufEnter/BufWritePost autocmd is needed.
             vim.lsp.codelens.enable(true, { bufnr = ev.buf })
           end
 
           -- Inlay hints (Go, Rust, TS, Python via basedpyright support them).
-          -- OFF by default (sep-2026): they are virtual text with their own
+          -- OFF by default: they are virtual text with their own
           -- background, injected BETWEEN the tokens they annotate, so on a
           -- dense call — a gopls `WithHost(app.config.String(...))` with
           -- parameter names and inferred types — the real identifiers and the
@@ -144,7 +143,7 @@ return {
           -- compute them (the `hint` / `inlayHints` blocks below stay), so
           -- `<leader>ch` turns them on for the one buffer that needs them.
           --
-          -- Go is the exception (sep-2026): `constantValues` is the only hint
+          -- Go is the exception: `constantValues` is the only hint
           -- in the set that shows something the source does NOT contain — the
           -- resolved value of every member of an `iota` block — and losing it
           -- is losing information, not decoration. Keyed on the filetype and
@@ -248,10 +247,9 @@ return {
             gopls = {
               gofumpt = true,
               usePlaceholders = true,
-              -- `completeUnimported` used to be here; gopls dropped the knob
-              -- (gone from `gopls api-json` as of v0.23.0) once the behaviour
-              -- became unconditional. An unknown key is not an error, it is a
-              -- silent no-op, so it stayed for months looking load-bearing.
+              -- No `completeUnimported`: unconditional in gopls, not a knob
+              -- (absent from `gopls api-json`). An unknown key is not an
+              -- error, it is a silent no-op that looks load-bearing.
               -- ALL staticcheck analyzers, not the maintainers' subset —
               -- the extra ones are the style/simplification family (S*, ST*)
               -- that golangci-lint would otherwise duplicate in nvim-lint.
@@ -288,14 +286,14 @@ return {
                 unusedvariable = true,  -- with a quick-fix that deletes the declaration
                 nilness        = true,  -- detects nil derefs
                 shadow         = true,  -- variable shadowing (gopls handles the `if err :=` pattern well)
-                -- `useany` (prefer `any` over `interface{}`) was here and is no
-                -- longer an analyzer in v0.23.0 — that family moved into the
-                -- modernize suite, which gopls offers as code actions instead.
+                -- No `useany` (prefer `any` over `interface{}`): not an analyzer
+                -- in gopls v0.23.0 — that family is in the modernize suite,
+                -- which gopls offers as code actions instead.
               },
               -- Code lenses: inline prefix-actions, run with <leader>cl.
-              -- `gc_details` is gone (it became a code action). `test` came
-              -- back in v0.23.0 but stays off: running tests is neotest's job
-              -- here, and a lens above every func duplicates `<leader>t*`.
+              -- `gc_details` is a code action, not a lens. `test` stays off:
+              -- running tests is neotest's job here, and a lens above every
+              -- func duplicates `<leader>t*`.
               codelenses = {
                 generate           = true,  -- run `go generate` from the buffer
                 tidy               = true,  -- `go mod tidy`
@@ -351,8 +349,8 @@ return {
         lua_ls = {
           -- The nvim runtime and plugin libraries are NOT listed here: lazydev
           -- (plugins/lazydev.lua) adds them per-buffer, only the ones the file
-          -- actually requires. The old `nvim_get_runtime_file("", true)` shipped
-          -- every runtime dir to the server on every start — seconds of
+          -- actually requires. `nvim_get_runtime_file("", true)` here would
+          -- ship every runtime dir to the server on every start — seconds of
           -- indexing, and no types for lazy-loaded plugins.
           settings = {
             Lua = {
@@ -428,8 +426,8 @@ return {
         },
         -- mason-lspconfig v2 enables EVERY installed mason package that
         -- lspconfig has a server file for. stylua ships an LSP mode and
-        -- lspconfig knows it, so installing stylua (for conform) also
-        -- attached a second "stylua" client next to lua_ls — a duplicate
+        -- lspconfig knows it, so installing stylua (for conform) would also
+        -- attach a second "stylua" client next to lua_ls — a duplicate
         -- formatter provider that fights conform's format-on-save.
         -- rust_analyzer is excluded for the same reason as rustaceanvim
         -- staying out of `ensure_installed`: it owns that client.

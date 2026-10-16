@@ -37,7 +37,7 @@ end
 -- running" — that's a flash; this is "what will run on save"). Resolved the
 -- way nvim-lint's try_lint does: the exact filetype's entry if it has one,
 -- otherwise the union of its dotted parts (`markdown.mdx` → markdown's).
--- An exact-only lookup showed nothing on .mdx while lint.lua linted it.
+-- An exact-only lookup would show nothing on .mdx while lint.lua lints it.
 local function linters()
   local lint = package.loaded["lint"]
   if not lint then return "" end
@@ -69,7 +69,7 @@ local function formatters()
 end
 
 -- `recording @q` while a macro is being recorded — `showmode` is off
--- (lualine owns the mode), which also hid this native message.
+-- (lualine owns the mode), which also hides this native message.
 local function macro()
   local reg = vim.fn.reg_recording()
   return reg ~= "" and ("󰑊 @" .. reg) or ""

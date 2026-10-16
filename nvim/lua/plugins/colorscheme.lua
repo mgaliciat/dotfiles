@@ -40,7 +40,7 @@ end
 -- The fallback is stock tokyonight-night with no overrides, so it depends on no
 -- palette module that could itself be deleted or broken.
 -- A missing module falls back to it; a module that exists but errors says so
--- instead. One pcall(require) for both used to report a typo inside a palette
+-- instead. One pcall(require) for both would report a typo inside a palette
 -- as "does not exist", which sends you looking for the wrong fault.
 local fallback = { style = "night" }
 local theme

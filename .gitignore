@@ -6,18 +6,19 @@
 
 # Claude — mostly per-machine, never versioned. settings.json is 100% each
 # machine's own (NOT symlinked, like ~/.gitconfig): permissions/UI config diverges
-# per host and was dragging personal state into a public repo. memory/ isn't even
-# symlinked anymore (see install.sh). *.backup.* is already covered above.
+# per host and symlinking it would drag personal state into a public repo.
+# memory/ isn't symlinked either (see install.sh). *.backup.* is already covered
+# above.
 #
 # skills/ is per-machine (`learned`, `codebase-memory`, …) and nothing versioned
 # lives under claude/skills/: the `logbook` plugin is in plugins/ because it is
 # shared with Antigravity. The entry guards against a skill copied in by hand.
 #
-# RTK.md is rtk's own command reference. `rtk init` writes it to ~/.claude/ and
-# imports it from ~/.claude/CLAUDE.md — a symlink to the versioned file, so the
-# import kept coming back into this public repo until binaries.sh started passing
-# `--hook-only` (sep-2026). Nothing writes claude/RTK.md today; this entry is the
-# guard for the day somebody copies it in to "fix" a dangling import.
+# RTK.md is rtk's own command reference. `rtk init` without `--hook-only` writes
+# it to ~/.claude/ and imports it from ~/.claude/CLAUDE.md — a symlink to the
+# versioned file. binaries.sh passes `--hook-only`, so nothing writes
+# claude/RTK.md; this entry guards against somebody copying it in to "fix" a
+# dangling import.
 claude/settings.json
 claude/memory/
 claude/RTK.md

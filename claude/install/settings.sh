@@ -16,22 +16,17 @@ PERMISSIONS="$DOTFILES/claude/install/permissions.json"
 # ── versioned symlinks (not settings.json itself, but its input) ──
 # statusline.sh: generic script, no personal state → versioned.
 # User-level CLAUDE.md: prose, preferences that apply to ALL projects.
-# Nothing in binaries.sh writes to ~/.claude/CLAUDE.md any more: `rtk init` used
-# to append an `@RTK.md` import, and `--hook-only` (binaries.sh) stopped it. The
-# symlink still goes first, it just no longer has to.
+# Nothing in binaries.sh writes to ~/.claude/CLAUDE.md: `rtk init --hook-only`
+# leaves it alone.
 link "$DOTFILES/claude/statusline.sh" "$HOME/.claude/statusline.sh"
 link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 
 # Per-ITEM skill symlinks — NOT the whole ~/.claude/skills/ dir. Symlinking the
-# whole dir was rejected (see project CLAUDE.md: per-machine content, .gitignore
+# whole dir is out (see project CLAUDE.md: per-machine content, .gitignore
 # leak risk). A hand-authored skill we DO version is the additive exception: we
 # control its content, it sits beside the per-machine skills (`learned`,
 # `codebase-memory`) without touching them, and there is no
 # leak because the repo folder only ever holds what we put there.
-#
-# Dropped in aug-2026 with the obsidian MCP they wrote through, and back in
-# sep-2026 rewritten against the vault's MCP — `logmd` from 2026-09-22 and
-# `logbook-mcp` since 2026-09-28, registered by hand from the vault's 1Password item.
 #
 # `logbook` covers BOTH vault layers, capture and synthesis: `/logbook:entry`
 # writes one immutable note per invocation into entries/, and ingest/query/lint
@@ -56,8 +51,7 @@ link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 # namespaced with a colon: invocation is `/<plugin>:<folder>` (folder = skill name,
 # `logbook` = plugin `name:` from plugin.json). So the folders are the bare nouns
 # and verbs (entry, ingest, …) and you type the real colon form `/logbook:lint` —
-# the `:` is a typeable invocation, not a display label. Naming a folder
-# `wiki-lint` is what once made it `/wiki:wiki-lint`.
+# the `:` is a typeable invocation, not a display label.
 # It installs by THIS symlink alone — a skills-dir plugin is referenced in place,
 # so a `git pull` propagates edits with no marketplace and no copy into
 # ~/.claude/plugins/cache (unlike mechanism 3 in plugins.sh). That's why nothing
@@ -78,13 +72,12 @@ link "$DOTFILES/plugins/logbook" "$HOME/.claude/skills/logbook"
 # binaries.sh, next to the Claude Code one, because the URL and token are secrets.
 link "$DOTFILES/plugins/logbook" "$HOME/.gemini/config/plugins/logbook"
 
-# ── convergent cleanup: the agent-teams skill and agents (sep-2026) ──
+# ── convergent cleanup: the agent-teams skill and agents ──
 # The `team` skill and the three agent definitions (scope-guard,
-# regression-watch, teammate-base) were dropped in sep-2026. The env flags they
-# served are written again further down; these files are not.
+# regression-watch, teammate-base) are not in the repo. The env flags they
+# served are written further down; these files are not.
 #
-# They were symlinks, and deleting the repo dirs alone leaves a DANGLING one on
-# every machine that ran the old installer — which for a skill is worse than
+# Where their symlinks still exist they DANGLE — which for a skill is worse than
 # having it, since Claude Code tries to load the dir and cannot.
 #
 # Guarded on -L, like the pre-rename cleanup below: a real per-machine file or
@@ -105,8 +98,7 @@ unset _stale
 # ── Claude Code colour theme → ~/.claude/themes/ ──
 # The stack theme's fourth layer. Claude Code paints its spinner and accents in
 # the brand colours by truecolor, and over a canvas they were never tuned for
-# they wash out (Claude orange sat at 1.55:1 over the sage of `typesafe`, a light
-# theme since deleted). A custom theme is the only lever: `base: light-ansi` /
+# they wash out. A custom theme is the only lever: `base: light-ansi` /
 # `dark-ansi` makes the TUI take its colours from the terminal's own 16 ANSI
 # slots — the ones each ghostty/themes/<id> already tunes — and
 # `overrides.claude` re-tunes the spinner, on a light canvas darkened until it
@@ -135,10 +127,9 @@ unset _theme
 link "$DOTFILES/plugins/logbook/hooks/logbook.sh" "$HOME/.claude/hooks/logbook.sh"
 link "$DOTFILES/claude/hooks/no-bash-edits.py" "$HOME/.claude/hooks/no-bash-edits.py"
 
-# ── convergent cleanup: the pre-rename `bitacora` + `wiki` names (sep-2026) ──
-# The plugin was `wiki` and capture was a separate plain skill, `bitacora`; both
-# are now the one `logbook` plugin. A machine that ran the old installer still has
-# those two symlinks, and they now dangle — a dangling skill dir is a skill Claude
+# ── convergent cleanup: the pre-rename `bitacora` + `wiki` names ──
+# `wiki` and `bitacora` are former names of what is now the `logbook` plugin.
+# Where those symlinks still exist they dangle — a dangling skill dir is a skill Claude
 # Code tries to load and cannot. Guarded on -L so a REAL per-machine dir that
 # happens to carry one of those names is never touched. TEMPORARY: delete once
 # every machine has run this version.
@@ -153,7 +144,7 @@ unset _stale
 
 # settings.json itself is NOT symlinked: it's 100% per-machine (like
 # ~/.gitconfig). Permissions and UI prefs diverge per host, and symlinking it
-# into a PUBLIC repo dragged personal state along (enabledPlugins, marketplaces).
+# into a PUBLIC repo would drag personal state along (enabledPlugins, marketplaces).
 # What follows are controlled exceptions: additive-only, guarded. If the key
 # already exists on this machine, we leave it alone.
 #
@@ -190,9 +181,9 @@ _settings_apply() {
 # Guarded write: $1 = key to check (jq path), $2 = jq filter to apply, $3 =
 # human-readable name for the messages. The guard tests PRESENCE (`!= null`),
 # not truthiness: a bare `jq -e "$key"` also fails on `false`, so a key set to
-# false by hand read as absent and was overwritten on every run — and
-# install-windows.ps1, which checks presence, kept it. `""`, `0` and `false` all
-# count as set.
+# false by hand would read as absent and be overwritten on every run, while
+# install-windows.ps1, which checks presence, keeps it. `""`, `0` and `false`
+# all count as set.
 _settings_set_if_absent() {
   local key="$1" filter="$2" label="$3"
   if jq -e "($key) != null" "$SETTINGS" >/dev/null 2>&1; then
@@ -272,9 +263,9 @@ _settings_set_if_absent '.statusLine.refreshInterval' \
   '.statusLine.refreshInterval = 1' \
   'statusLine.refreshInterval'
 
-# 60 was this file's own default before the bar animated. A machine still on
-# exactly 60 got it from here, not from a person, so it moves to 1; any other
-# value was picked by hand and the guard above leaves it alone.
+# Exactly 60 is taken as an installer default rather than a person's pick, so
+# it moves to 1; any other value is treated as hand-picked and the guard above
+# leaves it alone.
 if [[ "$(jq -r '.statusLine.refreshInterval // empty' "$SETTINGS")" == 60 ]]; then
   _settings_apply '.statusLine.refreshInterval = 1' \
     "statusLine.refreshInterval 60 → 1 (the context bar animates per frame)" \
@@ -319,11 +310,11 @@ unset _stack_theme
 #           own business, and re-adding a rule someone removed by hand there
 #           would undo a deliberate choice.
 #   ask, deny — the repo's rules are unioned into whatever the machine has, on
-#           every run. With a set-if-absent guard a tightening here never
-#           reached a machine that already had a deny list, i.e. every
+#           every run. With a set-if-absent guard a tightening here would
+#           never reach a machine that already has a deny list, i.e. every
 #           machine but a fresh one. Hand-added entries survive the union.
-#   retired — rules this repo used to ship, removed from all three lists, so a
-#           rule that turned out wrong does not linger on old installs.
+#   retired — rules removed from all three lists, so a rule that turned out
+#           wrong does not linger on existing installs.
 # Order-preserving: existing entries keep their place, new ones append.
 #
 # Not through `_settings_apply`: the result is compared with the file before the
@@ -357,8 +348,8 @@ unset _perms_tmp
 # messages and PR bodies. An EMPTY STRING is the documented sentinel for "hide it
 # entirely" ("Empty string hides attribution" in the CLI's own settings schema) —
 # it is not a no-op, and it is not the same as leaving the key out, which means
-# "use the default trailer". It supersedes `includeCoAuthoredBy`, which the CLI
-# now marks deprecated: don't add that one back alongside it.
+# "use the default trailer". It supersedes the deprecated `includeCoAuthoredBy`:
+# don't set that one alongside it.
 #
 # Keyed per FIELD rather than on `.attribution`, for the same reason as
 # refreshInterval above: a machine where /config or a hand edit already created
@@ -374,7 +365,7 @@ unset _perms_tmp
 # The user-level claude/CLAUDE.md carries the same rule in prose. Both on purpose:
 # this setting stops the harness INJECTING the trailer instruction, the prose
 # stops one being written by hand into a PR body or a commit made via another
-# tool — and covers machines whose settings.json predates this block.
+# tool — and covers machines whose settings.json carries another value.
 _settings_set_if_absent '.attribution.commit' \
   '.attribution //= {} | .attribution.commit = ""' \
   'attribution.commit (no Co-Authored-By)'
@@ -530,8 +521,8 @@ _settings_set_if_absent '.env.CLAUDE_CODE_EXPERIMENTAL_OBSERVER_AGENTS' \
 # the Agent call is refused with "Concurrent subagent limit reached. Do not
 # retry." The binary names the variable in that message.
 #
-# Its plausible sibling `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` appeared in the
-# 2.1.267 binary's env-name registry with NO reader — setting it was a silent
+# Its plausible sibling `CLAUDE_CODE_MAX_SUBAGENTS_PER_SESSION` is in the
+# binary's env-name registry (2.1.267) with NO reader — setting it is a silent
 # no-op. Don't add it.
 #
 # Guarded like every key here, so a machine that already carries another value
@@ -553,7 +544,7 @@ _settings_set_if_absent '.env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH' \
   '.env //= {} | .env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH = "3"' \
   'env.CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH (3)'
 
-# ── convergent cleanup: the pre-rename bitacora hook entry (sep-2026) ──
+# ── convergent cleanup: the pre-rename bitacora hook entry ──
 # Must run BEFORE the block that registers the new one, or the guard below sees a
 # settings.json with no "hooks/logbook" string, appends ours, and leaves the dead
 # `hooks/bitacora.sh` entry beside it firing exit 127 on every commit. Same shape
@@ -613,12 +604,11 @@ else
 fi
 
 # ── convergent cleanup: stale tmux-claude-session-manager hooks ──
-# Until jul-2026 the plugin read state through 4 hooks (UserPromptSubmit /
-# Notification / PreToolUse / Stop → scripts/state.sh) that these installers
-# merged in here. The plugin moved to `claude agents --json` (no hooks) and
-# deleted state.sh upstream, so those hooks now fail (exit 127) on every event.
-# We strip them if present, without touching the rest of .hooks. TEMPORARY
-# block: once every machine has run this version of the installer, delete it.
+# The plugin reads state through `claude agents --json` and ships no
+# scripts/state.sh, so any hook entry pointing at it (UserPromptSubmit /
+# Notification / PreToolUse / Stop) fails (exit 127) on every event. We strip
+# them if present, without touching the rest of .hooks. TEMPORARY block: once
+# every machine has run this version of the installer, delete it.
 _settings_strip_hooks 'tmux-claude-session-manager/scripts/state.sh' \
   "stale claude-session-manager hooks (state.sh) stripped from settings.json" \
   "stale-hook cleanup failed — settings.json left untouched"

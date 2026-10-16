@@ -1,8 +1,7 @@
 -- ─── mini.bracketed ───────────────────────────────────────────
--- Kept for three targets that nothing else provides (sep-2026 trim —
--- it used to enable eight, and five duplicated a key that already
--- existed: `]b` = <S-l>, `]j` = <C-o>, `]o` = <leader>fr, `]u` = u,
--- `]d` = the native mapping in keymaps.lua):
+-- Enabled for three targets that nothing else provides (the rest
+-- duplicate a key that already exists: `]b` = <S-l>, `]j` = <C-o>,
+-- `]o` = <leader>fr, `]u` = u, `]d` = the native mapping in keymaps.lua):
 --
 --   yank      ]y [y   THE reason it is here: after a `p`, cycles through
 --                     earlier yanks in place (a yank ring without a plugin

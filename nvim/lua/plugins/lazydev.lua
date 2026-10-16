@@ -4,9 +4,9 @@
 -- library, on the fly — so `require("snacks")` gets Snacks' types the moment
 -- you type it, and a file that requires nothing pays for nothing.
 --
--- Replaces `workspace.library = vim.api.nvim_get_runtime_file("", true)` in
--- lua_ls's settings: that shipped EVERY runtime dir to the server on every
--- start (seconds of indexing on a cold cache), and still had no types for
+-- Instead of `workspace.library = vim.api.nvim_get_runtime_file("", true)` in
+-- lua_ls's settings, which ships EVERY runtime dir to the server on every
+-- start (seconds of indexing on a cold cache), and still has no types for
 -- lazy-loaded plugins, which aren't on the rtp until they load.
 --
 -- Scope: only lua files under a nvim config / plugin dir (lazydev checks

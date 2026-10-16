@@ -38,7 +38,7 @@ ESCAPE = "ALLOW_BASH_WRITE=1"
 HEREDOC = re.compile(r"(?<!<)<<(?!<)(-?)[ \t]*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\2")
 
 # A mode literal made only of mode characters, one of them a write. Checking the
-# first character alone read a path as a mode: `gzip.open('access.log.gz')` is "a".
+# first character alone would read a path as a mode: `gzip.open('access.log.gz')` is "a".
 _MODE = r"(?:mode\s*=\s*)?['\"][rbtU]*[wax+][rwbtax+U]*['\"]"
 # os.open takes flags, not a mode string, and its path may be a call
 # (os.path.join(...)), hence one level of parentheses before the flags.
