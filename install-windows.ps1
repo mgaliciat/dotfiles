@@ -1189,9 +1189,10 @@ Install-FontFromRelease -Repo "googlefonts/googlesans-code" -AssetPattern '^Goog
 # and re-running -- no switcher, no pointer.
 $WtTheme = "solarized-patched"
 
-# $WtFont is the font half of the same idea, and it DOES track the Mac: it is
-# ghostty's `font-family`. Kept as its own line rather than parsed
-# out of config.ghostty because the two boxes have different font inventories --
+# $WtFont is the font half of the same idea. Ghostty's typeface is per-machine
+# (~/.config/ghostty/config.local, seeded from ghostty/config.local.default), so
+# there is nothing versioned to parse even if we wanted to. Kept as its own line
+# because the two boxes have different font inventories --
 # a family the Mac has via brew may simply not exist here, and a `font-family`
 # WT cannot resolve falls back SILENTLY (same trap as ghostty's, which is why
 # the repo's rule is to verify the family name, never to trust the config).
@@ -1214,9 +1215,9 @@ $WtTheme = "solarized-patched"
 # and is the wrong one to ask. A family that does not exist falls back SILENTLY.
 # ⚠️ NOT "PlemolJP35 Console NF", which also lands from that zip: it is the 3:5
 # width cut for JP text, a different family, not a style of this one.
-# $WtFontWeight is the second half of tracking the Mac. ghostty picks the weight
-# with `font-style = Medium`; WT has no style field, it has `font.weight`, so
-# the same 500 is spelled differently. Without it the face would resolve at
+# $WtFontWeight is the weight. ghostty picks it with `font-style` or a `wght`
+# axis; WT has no style field, it has `font.weight`, so a 500 is spelled
+# `medium`. Without it the face would resolve at
 # Regular and the two boxes would disagree while both looking "correct".
 # $WtFontSize is the one that does NOT track the Mac: ghostty's `font-size = 17`
 # renders on a Retina panel, and the same number on a 1x Windows display comes
