@@ -241,7 +241,7 @@ bootstrap_gh_stack
 # re-cloned.
 hatch_dir="$HOME/.config/tmux/plugins/tmux-claude-hatch"
 hatch_url="https://github.com/mgaliciat/tmux-claude-hatch"
-hatch_pin="6567c4a792f07b467ed1d99d2ef1010fc740e933"
+hatch_pin="0134c20bb964823f09938d5db8b507548a54f740"
 if [[ ! -d "$hatch_dir/.git" ]]; then
   echo "→ Cloning tmux-claude-hatch into $hatch_dir"
   git clone --quiet "$hatch_url" "$hatch_dir" || echo "⚠️  tmux-claude-hatch clone failed"
