@@ -235,14 +235,14 @@ bootstrap_gh_stack
 # is editing hatch_pin. Needs tmux ≥ 3.2, fzf and jq (all in the brew list) and
 # Claude Code ≥ 2.1.139.
 #
-# The fork is upstream (e0bcfd1, 28 sep) plus three things: the picker groups
+# The fork is upstream (e0bcfd1, 28 sep) plus four things: the picker groups
 # agents by repository (a worktree under its main checkout), ctrl-r there labels
-# an agent, and launch.sh takes a worktree name as its third argument
-# (tmux.conf's Alt+Y). A clone made from craftzdog's URL is re-pointed, not
-# re-cloned.
+# an agent, launch.sh takes a worktree name as its third argument (tmux.conf's
+# Alt+Y), and worktrees.sh lists a repository's worktrees to open Claude on one
+# (Alt+U). A clone made from craftzdog's URL is re-pointed, not re-cloned.
 hatch_dir="$HOME/.config/tmux/plugins/tmux-claude-hatch"
 hatch_url="https://github.com/mgaliciat/tmux-claude-hatch"
-hatch_pin="fa1c6a7353bc044afec6a3375c30b47e6e5262f0"
+hatch_pin="91165391c12a63ba5fcd609ad2bc3a50b92c254c"
 if [[ ! -d "$hatch_dir/.git" ]]; then
   echo "→ Cloning tmux-claude-hatch into $hatch_dir"
   git clone --quiet "$hatch_url" "$hatch_dir" || echo "⚠️  tmux-claude-hatch clone failed"
