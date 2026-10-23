@@ -21,9 +21,16 @@ derived on-palette.
 from the theme **Ghostty itself ships**, at
 `Ghostty.app/Contents/Resources/ghostty/themes/Solarized Dark Patched` — that
 file is the source of truth, and it is where to re-extract from. Nothing here is
-derived, and **canonical Solarized is not a valid source for it**: the patched cut
+derived but one slot, and **canonical Solarized is not a valid source for it**: the patched cut
 re-tunes every value (canvas `#001e27` against base03 `#002b36`, red `#d11c24`
 against `#dc322f`, blue `#2176c7` against `#268bd2`).
+
+**The one derived slot: no purple.** Upstream's ANSI 13 is the violet `#5956ba`
+(OKLCH hue 281), which `bold-color = bright` paints on every bold magenta. It
+is replaced in both files by `#d3407f`, a brighter rose on ANSI 5's own hue
+(OKLCH L 0.60, C 0.19, h 358), at 4.35:1 over the `#031219` canvas. ANSI 5
+`#c61c6f` is a rose too (h 358), not a purple, and stays verbatim. In nvim
+`purple` (keywords) follows `_base` onto that magenta instead of the violet.
 
 It exists because **craftzdog's Ghostty selects this theme by name**, and a
 built-in cannot be mirrored: it lives inside the app bundle, where nvim and
