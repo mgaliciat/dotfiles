@@ -1,0 +1,75 @@
+# ═══════════════════════════════════════════════════════════════
+#  Ghostty — per-machine keys (~/.config/ghostty/config.local)
+#  Seeded from ghostty/config.local.default by install.sh when the file is
+#  missing, then never overwritten: edit the copy, not this seed. Included by
+#  config.ghostty's `config-file` line, so everything here wins over it.
+# ═══════════════════════════════════════════════════════════════
+
+# ─── size ─────────────────────────────────────────────────────
+# The right size depends on the screen. Without the line Ghostty uses 13.
+# font-size = 15
+
+# ─── typeface ─────────────────────────────────────────────────
+# Recursive, the variable font (Arrow Type). One ttf with five axes, so the
+# whole look is the `font-variation` lines below, not a family name: MONO 1 is
+# the monospace, CASL 0 the Linear (non-casual) shapes, wght 400 roman and 700
+# bold, slnt 0 upright, and CRSV 0.5 cursive forms only in the italics. The
+# family is plain "Recursive" (nameID 16), with 64 named instances ("Mono
+# Linear" …) as its styles. NOT a Nerd Font, and it carries no box drawing or
+# powerline: Ghostty draws the box glyphs itself and the icons fall back into
+# the NF casks in install.sh. Installed by brew (`font-recursive`, the Google
+# Fonts build). A different family here must be one install.sh installs.
+# `ghostty +show-face --string=a --style=italic` is the check after touching
+# this block: +validate-config passes and +show-config prints no font-* lines,
+# so a family that fails to load only shows as Ghostty's JetBrains Mono fallback.
+font-family = "Recursive"
+font-family-italic = "Recursive"
+font-family-bold-italic = "Recursive"
+
+# Ghostty matches `font-style` against the style string the font advertises;
+# for a variable font those are its fvar instance names (read with fc-scan),
+# and the four below are the nearest named instances. What actually pins the
+# face is `font-variation`, which sets all five axes per style: slnt -15, the
+# axis minimum, for both italics. CRSV 0.5 is Recursive's own "auto": cursive
+# shapes switch on only past slnt -14, so the roman stays plain and both
+# italics are cursive.
+# Claude Code emits bold as SGR 1 over its own text colour, so weight is the
+# ONLY bold signal there: 400 against 700 is a wide enough gap to read.
+font-style = Mono Linear
+font-style-bold = Mono Linear Bold
+font-style-italic = Mono Linear Italic
+font-style-bold-italic = Mono Linear Bold Italic
+font-variation = MONO=1
+font-variation = CASL=0
+font-variation = wght=400
+font-variation = slnt=0
+font-variation = CRSV=0.5
+font-variation-bold = MONO=1
+font-variation-bold = CASL=0
+font-variation-bold = wght=700
+font-variation-bold = slnt=0
+font-variation-bold = CRSV=0.5
+font-variation-italic = MONO=1
+font-variation-italic = CASL=0
+font-variation-italic = wght=400
+font-variation-italic = slnt=-15
+font-variation-italic = CRSV=0.5
+font-variation-bold-italic = MONO=1
+font-variation-bold-italic = CASL=0
+font-variation-bold-italic = wght=700
+font-variation-bold-italic = slnt=-15
+font-variation-bold-italic = CRSV=0.5
+
+# Standard ligatures.
+font-feature = +liga
+
+# Recursive's code ligatures are `dlig`, off by default, so it is turned on here.
+# Its ss01–ss12 and ss20 are glyph swaps, not ligatures: ss01 single-story a,
+# ss02 single-story g, ss03–ss06 simplified f i l r, ss07 simplified italic
+# diagonals, ss08 no-serif L and Z, ss09 simplified 6 and 9, ss10 dotted zero,
+# ss11 simplified 1, ss12 simplified @, ss20 slashed zero.
+font-feature = +dlig
+# On: ss01 single-story a, ss02 single-story g, ss20 slashed zero.
+font-feature = +ss01
+font-feature = +ss02
+font-feature = +ss20

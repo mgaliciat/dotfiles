@@ -116,7 +116,7 @@ Some things are versioned, some deliberately are not:
 | `zsh/.zshrc` | `~/.zshrc.local` (sourced last) |
 | `zsh/.zshenv` | `~/.zshenv.local` (sourced last) |
 | `zsh/.zprofile` | `~/.zprofile.local` (sourced last) |
-| `ghostty/config.ghostty` | `~/.config/ghostty/config.local` (`config-file`, wins) |
+| `ghostty/config.ghostty` | `~/.config/ghostty/config.local` (`config-file`, wins; the font and its size, seeded once from `ghostty/config.local.default`) |
 | `git/.gitignore_global` | `~/.gitconfig` (not symlinked at all) |
 | `claude/CLAUDE.md` | `~/.claude/settings.json` |
 | `claude/install/*` | `~/.claude/skills/`, `~/.claude/projects/*/memory/` |
