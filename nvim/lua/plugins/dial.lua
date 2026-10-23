@@ -1,6 +1,6 @@
 -- ─── dial.nvim ────────────────────────────────────────────────
 -- Replaces vanilla <C-a>/<C-x> with "smart" increment:
---   42        → 43             (numbers, vim already did this)
+--   42        → 43             (numbers, vim already does this)
 --   0xff      → 0x100           (hex)
 --   true      → false           (bool toggle)
 --   2024/01/15 → 2024/01/16      (dates)

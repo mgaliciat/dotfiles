@@ -53,9 +53,9 @@ server() {
 gco() {
   local branch
   # `git branch --all` indents with 2 spaces (and the current branch with `* `).
-  # THAT has to be stripped at the source: `${branch## }` only removes one space
-  # and left `git checkout " main"` → "pathspec did not match" when picking
-  # any non-current branch.
+  # THAT has to be stripped at the source: `${branch## }` only removes one space,
+  # leaving `git checkout " main"` → "pathspec did not match" for any
+  # non-current branch.
   branch=$(git branch --all 2>/dev/null \
            | grep -v HEAD \
            | sed 's|remotes/origin/||' \
@@ -127,14 +127,9 @@ _fzf_cd_widget() {
     echo "$HOME/.config"
     echo "$_DOTFILES_ROOT"
     # Every clone ghq knows about, which is every clone: $GHQ_ROOT (.zshenv) is
-    # the one place they live. This replaced a `find -maxdepth 3 -name .git`
-    # over a hardcoded list of four parents ($HOME/projects, code, work,
-    # Developments) — NONE of which existed on any machine here, so the loop
-    # silently contributed nothing and Ctrl+F only ever offered .config,
-    # dotfiles and the cwd. That is the failure mode to avoid repeating: the
-    # `[[ -d $parent ]]` guard turned a wrong path into a no-op instead of an
-    # error. Asking ghq cannot drift the same way — it reports what is on disk
-    # rather than where we guessed it would be, and it is not depth-limited.
+    # the one place they live. Asking ghq cannot drift the way a hardcoded list
+    # of parent dirs does — it reports what is on disk rather than where we
+    # guessed it would be, and it is not depth-limited.
     command -v ghq >/dev/null && ghq list --full-path
     # Subdirs of the cwd (not recursive).
     ls -1d "$PWD"/*/ 2>/dev/null | sed 's:/$::'
@@ -208,8 +203,7 @@ claude-config() {
 # credential, ANTHROPIC_MODEL for the model plus ANTHROPIC_DEFAULT_<TIER>_MODEL
 # for what the opus/sonnet/haiku/fable aliases resolve to. Exporting those
 # globally (or via the `env` block of settings.json) makes EVERY claude — and
-# the VS Code extension — go through the gateway, hence the old
-# `claude-config remove env` / `restore env` dance before each launch.
+# the VS Code extension — go through the gateway.
 # Instead the values sit in ~/.claude/claude-api.env (per-machine, never
 # versioned) and a `--api` flag hands them to ONE child process via `env`:
 #   claude --api [args]  → claude through the gateway.
@@ -219,9 +213,8 @@ claude-config() {
 # Without the flag both are the plain binary, untouched: the wrappers run
 # `command claude` / `command code`, nothing is read and the helper below is
 # never even looked up, so a box with no gateway file never pays for a state
-# that is not an error. (These replaced `claude-api` / `code-api`, sep-2026 —
-# same machinery, but a suffixed name is a second command to remember and does
-# not read as "the same tool, one switch".)
+# that is not an error. A flag rather than a suffixed `claude-api` command: it
+# reads as "the same tool, one switch", not a second command to remember.
 #
 # THE PARSING ITSELF LIVES IN `scripts/claude-api-env`, on PATH via
 # ~/.local/bin — these functions only strip the flag and delegate. Read that
@@ -236,14 +229,9 @@ claude-config() {
 # a silent corruption of the prompt, and neither binary has a real `--api` flag
 # to collide with anyway. First-arg-only can never misread a value as a flag.
 #
-# THE FILE HOLDS THE REAL NAMES AND IS PASSED THROUGH VERBATIM. There used to be
-# a CLAUDE_API_* prefix here and a 22-entry table translating it; the prefix
-# bought nothing (checked against the 2.1.259 binary, Claude Code never reads
-# `CLAUDE_API_*` from the environment — the one `CLAUDE_API_KEY` string in there
-# is placeholder text in the GitHub-Actions setup flow) while the table had to
-# grow a row for every variable the gateway might want, and a name missing from
-# it was dropped in silence. Passthrough has no such hole: what you write is
-# what the child gets. The docs are the reference for which names exist
+# THE FILE HOLDS THE REAL NAMES AND IS PASSED THROUGH VERBATIM — no prefix, no
+# translation table that would need a row per variable and drop a missing name
+# in silence: what you write is what the child gets. The docs are the reference for which names exist
 # (code.claude.com/docs/en/env-vars); `_SUPPORTED_CAPABILITIES` is the one worth
 # remembering, because Claude Code turns effort/thinking on by pattern-matching
 # the model id, so a gateway's own id gets neither until that var declares them.
@@ -252,10 +240,10 @@ claude-config() {
 # sourced by EVERY zsh, interactive or not, so an export there puts the gateway
 # credential in the environment of every process the shell ever spawns — every
 # script, every npm hook, anything that can read /proc or run `ps eww`. Reading
-# it here instead keeps the token in exactly one child. That is also why the
-# file, not an export, is the source of truth now: with the real names, an
-# exported value would already have sent every plain `claude` through the
-# gateway, which is the state this whole thing exists to avoid.
+# it here instead keeps the token in exactly one child. It is also why the
+# file, not an export, is the source of truth: with the real names, an
+# exported value would send every plain `claude` through the gateway, which
+# is the state this whole thing exists to avoid.
 #
 # The file holds a credential — keep it chmod 600. ~/.claude/ is Claude Code's
 # own directory and its bundle carries a dotenv filename list (.env.local and
@@ -267,15 +255,15 @@ claude-config() {
 # name starts with a single `_` (`_fzf_cd_widget`, `_prompt_git`… are all
 # absent from it; `__zoxide_*` and plain names survive). `claude()` below is
 # kept, so with a `_`-prefixed helper every `claude mcp list` / `claude agents
-# --json` Claude runs from inside a session died with `command not found:
-# _claude_api_launch`. A plain name rides along with the wrapper.
+# --json` Claude runs from inside a session would die with `command not found`.
+# A plain name rides along with the wrapper.
 claude_api_launch() {
   local bin=$1
   shift
   if [[ $1 == --api ]]; then
     shift
-    # Explicit check so a machine that hasn't re-run install.sh since the
-    # helper was added says what to do, instead of `command not found`.
+    # Explicit check so a machine whose install.sh run predates the helper
+    # says what to do, instead of `command not found`.
     if ! command -v claude-api-env >/dev/null 2>&1; then
       echo "$bin --api: claude-api-env is not on PATH (run ./install.sh)" >&2
       return 1

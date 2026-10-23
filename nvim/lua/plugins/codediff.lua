@@ -7,15 +7,13 @@
 -- the unchanged stretches, an explorer of changed files with stage /
 -- unstage, commit history, 3-way conflicts, and `:CodeDiff pr <n>`.
 --
--- Replaced diffview.nvim (sep-2026): same jobs, prettier output, and one
--- thing diffview never had — the character-level pass. Binary is
--- downloaded prebuilt; no compiler involved.
+-- Binary is downloaded prebuilt; no compiler involved.
 --
 -- Keys under <leader>g beside gitsigns (gs/gr/gp/gb) and lazygit (gg/gl/gL);
 -- the commit PICKERS (gf/gF) live in plugins/git-history.lua and land here.
 -- No repo-wide `CodeDiff history` key: `<leader>gf` (telescope over the
 -- same commits, with search) opens the chosen one here, and `<leader>gl`
--- is lazygit's log — a third view of the log was one too many.
+-- is lazygit's log — a third view of the log would be one too many.
 
 return {
   "esmuellert/codediff.nvim",
@@ -33,7 +31,7 @@ return {
       layout = "inline",
       -- Only read when the layout is side-by-side (`t` toggles it per
       -- session): old on the left, new on the right — the reading order of
-      -- every other diff tool in the stack (delta, GitHub, diffview before it).
+      -- every other diff tool in the stack (delta, GitHub).
       original_position = "left",
     },
     explorer = {

@@ -42,8 +42,8 @@ enabled = true
 # Default "failures". tee is what makes truncation RECOVERABLE: filtered output
 # prints "[see remaining: tail -n +N <log>]" and the agent reads the rest without
 # re-running the command. On "failures" that log only exists when the command
-# FAILED, which is backwards — a successful grep that silently dropped 267 files
-# is exactly the case that needs one. This is the setting that answers the
+# FAILED, which is backwards — a successful grep that silently drops files is
+# exactly the case that needs one. This is the setting that answers the
 # "silent information loss" complaint (rtk-ai/rtk#827, #1313).
 mode = "always"
 # Default 20. "always" writes far more files, and rotation at 20 evicts the log
@@ -64,15 +64,14 @@ enabled = false
 [hooks]
 # Commands where fidelity beats tokens, so the hook leaves them alone entirely.
 #   diff  — the P0 in rtk-ai/rtk#827: capped at 50 changes and ~70 chars/line with
-#           no marker, and someone shipped irreversible edits off a partial diff.
-#           Fixed upstream, but a raw diff costs little and this is the one output
+#           no marker. Fixed upstream, but a raw diff costs little and this is the one output
 #           where being wrong is unrecoverable. `git diff` is NOT affected by this
 #           — that routes through `rtk git`, a separate and mature filter.
 #   curl  — response bodies are data, not logs. Also rtk-ai/rtk#1282: rtk doesn't
 #           check isatty, so filtered output piped into another tool gets
 #           corrupted, and curl is the command most likely to be left of a pipe.
-#   jq    — same argument as curl: its output is data. The filter cut a 224-byte
-#           `jq -c` line at ~118 chars; display.max_width does not reach it.
+#   jq    — same argument as curl: its output is data. The filter cuts long
+#           `jq -c` lines at ~118 chars; display.max_width does not reach it.
 #   ls    — with several dirs it drops the `dir:` headers, so the entries of all
 #           of them run together with no way to tell which dir holds which; `-l`
 #           loses owner and mtime. Listings are small, the savings near zero.

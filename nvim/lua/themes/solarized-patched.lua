@@ -3,13 +3,16 @@
 -- `solarized-patched`.
 -- tokyonight base: variant `night`.
 --
--- craftzdog's Ghostty names this theme; it ships inside Ghostty.app, so nvim had
--- nothing to point at until it was ported. Provenance and the full ANSI table
+-- craftzdog's Ghostty names this theme; it ships inside Ghostty.app, so nvim
+-- has nothing to point at without this port. Provenance and the full ANSI table
 -- live in ghostty/themes/solarized-patched — that file is the source of truth
 -- for these values, this one only maps them onto tokyonight's slots.
 --
 -- NOT canonical Solarized: the patched cut re-tunes every hex (canvas #001e27,
 -- not base03 #002b36), and canonical is not a valid source for it.
+--
+-- No purple: upstream's violet (#5956ba) is replaced by a brighter rose, the
+-- one deviation from the shipped file (the why is in the Ghostty theme).
 
 local palette = {
   bg          = "#001e27",       -- patched canvas, darker than base03
@@ -40,7 +43,7 @@ local palette = {
   bright_green   = "#475b62",   -- repeats bright_black upstream
   bright_yellow  = "#536870",
   bright_blue    = "#708284",
-  bright_magenta = "#5956ba",   -- violet
+  bright_magenta = "#d3407f",   -- brighter rose, in place of the violet
   bright_cyan    = "#819090",
   bright_white   = "#fcf4dc",
 
@@ -69,7 +72,6 @@ return require("themes._base")({
   code = { fg = palette.bright_red },
 
   on_colors = function(c)
-    c.purple    = palette.bright_magenta  -- violet
     c.orange    = palette.bright_red       -- Solarized's semantic orange
 
     c.terminal_black = palette.black

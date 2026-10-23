@@ -51,29 +51,28 @@ fi
 # Caps Lock → Option: System Settings → Keyboard → Keyboard Shortcuts →
 # Modifier Keys → Caps Lock = Option ⌥. It is per-device and per-machine, not
 # versionable; that is why it lives in the UI and not in the repo.
-# Karabiner-Elements was ruled out for incompatibility with the MacBook built-in
-# keyboard + Latin American layout (it swapped <> with |° because its virtual HID
-# only supports the generic ansi/iso layouts).
+# Not Karabiner-Elements: its virtual HID only supports the generic ansi/iso
+# layouts, which swaps <> with |° on the MacBook built-in keyboard + Latin
+# American layout.
 
 # ~/.gitconfig is NOT symlinked — each machine keeps its own 100%
 # (credentials, 1Password vaults, signing keys are per-machine).
 
 # Claude Code: all per-machine, not versioned. settings.json is NOT symlinked
 # (it is 100% each host's own, like ~/.gitconfig): permissions/UI diverge per
-# machine and it was dragging personal state into a public repo.
+# machine and symlinking it would drag personal state into a public repo.
 #
-# skills/ is not symlinked either (since jul-2026). ~/.claude/skills is the REAL
-# path where Claude Code reads the user's skills, so the symlink did work — but
-# it pointed at the repo, while its content (the `learned` skill that Claude
-# writes, `codebase-memory` that the binary rewrites on every install) is 100%
-# per-machine: it was never versioned, it lived gitignored. Zero benefit, and a
-# `git add -f` or a loosened .gitignore leaked personal state into a public repo.
-# Today it is a real dir; the codebase-memory-mcp binary creates it if missing.
+# skills/ is not symlinked either. ~/.claude/skills is the REAL path where
+# Claude Code reads the user's skills, and its content (the `learned` skill that
+# Claude writes, `codebase-memory` that the binary rewrites on every install) is
+# 100% per-machine. A symlink into the repo buys nothing, and a `git add -f` or
+# a loosened .gitignore would leak personal state into a public repo. It is a
+# real dir; the codebase-memory-mcp binary creates it if missing.
 #
 # memory/ is NOT symlinked, for a DIFFERENT reason: Claude Code derives the
 # project-id from the REAL path of the directory (e.g. working in ~/dotfiles it
-# uses ...projects/-Users-foo-dotfiles/memory), so there the symlink pointed at
-# the wrong path and was ignored. Memory is per-project and Claude Code handles
+# uses ...projects/-Users-foo-dotfiles/memory), so a symlink there points at
+# the wrong path and is ignored. Memory is per-project and Claude Code handles
 # it on its own.
 
 # ─── dependencies (Homebrew) ──────────────────────────────────
@@ -126,25 +125,21 @@ if command -v brew >/dev/null 2>&1; then
   REQUIRED_CASKS=(
     ghostty
     1password-cli         # `op` — a cask on Homebrew, not a formula (lives in Caskroom)
-    # Fonts referenced by ghostty/config.ghostty.
-    # The primary (font-family) is Monaspace Argon NF with Radon NF italics
-    # (`font-monaspace-nf`), a Nerd Font that carries its own powerline/devicon
-    # glyphs. Monaspace Neon NF, Lilex NF, Datatype and Intel One Mono held the
-    # slot before it.
-    # It has traded
-    # places with the others several times — the config file is the source of
-    # truth, not this comment.
-    # PlemolJP, CaskaydiaCove, Google Sans Code, Paper Mono, 0xProto NF and
-    # Maple Mono NF are all
-    # former primaries, each one line away from returning (0xProto resolves
-    # as its "Mono" family; see the typography block there). Paper Mono
-    # is NOT a Nerd Font: whenever it is the primary, the NF
-    # families here stop being optional coverage and become load-bearing,
-    # since Ghostty pulls every powerline/devicon glyph from them. iA Writer
-    # Mono rounds out the fallback chain (Ghostty falls back
-    # to them + bundled JBM NF automatically). Every font named in
-    # the config must be installed by this list: a font-family pointing at a
-    # missing family falls back silently, the exact drift 0430d08 fixed.
+    # Fonts referenced by ghostty/config.ghostty — the config file is the
+    # source of truth for which one is primary, not this comment.
+    # The primary (font-family) is Recursive, the variable font
+    # (`font-recursive`), pinned by `font-variation` in the config. NOT a
+    # Nerd Font: its icons fall back into the NF casks below, which are
+    # load-bearing while it is the primary. The other families are
+    # alternatives, each one line away in the config (0xProto resolves as its
+    # "Mono" family; see the typography block there). Paper Mono is NOT a
+    # Nerd Font either: whenever it is the primary, the NF families here stop
+    # being optional coverage and become load-bearing, since Ghostty pulls
+    # every powerline/devicon glyph from them. iA Writer Mono rounds out the
+    # fallback chain (Ghostty falls back to them + bundled JBM NF
+    # automatically). Every font named in the config must be installed by
+    # this list: a font-family pointing at a missing family falls back
+    # silently.
     # Monaspace is the `-nf` (Nerd Font) build, not the plain cask, so it
     # ships its own icons instead of leaning on the JBM NF fallback.
     font-google-sans-code
@@ -157,6 +152,7 @@ if command -v brew >/dev/null 2>&1; then
     font-intel-one-mono
     font-datatype
     font-lilex-nerd-font
+    font-recursive
     # Ships the 8 static otf AND the variable ttf, so "Paper Mono" registers
     # twice and Ghostty's CoreText scoring does not prefer the variable face —
     # the `font-variation` weight in config.ghostty only holds when it wins.

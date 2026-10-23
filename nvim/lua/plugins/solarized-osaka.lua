@@ -28,7 +28,7 @@ return {
   lazy = false,
   priority = 1000,
   opts = {
-    -- On since 2026-09-11, with the glass back in Ghostty (opacity 0.9 + blur 20).
+    -- On, with the glass in Ghostty (opacity 0.9 + blur 20).
     -- The two move together: transparent here against a SOLID terminal hands
     -- Normal a nil bg with nothing behind it, and a solid nvim over a glass
     -- terminal shows a seam at every split edge.

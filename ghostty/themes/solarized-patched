@@ -9,9 +9,16 @@
 #
 # Source of truth is that shipped file, copied verbatim:
 #   /Applications/Ghostty.app/Contents/Resources/ghostty/themes/Solarized Dark Patched
-# Every hex below is from it, none derived. Re-extract from there if it ever
+# Every hex below is from it but one. Re-extract from there if it ever
 # changes; do NOT re-derive it from canonical Solarized, which is a different
 # palette (see below).
+#
+# The one deviation, on purpose: no purple. Upstream's ANSI 13 is the violet
+# #5956ba (OKLCH hue 281), and with `bold-color = bright` every bold magenta
+# lands on it. It is replaced by #d3407f, a brighter rose on ANSI 5's own hue
+# (OKLCH L 0.60, C 0.19, h 358, against 5's L 0.55): 4.35:1 over the #031219
+# canvas, so bold magenta still reads as a step up from 5. ANSI 5 #c61c6f
+# itself is a rose (h 358), not a purple, and stays verbatim.
 #
 # NOT the same thing as canonical Solarized, and canonical is not a valid
 # source for it. The patched cut re-tunes every value: canvas #001e27 against
@@ -19,8 +26,8 @@
 # white #eae3cb against #eee8d5. Same design, different numbers.
 #
 # NOTE craftzdog's own config spells it `theme = "Solarized Dark - Patched"`, with
-# a hyphen, and that string does not resolve in current Ghostty. His terminal has
-# been falling back to the default palette. This is the theme he meant.
+# a hyphen, and that string does not resolve in current Ghostty, which falls back
+# to the default palette. This is the theme he means.
 
 # background and text
 background = #001e27
@@ -48,12 +55,13 @@ palette = 7=#eae3cb
 # brights (8-15): the Solarized convention — base tones in 8/10/11/12/14, with
 # orange and violet taking the two slots that would otherwise repeat. So 9 and 13
 # are the only "colours" here; the rest read as low-contrast UI grays on purpose.
+# 13 is the rose that replaces the violet (see the top of this file).
 # 10 repeats 8 verbatim in the shipped file — upstream's value, kept as-is.
 palette = 8=#475b62
 palette = 9=#bd3613
 palette = 10=#475b62
 palette = 11=#536870
 palette = 12=#708284
-palette = 13=#5956ba
+palette = 13=#d3407f
 palette = 14=#819090
 palette = 15=#fcf4dc

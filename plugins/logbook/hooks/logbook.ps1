@@ -3,7 +3,7 @@
 # Windows twin of logbook.sh beside it — same contract, same output, rewritten
 # because native Windows has no bash to run the .sh (the statusline.sh /
 # statusline.ps1 split, for the same reason). The two are hand-kept in sync;
-# nothing checks that automatically.
+# CI checks that both hand the model the same reminder.
 #
 # Why a hook at all: a skill cannot fire on an event, only on what the user says.
 # The entry is meant to be written after a commit lands, and "the model

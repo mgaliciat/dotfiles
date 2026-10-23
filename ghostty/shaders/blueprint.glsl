@@ -1,9 +1,8 @@
 // blueprint — the terminal as a night blueprint sheet: a faint grey
 // minor/major grid, ink bleed around the glyphs and the grain of cyanotype
-// paper (its uneven exposure, MOTTLE, is off). The grid is kept barely above the canvas on purpose
-// (2026-10-05, tuned down in four steps): it should read as paper texture,
-// not compete with the lettering. A margin frame with corner registration
-// circles was tried the same day and taken out.
+// paper (its uneven exposure, MOTTLE, is off). The grid is kept barely above
+// the canvas on purpose: it should read as paper texture, not compete with
+// the lettering.
 //
 // Shadertoy-compatible, loaded by `custom-shader` in config.ghostty and run
 // after Ghostty's own passes over iChannel0 (the rendered terminal). Meant for
@@ -88,7 +87,7 @@ const float BLEED           = 0.08;    // halo coverage per unit of luma above t
 const float KNOCKOUT        = 0.06;    // mean tap excess at which the grid is fully lifted near a glyph
 
 const float GRAIN           = 0.10;    // per-pixel paper grain, ± fraction of the canvas (linear)
-const float MOTTLE          = 0.0;     // low-frequency exposure unevenness, ± fraction of the canvas (linear); 0.16 read as blotches on a solid window (2026-10-05)
+const float MOTTLE          = 0.0;     // low-frequency exposure unevenness, ± fraction of the canvas (linear); 0.16 reads as blotches on a solid window
 const float MOTTLE_SCALE    = 220.0;   // device px per value-noise cell
 const float PAPER_FADE      = 20.0;    // device px over which grain and mottle fade in from each surface edge
 
@@ -102,8 +101,8 @@ const vec2 TAPS[8] = vec2[8](
 );
 
 // The exact sRGB curve, not a 2.2 power: Ghostty linearises with it, and on a
-// canvas this dark the power law misplaced the theme's first canvas, #04172c, by ~0.04 — enough to make
-// the sheet test fail to recognise the canvas itself.
+// canvas this dark the power law can be off by a few hundredths — enough to
+// make the sheet test fail to recognise the canvas itself.
 vec3 toLinear(vec3 c) {
     return mix(c / 12.92, pow((c + 0.055) / 1.055, vec3(2.4)), step(0.04045, c));
 }

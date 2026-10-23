@@ -3,7 +3,7 @@
 # delivers, a few text comparisons between files that are kept in sync by hand,
 # and one smoke test for a hook that fails silently by design, so a typo in an
 # installer or a zsh file is caught before it lands on the other machines.
-# Runtime validation stays where it always was: running the installer
+# Runtime validation is running the installer
 # (CLAUDE.md, "there is no test suite").
 #
 # The nvim config is NOT parsed here on purpose: it needs its plugins present

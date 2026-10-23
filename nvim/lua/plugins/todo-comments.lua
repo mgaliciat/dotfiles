@@ -3,7 +3,7 @@
 -- + telescope picker with <leader>ft. `]T` / `[T` navigate between TODOs
 -- in the current buffer — capital T: the lowercase pair is neotest's
 -- "next failed test" (neotest.lua), which is the more urgent jump and
--- was silently shadowing this one depending on load order.
+-- would silently shadow this one depending on load order.
 --
 -- `signs = false` so it doesn't compete with gitsigns and LSP diagnostics for
 -- the signcolumn — the inline highlight is already signal enough.

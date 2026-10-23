@@ -11,10 +11,10 @@
 # WHY A SCRIPT AND NOT (only) A ZSH FUNCTION. The `--api` flag on `claude` /
 # `code` lives in zsh/functions.zsh, which .zshrc sources — so it exists in
 # INTERACTIVE shells and nowhere else: a script or a hook runs non-interactive,
-# with no .zshrc and no function. Moving the parsing here and symlinking it
-# onto PATH (~/.local/bin, see install.sh) makes the gateway reachable from all
-# of them, and leaves ONE implementation instead of two copies that drift — the
-# zsh function is now a facade over this.
+# with no .zshrc and no function. With the parsing here and the script
+# symlinked onto PATH (~/.local/bin, see install.sh) the gateway is reachable
+# from all of them, and there is ONE implementation instead of two copies that
+# drift — the zsh function is a facade over this.
 #
 # THE FILE IS PARSED, NEVER SOURCED: `NAME=value` lines, an optional leading
 # `export`, `#` comments, one optional layer of matching quotes. A credentials

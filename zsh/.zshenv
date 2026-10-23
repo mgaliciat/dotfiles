@@ -56,12 +56,9 @@ command -v bat >/dev/null && export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 # box. One line in .zshenv travels with the clone and covers mac and Linux
 # alike.
 #
-# ~/Developer and not the ~/ghq default: that is where the checkouts already
-# were, and a second top-level repo dir is exactly the sprawl ghq is here to
-# end. Repos that predate this (flat `~/Developer/<name>`) were moved in with
-# `ghq migrate`, which reads each remote and derives the path — so a local
-# folder whose name had drifted from its repo (`diagramb` → `diagramas`) now
-# matches the remote.
+# ~/Developer and not the ~/ghq default: a second top-level repo dir is exactly
+# the sprawl ghq is here to end. A flat `~/Developer/<name>` checkout moves in
+# with `ghq migrate`, which reads its remote and derives the path.
 export GHQ_ROOT="$HOME/Developer"
 
 # Default editor — nvim for everything that respects $EDITOR/$VISUAL:
@@ -78,8 +75,7 @@ export VISUAL="nvim"
 export CLAUDE_CODE_NO_FLICKER=1
 
 # Claude Code — CFC is Claude For Chrome: the browser-extension integration,
-# not "context-free composition" (what this comment used to claim). Verified
-# against the 2.1.278 binary, where CFC_TOOL_PREFIX sits beside
+# not "context-free composition". Verified against the 2.1.278 binary, where CFC_TOOL_PREFIX sits beside
 # CLAUDE_IN_CHROME_MCP_SERVER_NAME and openInChrome; UNDOCUMENTED — it appears
 # on no docs page, so re-check it against the binary and not against the docs.
 #
@@ -94,8 +90,8 @@ export CLAUDE_CODE_ENABLE_CFC=false
 # v2.1.233 it is gated by model: only Claude 3.x, Opus ≤4.7, Sonnet ≤4.6 and
 # Haiku 4.5 get it by default, so on Opus 5.5 and Sonnet 5.5 plans never show a
 # checklist, and nothing in /doctor or the tool list says why
-# (code.claude.com/docs/en/tools-reference#task-tool-availability). This puts
-# it back on every model. Verified on 2.1.284 with `claude -p --verbose`: the
+# (code.claude.com/docs/en/tools-reference#task-tool-availability). This turns
+# it on for every model. Verified on 2.1.284 with `claude -p --verbose`: the
 # init message lists the four tools with it and none without.
 #
 # Read at launch, so a running session keeps what it had. Only what a zsh starts
