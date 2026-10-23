@@ -40,6 +40,20 @@ if [[ -d "$DOTFILES/ghostty/themes" ]]; then
   mkdir -p "$HOME/.config/ghostty"
   link "$DOTFILES/ghostty/themes"       "$HOME/.config/ghostty/themes"
 fi
+# Per-machine keys (the font and its size), included by config.ghostty's
+# `config-file`. Copied, never linked, so editing it never shows up as a diff
+# here: seeded whole when missing, and a file from before the font moved there
+# (font-size only) gets the seed appended once. With `font-family` already in
+# it, it is left alone.
+GHOSTTY_LOCAL="$HOME/.config/ghostty/config.local"
+mkdir -p "$HOME/.config/ghostty"
+if [[ ! -e "$GHOSTTY_LOCAL" ]]; then
+  cp "$DOTFILES/ghostty/config.local.default" "$GHOSTTY_LOCAL"
+  echo "✓ ghostty config.local seeded with Recursive — set font-size there"
+elif ! grep -qE '^[[:space:]]*font-family[[:space:]]*=' "$GHOSTTY_LOCAL"; then
+  { echo; cat "$DOTFILES/ghostty/config.local.default"; } >> "$GHOSTTY_LOCAL"
+  echo "→ ghostty config.local had no font-family: appended the Recursive block"
+fi
 
 # ─── stack theme ──────────────────────────────────────────────
 # Nothing to do here. The theme selection is a direct value in each versioned
@@ -125,8 +139,9 @@ if command -v brew >/dev/null 2>&1; then
   REQUIRED_CASKS=(
     ghostty
     1password-cli         # `op` — a cask on Homebrew, not a formula (lives in Caskroom)
-    # Fonts referenced by ghostty/config.ghostty — the config file is the
-    # source of truth for which one is primary, not this comment.
+    # Fonts referenced by ghostty/config.local.default, the seed of each
+    # machine's config.local — that file is the source of truth for which one
+    # is primary, not this comment.
     # The primary (font-family) is Recursive, the variable font
     # (`font-recursive`), pinned by `font-variation` in the config. NOT a
     # Nerd Font: its icons fall back into the NF casks below, which are

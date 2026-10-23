@@ -120,11 +120,13 @@ per-machine files and the two silent guards.
 
 5. `exec zsh`.
 
-6. Open Ghostty. The theme and font are already selected in the config; if the
-   glyphs look wrong, check the family name resolved:
+6. Open Ghostty. The theme is selected in the versioned config and the font in
+   `~/.config/ghostty/config.local`, which the installer seeded (Recursive);
+   set `font-size` there. If the glyphs look wrong, check that each style
+   resolves to Recursive and not to the JetBrains Mono fallback:
 
    ```bash
-   ghostty +list-fonts | grep -i 'plemoljp console nf'
+   for s in regular bold italic bold_italic; do ghostty +show-face --string=a --style=$s; done
    ```
 
 7. **Caps Lock → Option**: System Settings → Keyboard → Keyboard Shortcuts →

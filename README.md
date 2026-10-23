@@ -17,7 +17,7 @@ The design rationale (what is versioned vs. per-machine, and why every non-obvio
 | `zsh/path.zsh` | The PATH, sourced by `.zshenv` and again by `.zprofile` |
 | `zsh/.zprofile` | Login shells only: re-applies `path.zsh` after macOS's `path_helper` has reordered PATH |
 | `zsh/functions.zsh` | Shell functions, incl. `claude --api` / `code --api` (run through the API gateway, see below) |
-| `ghostty/` | Ghostty config (`config.ghostty`) + `themes/` (the palettes of the cross-stack theme) |
+| `ghostty/` | Ghostty config (`config.ghostty`), the seed of the per-machine `config.local` (`config.local.default`, the font) + `themes/` (the palettes of the cross-stack theme) |
 | `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*` (one file per plugin), `lua/themes/*` for the stack theme. Cheatsheet: `nvim/CHEATSHEET.md` |
 | `lazygit/config.yml` | lazygit theme + custom commands |
 | `mouser/config.json` | [Mouser](https://github.com/TomBadash/Mouser) button mappings (macOS only; → `~/Library/Application Support/Mouser/`) |
@@ -52,7 +52,7 @@ cd ~/dotfiles
 `install.sh` is idempotent — re-run it after every `git pull`. It backs up anything it would overwrite as `<file>.backup.<timestamp>` and then:
 
 1. **Symlinks** `.zshrc`, `.zshenv`, `.zprofile`, `.gitignore_global`, ghostty (config, shaders, themes), nvim, lazygit, Mouser's `config.json`, `~/.local/bin/{claude-api-env,theme}`, and the Claude pieces (`~/.claude/CLAUDE.md`, `statusline.sh`, `themes/*.json`, `hooks/logbook.sh`, `hooks/no-bash-edits.py`, `skills/logbook`, plus `~/.gemini/config/plugins/logbook` for Antigravity).
-2. **Installs missing Homebrew deps.** The list is `REQUIRED_FORMULAE` / `REQUIRED_CASKS` in `install.sh`: the zsh plugins, the CLI tools `.zshrc` leans on, `neovim`, `lazygit`, `jq` (step 3 needs it), `rtk`; casks `ghostty`, `1password-cli` and the fonts `config.ghostty` names.
+2. **Installs missing Homebrew deps.** The list is `REQUIRED_FORMULAE` / `REQUIRED_CASKS` in `install.sh`: the zsh plugins, the CLI tools `.zshrc` leans on, `neovim`, `lazygit`, `jq` (step 3 needs it), `rtk`; casks `ghostty`, `1password-cli` and the fonts `ghostty/config.local.default` names.
 3. **Configures Claude Code** — additive, nothing you set by hand on that machine is clobbered; the one list that converges is `permissions.ask`/`deny`, where the repo's rules are unioned into whatever the machine has. Split by who writes `~/.claude/settings.json` (`claude/install/README.md`): our `jq` merges (statusline, base permissions, no attribution trailer, the logbook `PostToolUse` hook, the `no-bash-edits` `PreToolUse` hook, `CLAUDE_CODE_THRIFTY_SONIC=0`), the external binaries' own setup ([`rtk`](https://github.com/rtk-ai/rtk), [`codebase-memory-mcp`](https://github.com/DeusData/codebase-memory-mcp), the `context7` MCP endpoint, the `gh-stack` skill), and the plugin CLI (currently nothing).
 4. Installs the `gh-stack` extension for `gh`, and [Mouser](https://github.com/TomBadash/Mouser) from its latest GitHub release if `/Applications/Mouser.app` is missing (there is no cask).
 5. Registers VS Code as the default app for `.ghostty` files (if VS Code is installed).
@@ -94,7 +94,7 @@ The env file holds a credential: per-machine, `chmod 600`, never versioned, and 
 
 - **`~/.gitconfig.local`** — git identity (`user.name`, `user.email`, signing key). Your `~/.gitconfig` includes it via `[include]` at the end, so it wins.
 - **`~/.zshrc.local`** — aliases/functions for this machine only; sourced last by `.zshrc`.
-- **`~/.config/ghostty/config.local`** — Ghostty keys for this machine only (`font-size`); included by `config.ghostty`, so it wins. Without it Ghostty uses its default size, 13.
+- **`~/.config/ghostty/config.local`** — Ghostty keys for this machine only: the font (family, styles, axes, features) and `font-size`. Included by `config.ghostty`, so it wins. `install.sh` seeds it from `ghostty/config.local.default` (Recursive) when it is missing and never overwrites it; without `font-size` Ghostty uses 13.
 - **`~/.zprofile.local`** — login-shell setup for this machine only (e.g. OrbStack's init line); sourced last by `.zprofile`, so a PATH entry prepended here is the one that beats the system dirs in a login shell.
 - **`~/.zshenv.local`** — secrets (API keys, DB passwords), sourced last by `.zshenv`:
 
