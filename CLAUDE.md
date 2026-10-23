@@ -40,7 +40,7 @@ running the installer.
 |---|---|
 | `zsh/` | `.zshrc` (interactive), `.zshenv` (env), `path.zsh` (PATH, sourced by `.zshenv` and again by `.zprofile` after macOS's `path_helper`), `functions.zsh` |
 | `ghostty/` | `config.ghostty` + `themes/` |
-| `tmux/` | macOS only: `tmux.conf`, the host for tmux-claude-hatch (pinned by `install.sh`, no tpm). ANSI colours, so not a stack-theme layer |
+| `tmux/` | macOS only: `tmux.conf`, the host for tmux-claude-hatch (our fork, `mgaliciat/tmux-claude-hatch`, pinned by `install.sh`, no tpm). ANSI colours, so not a stack-theme layer |
 | `nvim/` | lazy.nvim, `lua/plugins/*` one file per plugin, `lua/themes/*` |
 | `claude/` | User-level Claude Code: `CLAUDE.md`, `statusline.{sh,ps1}`, `themes/`, `hooks/`, `install/` |
 | `plugins/` | Plugins shared by Claude Code and Antigravity. `logbook/` carries two manifests (`.claude-plugin/plugin.json`, `plugin.json`), `skills/`, `rules/`, `hooks/` |

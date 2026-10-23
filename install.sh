@@ -227,19 +227,25 @@ install_claude
 
 bootstrap_gh_stack
 
-# ─── tmux-claude-hatch (craftzdog) ────────────────────────────
+# ─── tmux-claude-hatch (our fork of craftzdog's) ──────────────
 # Cloned and pinned here instead of through tpm, so every Mac runs the same
 # bytes: tpm would clone whatever HEAD was on the day of the first `prefix + I`.
 # A full clone, not --depth 1, so an arbitrary SHA is checkoutable. Convergent:
 # a re-run fetches and checks out the pin, realigning a stale clone. Bumping it
 # is editing hatch_pin. Needs tmux ≥ 3.2, fzf and jq (all in the brew list) and
 # Claude Code ≥ 2.1.139.
+#
+# The fork is upstream (e0bcfd1, 28 sep) plus ctrl-r in the picker, which labels
+# an agent. A clone made from craftzdog's URL is re-pointed, not re-cloned.
 hatch_dir="$HOME/.config/tmux/plugins/tmux-claude-hatch"
-hatch_url="https://github.com/craftzdog/tmux-claude-hatch"
-hatch_pin="e0bcfd189ddd2019a9cda012f2b3446cd83e16a9"
+hatch_url="https://github.com/mgaliciat/tmux-claude-hatch"
+hatch_pin="f55c9542d0cddeabaecfc4db3f41d02c1fd1c02d"
 if [[ ! -d "$hatch_dir/.git" ]]; then
   echo "→ Cloning tmux-claude-hatch into $hatch_dir"
   git clone --quiet "$hatch_url" "$hatch_dir" || echo "⚠️  tmux-claude-hatch clone failed"
+fi
+if [[ -d "$hatch_dir/.git" && "$(git -C "$hatch_dir" remote get-url origin 2>/dev/null)" != "$hatch_url" ]]; then
+  git -C "$hatch_dir" remote set-url origin "$hatch_url"
 fi
 if [[ -d "$hatch_dir/.git" && "$(git -C "$hatch_dir" rev-parse HEAD 2>/dev/null)" != "$hatch_pin" ]]; then
   if git -C "$hatch_dir" fetch --quiet origin && git -C "$hatch_dir" checkout --quiet "$hatch_pin"; then
