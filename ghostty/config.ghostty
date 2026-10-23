@@ -25,7 +25,7 @@
 # "Solarized Dark Patched" (provenance in the theme file). It is selected by
 # the copy, not the built-in name: the built-in lives inside Ghostty.app, where
 # nvim and Windows Terminal cannot reach it, which would break the one-id rule.
-theme = dia-de-muertos
+theme = solarized-patched
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -33,8 +33,9 @@ theme = dia-de-muertos
 #   · solarized-osaka — deep-ocean craftzdog style (near-black blue). In
 #     Ghostty it's the `solarized-osaka` theme; the palette comes from the nvim plugin.
 #   · solarized-patched — the "Solarized Dark Patched" cut, ported hex-verbatim
-#     from the Ghostty built-in of that name. Darker canvas (#001e27) and every
-#     accent re-tuned against canonical.
+#     from the Ghostty built-in of that name, minus its one purple: ANSI 13
+#     violet is a brighter rose. Darker canvas (#001e27) and every accent
+#     re-tuned against canonical.
 #   · retta — port of the Eclipse "Retta" theme: true black + cream text,
 #     pumpkin keywords (#e79e3c).
 #   · dia-de-muertos — the night of the vigil: morado canvas (#1d1022),
@@ -57,10 +58,10 @@ theme = dia-de-muertos
 # base1, 5.73:1), #eae3cb (its ANSI white, warmer) or #ffffff (19.01:1).
 # Terminal only: nvim keeps its own theme's fg either way.
 #
-# `background` pins the osaka canvas over the theme's own. Off under
-# `dia-de-muertos`, whose morado canvas (#1d1022) is the theme; on for
-# `solarized-patched`.
-# background = #031219
+# `background` pins the osaka canvas over the theme's own. On for
+# `solarized-patched`; off under `dia-de-muertos`, whose morado canvas
+# (#1d1022) is the theme.
+background = #031219
 # foreground = #ffffff
 
 # Display P3 wide-gamut — orange and cream saturate more on M-chip / Retina
@@ -113,7 +114,8 @@ faint-opacity = 0.7
 
 # Bold uses the bright half of the palette rather than the same colour at a
 # heavier weight, so it reads as different from body text by colour too.
-# In this palette the brights are the Solarized base greys plus orange and violet.
+# In this palette the brights are the Solarized base greys plus orange and a
+# brighter rose (13 replaces the cut's violet).
 bold-color = bright
 
 # ─── window ───────────────────────────────────────────────────
