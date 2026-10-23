@@ -132,6 +132,16 @@ jobs:
           done
           exit $failed
 
+      # Sourced for real in a throwaway server, not `source-file -n`: -n only
+      # parses, so an unknown option or command still passes. The plugin is not
+      # cloned here, which the conf's own if-shell turns into a message.
+      - name: tmux.conf loads
+        run: |
+          sudo apt-get install -y -q tmux >/dev/null
+          tmux -L lint -f /dev/null new-session -d
+          tmux -L lint source-file tmux/tmux.conf
+          tmux -L lint kill-server
+
   lua-json:
     runs-on: ubuntu-latest
     steps:

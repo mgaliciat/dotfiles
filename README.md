@@ -18,6 +18,7 @@ The design rationale (what is versioned vs. per-machine, and why every non-obvio
 | `zsh/.zprofile` | Login shells only: re-applies `path.zsh` after macOS's `path_helper` has reordered PATH |
 | `zsh/functions.zsh` | Shell functions, incl. `claude --api` / `code --api` (run through the API gateway, see below) |
 | `ghostty/` | Ghostty config (`config.ghostty`), the seed of the per-machine `config.local` (`config.local.default`, the font) + `themes/` (the palettes of the cross-stack theme) |
+| `tmux/tmux.conf` | macOS only. tmux as the host for [tmux-claude-hatch](https://github.com/craftzdog/tmux-claude-hatch): ⌥Y opens Claude for the pane's directory in a popup, ⌥U the picker of every running Claude, ⌥D closes the popup. Ghostty keeps the everyday splits |
 | `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*` (one file per plugin), `lua/themes/*` for the stack theme. Cheatsheet: `nvim/CHEATSHEET.md` |
 | `lazygit/config.yml` | lazygit theme + custom commands |
 | `git/.gitignore_global` | Global gitignore — macOS noise, editor files, build dirs, **and AI-agent scratch** (`.claude/`, `.cursor/`, `.aider*`, …), excluded in every repo |
@@ -70,6 +71,7 @@ After a `git pull`, files are already current through the symlinks, **but runnin
 |---|---|
 | `zsh/*` | `exec zsh` in every open terminal |
 | `ghostty/*` | `Cmd+Shift+R` (*Reload Configuration*). **New `keybind`s need a full quit + relaunch** |
+| `tmux/*` | `C-t r` inside tmux (re-running `./install.sh` also reloads it) |
 | `nvim/*` | Restart nvim (`:Lazy reload <plugin>` for a single plugin) |
 | `lazygit/*` | Reopen lazygit |
 | `install*.sh`, `claude/install/*` | Re-run `./install.sh` |
