@@ -13,12 +13,13 @@ Personal dotfiles for macOS (Ghostty + Homebrew), with a portable subset for Lin
 - `./install-windows.ps1` — native Windows. Needs Developer Mode for symlinks.
 - `exec zsh` after editing `zsh/`.
 - `Cmd+Shift+R` in Ghostty after editing `ghostty/` — it does not watch its config.
+- `prefix r` (`C-t r`) in tmux after editing `tmux/`, or re-run `./install.sh`.
 
 No build and no test suite. CI (`.github/workflows/lint.yml`, read-only token, actions
 pinned to SHAs) runs static checks only:
 
 - syntax: shellcheck + `bash -n` over every bash script, `zsh -n` over every file in
-  `zsh/`, `luac5.1 -p` over every nvim lua file, `jq empty` over the JSON, the
+  `zsh/`, `tmux/tmux.conf` sourced in a throwaway server, `luac5.1 -p` over every nvim lua file, `jq empty` over the JSON, the
   `claude/hooks/*.py` parsed against the 3.9 grammar (the Mac's `/usr/bin/python3`),
   and the PowerShell parser plus PSScriptAnalyzer at Error severity over the three
   `.ps1` files;
@@ -39,6 +40,7 @@ running the installer.
 |---|---|
 | `zsh/` | `.zshrc` (interactive), `.zshenv` (env), `path.zsh` (PATH, sourced by `.zshenv` and again by `.zprofile` after macOS's `path_helper`), `functions.zsh` |
 | `ghostty/` | `config.ghostty` + `themes/` |
+| `tmux/` | macOS only: `tmux.conf` (+ `CHEATSHEET.md`), the host for tmux-claude-hatch (our fork, `mgaliciat/tmux-claude-hatch`, pinned by `install.sh`, no tpm). ANSI colours, so not a stack-theme layer |
 | `mouser/` | `config.json` for Mouser (mac only; no cask, `install.sh` pulls the release zip) |
 | `nvim/` | lazy.nvim, `lua/plugins/*` one file per plugin, `lua/themes/*` |
 | `claude/` | User-level Claude Code: `CLAUDE.md`, `statusline.{sh,ps1}`, `themes/`, `hooks/`, `install/` |

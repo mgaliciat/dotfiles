@@ -243,8 +243,8 @@ if (( ${+ZSH_HIGHLIGHT_STYLES} )); then
 fi
 
 # ─── prompt ───────────────────────────────────────────────────
-# Two lines: where you are on the first (path, branch, background jobs, a
-# failed exit code), and nothing but `❯` on the second.
+# Two lines: where you are on the first (tmux session, path, branch, background
+# jobs, a failed exit code), and nothing but `❯` on the second.
 # The command always starts at column 3 with the whole width to itself,
 # without the prompt having to be plain to get there. Once a line is accepted the prompt collapses
 # to `❯ cmd` (see the transient section), so the scrollback keeps one line
@@ -396,8 +396,19 @@ _prompt_seg() { _prompt_line1+="${_prompt_line1:+ }%F{$1}$2%f" }
 # too close to carry it alone.
 typeset -g _prompt_line1=
 
+# Inside tmux the line opens with the session's name, so a shell in tmux (where
+# the hatch's Claude sessions live) never passes for a plain Ghostty one. Asked
+# of tmux once per shell, not per prompt; a session renamed afterwards shows up
+# at the next `exec zsh`. %% because a session name can hold a `%`.
+typeset -g _prompt_tmux=
+if [[ -n $TMUX && -n $TMUX_PANE ]]; then
+  _prompt_tmux=$(tmux display-message -p -t "$TMUX_PANE" '#S' 2>/dev/null)
+  _prompt_tmux=${_prompt_tmux//\%/%%}
+fi
+
 _prompt_render() {
   _prompt_line1=
+  [[ -n $_prompt_tmux ]] && _prompt_seg 6 "tmux:$_prompt_tmux"
   [[ -n $SSH_CONNECTION ]] && _prompt_seg 7 '%n@%m'
   _prompt_seg 4 '%(5~|%-1~/…/%3~|%~)'
   if [[ -n $_prompt_git_str ]]; then

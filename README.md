@@ -18,6 +18,7 @@ The design rationale (what is versioned vs. per-machine, and why every non-obvio
 | `zsh/.zprofile` | Login shells only: re-applies `path.zsh` after macOS's `path_helper` has reordered PATH |
 | `zsh/functions.zsh` | Shell functions, incl. `claude --api` / `code --api` (run through the API gateway, see below) |
 | `ghostty/` | Ghostty config (`config.ghostty`), the seed of the per-machine `config.local` (`config.local.default`, the font) + `themes/` (the palettes of the cross-stack theme) |
+| `tmux/tmux.conf` | macOS only. tmux as the host for [tmux-claude-hatch](https://github.com/craftzdog/tmux-claude-hatch): ⌥Y opens Claude for the pane's directory in a popup, ⌥⇧Y the same on a git worktree you name, ⌥A and ⌥⇧A the same two on the API key (`caffeinate -di claude-api-env claude`, in sessions of their own labelled `api`), ⌥⇧U the repository's worktrees to open Claude on one (`ctrl-a` on the API key), ⌥U the picker of every running Claude, grouped by repository (`ctrl-r` labels one), ⌥D closes the popup. ⌥⇧Y, ⌥A, ⌥⇧U, the grouping and `ctrl-r` come from [our fork](https://github.com/mgaliciat/tmux-claude-hatch). Ghostty keeps the everyday splits. Cheatsheet: `tmux/CHEATSHEET.md` |
 | `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*` (one file per plugin), `lua/themes/*` for the stack theme. Cheatsheet: `nvim/CHEATSHEET.md` |
 | `lazygit/config.yml` | lazygit theme + custom commands |
 | `mouser/config.json` | [Mouser](https://github.com/TomBadash/Mouser) button mappings (macOS only; → `~/Library/Application Support/Mouser/`) |
@@ -71,6 +72,7 @@ After a `git pull`, files are already current through the symlinks, **but runnin
 |---|---|
 | `zsh/*` | `exec zsh` in every open terminal |
 | `ghostty/*` | `Cmd+Shift+R` (*Reload Configuration*). **New `keybind`s need a full quit + relaunch** |
+| `tmux/*` | `C-t r` inside tmux (re-running `./install.sh` also reloads it) |
 | `nvim/*` | Restart nvim (`:Lazy reload <plugin>` for a single plugin) |
 | `lazygit/*` | Reopen lazygit |
 | `install*.sh`, `claude/install/*` | Re-run `./install.sh` |
