@@ -243,12 +243,11 @@ if (( ${+ZSH_HIGHLIGHT_STYLES} )); then
 fi
 
 # ─── prompt ───────────────────────────────────────────────────
-# Two lines: where you are on the first (tmux session, path, branch, background
-# jobs, a failed exit code), and nothing but `❯` on the second.
-# The command always starts at column 3 with the whole width to itself,
-# without the prompt having to be plain to get there. Once a line is accepted the prompt collapses
-# to `❯ cmd` (see the transient section), so the scrollback keeps one line
-# per command, not two.
+# One line of powerline segments in the manner of fish's bobthefish: a failed
+# exit code and background jobs, the tmux session, the path, the branch, then
+# `❯`. Once a line is accepted the prompt collapses to `❯ cmd` (see the
+# transient section), so the filled blocks only ever sit on the line being
+# typed and the scrollback stays plain.
 #
 # `%n@%m` is dropped: on your own machine it's a constant that eats a
 # third of the line. It comes back only over SSH, where "which box am I
@@ -260,13 +259,13 @@ fi
 # follows `theme = <id>` on its own instead of becoming a 4th place that
 # has to be edited by hand.
 #
-# Only slots 1-7 are used, NOT 8-15. The bright half is unusable here:
+# Only slots 0-7 are used, NOT 8-15. The bright half is unusable here:
 # solarized-osaka mirrors its ANSI flat (brights == normals, deliberate,
 # see CLAUDE.md) so 8 is not a dim grey, it is `#001014` against a
-# `#001419` background, so "dim" text in it is invisible. 7 is
-# the theme's own foreground, which every theme has to keep readable by
-# definition, so it is the safe choice for the secondary bits.
-setopt PROMPT_SUBST      # PROMPT re-expands $_prompt_line1 every draw
+# `#001419` background. Segments are filled with 1-7 and inked with 0,
+# which every theme in the stack keeps near its background — the one
+# colour dark enough to read on all seven fills.
+setopt PROMPT_SUBST      # PROMPT re-expands $_prompt_line every draw
 
 # Needed here and again by the title/cwd hooks below; autoload is
 # idempotent, but it has to happen before the FIRST add-zsh-hook call.
@@ -362,15 +361,48 @@ _prompt_dirty() {
 }
 add-zsh-hook precmd _prompt_dirty
 
-# ─── first line ───────────────────────────────────────────────
-# Plain coloured text, one space apart.
+# ─── segments ─────────────────────────────────────────────────
+# Each segment is `%K{fill}%F{0} text `, and the arrow between two is drawn
+# in the previous fill on the next one's background, which is what makes it
+# read as one block pointing into the next. Two neighbours never share a fill,
+# or the arrow between them vanishes.
 #
-# The branch glyph (U+E0A0) is spelled as UTF-8 bytes: Private Use
-# codepoints get dropped by editors and tools, the same trap
+# The glyphs (U+E0A0 branch, U+E0B0 arrow) are spelled as UTF-8 bytes:
+# Private Use codepoints get dropped by editors and tools, the same trap
 # claude/statusline.sh documents.
 _prompt_branch_glyph=$'\xee\x82\xa0'
+_prompt_arrow=$'\xee\x82\xb0'
 
-_prompt_seg() { _prompt_line1+="${_prompt_line1:+ }%F{$1}$2%f" }
+typeset -g _prompt_fill=
+_prompt_seg() {
+  if [[ -n $_prompt_fill ]]; then
+    _prompt_line+="%K{$1}%F{$_prompt_fill}$_prompt_arrow"
+  else
+    _prompt_line+="%K{$1}"
+  fi
+  _prompt_line+="%F{0} $2 "
+  _prompt_fill=$1
+}
+
+# fish's prompt_pwd: every directory but the last cut to its first letter
+# (two for a dotdir, `.c` rather than a bare `.`), so the path stays short at
+# any depth and still names the project. A leading `~name` is kept whole, it
+# is the one component that cutting would make ambiguous. Into REPLY, not
+# printed, for the same no-subshell reason as `_prompt_git`.
+_prompt_pwd() {
+  local -a parts=("${(@s:/:)${(%):-%~}}")
+  local i
+  for (( i = 1; i < $#parts; i++ )); do
+    if (( i == 1 )) && [[ $parts[1] == '~'* ]]; then
+      continue
+    elif [[ $parts[i] == .* ]]; then
+      parts[i]=${parts[i][1,2]}
+    else
+      parts[i]=${parts[i][1]}
+    fi
+  done
+  REPLY=${(j:/:)parts}
+}
 
 # Built in precmd, and again when the dirty check answers, into a variable
 # PROMPT only references — never baked into PROMPT itself, for two reasons:
@@ -382,19 +414,24 @@ _prompt_seg() { _prompt_line1+="${_prompt_line1:+ }%F{$1}$2%f" }
 #      An async redraw that reassigned PROMPT would drop the marks
 #      jump-to-prompt relies on; one that changes a variable keeps them.
 #
-# `%(5~|…|…)` = ternary on "does the path have 5+ components": short
-# paths print whole, long ones keep the first and the last three. Plain
-# %1~ would lose the only part that identifies the project — in
-# ~/dev/api/src/routes it prints `routes` and nothing else.
-#
-# Jobs and the exit code are prompt ternaries rather than tests here,
-# because only draw time knows them: `%(1j.….)` is absent at zero jobs,
-# `%(?..…)` absent on success. A failure also turns `❯` red.
+# The exit code and the job count decide whether the first segment exists
+# and what it is filled with, so they can't stay draw-time `%(?..)`
+# ternaries: they are read in precmd, where every hook still sees the
+# command's own `$?`, and kept for the async redraw, which runs long after
+# `$?` has moved on. A failure also turns `❯` red.
 #
 # The branch is 2 when clean, 3 when dirty, and keeps its `•` on top of
 # the colour change: solarized's green and yellow (#849900, #b28500) are
 # too close to carry it alone.
-typeset -g _prompt_line1=
+typeset -g _prompt_line=
+typeset -g _prompt_status=0 _prompt_jobs=0
+zmodload -F zsh/parameter p:jobstates
+
+_prompt_save() {
+  _prompt_status=$?
+  _prompt_jobs=${#jobstates}
+}
+add-zsh-hook precmd _prompt_save
 
 # Inside tmux the line opens with the session's name, so a shell in tmux (where
 # the hatch's Claude sessions live) never passes for a plain Ghostty one. Asked
@@ -407,10 +444,19 @@ if [[ -n $TMUX && -n $TMUX_PANE ]]; then
 fi
 
 _prompt_render() {
-  _prompt_line1=
+  _prompt_line= _prompt_fill=
+  local state=
+  (( _prompt_status )) && state="✘ $_prompt_status"
+  (( _prompt_jobs )) && state+="${state:+ }✳$_prompt_jobs"
+  if (( _prompt_status )); then
+    _prompt_seg 1 "$state"
+  elif [[ -n $state ]]; then
+    _prompt_seg 7 "$state"
+  fi
   [[ -n $_prompt_tmux ]] && _prompt_seg 6 "tmux:$_prompt_tmux"
-  [[ -n $SSH_CONNECTION ]] && _prompt_seg 7 '%n@%m'
-  _prompt_seg 4 '%(5~|%-1~/…/%3~|%~)'
+  [[ -n $SSH_CONNECTION ]] && _prompt_seg 5 '%n@%m'
+  _prompt_pwd
+  _prompt_seg 4 "${REPLY//\%/%%}"
   if [[ -n $_prompt_git_str ]]; then
     local branch="$_prompt_branch_glyph ${_prompt_git_str//\%/%%}"
     if [[ -n $_prompt_dirty_str ]]; then
@@ -419,17 +465,16 @@ _prompt_render() {
       _prompt_seg 2 "$branch"
     fi
   fi
-  _prompt_line1+="%(1j. %F{6}✳%j%f.)"
-  _prompt_line1+="%(?.. %F{1}✘ %?%f)"
+  _prompt_line+="%k%F{$_prompt_fill}$_prompt_arrow%f"
 }
 add-zsh-hook precmd _prompt_render
 
-_prompt_ps1='${_prompt_line1}'$'\n''%(?.%F{5}.%F{1})❯%f '
+_prompt_ps1='${_prompt_line} %(?.%F{5}.%F{1})❯%f '
 PROMPT=$_prompt_ps1
 
 # ─── transient prompt ─────────────────────────────────────────
 # The moment a line is accepted, line-finish swaps PROMPT for the bare
-# `❯` and redraws it in place over both lines; the next precmd puts the
+# `❯` and redraws it in place; the next precmd puts the
 # full one back, before Ghostty's precmd marks it. Hooked through
 # add-zle-hook-widget rather than by defining zle-line-finish, so the
 # other hooks on that widget (Ghostty's integration adds one) survive.
