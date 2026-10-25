@@ -21,6 +21,7 @@ The design rationale (what is versioned vs. per-machine, and why every non-obvio
 | `tmux/tmux.conf` | macOS only. tmux as the host for [tmux-claude-hatch](https://github.com/craftzdog/tmux-claude-hatch): ⌥Y opens Claude for the pane's directory in a popup, ⌥⇧Y the same on a git worktree you name, ⌥A and ⌥⇧A the same two on the API key (`caffeinate -di claude-api-env claude`, in sessions of their own labelled `api`), ⌥⇧U the repository's worktrees to open Claude on one (`ctrl-a` on the API key), ⌥U the picker of every running Claude, grouped by repository (`ctrl-r` labels one), ⌥D closes the popup. ⌥⇧Y, ⌥A, ⌥⇧U, the grouping and `ctrl-r` come from [our fork](https://github.com/mgaliciat/tmux-claude-hatch). Ghostty keeps the everyday splits. Cheatsheet: `tmux/CHEATSHEET.md` |
 | `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*` (one file per plugin), `lua/themes/*` for the stack theme. Cheatsheet: `nvim/CHEATSHEET.md` |
 | `lazygit/config.yml` | lazygit theme + custom commands |
+| `mouser/config.json` | [Mouser](https://github.com/TomBadash/Mouser) button mappings (macOS only; → `~/Library/Application Support/Mouser/`) |
 | `git/.gitignore_global` | Global gitignore — macOS noise, editor files, build dirs, **and AI-agent scratch** (`.claude/`, `.cursor/`, `.aider*`, …), excluded in every repo |
 | `scripts/` | `claude-api-env` (runs a command with the gateway env), `theme` (switches the stack theme), `lib.sh` (shared by both bash installers). All but `lib.sh` are symlinked onto `~/.local/bin` |
 | `claude/` | User-level Claude Code pieces — `CLAUDE.md` (→ `~/.claude/CLAUDE.md`), `statusline.{sh,ps1}`, `themes/`, `hooks/` (the `PreToolUse` hook that sends file edits to Edit/Write instead of the shell), and `install/` (everything the installers do to `~/.claude/`, see its README) |
@@ -51,10 +52,10 @@ cd ~/dotfiles
 
 `install.sh` is idempotent — re-run it after every `git pull`. It backs up anything it would overwrite as `<file>.backup.<timestamp>` and then:
 
-1. **Symlinks** `.zshrc`, `.zshenv`, `.zprofile`, `.gitignore_global`, ghostty (config, shaders, themes), nvim, lazygit, `~/.local/bin/{claude-api-env,theme}`, and the Claude pieces (`~/.claude/CLAUDE.md`, `statusline.sh`, `themes/*.json`, `hooks/logbook.sh`, `hooks/no-bash-edits.py`, `skills/logbook`, plus `~/.gemini/config/plugins/logbook` for Antigravity).
+1. **Symlinks** `.zshrc`, `.zshenv`, `.zprofile`, `.gitignore_global`, ghostty (config, shaders, themes), nvim, lazygit, Mouser's `config.json`, `~/.local/bin/{claude-api-env,theme}`, and the Claude pieces (`~/.claude/CLAUDE.md`, `statusline.sh`, `themes/*.json`, `hooks/logbook.sh`, `hooks/no-bash-edits.py`, `skills/logbook`, plus `~/.gemini/config/plugins/logbook` for Antigravity).
 2. **Installs missing Homebrew deps.** The list is `REQUIRED_FORMULAE` / `REQUIRED_CASKS` in `install.sh`: the zsh plugins, the CLI tools `.zshrc` leans on, `neovim`, `lazygit`, `jq` (step 3 needs it), `rtk`; casks `ghostty`, `1password-cli` and the fonts `ghostty/config.local.default` names.
 3. **Configures Claude Code** — additive, nothing you set by hand on that machine is clobbered; the one list that converges is `permissions.ask`/`deny`, where the repo's rules are unioned into whatever the machine has. Split by who writes `~/.claude/settings.json` (`claude/install/README.md`): our `jq` merges (statusline, base permissions, no attribution trailer, the logbook `PostToolUse` hook, the `no-bash-edits` `PreToolUse` hook, `CLAUDE_CODE_THRIFTY_SONIC=0`), the external binaries' own setup ([`rtk`](https://github.com/rtk-ai/rtk), [`codebase-memory-mcp`](https://github.com/DeusData/codebase-memory-mcp), the `context7` MCP endpoint, the `gh-stack` skill), and the plugin CLI (currently nothing).
-4. Installs the `gh-stack` extension for `gh`.
+4. Installs the `gh-stack` extension for `gh`, and [Mouser](https://github.com/TomBadash/Mouser) from its latest GitHub release if `/Applications/Mouser.app` is missing (there is no cask).
 5. Registers VS Code as the default app for `.ghostty` files (if VS Code is installed).
 
 Then `exec zsh`.
