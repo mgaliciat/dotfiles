@@ -30,3 +30,6 @@ git/.gitconfig
 
 # tmux-claude-hatch, cloned and pinned by install.sh into the linked ~/.config/tmux
 tmux/plugins/
+
+# Python wheels pulled in to run a linter locally; CI installs its own.
+*.whl
