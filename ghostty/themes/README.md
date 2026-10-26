@@ -73,6 +73,39 @@ for legibility: on `light-ansi` it turns the spinner Flexoki orange
 (`#bc5215`, 4.7:1) and puts message backgrounds and diffs on the paper's own
 ladder.
 
+**`slate`** · Tailwind's slate greys at night, made in October 2026 as the dark
+counterpart to `flexoki-light`: a soft blue-grey canvas rather than a black
+one, and no purple. Every hex is a swatch of the **Tailwind CSS v3 default
+palette**, copied verbatim from `src/public/colors.js` in the tailwindcss
+3.4.17 package; no published terminal theme is built on it, so the slot
+assignment is ours and is written down in the theme file.
+
+The canvas is slate-900 `#0f172a` (OKLCH L 0.21, C 0.04), the one Tailwind's
+own dark mode sits on: lighter than `blueprint`'s near-black, and low enough in
+chroma to read as grey rather than navy. Text is slate-200 (14.5:1), every
+neutral is a step of the slate ladder, the normals 1-6 are Tailwind's 400s
+(6.5–11.7:1) and the brights 9-14 their 300s (9.4–13.5:1). ANSI 8 is
+slate-500 (3.8:1), the dim grey for zsh's autosuggestions and Claude Code's
+subtle text; nvim's comments sit one step up on slate-400 (7.0:1).
+
+**No purple**: the magenta slots are pink (h 350, the rose family the rest of
+the stack uses there), not purple, violet or fuchsia. Sky (h 233) sits between
+blue and cyan, so it is kept for the accent and cursor and the two ANSI slots
+stay a plain blue and a plain cyan. Passed over: Nord, Iceberg, GitHub Dark
+Dimmed, Tokyo Night Storm and One Dark, all slate-ish canvases whose magenta
+slot is a lavender or violet; and Ghostty's built-in "Slate" (from
+iTerm2-Color-Schemes), which despite the name sits on a neutral `#222222` with
+cyan body text, a violet magenta (`#a481d3`, h 303) and a blue at 1.7:1.
+
+Derived, in nvim and the Claude Code theme only: the search and diff tints, set
+in OKLCH on each accent's hue at L 0.27–0.45 so the text reads on them at 5.7:1
+or more. The nvim module also re-points what tokyonight derives from its own
+`night` palette before `on_colors` (diff, rainbow, `:terminal`, diagnostics),
+which would otherwise carry tokyonight's lavender in. Its Claude Code theme
+(`claude/themes/slate.json`) exists for the accent: on `dark-ansi` it turns the
+spinner sky (`#38bdf8`, shimmer `#7dd3fc`) and puts the message backgrounds and
+diffs on the slate ladder, taking everything else from the Ghostty slots.
+
 ## Derived — no published hex exists
 
 **`dia-de-muertos`** · The night of the vigil, made for October 2026. The altar

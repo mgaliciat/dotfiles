@@ -1,0 +1,25 @@
+{
+  "name": "slate",
+  "base": "dark-ansi",
+  "overrides": {
+    "claude": "#38bdf8",
+    "claudeShimmer": "#7dd3fc",
+    "text": "#e2e8f0",
+    "inactive": "#94a3b8",
+    "subtle": "#64748b",
+    "success": "#4ade80",
+    "error": "#f87171",
+    "warning": "#facc15",
+    "userMessageBackground": "#334155",
+    "userMessageBackgroundHover": "#475569",
+    "bashMessageBackgroundColor": "#1e293b",
+    "memoryBackgroundColor": "#1e293b",
+    "selectionBg": "#475569",
+    "diffAdded": "#194828",
+    "diffRemoved": "#682224",
+    "diffAddedDimmed": "#172c1c",
+    "diffRemovedDimmed": "#3b1c1b",
+    "diffAddedWord": "#1f6538",
+    "diffRemovedWord": "#902f33"
+  }
+}
