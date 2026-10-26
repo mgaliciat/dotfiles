@@ -1,0 +1,64 @@
+# flexoki-light — Steph Ango's Flexoki, the light half: printing inks on warm
+# paper. Mirror of nvim/lua/themes/flexoki-light.lua.
+#
+# Why this one, for an OLED screen: the canvas is paper #fffcf0, not #ffffff.
+# An OLED lights every pixel on its own, so a full-white canvas is the most
+# power and glare it can put out, and the panel's brightness limiter dims the
+# whole screen to cope. A warm off-white (OKLCH h 95, little blue) is easier on
+# the eyes at the same brightness, and the near-black ink #100f0f sits on
+# pixels that are almost off, which is where an OLED draws its crispest edge.
+# Text reads at 18.6:1. No purple: Flexoki's purple is not in its ANSI table,
+# and the magenta slots are roses (h 350), the same family as solarized-patched.
+# Its hues are Solarized's (accents 1-6 sit within 2–8° of OKLCH hue of the
+# patched cut's), so the stack keeps its look in daylight.
+#
+# Source of truth is the theme Ghostty itself ships, copied verbatim:
+#   /Applications/Ghostty.app/Contents/Resources/ghostty/themes/Flexoki Light
+# (from iTerm2-Color-Schemes, `ghostty/Flexoki Light`). The base and accent
+# names in the comments are Flexoki's own, from kepano/flexoki-neovim's
+# palette.lua. Every hex below is from the shipped file but one.
+#
+# The one deviation: ANSI 8. Upstream's is base-300 #b7b5ac, 2.0:1 on the
+# paper, and 8 is what zsh's autosuggestions, tmux's status line and borders
+# and Claude Code's dim text are painted in. It becomes base-500 #878580,
+# Flexoki's own next step down the ladder: 3.6:1, still a step below ANSI 7.
+#
+# Light convention, as shipped: the brights (9-15) are Flexoki's 400 accents,
+# LIGHTER than the normals, so under `bold-color = bright` a bold colour steps
+# lighter. Yellow 11 (2.3:1) and cyan 14 (2.8:1) fall under 3:1 by design;
+# `minimum-contrast = 3.0` in config.ghostty lifts them, see there.
+
+# background and text — paper and ink
+background = #fffcf0
+foreground = #100f0f
+
+# cursor — the ink itself; the paper on it 18.6:1
+cursor-color = #100f0f
+cursor-text  = #fffcf0
+
+# selection — base-200, ink on it 12.0:1
+selection-background = #cecdc3
+selection-foreground = #100f0f
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# normals (0-7): 0 is the ink, 1-6 Flexoki's 600 accents (3.4–6.5:1 over the
+# paper, yellow lowest), 7 base-600, the muted text (5.0:1).
+palette = 0=#100f0f
+palette = 1=#af3029
+palette = 2=#66800b
+palette = 3=#ad8301
+palette = 4=#205ea6
+palette = 5=#a02f6f
+palette = 6=#24837b
+palette = 7=#6f6e69
+
+# brights (8-15): 8 is base-500 (the deviation, see the top of this file),
+# 9-14 Flexoki's 400 accents, 15 base-200.
+palette = 8=#878580
+palette = 9=#d14d41
+palette = 10=#879a39
+palette = 11=#d0a215
+palette = 12=#4385be
+palette = 13=#ce5d97
+palette = 14=#3aa99f
+palette = 15=#cecdc3

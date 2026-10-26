@@ -1,0 +1,25 @@
+{
+  "name": "flexoki-light",
+  "base": "light-ansi",
+  "overrides": {
+    "claude": "#bc5215",
+    "claudeShimmer": "#da702c",
+    "text": "#100f0f",
+    "inactive": "#6f6e69",
+    "subtle": "#878580",
+    "success": "#66800b",
+    "error": "#af3029",
+    "warning": "#ad8301",
+    "userMessageBackground": "#e6e4d9",
+    "userMessageBackgroundHover": "#dad8ce",
+    "bashMessageBackgroundColor": "#f2f0e5",
+    "memoryBackgroundColor": "#f2f0e5",
+    "selectionBg": "#cecdc3",
+    "diffAdded": "#e1eeca",
+    "diffRemoved": "#fedbd6",
+    "diffAddedDimmed": "#f0f7e4",
+    "diffRemovedDimmed": "#ffedea",
+    "diffAddedWord": "#c1d98f",
+    "diffRemovedWord": "#fbb7ae"
+  }
+}
