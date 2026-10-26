@@ -115,7 +115,7 @@ The installer detects WSL2 and prints these; they are manual on purpose:
 readlink ~/.zshrc ~/.zprofile ~/.config/nvim ~/.local/bin/claude-api-env
 echo $SHELL                                   # /usr/bin/zsh after re-login
 nvim --version | head -1                      # v0.10 or newer
-command -v fd bat eza zoxide lazygit delta gomi ghq tree-sitter rtk
+command -v fd bat eza zoxide lazygit delta gomi ghq tree-sitter
 claude mcp list
 ```
 
@@ -157,8 +157,9 @@ remove it from `~/.local/bin` and re-run.
 - **`→ context7: skipped`.** Env var not in the
   shell that ran the installer. Fix `~/.zshenv.local`, `exec zsh`, re-run.
 - **Rotated token.** `claude mcp remove <name> -s user`, then re-run.
-- **`rtk` missing after the run.** brew is not involved here; `binaries.sh`
-  falls back to rtk's curl installer. If that failed (network), re-run.
+- **`⚠️ rtk is still on PATH`.** rtk is retired and the run removes the copy
+  its curl installer put in `~/.local/bin`. One it reports is from somewhere
+  else (cargo, a package): uninstall it with whatever put it there.
 
 ## Undo
 

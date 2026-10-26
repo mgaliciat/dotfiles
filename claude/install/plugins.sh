@@ -19,7 +19,7 @@
 #
 # `</dev/null` on both commands: running install.sh in a real terminal, one of
 # them hangs waiting for an invisible interactive prompt. Closed stdin → EOF → the
-# command continues with its default (same fix as rtk in binaries.sh).
+# command continues with its default (same fix as in binaries.sh).
 #
 # Idempotence: handled by the CLI itself (verified by running both commands twice
 # in a row — the second detects "already on disk" / "already installed", it does

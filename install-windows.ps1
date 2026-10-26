@@ -13,8 +13,7 @@
 #     vars, and the logbook PostToolUse hook in settings.json (CI checks this list against
 #     settings.sh)
 #     (equivalent to the jq blocks in install.sh/install-linux.sh, native JSON here)
-#   - rtk (no official installer for Windows — we download the release zip) and
-#     its versioned config.toml, COPIED like on mac/Linux
+#   - the cleanup of rtk, which an earlier version installed (twin of binaries.sh)
 #   - codebase-memory-mcp — the `-ui-` release asset, NOT the official
 #     install.ps1 (which hardcodes the headless build; see that block)
 #   - the context7 HTTP-endpoint MCP — mechanism 2, credential from an env var
@@ -122,7 +121,7 @@ function Invoke-Native {
 
 # Append $Dir to the user PATH (persistent) and to this process's PATH, once.
 # Compared entry by entry, not as a substring of the whole string: `-like "*$Dir*"`
-# would match `...\rtk` inside `...\rtk2` and read `[` in a path as a wildcard. An
+# would match `...\tgrep` inside `...\tgrep2` and read `[` in a path as a wildcard. An
 # empty user PATH must not become ";<dir>" either -- hence the join over the
 # non-empty entries.
 function Add-UserPath {
@@ -490,10 +489,8 @@ foreach ($Pair in @(
 # on claude.ai/Console accounts, where the docs say it's already on by default.
 #
 # FOOTGUN: with the tool enabled PowerShell becomes the PRIMARY shell, ahead of
-# Git Bash. The rtk hook in binaries.sh is matched on `Bash`, so anything Claude
-# runs through PowerShell bypasses rtk's filtering entirely. That's a loss of
-# output compression, not a correctness problem -- but don't debug "rtk stopped
-# working" without remembering this flipped the default shell.
+# Git Bash. A hook matched on `Bash` alone never fires for what Claude runs
+# through PowerShell -- hence the `Bash|PowerShell` matcher on the logbook hook.
 if (-not ($Settings.PSObject.Properties.Name -contains "env")) {
     $Settings | Add-Member -NotePropertyName "env" -NotePropertyValue ([PSCustomObject]@{})
 }
@@ -617,85 +614,79 @@ if ($SettingsJson -like "*logbook.ps1*") {
 $Utf8NoBom = New-Object System.Text.UTF8Encoding $false
 [System.IO.File]::WriteAllText($SettingsPath, ($Settings | ConvertTo-Json -Depth 10), $Utf8NoBom)
 
-# ─── rtk (token-reducing proxy CLI) ─────────────────────────────
-# No official installer for Windows (the docs only give the release zip +
-# manual extraction) -- we download from GitHub's stable
-# "latest/download/<asset>" URL (no API call needed) and drop it in
-# %LOCALAPPDATA%\Programs\rtk, the same directory pattern the official
-# codebase-memory-mcp installer uses below.
+# ─── rtk: retired, and uninstalled (twin of binaries.sh) ────────
+# rtk used to be installed here from its release zip, with a copied config.toml.
+# This takes it back off a machine that had it -- the why and the order live in
+# binaries.sh. TEMPORARY, same terms.
 $RtkDir = Join-Path $env:LOCALAPPDATA "Programs\rtk"
 $RtkExe = Join-Path $RtkDir "rtk.exe"
-
 $RtkCmd = Get-Command rtk -ErrorAction SilentlyContinue
-if (-not $RtkCmd -and -not (Test-Path $RtkExe)) {
-    Write-Host ""
-    Write-Host "-> Installing rtk"
-    $TmpZip = Join-Path $env:TEMP "rtk.zip"
-    try {
-        Invoke-WebRequest -Uri "https://github.com/rtk-ai/rtk/releases/latest/download/rtk-x86_64-pc-windows-msvc.zip" -OutFile $TmpZip
-        New-Item -ItemType Directory -Path $RtkDir -Force | Out-Null
-        Expand-Archive -Path $TmpZip -DestinationPath $RtkDir -Force
-    } catch {
-        Write-Host "!!  rtk install failed: $_" -ForegroundColor Yellow
-    } finally {
-        Remove-Item $TmpZip -Force -ErrorAction SilentlyContinue
+if ($RtkCmd) { $RtkUninstallExe = $RtkCmd.Source } else { $RtkUninstallExe = $RtkExe }
+if (Test-Path $RtkUninstallExe) {
+    if ((Invoke-Native { & $RtkUninstallExe init --global --uninstall }) -eq 0) {
+        Write-Host "OK  rtk: its own uninstall ran (hook, RTK.md, settings.json entry)"
+    } else {
+        Write-Host "!!  rtk init --global --uninstall failed -- the cleanup below still runs" -ForegroundColor Yellow
     }
 }
 
-if ($RtkCmd) { $RtkExe = $RtkCmd.Source }
-
-if (Test-Path $RtkExe) {
-    Add-UserPath $RtkDir
-    # --hook-only: without it rtk init also writes ~/.claude/RTK.md and
-    # appends an @RTK.md import to ~/.claude/CLAUDE.md -- which is a symlink
-    # into this public repo. The hook rewrites Bash transparently; there is
-    # nothing for the agent to invoke, so there is nothing to document.
-    if ((Invoke-Native { & $RtkExe init --global --auto-patch --hook-only }) -eq 0) {
-        Write-Host "OK  rtk Claude Code hook configured (or already there)"
-    } else {
-        Write-Host "!!  rtk init --global failed -- check by hand ($RtkExe init --global -v)" -ForegroundColor Yellow
-    }
-
-    # ── rtk config.toml: COPIED, not symlinked (port of binaries.sh) ──
-    # The only copy-instead-of-link in the repo, and the exception is earned: rtk
-    # does a load -> mutate -> serialize round-trip on its config (`rtk telemetry
-    # disable` alone drops every comment and appends a consent_date timestamp), so
-    # through a symlink that per-machine state lands in this PUBLIC repo -- the
-    # same failure that keeps settings.json unversioned. Repo file = source of
-    # truth, installed copy = disposable. WHY the values (raised caps, tee=always,
-    # diff/curl excluded) is commented in claude/install/rtk-config.toml itself.
-    #
-    # The path is NOT hardcoded. binaries.sh can afford an OS branch because it
-    # only has two arms (Application Support / XDG), but rtk's README documents no
-    # Windows location -- so we ask rtk itself: `rtk config` prints "Config: <path>"
-    # as its first line. Self-correcting if the convention ever changes, and a
-    # clean skip if the output shape does.
-    #
-    # Unconditional copy (convergent): a `git pull` + re-run realigns a machine
-    # whose copy rtk has since rewritten. Only a DIVERGED copy is backed up first,
-    # matching link()'s contract on the bash side -- the steady state (our file,
-    # comment-stripped by rtk) must not spawn a backup on every run.
-    $RtkCfgSrc = Join-Path $Dotfiles "claude\install\rtk-config.toml"
-    $RtkCfg = $null
-    $RtkCfgOut = @()
-    [void](Invoke-Native { & $RtkExe config } ([ref]$RtkCfgOut))
-    foreach ($ln in $RtkCfgOut) {
-        if ("$ln" -match '^\s*Config:\s*(.+?)\s*$') { $RtkCfg = $Matches[1]; break }
-    }
-    if ($RtkCfg) {
-        if ((Test-Path $RtkCfg) -and -not (Test-SameContent $RtkCfg $RtkCfgSrc)) {
-            $RtkCfgBackup = "$RtkCfg.backup.$(Get-Date -Format 'yyyyMMdd_HHmmss')"
-            Copy-Item $RtkCfg $RtkCfgBackup -Force
-            Write-Host "-> backing up diverged $RtkCfg to $RtkCfgBackup"
+# Re-read, not $Settings: rtk's uninstall may just have rewritten the file.
+# Matched on the command like the bash side: `rtk hook claude` and the legacy
+# rtk-rewrite.sh. Whole entries go, the way _settings_strip_hooks drops them.
+if (Test-Path $SettingsPath) {
+    $RtkSettings = [System.IO.File]::ReadAllText($SettingsPath, [System.Text.Encoding]::UTF8) | ConvertFrom-Json
+    $RtkStripped = $false
+    if ($RtkSettings.PSObject.Properties.Name -contains "hooks") {
+        foreach ($HookEvent in @($RtkSettings.hooks.PSObject.Properties)) {
+            $Kept = @(@($HookEvent.Value) | Where-Object {
+                -not (@($_.hooks) | Where-Object { [string]$_.command -match 'rtk(\.exe)?"? hook claude|rtk-rewrite\.sh' })
+            })
+            if ($Kept.Count -eq @($HookEvent.Value).Count) { continue }
+            $RtkStripped = $true
+            if ($Kept.Count -eq 0) {
+                $RtkSettings.hooks.PSObject.Properties.Remove($HookEvent.Name)
+            } else {
+                $RtkSettings.hooks.($HookEvent.Name) = $Kept
+            }
         }
-        New-Item -ItemType Directory -Path (Split-Path $RtkCfg -Parent) -Force | Out-Null
-        Copy-Item $RtkCfgSrc $RtkCfg -Force
-        Write-Host "OK  rtk config.toml installed (copy -- rtk rewrites it, cannot be a symlink)"
-    } else {
-        Write-Host "!!  could not resolve rtk's config path from 'rtk config' -- config.toml not installed" -ForegroundColor Yellow
     }
-} else {
-    Write-Host "!!  rtk could not be installed -- check by hand (https://github.com/rtk-ai/rtk)" -ForegroundColor Yellow
+    if ($RtkStripped) {
+        [System.IO.File]::WriteAllText($SettingsPath, ($RtkSettings | ConvertTo-Json -Depth 10), $Utf8NoBom)
+        Write-Host "OK  rtk hooks stripped from settings.json"
+    }
+}
+foreach ($RtkFile in @((Join-Path $ClaudeDir "RTK.md"),
+                       (Join-Path $HooksDir "rtk-rewrite.sh"),
+                       (Join-Path $HooksDir ".rtk-hook.sha256"))) {
+    Remove-Item $RtkFile -Force -ErrorAction SilentlyContinue
+}
+
+# The binary dir this script created, and its user PATH entry (compared entry by
+# entry, for the reason Add-UserPath gives). An rtk elsewhere on PATH (winget,
+# cargo) was not put there by this repo: reported and left alone.
+if (Test-Path $RtkDir) {
+    Remove-Item $RtkDir -Recurse -Force -ErrorAction SilentlyContinue
+    Write-Host "OK  rtk: removed $RtkDir"
+}
+$RtkPathEntries = @([Environment]::GetEnvironmentVariable("PATH", "User") -split ';' | Where-Object { $_ })
+$KeptEntries = @($RtkPathEntries | Where-Object { $_.TrimEnd('\') -ne $RtkDir.TrimEnd('\') })
+if ($KeptEntries.Count -ne $RtkPathEntries.Count) {
+    [Environment]::SetEnvironmentVariable("PATH", ($KeptEntries -join ';'), "User")
+    $env:PATH = (@($env:PATH -split ';' | Where-Object { $_ -and $_.TrimEnd('\') -ne $RtkDir.TrimEnd('\') }) -join ';')
+    Write-Host "OK  $RtkDir removed from the user PATH"
+}
+$RtkLeft = Get-Command rtk -ErrorAction SilentlyContinue
+if ($RtkLeft) {
+    Write-Host "!!  rtk is still on PATH at $($RtkLeft.Source) -- not installed by this repo, remove it by hand" -ForegroundColor Yellow
+}
+
+# rtk's own dirs: config (RoamingAppData) and data (LocalAppData) -- config.toml
+# and its backups, filters.toml, the tracking db, the tee spool.
+foreach ($RtkData in @((Join-Path $env:APPDATA "rtk"), (Join-Path $env:LOCALAPPDATA "rtk"))) {
+    if (Test-Path $RtkData) {
+        Remove-Item $RtkData -Recurse -Force -ErrorAction SilentlyContinue
+        Write-Host "OK  rtk: removed $RtkData"
+    }
 }
 
 # ─── codebase-memory-mcp (code graph MCP server) ────────────────
@@ -753,8 +744,7 @@ if (-not $CbmCmd -or -not $CbmHave -or $CbmStamped -ne $CbmHave) {
     $TmpZip = Join-Path $env:TEMP $CbmAsset
     $TmpDir = Join-Path $env:TEMP "cbm-ui"
     try {
-        # latest/download/<asset> resolves without an API call (same trick as
-        # the rtk block above). checksums.txt covers the -ui- assets too, and we
+        # latest/download/<asset> resolves without an API call. checksums.txt covers the -ui- assets too, and we
         # verify because the official installer, which would, is bypassed.
         $Base = "https://github.com/DeusData/codebase-memory-mcp/releases/latest/download"
         Invoke-WebRequest -Uri "$Base/$CbmAsset" -OutFile $TmpZip
@@ -861,7 +851,7 @@ Remove-Item (Join-Path $HooksDir "cbm-*") -Force -ErrorAction SilentlyContinue
 # place only on trees far larger than anything in ~/Developer.
 #
 # Homebrew has a formula; Windows has nothing (no winget, no scoop bucket), so
-# this is the release zip, the same shape as the rtk block above.
+# this is the release zip, the same shape as the codebase-memory-mcp block above.
 #
 # THREE things this cannot copy from the codebase-memory-mcp block:
 #
@@ -1079,13 +1069,13 @@ if (Get-Command scoop -ErrorAction SilentlyContinue) {
 # Two fonts this repo wants are absent from scoop's nerd-fonts bucket, for
 # opposite reasons: PlemolJP self-patches its own Nerd Font build (it is not one
 # of ryanoasis's), and Google Sans Code is not a Nerd Font at all. Both install
-# the rtk way: download the official release zip and register the .ttf per-user
+# the tgrep way: download the official release zip and register the .ttf per-user
 # under %LOCALAPPDATA% (no admin needed, unlike the system Fonts dir).
 # Independent of scoop — runs either way. Best-effort: on failure, print the
 # manual link and continue.
 #
-# Both asset names embed the version, so — unlike rtk's fixed asset name — we
-# cannot use latest/download/<fixed-name>; we ask the API for the latest asset
+# Both asset names embed the version, so — like tgrep's, unlike
+# codebase-memory-mcp's fixed asset name — we cannot use latest/download/<fixed-name>; we ask the API for the latest asset
 # matching a pattern. The registry VALUE name is just a label; the family name
 # Windows Terminal shows comes from the font's own name table, so the file
 # basename as label is fine.
