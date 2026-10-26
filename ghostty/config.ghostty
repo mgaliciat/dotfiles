@@ -21,13 +21,14 @@
 # machines. To change the look: `theme <id>` (scripts/theme edits this line
 # and the equivalent one in nvim — they share the id), then commit.
 #
-# `flexoki-light` is a versioned copy of Ghostty's built-in "Flexoki Light"
-# (provenance and its one deviation in the theme file), picked as the light
-# theme for an OLED screen: warm paper rather than white, near-black ink. It is
-# selected by the copy, not the built-in name: the built-in lives inside
-# Ghostty.app, where nvim and Windows Terminal cannot reach it, which would
-# break the one-id rule. `solarized-patched` is a copy of the same kind.
-theme = flexoki-light
+# `slate` is the stack's dark theme on Tailwind's slate greys (provenance in
+# the theme file): a soft blue-grey canvas rather than a black one, no purple.
+# `flexoki-light`, the light one, is a versioned copy of Ghostty's built-in
+# "Flexoki Light", selected by the copy, not the built-in name: the built-in
+# lives inside Ghostty.app, where nvim and Windows Terminal cannot reach it,
+# which would break the one-id rule. `solarized-patched` is a copy of the same
+# kind.
+theme = slate
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -50,7 +51,6 @@ theme = flexoki-light
 #     paper (#fffcf0), ink #100f0f, Solarized's hues and no purple.
 #   · slate — Tailwind's slate greys at night: soft blue-grey canvas
 #     (#0f172a), sky cursor (#38bdf8), Tailwind's 400 accents, no purple.
-#     Under it `minimum-contrast` can go back to the dark themes' 1.1.
 # ─── canvas overrides ─────────────────────────────────────────
 # These WIN over the theme's own values regardless of order, so whatever is
 # uncommented here is what the terminal actually looks like.
@@ -92,12 +92,13 @@ window-colorspace = display-p3
 # mid-tone light canvas (e.g. sage #abbab9) brand colours sit at 1.1–1.8:1 and
 # 3.0 rewrites all of them into dark mud.
 #
-# 3.0 while `flexoki-light` is active, 1.1 under the dark themes. Over its
-# paper it touches only what falls short: bright yellow and cyan (ANSI 11/14,
-# 2.3 and 2.8:1, which `bold-color = bright` paints on every bold yellow/cyan),
+# 1.1 under the dark themes (`slate` now), 3.0 while `flexoki-light` is
+# active. Over its paper it touches only what falls short: bright yellow and
+# cyan (ANSI 11/14, 2.3 and 2.8:1, which `bold-color = bright` paints on every
+# bold yellow/cyan),
 # nvim's whitespace marks and borders, and truecolor greys apps bring along.
 # Claude orange (3.04:1) and every Flexoki 600 accent pass untouched.
-minimum-contrast = 3.0
+minimum-contrast = 1.1
 
 # ─── typography ───────────────────────────────────────────────
 # The typeface is PER-MACHINE, like the size: family, styles, variation axes
@@ -127,9 +128,10 @@ faint-opacity = 0.7
 
 # Bold uses the bright half of the palette rather than the same colour at a
 # heavier weight, so it reads as different from body text by colour too.
-# Under flexoki-light the brights are Flexoki's lighter 400 accents, so a bold
-# colour steps lighter, not louder; `minimum-contrast` above keeps the two that
-# would wash out (yellow, cyan) at 3:1.
+# Under slate the brights are Tailwind's 300s, a step lighter than the 400
+# normals. Under flexoki-light they are Flexoki's lighter 400 accents, so a bold
+# colour steps lighter, not louder; `minimum-contrast` at 3.0 keeps the two that
+# would wash out there (yellow, cyan) at 3:1.
 bold-color = bright
 
 # ─── window ───────────────────────────────────────────────────

@@ -11,24 +11,24 @@ gui:
   # entry points — a lazygit run in the terminal and the nvim float (snacks,
   # `configure = false` so it never overlays its own theme) — read this file,
   # so it paints the same in both.
-  theme: # stack theme: flexoki-light
+  theme: # stack theme: slate
     activeBorderColor:
-      - "#205ea6" # ansi4
+      - "#60a5fa" # ansi4
       - bold
     inactiveBorderColor:
-      - "#878580" # ansi8
+      - "#64748b" # ansi8
     optionsTextColor:
-      - "#205ea6" # ansi4
+      - "#60a5fa" # ansi4
     selectedLineBgColor:
-      - "#cecdc3" # ghostty selection-background
+      - "#334155" # ghostty selection-background
     cherryPickedCommitBgColor:
-      - "#ad8301" # ansi3
+      - "#facc15" # ansi3
     cherryPickedCommitFgColor:
-      - "#fffcf0" # ghostty background
+      - "#0f172a" # ghostty background
     unstagedChangesColor:
-      - "#af3029" # ansi1
+      - "#f87171" # ansi1
     defaultFgColor:
-      - "#100f0f" # ghostty foreground
+      - "#e2e8f0" # ghostty foreground
   # showFileTree: shows the change organized as a tree (default true).
   showFileTree: true
   showCommandLog: false # more room for the main panels
@@ -67,7 +67,7 @@ git:
   # it to --light for a light canvas and leaves --syntax-theme alone.
   diffRenderers:
     - colorArg: always
-      command: delta --paging=never --light --syntax-theme=base16-256
+      command: delta --paging=never --dark --syntax-theme=base16-256
 os:
   # `e` on a file. Without this lazygit guesses the editor from
   # `git config core.editor` (per-machine, and it can be anything), so state it.
