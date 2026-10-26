@@ -259,12 +259,14 @@ fi
 # follows `theme = <id>` on its own instead of becoming a 4th place that
 # has to be edited by hand.
 #
-# Only slots 0-7 are used, NOT 8-15. The bright half is unusable here:
+# Only slots 1-7 are used, NOT 8-15. The bright half is unusable here:
 # solarized-osaka mirrors its ANSI flat (brights == normals, deliberate,
 # see CLAUDE.md) so 8 is not a dim grey, it is `#001014` against a
-# `#001419` background. Segments are filled with 1-7 and inked with 0,
-# which every theme in the stack keeps near its background — the one
-# colour dark enough to read on all seven fills.
+# `#001419` background. Segments are filled with 1-7 and inked with the
+# terminal's own canvas, drawn in reverse video: there is no ANSI index for
+# "the background", and ANSI 0 stands in for it only on a dark theme. On a
+# light one (flexoki-light) 0 is the ink, near-black on blue at 2.9:1,
+# where the paper reads at 6.4:1.
 setopt PROMPT_SUBST      # PROMPT re-expands $_prompt_line every draw
 
 # Needed here and again by the title/cwd hooks below; autoload is
@@ -362,10 +364,12 @@ _prompt_dirty() {
 add-zsh-hook precmd _prompt_dirty
 
 # ─── segments ─────────────────────────────────────────────────
-# Each segment is `%K{fill}%F{0} text `, and the arrow between two is drawn
-# in the previous fill on the next one's background, which is what makes it
-# read as one block pointing into the next. Two neighbours never share a fill,
-# or the arrow between them vanishes.
+# Each segment is `%k%F{fill}%S text %s`: reverse video swaps the default
+# background into the text and the fill into the block, so the ink is the
+# canvas on any theme. The arrow between two is drawn in the previous fill on
+# the next one's background, which is what makes it read as one block pointing
+# into the next. Two neighbours never share a fill, or the arrow between them
+# vanishes.
 #
 # The glyphs (U+E0A0 branch, U+E0B0 arrow) are spelled as UTF-8 bytes:
 # Private Use codepoints get dropped by editors and tools, the same trap
@@ -377,10 +381,8 @@ typeset -g _prompt_fill=
 _prompt_seg() {
   if [[ -n $_prompt_fill ]]; then
     _prompt_line+="%K{$1}%F{$_prompt_fill}$_prompt_arrow"
-  else
-    _prompt_line+="%K{$1}"
   fi
-  _prompt_line+="%F{0} $2 "
+  _prompt_line+="%k%F{$1}%S $2 %s"
   _prompt_fill=$1
 }
 

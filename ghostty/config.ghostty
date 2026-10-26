@@ -14,18 +14,20 @@
 # Warm built-in picks: Gruvbox Material Dark, Gruvbox Dark Hard, Everforest
 # Dark Hard, Kanagawa Wave (dark) — Gruvbox Material Light, Rose Pine
 # Dawn, Catppuccin Latte, Kanagawa Lotus (light). Solarized pick:
-# Solarized Dark Patched (craftzdog style).
+# Solarized Dark Patched (craftzdog style). Flexoki Light is ported below.
 #
 # NOTE: this `theme =` is THE active selection and the source of truth. Since
 # the file is versioned, a `git pull` propagates the theme to the other
 # machines. To change the look: `theme <id>` (scripts/theme edits this line
 # and the equivalent one in nvim — they share the id), then commit.
 #
-# `solarized-patched` is a versioned, hex-verbatim copy of Ghostty's built-in
-# "Solarized Dark Patched" (provenance in the theme file). It is selected by
-# the copy, not the built-in name: the built-in lives inside Ghostty.app, where
-# nvim and Windows Terminal cannot reach it, which would break the one-id rule.
-theme = solarized-patched
+# `flexoki-light` is a versioned copy of Ghostty's built-in "Flexoki Light"
+# (provenance and its one deviation in the theme file), picked as the light
+# theme for an OLED screen: warm paper rather than white, near-black ink. It is
+# selected by the copy, not the built-in name: the built-in lives inside
+# Ghostty.app, where nvim and Windows Terminal cannot reach it, which would
+# break the one-id rule. `solarized-patched` is a copy of the same kind.
+theme = flexoki-light
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -44,6 +46,8 @@ theme = solarized-patched
 #   · blueprint — a drafting sheet at night: near-black canvas (#0a0a0a), cyan
 #     drafting-line cursor (#4be4ff), redline red, cyanotype-white text. Comes
 #     with its own shader (shaders/blueprint.glsl), switched with the theme.
+#   · flexoki-light — the one light theme: Flexoki's printing inks on warm
+#     paper (#fffcf0), ink #100f0f, Solarized's hues and no purple.
 # ─── canvas overrides ─────────────────────────────────────────
 # These WIN over the theme's own values regardless of order, so whatever is
 # uncommented here is what the terminal actually looks like.
@@ -60,8 +64,8 @@ theme = solarized-patched
 #
 # `background` pins the osaka canvas over the theme's own. On for
 # `solarized-patched`; off under `dia-de-muertos`, whose morado canvas
-# (#1d1022) is the theme.
-background = #031219
+# (#1d1022) is the theme, and under `flexoki-light`, whose paper is.
+# background = #031219
 # foreground = #ffffff
 
 # Display P3 wide-gamut — orange and cream saturate more on M-chip / Retina
@@ -84,7 +88,13 @@ window-colorspace = display-p3
 # The "3.0 for light themes" rule assumes a cream or white canvas; over a
 # mid-tone light canvas (e.g. sage #abbab9) brand colours sit at 1.1–1.8:1 and
 # 3.0 rewrites all of them into dark mud.
-minimum-contrast = 1.1
+#
+# 3.0 while `flexoki-light` is active, 1.1 under the dark themes. Over its
+# paper it touches only what falls short: bright yellow and cyan (ANSI 11/14,
+# 2.3 and 2.8:1, which `bold-color = bright` paints on every bold yellow/cyan),
+# nvim's whitespace marks and borders, and truecolor greys apps bring along.
+# Claude orange (3.04:1) and every Flexoki 600 accent pass untouched.
+minimum-contrast = 3.0
 
 # ─── typography ───────────────────────────────────────────────
 # The typeface is PER-MACHINE, like the size: family, styles, variation axes
@@ -114,8 +124,9 @@ faint-opacity = 0.7
 
 # Bold uses the bright half of the palette rather than the same colour at a
 # heavier weight, so it reads as different from body text by colour too.
-# In this palette the brights are the Solarized base greys plus orange and a
-# brighter rose (13 replaces the cut's violet).
+# Under flexoki-light the brights are Flexoki's lighter 400 accents, so a bold
+# colour steps lighter, not louder; `minimum-contrast` above keeps the two that
+# would wash out (yellow, cyan) at 3:1.
 bold-color = bright
 
 # ─── window ───────────────────────────────────────────────────

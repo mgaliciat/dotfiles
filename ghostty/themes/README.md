@@ -41,6 +41,38 @@ His own line spells it `theme = "Solarized Dark - Patched"`, with a hyphen, and
 that string does not resolve in current Ghostty — his terminal has been falling
 back to the default palette since feb-2025. The port is the theme he meant.
 
+**`flexoki-light`** · Steph Ango's Flexoki, light half: printing inks on warm
+paper. The family's one light theme, picked in October 2026 for an OLED
+screen. Hex copied verbatim from the theme **Ghostty itself ships**, at
+`Ghostty.app/Contents/Resources/ghostty/themes/Flexoki Light` (it comes from
+iTerm2-Color-Schemes' `ghostty/Flexoki Light`); the base/accent names, and the
+values nvim uses beyond the ANSI table (orange-600, base-50/100/700), are from
+`lua/flexoki/palette.lua` in kepano/flexoki-neovim.
+
+Why it, for an OLED: the canvas is paper `#fffcf0`, not `#ffffff`. An OLED
+lights each pixel on its own, so full white is its brightest, most power-hungry
+frame and the one its brightness limiter fights; a warm off-white (OKLCH h 95)
+carries less blue at the same level, and the near-black ink `#100f0f` (18.6:1)
+sits on pixels that are almost off. Its accents are Solarized's hues
+(1-6 within 2–8° of the patched cut's), so the stack keeps its look, and it has
+**no purple**: Flexoki's purple is not in the ANSI table and the magentas are
+roses (h 350). Passed over: Solarized Light (body text 4.1:1, and a violet),
+Catppuccin Latte and Rosé Pine Dawn (built around mauve/iris), GitHub Light and
+Modus Operandi (pure white canvas, purple keywords).
+
+**The one deviation: ANSI 8.** Upstream's is base-300 `#b7b5ac`, 2.0:1 on the
+paper, and 8 paints zsh's autosuggestions, tmux's status line and Claude Code's
+dim text. It is base-500 `#878580` in both files, 3.6:1. The brights stay the
+shipped 400 accents, lighter than the normals; yellow 11 and cyan 14 sit under
+3:1 and `minimum-contrast = 3.0` in `config.ghostty` lifts them.
+
+Derived, in nvim and the Claude Code theme only: the diff and search tints,
+set in OKLCH on each accent's hue at L 0.84–0.97 so the ink reads on them at
+11:1 or more. Its Claude Code theme (`claude/themes/flexoki-light.json`) exists
+for legibility: on `light-ansi` it turns the spinner Flexoki orange
+(`#bc5215`, 4.7:1) and puts message backgrounds and diffs on the paper's own
+ladder.
+
 ## Derived — no published hex exists
 
 **`dia-de-muertos`** · The night of the vigil, made for October 2026. The altar
