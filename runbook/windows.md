@@ -68,7 +68,8 @@ fallback for symlinks, and scoop refuses to run under it.
      style, fallback model, the PowerShell-tool env var, the agent-team and
      observer flags with their concurrency and nesting caps, the logbook hook),
      each only if absent;
-   - `rtk` from its release zip plus its versioned `config.toml`, copied;
+   - takes `rtk` back off if an earlier run installed it: its hook, `%LOCALAPPDATA%\Programs\rtk`
+     and its user PATH entry, its config and data dirs;
    - `codebase-memory-mcp` — the **`-ui-`** release asset, sha256-checked, not
      the official installer (which ships the headless build). A stamp file
      `~/.local/bin/.codebase-memory-mcp-ui` records the installed version;
@@ -104,7 +105,6 @@ fallback for symlinks, and scoop refuses to run under it.
 (Get-Item $HOME\.claude\CLAUDE.md).LinkType          # SymbolicLink; empty means it was copied
 Get-ChildItem $HOME\.claude\skills | Select Name, LinkType
 claude mcp list
-rtk --version; rtk config                           # Config: <path> line — the toml lives there
 codebase-memory-mcp --version; Get-Content $HOME\.local\bin\.codebase-memory-mcp-ui
 tgrep --version
 [System.Windows.Media.Fonts]::SystemFontFamilies | Where-Object Source -match 'Maple|Monaspace|PlemolJP'
@@ -180,4 +180,4 @@ Symlinks: delete them (`(Get-Item <path>).Delete()` — never `Remove-Item
 -Recurse` on a directory symlink, it follows into the repo). Copies are beside
 their `.backup.<ts>`. `settings.json` keys the script added can be removed by
 hand; it never touches a key that already existed. scoop packages:
-`scoop uninstall`. rtk and codebase-memory-mcp live in `~\.local\bin`.
+`scoop uninstall`. codebase-memory-mcp lives in `~\.local\bin`.

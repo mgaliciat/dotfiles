@@ -33,8 +33,8 @@ in `themes/` (the stack theme's fourth layer), and the skill plugin we author
 (`skills/logbook`), one `link` per item and never the parent dir.
 
 The two hooks are the entries here that cannot use the `_settings_set_if_absent` helper:
-`.hooks.PostToolUse` and `.hooks.PreToolUse` are arrays shared with other tools (rtk's own
-`PreToolUse` entry among them), so each guard deep-scans for our own
+`.hooks.PostToolUse` and `.hooks.PreToolUse` are arrays shared with other tools
+(codebase-memory-mcp's entries among them), so each guard deep-scans for our own
 command string instead of testing a `jq` path. Guarding on the path would either be satisfied by
 somebody else's hook — ours never landing — or append a duplicate on every run.
 
@@ -50,13 +50,15 @@ one script used to leave the other platform silently behind. The rationale for w
 of each list, and the merge semantics above, are in that file's `_comment`.
 
 **2 — `binaries.sh`.** You install the binary (brew / curl) and run *its* setup command, which is
-the one that writes hooks, MCP servers and skills into `~/.claude/`. Today: `rtk` (a `PreToolUse`
-hook that compresses Bash output), `codebase-memory-mcp` (MCP server + hooks + the
-`codebase-memory` skill), the `context7` endpoint, and the `gh-stack` skill
+the one that writes hooks, MCP servers and skills into `~/.claude/`. Today: `codebase-memory-mcp`
+(MCP server + hooks + the `codebase-memory` skill), the `context7` endpoint, and the `gh-stack` skill
 (`npx skills add`, which resolves it from the `github/gh-stack` repo — the `gh` extension itself
 is installed by `bootstrap_gh_stack` in `scripts/lib.sh`, since it is not Claude Code state).
 That last one is the exception on idempotence: `skills add` re-downloads on every run, so the
 guard is ours (the destination dir).
+It also holds the uninstall of `rtk`, retired: its own `init --global --uninstall` while the
+binary is still there, then a `jq` strip of its hook, the brew formula or `~/.local/bin/rtk`, and
+its config/data dirs, so a re-run converges once the binary is gone.
 
 **3 — `plugins.sh`.** One `marketplace add` + one `install` and the CLI does the rest (including
 writing `extraKnownMarketplaces` / `enabledPlugins`). It is the cheapest way to add new skills or
@@ -74,9 +76,8 @@ else to write it.
 ## Order
 
 `settings.sh` → `binaries.sh` → `plugins.sh`. All three run after the platform's package block,
-because `settings.sh` needs `jq`. Between them the order is contract rather than mechanism: it used
-to matter because `rtk init` appended an `@RTK.md` line to the `~/.claude/CLAUDE.md` that
-`settings.sh` symlinks, and `--hook-only` stopped that write.
+because `settings.sh` needs `jq`. `binaries.sh` goes after `settings.sh` because it rewrites
+`settings.json` through the `_settings_*` helpers that file defines.
 
 ## What is NOT here
 

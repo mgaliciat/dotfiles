@@ -123,7 +123,6 @@ if command -v brew >/dev/null 2>&1; then
     sqlfluff
     imagemagick           # snacks.image converts anything but PNG with `magick`
     lazygit
-    rtk                   # token-reducing proxy CLI for Claude Code — see the rtk section below
     # Trigram-indexed grep (microsoft/tgrep). It is NOT an `rg` drop-in — the
     # README says so itself — so nothing here aliases or replaces ripgrep, and
     # `rg` stays what Claude Code's Grep tool and telescope shell out to.

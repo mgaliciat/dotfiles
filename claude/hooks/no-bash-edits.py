@@ -70,7 +70,7 @@ WRITE_TARGETS = [
 
 INTERPRETERS = {"python", "python3", "node", "ruby", "perl"}
 CODE_FLAGS = {"-c", "-e", "-E", "--eval", "-p", "--print"}
-WRAPPERS = {"sudo", "env", "command", "exec", "nohup", "time", "nice", "rtk"}
+WRAPPERS = {"sudo", "env", "command", "exec", "nohup", "time", "nice"}
 REDIRECTS = {">", ">>", ">|", "&>", "&>>"}
 SEPARATOR_CHARS = set(";&|()\n")
 ASSIGNMENT = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")

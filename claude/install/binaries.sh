@@ -7,85 +7,84 @@
 # that is mechanism 1 (settings.sh).
 #
 # Sourced by install.sh and install-linux.sh — NOT a standalone executable.
-# It goes AFTER settings.sh, whose `$SETTINGS` and `_settings_apply` it uses.
+# It goes AFTER settings.sh, whose `$SETTINGS` and `_settings_*` helpers it uses.
+#
+# `</dev/null` on a setup command is NOT cosmetic: run from a real terminal,
+# a CLI that wants to ask something hangs on a prompt nobody sees (the
+# installer silences its output). Closed stdin → EOF → it takes its default.
 
-# ─── rtk (token-reducing proxy CLI) ───────────────────────────
-# Adds a PreToolUse hook (matcher Bash → "rtk hook claude") that rewrites common
-# commands (git status, cargo test, npm test...) to their rtk equivalent, with
-# filtered/compressed output: fewer context tokens.
+# ─── rtk: retired, and uninstalled ────────────────────────────
+# rtk (rtk-ai/rtk) used to live here: a PreToolUse hook on Bash that rewrote
+# common commands to their rtk equivalent with compressed output, plus a
+# versioned config.toml copied to the per-OS path. It is no longer installed,
+# and this block takes it back off a machine that had it. Convergent and
+# silent once there is nothing left to remove.
 #
-# `--hook-only` is the point: without it `rtk init` also writes ~/.claude/RTK.md
-# and appends an `@RTK.md` import to ~/.claude/CLAUDE.md. Neither earns its
-# place — the hook rewrites Bash calls transparently, so there is nothing for the
-# agent to invoke and nothing to instruct it about. A leftover ~/.claude/RTK.md
-# is per-machine and harmless; delete it by hand.
+# rtk's own `init --global --uninstall` goes first, while the binary is still
+# there to run it: it knows every artefact it wrote (the `rtk hook claude`
+# entry, the legacy ~/.claude/hooks/rtk-rewrite.sh and its hash sidecar,
+# ~/.claude/RTK.md and the @RTK.md import, its Cursor/OpenCode hooks). It only
+# writes ~/.claude/CLAUDE.md (a symlink into this repo) when that file carries
+# an @RTK.md line, which the versioned one never did.
 #
-# On mac the binary already comes from Homebrew (REQUIRED_FORMULAE); on Linux
-# there is no formula, so it falls back to the official curl installer. The
-# `command -v` guard unifies both cases: if brew already put it there, the curl
-# is not even attempted.
+# Everything after it does not need the binary, so a run where it is already
+# gone (brew uninstalled it by hand, a second run) still converges: the jq strip
+# for the settings.json entries, the files, the binary, rtk's own dirs.
 #
-# `</dev/null` is NOT cosmetic: without it the command hangs in a real terminal
-# waiting for an invisible interactive prompt (probably the trust prompt for
-# filters.toml). --auto-patch only avoids the "patch settings.json?" prompt, not
-# that other one. Closed stdin → EOF → the command continues with its default.
-# Doc: https://github.com/rtk-ai/rtk
-if ! command -v rtk >/dev/null 2>&1; then
-  echo ""
-  echo "→ Installing rtk (official curl installer)"
-  curl -fsSL https://raw.githubusercontent.com/rtk-ai/rtk/refs/heads/master/install.sh | sh \
-    || echo "⚠️  rtk install failed"
-fi
-
+# TEMPORARY: delete once every machine has run this version.
 if command -v rtk >/dev/null 2>&1; then
-  # Idempotence: handled by rtk itself (verified by running it twice — the second
-  # run detects the existing hook and does not duplicate it), not by our jq.
-  if rtk init --global --auto-patch --hook-only >/dev/null 2>&1 </dev/null; then
-    echo "✓ rtk Claude Code hook configured (or already there)"
+  if rtk init --global --uninstall >/dev/null 2>&1 </dev/null; then
+    echo "✓ rtk: its own uninstall ran (hook, RTK.md, settings.json entry)"
   else
-    echo "⚠️  rtk init --global failed — check by hand (rtk init --global -v)"
+    echo "⚠️  rtk init --global --uninstall failed — the cleanup below still runs"
   fi
-
-  # ── rtk config.toml: COPIED, not symlinked ──
-  # The only copy-instead-of-link in this repo, and the exception is earned. rtk
-  # does a load → mutate → serialize round-trip on its config: `rtk telemetry
-  # disable` alone rewrites the file, drops every comment, and appends
-  # `consent_date = "<ISO timestamp>"`. Through a symlink that lands in a PUBLIC
-  # repo — the exact failure that keeps ~/.claude/settings.json unversioned. So
-  # the repo file is the source of truth and this pushes it out; the installed
-  # copy is disposable and expected to come back comment-stripped.
-  #
-  # Unconditional on every run (convergent): a `git pull` + ./install.sh realigns
-  # a machine whose copy rtk has since rewritten. Losing rtk's consent fields is
-  # deliberate and free — telemetry stays off, rtk regenerates them on demand,
-  # and trusted-projects state lives in history.db, not here.
-  #
-  # WHY the values (raised caps, tee=always, diff/curl excluded): all of it is
-  # commented in claude/install/rtk-config.toml. Short version — rtk's defaults
-  # truncate hard, and truncation the agent can't see is worse than the tokens it
-  # saves. Upstream: rtk-ai/rtk#827 (silent diff truncation, P0), #1313
-  # (lossless mode, still open), #1282 (no isatty check → corrupts pipes).
-  #
-  # The path is the one OS branch in this file: rtk follows the platform
-  # convention (macOS Application Support, XDG on Linux) and there is no env var
-  # to flatten it. `rtk config` prints the resolved path if this ever drifts.
-  if [[ "$OSTYPE" == darwin* ]]; then
-    RTK_CFG="$HOME/Library/Application Support/rtk/config.toml"
-  else
-    RTK_CFG="${XDG_CONFIG_HOME:-$HOME/.config}/rtk/config.toml"
-  fi
-  # Back up only a copy that actually diverges, matching link()'s contract: a
-  # hand-tuned config on a fresh machine is not silently thrown away, but the
-  # steady state (our file, possibly comment-stripped by rtk) does not spawn a
-  # backup on every single run.
-  if [[ -f "$RTK_CFG" ]] && ! cmp -s "$DOTFILES/claude/install/rtk-config.toml" "$RTK_CFG"; then
-    cp "$RTK_CFG" "$RTK_CFG.backup.$TS"
-    echo "→ backing up diverged $RTK_CFG to $RTK_CFG.backup.$TS"
-  fi
-  mkdir -p "$(dirname "$RTK_CFG")"
-  cp "$DOTFILES/claude/install/rtk-config.toml" "$RTK_CFG"
-  echo "✓ rtk config.toml installed (copy — rtk rewrites it, cannot be a symlink)"
 fi
+
+# Matched on the command, like rtk's own uninstall: the current `rtk hook claude`
+# (with or without an absolute path in front) and the legacy rtk-rewrite.sh.
+# `$SETTINGS` and `_settings_strip_hooks` come from settings.sh, sourced first;
+# without jq the helper's guard fails and this is a no-op.
+_settings_strip_hooks 'rtk hook claude|rtk-rewrite\.sh' \
+  "rtk hooks stripped from settings.json" \
+  "could not strip the rtk hooks — settings.json left untouched"
+rm -f "$HOME/.claude/RTK.md" \
+      "$HOME/.claude/hooks/rtk-rewrite.sh" \
+      "$HOME/.claude/hooks/.rtk-hook.sha256"
+
+# The binary: Homebrew's formula on mac (it was in REQUIRED_FORMULAE), the
+# official curl installer's ~/.local/bin/rtk on Linux. Anything else on PATH
+# was not put there by this repo, so it is reported and left alone.
+if command -v brew >/dev/null 2>&1 && brew list --formula rtk >/dev/null 2>&1; then
+  if brew uninstall rtk >/dev/null 2>&1; then
+    echo "✓ rtk: Homebrew formula uninstalled"
+  else
+    echo "⚠️  brew uninstall rtk failed — remove it by hand"
+  fi
+fi
+if [[ -e "$HOME/.local/bin/rtk" || -L "$HOME/.local/bin/rtk" ]]; then
+  rm -f "$HOME/.local/bin/rtk"
+  echo "✓ rtk: removed ~/.local/bin/rtk"
+fi
+hash -r
+if command -v rtk >/dev/null 2>&1; then
+  echo "⚠️  rtk is still on PATH at $(command -v rtk) — not installed by this repo, remove it by hand"
+fi
+
+# rtk's own dirs: config.toml (and the backups of a diverged one), filters.toml,
+# the tracking db, the tee spool. It follows the platform convention, so on
+# mac config and data are the same Application Support dir.
+if [[ "$OSTYPE" == darwin* ]]; then
+  _rtk_dirs=("$HOME/Library/Application Support/rtk")
+else
+  _rtk_dirs=("${XDG_CONFIG_HOME:-$HOME/.config}/rtk" "${XDG_DATA_HOME:-$HOME/.local/share}/rtk")
+fi
+for _rtk_dir in "${_rtk_dirs[@]}"; do
+  if [[ -d "$_rtk_dir" ]]; then
+    rm -rf "$_rtk_dir"
+    echo "✓ rtk: removed $_rtk_dir"
+  fi
+done
+unset _rtk_dirs _rtk_dir
 
 # ─── codebase-memory-mcp (code graph MCP server) ──────────────
 # Indexes the codebase into a persistent graph — 14 tools (search_graph,
@@ -139,7 +138,7 @@ fi
 #  - PreToolUse on `Grep|Glob` augments those tools' results, and never fires in
 #    a session that has no Grep/Glob tool.
 # Matched on the script path, not on event or matcher: those arrays are shared
-# (rtk's Bash hook, the logbook plugin's). Must stay AFTER `install -y`, which
+# (the logbook plugin's, no-bash-edits'). Must stay AFTER `install -y`, which
 # re-adds all three on every run.
 #
 # Not `_settings_strip_hooks`: that one drops a whole entry when ANY of its
@@ -222,7 +221,7 @@ fi
 #   -a claude-code  only Claude Code; without it the CLI prompts per detected agent
 #   -s gh-stack     the repo ships one skill, but naming it skips the picker
 #   -y + npx -y     no prompts, and `</dev/null` on top: an installer that blocks
-#                   on invisible stdin is the exact rtk footgun documented above
+#                   on invisible stdin is the footgun documented at the top
 #
 # Idempotence is OURS (the CLI re-downloads and re-copies on every `add`), so this
 # guards on the destination dir. That also means it never updates: for that,

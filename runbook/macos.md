@@ -63,8 +63,9 @@ per-machine files and the two silent guards.
    - installs the missing Homebrew formulae and casks (fonts included) and Paper
      Mono by direct download, since it has no cask;
    - configures Claude Code: `settings.json` keys (additive, guarded), the
-     `CLAUDE.md` / statusline / hook / skill symlinks, `rtk`,
-     `codebase-memory-mcp`, the `context7` MCP endpoint, the `gh-stack` skill;
+     `CLAUDE.md` / statusline / hook / skill symlinks, `codebase-memory-mcp`,
+     the `context7` MCP endpoint, the `gh-stack` skill; and takes `rtk` back off
+     a machine an earlier version put it on (its hook, the formula, its dirs);
    - installs the `gh-stack` extension;
    - registers VS Code as the default app for `.ghostty` files, if installed.
 
@@ -141,7 +142,7 @@ readlink ~/.claude/CLAUDE.md ~/.claude/skills/logbook ~/.claude/hooks/logbook.sh
 readlink ~/.gemini/config/plugins/logbook                           # Antigravity: same plugin
 jq '.mcpServers | keys' ~/.gemini/config/mcp_config.json            # optional: only where an MCP was added to Antigravity by hand
 claude mcp list                                                     # context7, codebase-memory, and logbook-mcp once added by hand
-rtk --version && rtk config                                         # config path under ~/Library/Application Support/rtk
+command -v rtk                                                      # prints nothing: retired, the run uninstalls it
 tgrep --version                                                     # brew formula; index/serve are per-repo, opt-in
 nvim --headless '+Lazy! sync' +qa                                   # first plugin install, non-interactive
 ```

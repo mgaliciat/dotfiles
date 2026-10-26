@@ -13,15 +13,8 @@
 # skills/ is per-machine (`learned`, `codebase-memory`, …) and nothing versioned
 # lives under claude/skills/: the `logbook` plugin is in plugins/ because it is
 # shared with Antigravity. The entry guards against a skill copied in by hand.
-#
-# RTK.md is rtk's own command reference. `rtk init` without `--hook-only` writes
-# it to ~/.claude/ and imports it from ~/.claude/CLAUDE.md — a symlink to the
-# versioned file. binaries.sh passes `--hook-only`, so nothing writes
-# claude/RTK.md; this entry guards against somebody copying it in to "fix" a
-# dangling import.
 claude/settings.json
 claude/memory/
-claude/RTK.md
 claude/skills/
 
 # Git config — per-machine (each Mac has its own credentials, 1Password vaults,

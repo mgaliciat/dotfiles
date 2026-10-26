@@ -16,8 +16,6 @@ PERMISSIONS="$DOTFILES/claude/install/permissions.json"
 # ── versioned symlinks (not settings.json itself, but its input) ──
 # statusline.sh: generic script, no personal state → versioned.
 # User-level CLAUDE.md: prose, preferences that apply to ALL projects.
-# Nothing in binaries.sh writes to ~/.claude/CLAUDE.md: `rtk init --hook-only`
-# leaves it alone.
 link "$DOTFILES/claude/statusline.sh" "$HOME/.claude/statusline.sh"
 link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 
@@ -200,7 +198,7 @@ _settings_set_if_absent() {
 # $1 = event, $2 = matcher, $3 = command, $4 = regex that recognises our own
 # entry, $5 = name for the messages. Guarded on $4 appearing in ANY string of
 # the file rather than on a jq path: the per-event arrays are shared with other
-# tools (rtk, codebase-memory-mcp), so a path guard would be satisfied by
+# tools (codebase-memory-mcp, plugins), so a path guard would be satisfied by
 # somebody else's hook, and an exact-command match would duplicate an entry
 # whose command was edited by hand. The why per hook is at each call.
 _settings_add_hook() {
@@ -594,7 +592,7 @@ _settings_add_hook PostToolUse 'Bash|PowerShell' \
 # and this parses bash.
 #
 # Same deep-scan guard as the logbook block, for the same reason: .hooks.PreToolUse
-# is shared with rtk's own entry.
+# is shared with other tools' entries.
 if [[ ! -x /usr/bin/python3 ]]; then
   echo "⚠️  /usr/bin/python3 not found — skipping the no-bash-edits hook"
 else

@@ -56,8 +56,7 @@ link_portable() {
 #
 # Call it AFTER the platform's package block: settings.sh needs jq, and on a
 # fresh machine running first would silently skip every settings.json write
-# until the second run. `rtk` also need not come from the package manager —
-# binaries.sh falls back to the official curl installer when it is missing.
+# until the second run.
 install_claude() {
   source "$DOTFILES/claude/install/settings.sh"
   source "$DOTFILES/claude/install/binaries.sh"
