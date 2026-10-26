@@ -244,10 +244,10 @@ fi
 
 # ─── prompt ───────────────────────────────────────────────────
 # One line of powerline segments in the manner of fish's bobthefish: a failed
-# exit code and background jobs, the tmux session, the path, the branch, then
-# `❯`. Once a line is accepted the prompt collapses to `❯ cmd` (see the
-# transient section), so the filled blocks only ever sit on the line being
-# typed and the scrollback stays plain.
+# exit code and background jobs, the path, the branch, then `❯`. Once a line is
+# accepted the prompt collapses to `❯ cmd` (see the transient section), so the
+# filled blocks only ever sit on the line being typed and the scrollback stays
+# plain.
 #
 # `%n@%m` is dropped: on your own machine it's a constant that eats a
 # third of the line. It comes back only over SSH, where "which box am I
@@ -433,16 +433,6 @@ _prompt_save() {
 }
 add-zsh-hook precmd _prompt_save
 
-# Inside tmux the line opens with the session's name, so a shell in tmux (where
-# the hatch's Claude sessions live) never passes for a plain Ghostty one. Asked
-# of tmux once per shell, not per prompt; a session renamed afterwards shows up
-# at the next `exec zsh`. %% because a session name can hold a `%`.
-typeset -g _prompt_tmux=
-if [[ -n $TMUX && -n $TMUX_PANE ]]; then
-  _prompt_tmux=$(tmux display-message -p -t "$TMUX_PANE" '#S' 2>/dev/null)
-  _prompt_tmux=${_prompt_tmux//\%/%%}
-fi
-
 _prompt_render() {
   _prompt_line= _prompt_fill=
   local state=
@@ -453,7 +443,6 @@ _prompt_render() {
   elif [[ -n $state ]]; then
     _prompt_seg 7 "$state"
   fi
-  [[ -n $_prompt_tmux ]] && _prompt_seg 6 "tmux:$_prompt_tmux"
   [[ -n $SSH_CONNECTION ]] && _prompt_seg 5 '%n@%m'
   _prompt_pwd
   _prompt_seg 4 "${REPLY//\%/%%}"

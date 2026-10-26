@@ -59,8 +59,7 @@ per-machine files and the two silent guards.
    - symlinks the portable set (`.zshrc`, `.zshenv`, `.zprofile`,
      `.gitignore_global`, `nvim`, lazygit, `~/.local/bin/{claude-api-env,theme}`)
      plus Ghostty (`config.ghostty` and `shaders/` into Application Support,
-     `themes/` into `~/.config/ghostty/` — two different dirs, both required),
-     and `tmux/` into `~/.config/tmux`;
+     `themes/` into `~/.config/ghostty/` — two different dirs, both required);
    - installs the missing Homebrew formulae and casks (fonts included) and Paper
      Mono by direct download, since it has no cask;
    - configures Claude Code: `settings.json` keys (additive, guarded), the
@@ -144,7 +143,6 @@ jq '.mcpServers | keys' ~/.gemini/config/mcp_config.json            # optional: 
 claude mcp list                                                     # context7, codebase-memory, and logbook-mcp once added by hand
 rtk --version && rtk config                                         # config path under ~/Library/Application Support/rtk
 tgrep --version                                                     # brew formula; index/serve are per-repo, opt-in
-git -C ~/.config/tmux/plugins/tmux-claude-hatch rev-parse --short HEAD   # the pin in install.sh
 nvim --headless '+Lazy! sync' +qa                                   # first plugin install, non-interactive
 ```
 
@@ -182,12 +180,6 @@ file does nothing on screen until `Cmd+Shift+R`.
   installer; `codebase-memory-mcp install -y` runs unguarded on purpose and
   rebuilds the MCP server and the skill. Its hooks are stripped again right
   after, on purpose — their absence is not a failed install.
-- **⌥Y / ⌥U do nothing in tmux.** The left ⌥ must reach tmux as Alt
-  (`macos-option-as-alt = left` in `config.ghostty`), and the plugin must be
-  cloned: a tmux that started before the installer shows "tmux-claude-hatch is
-  not cloned"; re-run `./install.sh`, which also reloads the config.
-- **A Claude is missing from the ⌥U picker.** The picker only lists Claudes
-  running in a tmux pane; one started in a plain Ghostty split never shows.
 
 ## Undo
 
