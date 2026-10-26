@@ -48,6 +48,9 @@ theme = flexoki-light
 #     with its own shader (shaders/blueprint.glsl), switched with the theme.
 #   · flexoki-light — the one light theme: Flexoki's printing inks on warm
 #     paper (#fffcf0), ink #100f0f, Solarized's hues and no purple.
+#   · slate — Tailwind's slate greys at night: soft blue-grey canvas
+#     (#0f172a), sky cursor (#38bdf8), Tailwind's 400 accents, no purple.
+#     Under it `minimum-contrast` can go back to the dark themes' 1.1.
 # ─── canvas overrides ─────────────────────────────────────────
 # These WIN over the theme's own values regardless of order, so whatever is
 # uncommented here is what the terminal actually looks like.
