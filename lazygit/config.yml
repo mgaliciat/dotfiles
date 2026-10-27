@@ -11,24 +11,24 @@ gui:
   # entry points — a lazygit run in the terminal and the nvim float (snacks,
   # `configure = false` so it never overlays its own theme) — read this file,
   # so it paints the same in both.
-  theme: # stack theme: slate
+  theme: # stack theme: modus-vivendi
     activeBorderColor:
-      - "#60a5fa" # ansi4
+      - "#2fafff" # ansi4
       - bold
     inactiveBorderColor:
-      - "#64748b" # ansi8
+      - "#595959" # ansi8
     optionsTextColor:
-      - "#60a5fa" # ansi4
+      - "#2fafff" # ansi4
     selectedLineBgColor:
-      - "#334155" # ghostty selection-background
+      - "#5a5a5a" # ghostty selection-background
     cherryPickedCommitBgColor:
-      - "#facc15" # ansi3
+      - "#d0bc00" # ansi3
     cherryPickedCommitFgColor:
-      - "#0f172a" # ghostty background
+      - "#000000" # ghostty background
     unstagedChangesColor:
-      - "#f87171" # ansi1
+      - "#ff5f59" # ansi1
     defaultFgColor:
-      - "#e2e8f0" # ghostty foreground
+      - "#ffffff" # ghostty foreground
   # showFileTree: shows the change organized as a tree (default true).
   showFileTree: true
   showCommandLog: false # more room for the main panels
