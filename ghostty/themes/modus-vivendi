@@ -1,0 +1,59 @@
+# modus-vivendi — Protesilaos Stavrou's Modus Vivendi, the dark half of the
+# Modus themes that ship with Emacs (28+): pure white on pure black, every
+# accent at WCAG AAA (7:1) or more. Mirror of nvim/lua/themes/modus-vivendi.lua.
+#
+# PROVENANCE: PORTED HEX, VERBATIM. Source of truth is `modus-themes.el` in
+# protesilaos/modus-themes (main, October 2026): the named colours of
+# `modus-themes-vivendi-palette`, and the `fg-term-*` mappings that Emacs itself
+# paints its ANSI faces with — the terminal table below is that one, slot for
+# slot. Nothing here is derived.
+#
+# Ghostty also ships it as the built-in "Modus Vivendi" (from
+# iTerm2-Color-Schemes); that copy differs in one slot, ANSI 9 #ff7f9f, an older
+# red-cooler. Upstream's bright red today is red-warmer #ff6b55, used here.
+#
+# Contrast over the canvas, measured in sRGB:
+#   · normals (1-6)  7.0–12.0:1 (red lowest, magenta highest)
+#   · brights (9-14) 7.5–13.4:1
+#   · 7 #a6a6a6 8.6:1, 8 #595959 3.0:1, 15 #ffffff 21:1
+#
+# Purple is part of the theme: keywords are magenta-cooler #b6a0ff, and it is
+# ANSI 13. The magenta slot (5) is Modus's pink #feacd0, the function names.
+#
+# Dark convention: the "brights" (8-15) are LIGHTER than the normals.
+
+background = #000000
+foreground = #ffffff
+
+# cursor — fg-main, as Emacs paints it
+cursor-color = #ffffff
+cursor-text  = #000000
+
+# selection — bg-region; text on it 6.9:1
+selection-background = #5a5a5a
+selection-foreground = #ffffff
+
+# ─── ANSI 16 ─────────────────────────────────────────────────
+# normals (0-7). 0 is the canvas itself, as upstream has it: a background tone
+# for the prompt's reverse-video segments, never text.
+palette = 0=#000000
+palette = 1=#ff5f59
+palette = 2=#44bc44
+palette = 3=#d0bc00
+palette = 4=#2fafff
+palette = 5=#feacd0
+palette = 6=#00d3d0
+palette = 7=#a6a6a6
+
+# brights (8-15): red-warmer, green-cooler, yellow-warmer, blue-warmer (the
+# strings), magenta-cooler (the keywords), cyan-cooler (the types). 8 is
+# upstream's #595959 at 3.0:1, the dim grey of zsh's autosuggestions and Claude
+# Code's subtle text; nvim's comments sit higher, on fg-dim #989898 (7.3:1).
+palette = 8=#595959
+palette = 9=#ff6b55
+palette = 10=#00c06f
+palette = 11=#fec43f
+palette = 12=#79a8ff
+palette = 13=#b6a0ff
+palette = 14=#6ae4b9
+palette = 15=#ffffff

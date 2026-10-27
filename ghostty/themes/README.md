@@ -106,6 +106,35 @@ which would otherwise carry tokyonight's lavender in. Its Claude Code theme
 spinner sky (`#38bdf8`, shimmer `#7dd3fc`) and puts the message backgrounds and
 diffs on the slate ladder, taking everything else from the Ghostty slots.
 
+**`modus-vivendi`** · Protesilaos Stavrou's Modus Vivendi, the dark half of the
+Modus themes that ship with Emacs (28+), added in October 2026 from a
+screenshot of Emacs with it on: pure white `#ffffff` on pure black `#000000`,
+every accent at WCAG AAA (7:1) or more. Hex copied verbatim from
+`modus-themes.el` in protesilaos/modus-themes: the named colours of
+`modus-themes-vivendi-palette`, and for the ANSI table the `fg-term-*` mappings
+Emacs paints its own ANSI faces with. Nothing is derived, in any of the three
+files: the diff, search, region, paren and message backgrounds are upstream
+entries too.
+
+Ghostty ships it as the built-in "Modus Vivendi" (from iTerm2-Color-Schemes),
+and that copy is not the source: its ANSI 9 is `#ff7f9f`, an older red-cooler,
+where upstream's bright red today is red-warmer `#ff6b55`. ANSI 0 is the canvas
+itself and ANSI 8 `#595959` sits at 3.0:1, both as upstream has them.
+
+**Purple is the theme here**, unlike the rest of the family: keywords are
+magenta-cooler `#b6a0ff` (ANSI 13), and the screenshot it was matched to is
+mostly that lavender, the teal types (cyan-cooler `#6ae4b9`), the blue strings
+(blue-warmer `#79a8ff`), the pink function names (magenta `#feacd0`) and the
+cyan variables (cyan `#00d3d0`). The nvim module maps tokyonight's groups onto
+those Modus roles and resets what Emacs leaves plain (numbers, operators,
+punctuation, calls) to fg; the line-number column sits on bg-dim `#1e1e1e` as
+in Emacs. Neovim has a full port, miikanissi/modus-themes.nvim; it is not used
+because the stack renders every theme but `solarized-osaka` through `_base`,
+and one module keeps that single path. Its Claude Code theme
+(`claude/themes/modus-vivendi.json`, `dark-ansi`) turns the spinner the keyword
+lavender (shimmer fg-lavender `#dfc0f0`) and puts message backgrounds and
+diffs on Modus's own greys and diff tints.
+
 ## Derived — no published hex exists
 
 **`dia-de-muertos`** · The night of the vigil, made for October 2026. The altar

@@ -51,6 +51,9 @@ theme = slate
 #     paper (#fffcf0), ink #100f0f, Solarized's hues and no purple.
 #   · slate — Tailwind's slate greys at night: soft blue-grey canvas
 #     (#0f172a), sky cursor (#38bdf8), Tailwind's 400 accents, no purple.
+#   · modus-vivendi — Emacs's Modus Vivendi, hex verbatim from modus-themes.el:
+#     white on pure black, lavender keywords (#b6a0ff), teal types, blue
+#     strings, pink function names. Every accent at 7:1 or more.
 # ─── canvas overrides ─────────────────────────────────────────
 # These WIN over the theme's own values regardless of order, so whatever is
 # uncommented here is what the terminal actually looks like.
