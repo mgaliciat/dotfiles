@@ -1172,12 +1172,12 @@ Install-FontFromRelease -Repo "googlefonts/googlesans-code" -AssetPattern '^Goog
 #
 # $WtTheme IS the selection line for Windows, versioned and direct, same shape
 # as ghostty's `theme =`. It does NOT read
-# ghostty's line: it may agree with it (it does today) or disagree, and either
+# ghostty's line: it may agree with it or disagree, and either
 # is a normal state, because a native-Windows box shares NONE of the other two
 # layers -- following ghostty would mean a mac theme change silently repainting a
 # machine that has no ghostty installed. Change the look by editing this line
 # and re-running -- no switcher, no pointer.
-$WtTheme = "solarized-patched"
+$WtTheme = "modus-vivendi"
 
 # $WtFont is the font half of the same idea. Ghostty's typeface is per-machine
 # (~/.config/ghostty/config.local, seeded from ghostty/config.local.default), so
@@ -1247,13 +1247,10 @@ $WtFonts = @("PlemolJP Console NF", "PlemolJP35 Console NF", "Google Sans Code M
 #   alpha-blending            → antialiasingMode is a different knob (grayscale /
 #                               cleartype / aliased), not a colour space. Not a port.
 #   cursor-style-blink        → WT exposes no blink toggle.
-# Tracking config.ghostty: `background` pinned (craftzdog's canvas over
-# solarized-patched), `foreground` left off — white is what his config
-# falls back to, not the look he is known for, and the scheme's own #708284 is.
-# The reasoning, with the measurement behind it, is in ghostty/config.ghostty.
+# `foreground` stays off, as in config.ghostty: the scheme's own text colour is
+# the theme. `background` is not here at all -- see $WtCanvas below.
 $WtAppearance = [ordered]@{
     # foreground                  = "#ffffff"
-    background                    = "#031219"
     opacity                       = 95
     useAcrylic                    = $true
     cursorShape                   = "filledBox"
@@ -1261,6 +1258,19 @@ $WtAppearance = [ordered]@{
     bellStyle                     = "none"
     historySize                   = 32767
     adjustIndistinguishableColors = "never"
+}
+
+# The canvas pin, ghostty's `background = #031219` (craftzdog's canvas over the
+# patched cut's #001e27). It belongs to ONE theme, and config.ghostty comments it
+# out under every other, so here it is keyed by theme id and not part of the
+# additive-only set above: written as a plain key it would outlive a $WtTheme
+# switch and paint every later scheme on solarized's blue-black.
+# Bounded clobber, same rule as colorScheme: a `background` equal to one of these
+# values is ours -- set when $WtTheme has a pin, removed when it does not, so the
+# scheme owns its canvas -- and any other value is hand-picked and left alone.
+# The reasoning behind #031219, with the measurement, is in ghostty/config.ghostty.
+$WtCanvas = @{
+    "solarized-patched" = "#031219"
 }
 
 # Claude launchers, on the one layer this box shares with the rest of the
@@ -1458,6 +1468,22 @@ if (-not (Test-Path $GhosttyTheme)) {
             } else {
                 $Wt.profiles.defaults | Add-Member -NotePropertyName $WtKey -NotePropertyValue $WtAppearance[$WtKey]
             }
+        }
+
+        # Canvas pin. Bounded clobber against $WtCanvas -- see there.
+        $Canvas    = $WtCanvas[$WtTheme]
+        $CurrentBg = $Wt.profiles.defaults.background
+        if ($CurrentBg -and (@($WtCanvas.Values) -notcontains $CurrentBg)) {
+            Write-Host "i   $WtPath keeps its own 'background' ($CurrentBg) -- not applied"
+        } elseif ($Canvas) {
+            if ($Wt.profiles.defaults.PSObject.Properties.Name -contains "background") {
+                $Wt.profiles.defaults.background = $Canvas
+            } else {
+                $Wt.profiles.defaults | Add-Member -NotePropertyName "background" -NotePropertyValue $Canvas
+            }
+        } elseif ($CurrentBg) {
+            $Wt.profiles.defaults.PSObject.Properties.Remove("background")
+            Write-Host "OK  canvas pin $CurrentBg removed -- $WtTheme owns its background"
         }
 
         # Keybindings. Upsert by id in BOTH arrays -- same by-name rule as
