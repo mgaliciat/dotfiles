@@ -1,0 +1,25 @@
+{
+  "name": "modus-vivendi",
+  "base": "dark-ansi",
+  "overrides": {
+    "claude": "#b6a0ff",
+    "claudeShimmer": "#dfc0f0",
+    "text": "#ffffff",
+    "inactive": "#989898",
+    "subtle": "#595959",
+    "success": "#44bc44",
+    "error": "#ff5f59",
+    "warning": "#fec43f",
+    "userMessageBackground": "#303030",
+    "userMessageBackgroundHover": "#535353",
+    "bashMessageBackgroundColor": "#1e1e1e",
+    "memoryBackgroundColor": "#1e1e1e",
+    "selectionBg": "#5a5a5a",
+    "diffAdded": "#00381f",
+    "diffRemoved": "#4f1119",
+    "diffAddedDimmed": "#002910",
+    "diffRemovedDimmed": "#380a0f",
+    "diffAddedWord": "#034f2f",
+    "diffRemovedWord": "#781a1f"
+  }
+}
