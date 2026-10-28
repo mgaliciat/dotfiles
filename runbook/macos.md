@@ -92,13 +92,18 @@ per-machine files and the two silent guards.
    `~/.gitconfig.local` as its **last** line, identity and signing in the
    `.local`. Neither file is in the repo.
 
-   Two keys the repo leans on and no installer can set, since nothing here owns
+   Three keys the repo leans on and no installer can set, since nothing here owns
    that file:
 
    ```bash
    git config --global core.editor nvim
    git config --global pull.rebase true
+   git config --global core.excludesfile ~/.gitignore_global
    ```
+
+   `core.excludesfile` is what turns on `git/.gitignore_global`: the installer
+   only symlinks it to `~/.gitignore_global`, and git never reads that path
+   unless the key names it (its default is `~/.config/git/ignore`).
 
    `pull.rebase` is where rebase-by-default lives: lazygit dropped its own
    `git.pull.mode` and now honours git's, so `lazygit/config.yml` documents the
