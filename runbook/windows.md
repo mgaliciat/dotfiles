@@ -94,7 +94,9 @@ fallback for symlinks, and scoop refuses to run under it.
      `profiles.defaults` is reported and left alone.
 
 3. Bring the per-machine `~\.gitconfig` (identity, signing). Not versioned.
-   Set `git config --global pull.rebase true` here too. **Not** `core.editor
+   Set `git config --global pull.rebase true` and
+   `git config --global core.excludesfile ~/.gitignore_global` here too (the
+   installer links the file; this key is what makes git read it). **Not** `core.editor
    nvim` — nvim is one of the things this entry point deliberately leaves out,
    so that key is whatever editor this box actually has.
 
