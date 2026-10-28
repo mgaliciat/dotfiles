@@ -69,6 +69,7 @@ openspec/
 CLAUDE.local.md
 
 # AI / agentic tools
+.agents/
 .cursor/
 .aider*
 .windsurf/
