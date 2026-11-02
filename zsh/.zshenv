@@ -75,16 +75,17 @@ export VISUAL="nvim"
 export CLAUDE_CODE_NO_FLICKER=1
 
 # Claude Code — CFC is Claude For Chrome: the browser-extension integration,
-# not "context-free composition". Verified against the 2.1.278 binary, where CFC_TOOL_PREFIX sits beside
-# CLAUDE_IN_CHROME_MCP_SERVER_NAME and openInChrome; UNDOCUMENTED — it appears
-# on no docs page, so re-check it against the binary and not against the docs.
+# not "context-free composition". Its switch, CLAUDE_CODE_ENABLE_CFC, is
+# deliberately NOT exported here, so the extension is usable. UNDOCUMENTED —
+# verified against the 2.1.278 binary, where CFC_TOOL_PREFIX sits beside
+# CLAUDE_IN_CHROME_MCP_SERVER_NAME and openInChrome; re-check it against the
+# binary and not against the docs.
 #
 # The parser is triBool, NOT bool: `1|true|yes|on` forces on, `0|false|no|off`
 # forces off, and anything else (including unset) is undefined and falls back to
-# the server-side default `claudeInChromeDefaultEnabled`. So `false` is a real
-# off switch — it wins over that default — and a plausible value like "disabled"
-# would read as undefined and hand the decision back to the server.
-export CLAUDE_CODE_ENABLE_CFC=false
+# the server-side default `claudeInChromeDefaultEnabled`. A plausible value like
+# "disabled" reads as undefined, not off. To force it off on one machine, put
+# `export CLAUDE_CODE_ENABLE_CFC=false` in ~/.zshenv.local.
 
 # Claude Code — the task list (TaskCreate/TaskGet/TaskUpdate/TaskList). Since
 # v2.1.233 it is gated by model: only Claude 3.x, Opus ≤4.7, Sonnet ≤4.6 and
