@@ -9,14 +9,27 @@
 # `claude-wt -c` resumes the last conversation of the worktree you pick.
 #
 # THE PICKER IS fzf, which both installers already install (and which the
-# gco/dex functions lean on): Enter launches, Esc / Ctrl-C cancels, and the
-# preview shows `git status -sb` plus the last commits of the highlighted one.
-# Without fzf on PATH it falls back to a numbered prompt in plain bash, so a
-# box mid-bootstrap still gets a working command instead of a dependency error.
+# gco/dex functions lean on): Enter launches, Ctrl-D deletes, Esc / Ctrl-C
+# cancels, and the preview shows `git status -sb` plus the last commits of the
+# highlighted one. Without fzf on PATH it falls back to a numbered prompt in
+# plain bash (`3` launches, `d3` deletes), so a box mid-bootstrap still gets a
+# working command instead of a dependency error.
+#
+# DELETING is `git worktree remove` after a y/N confirmation, then back to the
+# list. git's own refusals are the safety net and are surfaced, not bypassed:
+# with uncommitted or untracked files, or a lock, it says why and asks a second
+# time before forcing (--force twice, which also overrides the lock). Then it
+# offers to delete the branch too, with `git branch -d` only: an unmerged
+# branch is kept and reported, never force-deleted from here. Refused outright:
+#   - the main worktree (git cannot remove it; it IS the repo);
+#   - the worktree you ran this from: the shell you return to would be sitting
+#     in a deleted directory. cd out of it first.
 #
 # ONLY ONE WORKTREE (the usual repo): there is nothing to pick, so it says so
 # and launches in it directly — the same as fzf's --select-1, and what the
-# command is for. Run from a subdirectory, that still lands at the root.
+# command is for. Run from a subdirectory, that still lands at the root. That
+# shortcut applies on the first listing only: after a delete leaves one, the
+# list is shown again rather than launching Claude unasked.
 #
 # NOT LISTED: the bare entry of a bare repo (no working tree to run in) and
 # prunable ones (directory gone, `git worktree prune` cleans them up). Locked
@@ -49,6 +62,7 @@ usage: claude-wt [--api] [claude args...]
 
 Pick one of this repo's git worktrees and run Claude Code in it.
   Enter    launch claude in the highlighted worktree
+  Ctrl-D   delete the highlighted worktree (asks first)
   Esc      cancel
   --api    launch through claude-api-env (first argument only)
 EOF
@@ -78,33 +92,60 @@ here=$(git rev-parse --show-toplevel 2>/dev/null || true)
 # ── parse `git worktree list --porcelain` ────────────────────
 # One block per worktree, blank-line separated: `worktree <path>`, then
 # `HEAD <sha>`, `branch refs/heads/<name>` or `detached`, and optional `bare`,
-# `locked [reason]`, `prunable [reason]`. Kept as parallel indexed arrays.
-paths=() labels=() flags=()
-path='' label='' flag='' skip=0
-
+# `locked [reason]`, `prunable [reason]`. Kept as parallel indexed arrays;
+# branches[] is empty for a detached one. The FIRST block is always the main
+# worktree (or the bare repo), which is what main_path records.
 flush() {
   if [[ -n $path ]] && (( ! skip )) && [[ -d $path ]]; then
     paths+=("$path")
     labels+=("$label")
+    branches+=("$branch")
     flags+=("$flag")
   fi
-  path='' label='' flag='' skip=0
+  path='' label='' branch='' flag='' skip=0
 }
 
-while IFS= read -r line || [[ -n $line ]]; do
-  case $line in
-    'worktree '*) flush; path=${line#worktree } ;;
-    'HEAD '*)     label="(detached ${line:5:7})" ;;  # overwritten by `branch` when on one
-    'branch '*)   label=${line#branch refs/heads/} ;;
-    bare | 'prunable'*) skip=1 ;;
-    'locked'*)    flag="$flag [locked]" ;;
-    '') flush ;;
-  esac
-done < <(git worktree list --porcelain)
-flush
+load() {
+  paths=() labels=() branches=() flags=()
+  path='' label='' branch='' flag='' skip=0 main_path=''
+  local line
+  while IFS= read -r line || [[ -n $line ]]; do
+    case $line in
+      'worktree '*)
+        flush
+        path=${line#worktree }
+        [[ -n $main_path ]] || main_path=$path ;;
+      'HEAD '*)     label="(detached ${line:5:7})" ;;  # overwritten by `branch` when on one
+      'branch '*)   branch=${line#branch refs/heads/}; label=$branch ;;
+      bare | 'prunable'*) skip=1 ;;
+      'locked'*)    flag="$flag [locked]" ;;
+      '') flush ;;
+    esac
+  done < <(git worktree list --porcelain)
+  flush
+  n=${#paths[@]}
+}
 
-n=${#paths[@]}
-(( n > 0 )) || die "no worktree with a working directory in this repo"
+# ── one display line per worktree ────────────────────────────
+# `<path>\t<branch>  <~/path>  <marks>`: field 1 is what we act on and is hidden
+# from the list (--with-nth), so a path never has to be parsed back out of the
+# padded display text.
+build_rows() {
+  local width=0 l i p shown marks
+  for l in "${labels[@]}"; do
+    if (( ${#l} > width )); then width=${#l}; fi
+  done
+  rows=()
+  for (( i = 0; i < n; i++ )); do
+    p=${paths[i]}
+    shown=$p
+    if [[ $p == "$HOME"/* ]]; then shown="~${p#"$HOME"}"; fi
+    marks=${flags[i]}
+    if [[ $p == "$main_path" ]]; then marks=" [main]$marks"; fi
+    if [[ $p == "$here" ]]; then marks=" [current]$marks"; fi
+    rows+=("$(printf '%s\t%-*s  %s%s' "$p" "$width" "${labels[i]}" "$shown" "$marks")")
+  done
+}
 
 launch() {
   cd -- "$1" || die "cannot cd to $1"
@@ -115,51 +156,95 @@ launch() {
   exec claude "${@:2}"
 }
 
+# y/N from the terminal, not stdin: same reason fzf reads /dev/tty. Anything
+# but y/yes is a no, EOF included.
+confirm() {
+  local answer
+  printf '%s [y/N] ' "$1" >&2
+  read -r answer </dev/tty || return 1
+  [[ $answer == [yY] || $answer == [yY][eE][sS] ]]
+}
+
+# Never fatal: every way out returns to the list, so the caller ignores the status.
+delete() {
+  local p=$1 i br=''
+  for (( i = 0; i < n; i++ )); do
+    if [[ ${paths[i]} == "$p" ]]; then br=${branches[i]}; fi
+  done
+  echo >&2
+  if [[ $p == "$main_path" ]]; then
+    echo "claude-wt: $p is the main worktree — git cannot remove it" >&2
+    return 0
+  fi
+  if [[ $p == "$here" ]]; then
+    echo "claude-wt: you are inside $p — cd out of it first, then run claude-wt again" >&2
+    return 0
+  fi
+  confirm "Delete worktree ${br:-(detached)} at $p?" || { echo "kept" >&2; return 0; }
+  if ! git worktree remove -- "$p"; then
+    confirm "Force it? Uncommitted and untracked files in it are LOST, and a lock is ignored." \
+      || { echo "kept" >&2; return 0; }
+    git worktree remove --force --force -- "$p" || return 0
+  fi
+  echo "✓ removed $p" >&2
+  if [[ -n $br ]] && confirm "Delete branch $br too?"; then
+    # -d, never -D: git refuses an unmerged branch, and that refusal stands.
+    git branch -d -- "$br" >&2 || echo "kept branch $br" >&2
+  fi
+  return 0
+}
+
+load
+(( n > 0 )) || die "no worktree with a working directory in this repo"
+
 if (( n == 1 )); then
   echo "claude-wt: only one worktree in this repo" >&2
   launch "${paths[0]}" "$@"
 fi
 
-# ── one display line per worktree ────────────────────────────
-# `<path>\t<branch>  <~/path>  <marks>`: field 1 is what we act on and is hidden
-# from the list (--with-nth), so a path never has to be parsed back out of the
-# padded display text.
-width=0
-for l in "${labels[@]}"; do
-  if (( ${#l} > width )); then width=${#l}; fi
-done
+# ── the picker, until a launch or a cancel ───────────────────
+# After a delete the list is re-read from git, not patched in place: what git
+# reports is what was actually removed.
+while :; do
+  build_rows
 
-rows=()
-for (( i = 0; i < n; i++ )); do
-  p=${paths[i]}
-  shown=$p
-  if [[ $p == "$HOME"/* ]]; then shown="~${p#"$HOME"}"; fi
-  marks=${flags[i]}
-  if [[ $p == "$here" ]]; then marks=" [current]$marks"; fi
-  rows+=("$(printf '%s\t%-*s  %s%s' "$p" "$width" "${labels[i]}" "$shown" "$marks")")
-done
+  if command -v fzf >/dev/null 2>&1; then
+    # --expect prints the key that ended fzf on the first line (empty for
+    # Enter), the picked row on the second. Status 1 (no match) and 130
+    # (Esc / Ctrl-C) both mean nothing was picked; `|| exit 130` keeps set -e
+    # from turning a cancel into an error message.
+    # {1} in the preview is the hidden path field, quoted by fzf itself.
+    out=$(printf '%s\n' "${rows[@]}" | fzf \
+      --delimiter=$'\t' --with-nth=2.. \
+      --expect=ctrl-d \
+      --prompt='worktree> ' \
+      --header='Enter: claude here · Ctrl-D: delete · Esc: cancel' \
+      --no-multi --layout=reverse --height=60% \
+      --preview='git -C {1} -c color.status=always status -sb; echo; git -C {1} log --oneline --color=always -15' \
+      --preview-window='right:45%:wrap') || exit 130
+    key=${out%%$'\n'*}
+    pick=${out#*$'\n'}
+    pick=${pick%%$'\t'*}
+  else
+    # ── fallback: numbered prompt ──────────────────────────────
+    # Read from the terminal, like fzf does, so the prompt still works with
+    # stdin redirected. Anything but a valid answer (Enter, q, Esc) cancels.
+    for (( i = 0; i < n; i++ )); do
+      printf '%2d) %s\n' "$((i + 1))" "${rows[i]#*$'\t'}" >&2
+    done
+    printf 'worktree [1-%d launches, d1-d%d deletes, anything else cancels]: ' "$n" "$n" >&2
+    read -r answer </dev/tty || exit 130
+    key=''
+    if [[ $answer == d* ]]; then key=ctrl-d; answer=${answer#d}; fi
+    if ! [[ $answer =~ ^[0-9]+$ ]] || (( answer < 1 || answer > n )); then exit 130; fi
+    pick=${paths[answer - 1]}
+  fi
 
-if command -v fzf >/dev/null 2>&1; then
-  # Status 1 (no match) and 130 (Esc / Ctrl-C) both mean nothing was picked;
-  # `|| exit 130` keeps set -e from turning a cancel into an error message.
-  # {1} in the preview is the hidden path field, quoted by fzf itself.
-  pick=$(printf '%s\n' "${rows[@]}" | fzf \
-    --delimiter=$'\t' --with-nth=2.. \
-    --prompt='worktree> ' \
-    --header='Enter: claude here · Esc: cancel' \
-    --no-multi --layout=reverse --height=60% \
-    --preview='git -C {1} -c color.status=always status -sb; echo; git -C {1} log --oneline --color=always -15' \
-    --preview-window='right:45%:wrap') || exit 130
-  launch "${pick%%$'\t'*}" "$@"
-fi
-
-# ── fallback: numbered prompt ────────────────────────────────
-# Reads the answer from the terminal, like fzf does, so the prompt still works
-# with stdin redirected. Anything but a valid number (Enter, q, Esc) cancels.
-for (( i = 0; i < n; i++ )); do
-  printf '%2d) %s\n' "$((i + 1))" "${rows[i]#*$'\t'}" >&2
+  if [[ $key == ctrl-d ]]; then
+    delete "$pick"
+    load
+    (( n > 0 )) || die "no worktree left with a working directory"
+    continue
+  fi
+  launch "$pick" "$@"
 done
-printf 'worktree [1-%d, anything else cancels]: ' "$n" >&2
-read -r answer </dev/tty || exit 130
-if ! [[ $answer =~ ^[0-9]+$ ]] || (( answer < 1 || answer > n )); then exit 130; fi
-launch "${paths[answer - 1]}" "$@"

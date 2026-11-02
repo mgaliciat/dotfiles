@@ -22,7 +22,7 @@ The design rationale (what is versioned vs. per-machine, and why every non-obvio
 | `lazygit/config.yml` | lazygit theme + custom commands |
 | `mouser/config.json` | [Mouser](https://github.com/TomBadash/Mouser) button mappings (macOS only; → `~/Library/Application Support/Mouser/`) |
 | `git/.gitignore_global` | Global gitignore — macOS noise, editor files, build dirs, **and AI-agent scratch** (`.claude/`, `.cursor/`, `.aider*`, …), excluded in every repo |
-| `scripts/` | `claude-api-env` (runs a command with the gateway env), `theme` (switches the stack theme), `claude-wt` (picks a git worktree and runs Claude Code in it), `lib.sh` (shared by both bash installers). All but `lib.sh` are symlinked onto `~/.local/bin` |
+| `scripts/` | `claude-api-env` (runs a command with the gateway env), `theme` (switches the stack theme), `claude-wt` (picks a git worktree and runs Claude Code in it, or deletes it), `lib.sh` (shared by both bash installers). All but `lib.sh` are symlinked onto `~/.local/bin` |
 | `claude/` | User-level Claude Code pieces — `CLAUDE.md` (→ `~/.claude/CLAUDE.md`), `statusline.{sh,ps1}`, `themes/`, `hooks/` (the `PreToolUse` hook that sends file edits to Edit/Write instead of the shell), and `install/` (everything the installers do to `~/.claude/`, see its README) |
 | `plugins/` | Agent plugins shared by Claude Code and Antigravity. `logbook/`: the logmd vault skills, its post-commit hook and both manifests; linked into `~/.claude/skills/` and `~/.gemini/config/plugins/` |
 | `install.sh` | macOS entry point — symlinks + Homebrew deps + Claude Code setup |
@@ -92,7 +92,7 @@ The env file holds a credential: per-machine, `chmod 600`, never versioned, and 
 
 ## Claude Code per worktree
 
-`claude-wt` (on PATH, from any directory inside a git repo) lists the repo's worktrees in fzf, with `git status` and the last commits of the highlighted one in a preview; Enter runs `claude` at the root of that worktree, Esc cancels. With a single worktree it skips the picker and launches there. Arguments go to `claude` (`claude-wt -c` resumes that worktree's last conversation), and `claude-wt --api …` launches through the gateway like `claude --api`. Without fzf it falls back to a numbered prompt. When Claude exits you are back in the directory you started from: a script cannot `cd` its parent shell.
+`claude-wt` (on PATH, from any directory inside a git repo) lists the repo's worktrees in fzf, with `git status` and the last commits of the highlighted one in a preview; Enter runs `claude` at the root of that worktree, Ctrl-D deletes it (`git worktree remove` after a y/N, a second y/N before forcing a dirty or locked one, then an offer to `git branch -d` its branch), Esc cancels. The main worktree and the one you are standing in cannot be deleted from here. With a single worktree it skips the picker and launches there. Arguments go to `claude` (`claude-wt -c` resumes that worktree's last conversation), and `claude-wt --api …` launches through the gateway like `claude --api`. Without fzf it falls back to a numbered prompt (`3` launches, `d3` deletes). When Claude exits you are back in the directory you started from: a script cannot `cd` its parent shell.
 
 ## Per-machine config (not versioned)
 
