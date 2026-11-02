@@ -22,7 +22,7 @@ The design rationale (what is versioned vs. per-machine, and why every non-obvio
 | `lazygit/config.yml` | lazygit theme + custom commands |
 | `mouser/config.json` | [Mouser](https://github.com/TomBadash/Mouser) button mappings (macOS only; → `~/Library/Application Support/Mouser/`) |
 | `git/.gitignore_global` | Global gitignore — macOS noise, editor files, build dirs, **and AI-agent scratch** (`.claude/`, `.cursor/`, `.aider*`, …), excluded in every repo |
-| `scripts/` | `claude-api-env` (runs a command with the gateway env), `theme` (switches the stack theme), `lib.sh` (shared by both bash installers). All but `lib.sh` are symlinked onto `~/.local/bin` |
+| `scripts/` | `claude-api-env` (runs a command with the gateway env), `theme` (switches the stack theme), `claude-wt` (picks a git worktree and runs Claude Code in it, or deletes it), `lib.sh` (shared by both bash installers). All but `lib.sh` are symlinked onto `~/.local/bin` |
 | `claude/` | User-level Claude Code pieces — `CLAUDE.md` (→ `~/.claude/CLAUDE.md`), `statusline.{sh,ps1}`, `themes/`, `hooks/` (the `PreToolUse` hook that sends file edits to Edit/Write instead of the shell), and `install/` (everything the installers do to `~/.claude/`, see its README) |
 | `plugins/` | Agent plugins shared by Claude Code and Antigravity. `logbook/`: the logmd vault skills, its post-commit hook and both manifests; linked into `~/.claude/skills/` and `~/.gemini/config/plugins/` |
 | `install.sh` | macOS entry point — symlinks + Homebrew deps + Claude Code setup |
@@ -51,7 +51,7 @@ cd ~/dotfiles
 
 `install.sh` is idempotent — re-run it after every `git pull`. It backs up anything it would overwrite as `<file>.backup.<timestamp>` and then:
 
-1. **Symlinks** `.zshrc`, `.zshenv`, `.zprofile`, `.gitignore_global`, ghostty (config, shaders, themes), nvim, lazygit, Mouser's `config.json`, `~/.local/bin/{claude-api-env,theme}`, and the Claude pieces (`~/.claude/CLAUDE.md`, `statusline.sh`, `themes/*.json`, `hooks/logbook.sh`, `hooks/no-bash-edits.py`, `skills/logbook`, plus `~/.gemini/config/plugins/logbook` for Antigravity).
+1. **Symlinks** `.zshrc`, `.zshenv`, `.zprofile`, `.gitignore_global`, ghostty (config, shaders, themes), nvim, lazygit, Mouser's `config.json`, `~/.local/bin/{claude-api-env,theme,claude-wt}`, and the Claude pieces (`~/.claude/CLAUDE.md`, `statusline.sh`, `themes/*.json`, `hooks/logbook.sh`, `hooks/no-bash-edits.py`, `skills/logbook`, plus `~/.gemini/config/plugins/logbook` for Antigravity).
 2. **Installs missing Homebrew deps.** The list is `REQUIRED_FORMULAE` / `REQUIRED_CASKS` in `install.sh`: the zsh plugins, the CLI tools `.zshrc` leans on, `neovim`, `lazygit`, `jq` (step 3 needs it); casks `ghostty`, `1password-cli` and the fonts `ghostty/config.local.default` names.
 3. **Configures Claude Code** — additive, nothing you set by hand on that machine is clobbered; the one list that converges is `permissions.ask`/`deny`, where the repo's rules are unioned into whatever the machine has. Split by who writes `~/.claude/settings.json` (`claude/install/README.md`): our `jq` merges (statusline, base permissions, no attribution trailer, the logbook `PostToolUse` hook, the `no-bash-edits` `PreToolUse` hook, `CLAUDE_CODE_THRIFTY_SONIC=0`), the external binaries' own setup ([`codebase-memory-mcp`](https://github.com/DeusData/codebase-memory-mcp), the `context7` MCP endpoint, the `gh-stack` skill), and the plugin CLI (currently nothing). It also uninstalls [`rtk`](https://github.com/rtk-ai/rtk), which earlier versions installed: its hook in `settings.json`, the binary, its config and data dirs.
 4. Installs the `gh-stack` extension for `gh`, and [Mouser](https://github.com/TomBadash/Mouser) from its latest GitHub release if `/Applications/Mouser.app` is missing (there is no cask).
@@ -89,6 +89,10 @@ Currently `modus-vivendi`. The mechanics are in `CLAUDE.md` ("The stack theme") 
 `claude --api …` and `code --api …` (zsh functions) run the real binary with the `ANTHROPIC_*` variables from `~/.claude/claude-api.env`, for that one process only; without the flag both are untouched. All of it goes through `scripts/claude-api-env`, which *parses* the file (never `source`s it) and refuses to launch without `ANTHROPIC_BASE_URL`.
 
 The env file holds a credential: per-machine, `chmod 600`, never versioned, and no installer creates it. A machine without one simply has no gateway.
+
+## Claude Code per worktree
+
+`claude-wt` (on PATH, from any directory inside a git repo) lists the repo's worktrees in fzf, with `git status` and the last commits of the highlighted one in a preview; Enter runs `claude` at the root of that worktree, Ctrl-D deletes it (`git worktree remove` after a y/N, a second y/N before forcing a dirty or locked one, then an offer to `git branch -d` its branch), Esc cancels. The main worktree and the one you are standing in cannot be deleted from here. With a single worktree it skips the picker and launches there. Arguments go to `claude` (`claude-wt -c` resumes that worktree's last conversation), and `claude-wt --api …` launches through the gateway like `claude --api`. Without fzf it falls back to a numbered prompt (`3` launches, `d3` deletes). When Claude exits you are back in the directory you started from: a script cannot `cd` its parent shell.
 
 ## Per-machine config (not versioned)
 

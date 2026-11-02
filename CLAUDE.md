@@ -43,7 +43,7 @@ running the installer.
 | `nvim/` | lazy.nvim, `lua/plugins/*` one file per plugin, `lua/themes/*` |
 | `claude/` | User-level Claude Code: `CLAUDE.md`, `statusline.{sh,ps1}`, `themes/`, `hooks/`, `install/` |
 | `plugins/` | Plugins shared by Claude Code and Antigravity. `logbook/` carries two manifests (`.claude-plugin/plugin.json`, `plugin.json`), `skills/`, `rules/`, `hooks/` |
-| `scripts/` | `lib.sh` (shared by both bash installers), `claude-api-env`, `theme` |
+| `scripts/` | `lib.sh` (shared by both bash installers), `claude-api-env`, `theme`, `claude-wt` |
 | `runbook/` | Operator bring-up per OS |
 
 `README.md` is the map of the repo; this file is the rationale.
