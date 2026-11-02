@@ -452,7 +452,7 @@ _settings_set_if_absent '.preferredNotifChannel' \
 # replaced text. Open upstream with no maintainer answer: anthropics/claude-code
 # #87971, #88041, #90450, #90599.
 #
-# UNDOCUMENTED, like ENABLE_CFC in zsh/.zshenv — re-check it against the binary,
+# UNDOCUMENTED, like CLAUDE_CODE_ENABLE_CFC (see zsh/.zshenv) — re-check it against the binary,
 # where the variable is read before the experiment is consulted. "0" turns the
 # steer off; unset is NOT off, it hands the decision back to the experiment.
 # Verified on 2.1.284 with Opus 5.5, auto and bypass alike: without it the session
