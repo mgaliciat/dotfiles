@@ -57,7 +57,7 @@ per-machine files and the two silent guards.
 
    What it does, in order:
    - symlinks the portable set (`.zshrc`, `.zshenv`, `.zprofile`,
-     `.gitignore_global`, `nvim`, lazygit, `~/.local/bin/{claude-api-env,theme}`)
+     `.gitignore_global`, `nvim`, lazygit, `~/.local/bin/{claude-api-env,theme,claude-wt}`)
      plus Ghostty (`config.ghostty` and `shaders/` into Application Support,
      `themes/` into `~/.config/ghostty/` — two different dirs, both required);
    - installs the missing Homebrew formulae and casks (fonts included) and Paper
