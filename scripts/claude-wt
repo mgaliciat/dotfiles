@@ -25,11 +25,9 @@
 #   - the worktree you ran this from: the shell you return to would be sitting
 #     in a deleted directory. cd out of it first.
 #
-# ONLY ONE WORKTREE (the usual repo): there is nothing to pick, so it says so
-# and launches in it directly — the same as fzf's --select-1, and what the
-# command is for. Run from a subdirectory, that still lands at the root. That
-# shortcut applies on the first listing only: after a delete leaves one, the
-# list is shown again rather than launching Claude unasked.
+# THE LIST IS ALWAYS SHOWN, even with a single worktree: Claude is launched
+# only on an explicit Enter, never in a worktree picked by default. No
+# --select-1 / auto-launch shortcut, on purpose.
 #
 # NOT LISTED: the bare entry of a bare repo (no working tree to run in) and
 # prunable ones (directory gone, `git worktree prune` cleans them up). Locked
@@ -196,11 +194,6 @@ delete() {
 
 load
 (( n > 0 )) || die "no worktree with a working directory in this repo"
-
-if (( n == 1 )); then
-  echo "claude-wt: only one worktree in this repo" >&2
-  launch "${paths[0]}" "$@"
-fi
 
 # ── the picker, until a launch or a cancel ───────────────────
 # After a delete the list is re-read from git, not patched in place: what git
