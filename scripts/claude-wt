@@ -40,7 +40,13 @@
 # force-deleted from here. Refused outright:
 #   - the main worktree (git cannot remove it; it IS the repo);
 #   - the worktree you ran this from: the shell you return to would be sitting
-#     in a deleted directory. cd out of it first.
+#     in a deleted directory. cd out of it first;
+#   - a worktree that another worktree lives inside (`.claude/worktrees/x`):
+#     `git worktree remove` deletes ignored files without asking, the nested
+#     checkout is one of them to it, and it would go with its uncommitted work.
+# IGNORED FILES are the other thing git removes without a word (`.env`, a
+# `.claude/` dir: the global gitignore ignores both), so they are listed
+# before the first y/N.
 #
 # THE LIST IS ALWAYS SHOWN, even with a single worktree: Claude is launched
 # only on an explicit Enter, never in a worktree picked by default. No
@@ -125,6 +131,9 @@ age() {
 
 # `git status --porcelain=v2 --branch` in one call: sets `dirty` (changed +
 # untracked entries) and `ahead`/`behind` (empty with no upstream).
+# --no-optional-locks on every status here: a plain `git status` refreshes the
+# index and takes index.lock to do it, and the worktrees this lists are the
+# ones a Claude session may be committing in right now.
 wt_state() {
   local line
   dirty=0 ahead='' behind=''
@@ -137,7 +146,7 @@ wt_state() {
       '#'*) ;;
       ?*) dirty=$(( dirty + 1 )) ;;
     esac
-  done < <(git -C "$1" status --porcelain=v2 --branch 2>/dev/null || true)
+  done < <(git --no-optional-locks -C "$1" status --porcelain=v2 --branch 2>/dev/null || true)
 }
 
 # ── the preview pane ─────────────────────────────────────────
@@ -176,7 +185,7 @@ preview() {
     printf '%sChanges%s\n%s✓ working tree clean%s\n' "$B" "$R" "$GRN" "$R"
   else
     printf '%sChanges%s %s%d%s\n' "$B" "$R" "$YEL" "$dirty" "$R"
-    st=$(git -c color.status=$GITCOLOR status --short 2>/dev/null || true)
+    st=$(git --no-optional-locks -c color.status=$GITCOLOR status --short 2>/dev/null || true)
     n=$(printf '%s\n' "$st" | wc -l)
     printf '%s\n' "$st" | head -n 12
     if (( n > 12 )); then printf '%s… %d more%s\n' "$GRY" $(( n - 12 )) "$R"; fi
@@ -317,7 +326,7 @@ confirm() {
 # Sets `notice` (one coloured line for the next header) and never fails:
 # every way out returns to the list.
 delete() {
-  local p=$1 i br='' err
+  local p=$1 i br='' err ign k line
   for (( i = 0; i < n; i++ )); do
     if [[ ${paths[i]} == "$p" ]]; then br=${branches[i]}; fi
   done
@@ -329,9 +338,28 @@ delete() {
     notice="${RED}✗${R} you are inside $(tildify "$p") — cd out of it first"
     return 0
   fi
+  for (( i = 0; i < n; i++ )); do
+    if [[ ${paths[i]} == "$p"/* ]]; then
+      notice="${RED}✗${R} $(tildify "${paths[i]}") is a worktree inside $(tildify "$p") — delete that one first"
+      return 0
+    fi
+  done
 
   printf '\n  %s%sDelete worktree%s %s%s%s\n  %s%s%s\n\n' \
     "$B" "$RED" "$R" "$B" "${br:-detached}" "$R" "$GRY" "$(tildify "$p")" "$R" >&2
+  # Ignored entries, collapsed per directory the way `git status` shows them.
+  ign=$(git --no-optional-locks -C "$p" status --porcelain --ignored 2>/dev/null \
+    | sed -n 's/^!! //p' || true)
+  if [[ -n $ign ]]; then
+    printf '  %sIgnored, deleted with it without asking:%s\n' "$YEL" "$R" >&2
+    k=0
+    while IFS= read -r line; do
+      k=$(( k + 1 ))
+      if (( k <= 8 )); then printf '    %s%s%s\n' "$GRY" "$line" "$R" >&2; fi
+    done <<<"$ign"
+    if (( k > 8 )); then printf '    %s… %d more%s\n' "$GRY" $(( k - 8 )) "$R" >&2; fi
+    echo >&2
+  fi
   confirm "Remove it" || { notice="${GRY}kept $(tildify "$p")${R}"; return 0; }
   # git's refusal is shown (indented, in gray) because it is the reason the
   # next question is being asked.
@@ -409,11 +437,17 @@ while :; do
   if (( ${#fzf_opts[@]} )); then
     # --expect prints the key that ended fzf on the first line (empty for
     # Enter), the picked row on the second. Status 1 (no match) and 130
-    # (Esc / Ctrl-C) both mean nothing was picked; `|| exit 130` keeps set -e
-    # from turning a cancel into an error message.
+    # (Esc / Ctrl-C) both mean nothing was picked and exit quietly; anything
+    # else (2: no /dev/tty, an option this fzf rejects) is an error, said so.
     extra=(--header="$header")
     if (( styled )); then extra+=(--border-label=" ${repo} · ${count} "); fi
-    out=$(printf '%s\n' "${rows[@]}" | fzf "${fzf_opts[@]}" "${extra[@]}") || exit 130
+    rc=0
+    out=$(printf '%s\n' "${rows[@]}" | fzf "${fzf_opts[@]}" "${extra[@]}") || rc=$?
+    case $rc in
+      0) ;;
+      1 | 130) exit 130 ;;
+      *) die "fzf failed (exit $rc)" ;;
+    esac
     key=${out%%$'\n'*}
     pick=${out#*$'\n'}
     pick=${pick%%$'\t'*}
@@ -432,8 +466,9 @@ while :; do
     read -r answer </dev/tty || exit 130
     key=''
     if [[ $answer == d* ]]; then key=ctrl-d; answer=${answer#d}; fi
-    if ! [[ $answer =~ ^[0-9]+$ ]] || (( answer < 1 || answer > n )); then exit 130; fi
-    pick=${paths[answer - 1]}
+    # 10#: base 10, or `08` and `09` are invalid octal to bash.
+    if ! [[ $answer =~ ^[0-9]+$ ]] || (( 10#$answer < 1 || 10#$answer > n )); then exit 130; fi
+    pick=${paths[10#$answer - 1]}
   fi
 
   if [[ $key == ctrl-d ]]; then
