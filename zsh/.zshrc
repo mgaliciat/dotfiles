@@ -358,7 +358,9 @@ _prompt_dirty() {
   # No repo, no question to ask — `_prompt_git` already told us, for free.
   [[ -n $_prompt_git_str ]] || return
   local fd
-  exec {fd}< <(command git status --porcelain --ignore-submodules=dirty 2>/dev/null | head -n 1)
+  # --no-optional-locks: a plain status refreshes the index under
+  # index.lock, which can fail a commit a Claude session is making here.
+  exec {fd}< <(command git --no-optional-locks status --porcelain --ignore-submodules=dirty 2>/dev/null | head -n 1)
   zle -F $fd _prompt_dirty_done
 }
 add-zsh-hook precmd _prompt_dirty
@@ -521,4 +523,6 @@ unfunction _zshrc_in_ghostty
 # ─── local overrides (not versioned) ──────────────────────────
 # ~/.zshrc.local for per-machine aliases / functions / overrides.
 # For env vars and secrets use ~/.zshenv.local (also loaded in scripts).
-[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+# if/fi, not `[[ ]] && source`: as the file's last command, a missing
+# .local would leave $? = 1 for the first prompt, which paints ✘ 1.
+if [[ -f ~/.zshrc.local ]]; then source ~/.zshrc.local; fi

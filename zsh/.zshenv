@@ -102,4 +102,4 @@ export CLAUDE_CODE_ENABLE_TODO_TOOLS=1
 # ─── local overrides (not versioned) ──────────────────────────
 # ~/.zshenv.local for per-machine secrets/tokens/env vars.
 # Loaded at the end so it can prepend to PATH and override defaults.
-[[ -f ~/.zshenv.local ]] && source ~/.zshenv.local
+if [[ -f ~/.zshenv.local ]]; then source ~/.zshenv.local; fi

@@ -131,8 +131,9 @@ _fzf_cd_widget() {
     # of parent dirs does — it reports what is on disk rather than where we
     # guessed it would be, and it is not depth-limited.
     command -v ghq >/dev/null && ghq list --full-path
-    # Subdirs of the cwd (not recursive).
-    ls -1d "$PWD"/*/ 2>/dev/null | sed 's:/$::'
+    # Subdirs of the cwd (not recursive). (N-/): dirs and links to dirs, like
+    # `*/` was, and nothing rather than `no matches found` when there are none.
+    print -rC1 -- $PWD/*(N-/)
   } | awk '!a[$0]++' | fzf \
         --height=40% --reverse \
         --prompt='cd > ' \
