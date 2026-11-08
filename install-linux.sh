@@ -55,8 +55,7 @@ if command -v apt-get >/dev/null 2>&1; then
     imagemagick                   # snacks.image converts anything but PNG with `magick`
     ripgrep
     fd-find                       # the binary is 'fdfind' — apt names it that way because of a clash with another 'fd'
-    bat                           # 'batcat' on Ubuntu 20.04; 'bat' on 22.04+
-    fzf
+    bat                           # the binary is 'batcat' on Ubuntu and Debian; shimmed to 'bat' below
     jq                            # required by claude/install/settings.sh
     gh                            # GitHub CLI — universe on Ubuntu 23.10+/Debian 13; older releases fail here and bootstrap_gh_stack skips itself
     eza                           # apt 23.10+; on older versions it fails → GH release fallback below
@@ -65,8 +64,11 @@ if command -v apt-get >/dev/null 2>&1; then
     python3
     python3-pip
   )
-  # NOTE: 'neovim' is NOT in this list on purpose — apt has v0.6.x, and your
-  # plugins (lazy.nvim, blink.cmp, rustaceanvim) need 0.10+.
+  # NOTE: 'neovim' is NOT in this list on purpose — apt has v0.6.x, and the
+  # config needs 0.11+ (lsp.lua uses vim.lsp.config / vim.lsp.enable).
+  # Nor is 'fzf': .zshrc's `fzf --zsh` needs 0.48+, and apt ships 0.29
+  # (Ubuntu 22.04), 0.38 (Debian 12), 0.44 (24.04). Both come from GitHub
+  # releases below.
   # We install it via GH release tarball below.
 
   # dpkg-query's Status, not `dpkg -s`: the latter also succeeds for a package
@@ -128,7 +130,7 @@ if ! command -v fd >/dev/null 2>&1 && command -v fdfind >/dev/null 2>&1; then
   echo "✓ symlink fd → fdfind in ~/.local/bin"
 fi
 
-# bat: same clash, same shim. On Ubuntu 20.04 the apt package installs `batcat`
+# bat: same clash, same shim. On Ubuntu and Debian the apt package installs `batcat`
 # (the name `bat` was taken by bacula-console-qt). The `cat` alias in .zshrc
 # and the MANPAGER export in .zshenv are both guarded on `command -v bat`, so
 # nothing breaks without it — they just silently stay plain `cat`/`man`, and
@@ -250,7 +252,26 @@ if ! command -v lazygit >/dev/null 2>&1; then
     'download/v@VER@/lazygit_@VER@_Linux_@ARCH@.tar.gz'
 fi
 
-# nvim — apt has 0.6.x, your plugins need 0.10+. Release tarball
+# fzf — 0.48+ for `fzf --zsh` (.zshrc). Installed when missing or older, e.g.
+# an apt fzf from before this installer stopped using it: ~/.local/bin is
+# ahead of /usr/bin on PATH, so the release wins without removing the package.
+FZF_NEEDS_INSTALL=true
+if command -v fzf >/dev/null 2>&1; then
+  FZF_VER=$(fzf --version 2>/dev/null | grep -oE '^[0-9]+\.[0-9]+' | head -1 || true)
+  FZF_MAJOR=${FZF_VER%.*}
+  FZF_MINOR=${FZF_VER#*.}
+  if (( ${FZF_MAJOR:-0} > 0 )) || (( ${FZF_MINOR:-0} >= 48 )); then
+    FZF_NEEDS_INSTALL=false
+  fi
+fi
+if $FZF_NEEDS_INSTALL; then
+  echo ""
+  echo "→ Installing fzf 0.48+ (GH release)"
+  _gh_install_bin fzf junegunn/fzf amd64 arm64 \
+    'download/v@VER@/fzf-@VER@-linux_@ARCH@.tar.gz'
+fi
+
+# nvim — apt has 0.6.x, the config needs 0.11+. Release tarball
 # (not AppImage: the tarball does not require FUSE, more robust on WSL2).
 # Not through _gh_install_bin: it is a whole tree under ~/.local/share with a
 # symlink into ~/.local/bin, not a single binary.
@@ -262,13 +283,13 @@ if command -v nvim >/dev/null 2>&1; then
   NVIM_VER=$(nvim --version | head -1 | grep -oP 'v\K[0-9]+\.[0-9]+' | head -1 || true)
   NVIM_MAJOR=${NVIM_VER%.*}
   NVIM_MINOR=${NVIM_VER#*.}
-  if (( NVIM_MAJOR > 0 )) || (( NVIM_MINOR >= 10 )); then
+  if (( NVIM_MAJOR > 0 )) || (( NVIM_MINOR >= 11 )); then
     NVIM_NEEDS_INSTALL=false
   fi
 fi
 if $NVIM_NEEDS_INSTALL; then
   echo ""
-  echo "→ Installing nvim 0.10+ (GH release tarball)"
+  echo "→ Installing nvim 0.11+ (GH release tarball)"
   NVIM_ARCH=$(_arch_x86_arm x86_64 arm64)
   if [[ -n "$NVIM_ARCH" ]]; then
     NVIM_TARBALL="nvim-linux-${NVIM_ARCH}.tar.gz"

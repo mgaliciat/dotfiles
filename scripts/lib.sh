@@ -2,6 +2,25 @@
 # Shared by install.sh (macOS) and install-linux.sh. Sourced, not executed:
 # it expects $DOTFILES and $TS from the parent installer.
 
+# The installer's own PATH. On a fresh machine it runs from a shell that has
+# not sourced zsh/path.zsh yet, and the runbook says to leave out Homebrew's
+# `brew shellenv`, so neither /opt/homebrew/bin nor ~/.local/bin is there:
+# `command -v brew` fails and every dependency is skipped, and a binary just
+# installed into ~/.local/bin is not found by the step that registers it (so
+# the next run downloads it again). Same order as path.zsh: ~/.local/bin
+# first, then Homebrew. ~/.local/bin goes in even before it exists, since the
+# installers create it and fill it.
+for _dir in /home/linuxbrew/.linuxbrew/sbin /home/linuxbrew/.linuxbrew/bin \
+            /opt/homebrew/sbin /opt/homebrew/bin "$HOME/.local/bin"; do
+  [[ -d $_dir || $_dir == "$HOME/.local/bin" ]] || continue
+  case ":$PATH:" in
+    *":$_dir:"*) ;;
+    *) PATH="$_dir:$PATH" ;;
+  esac
+done
+unset _dir
+export PATH
+
 # Symlink $1 → $2, backing up whatever was there first. Idempotent: an existing
 # symlink is replaced silently, a real file is moved aside with a timestamp so a
 # fresh machine never loses a config it already had.
