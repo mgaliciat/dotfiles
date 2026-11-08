@@ -60,16 +60,17 @@ Windows side, so also run [`windows.md`](windows.md) there.
    - symlinks the portable set (same list as macOS, from `scripts/lib.sh`). An
      existing `~/.zprofile` is moved aside like any other real file; move what
      it held into `~/.zprofile.local`, which `.zprofile` sources last;
-   - `apt-get install` for what apt has (zsh, ripgrep, fd-find, bat, fzf,
+   - `apt-get install` for what apt has (zsh, ripgrep, fd-find, bat,
      jq, gh, eza, the zsh plugins, python3, build-essential…);
    - shims `fd → fdfind` and `bat → batcat` into `~/.local/bin` where apt uses
      the renamed binaries — `.zshrc` guards the `cat` and `find` aliases on
      `command -v bat` / `fd`, so without the shim they silently stay the
      plain tools and the shell drifts from macOS;
    - configures Claude Code (same three scripts as macOS);
-   - GitHub release binaries for what apt lacks or ships too old: lazygit,
-     **nvim 0.10+** (tarball, no FUSE), delta (`.deb`), eza fallback, gomi,
-     ghq, tree-sitter-cli; zoxide and pyenv via their official curl installers;
+   - GitHub release binaries for what apt lacks or ships too old: fzf 0.48+
+     (apt's is too old for `fzf --zsh`), lazygit, **nvim 0.11+** (tarball, no
+     FUSE), delta (`.deb`), eza fallback, gomi, ghq, tree-sitter-cli; zoxide
+     and pyenv via their official curl installers;
    - `chsh -s $(which zsh)` if zsh is not the login shell. It may ask for your
      password; it takes effect on the **next login**, not the current shell.
 
@@ -115,7 +116,7 @@ The installer detects WSL2 and prints these; they are manual on purpose:
 ```bash
 readlink ~/.zshrc ~/.zprofile ~/.config/nvim ~/.local/bin/claude-api-env
 echo $SHELL                                   # /usr/bin/zsh after re-login
-nvim --version | head -1                      # v0.10 or newer
+nvim --version | head -1                      # v0.11 or newer
 command -v fd bat eza zoxide lazygit delta gomi ghq tree-sitter
 claude mcp list
 ```

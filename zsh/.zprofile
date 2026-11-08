@@ -18,4 +18,4 @@ source "${${(%):-%x}:A:h}/path.zsh"
 # line). Last, so a PATH entry prepended here beats /usr/bin in a login shell;
 # one prepended from ~/.zshenv.local sits behind the system dirs, where
 # path_helper put it.
-[[ -f ~/.zprofile.local ]] && source ~/.zprofile.local
+if [[ -f ~/.zprofile.local ]]; then source ~/.zprofile.local; fi
