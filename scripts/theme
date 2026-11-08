@@ -53,7 +53,11 @@ current_nvim()    { sed -nE 's/^vim\.g\.theme = "(.+)"$/\1/p' "$NVIM_OPTS" | hea
 # An id is selectable when both layers can render it: a ghostty theme and an
 # nvim theme module — or the solarized-osaka plugin, which is how nvim renders
 # that one id.
+# The id is spliced into sed replacements and file paths, so it is held to
+# the shape every theme file already has: `./retta` would find both files and
+# then break the sed.
 valid_id() {
+  [[ $1 =~ ^[a-z0-9][a-z0-9-]*$ ]] || return 1
   [[ -f $DOTFILES/ghostty/themes/$1 ]] || return 1
   [[ -f $DOTFILES/nvim/lua/themes/$1.lua || $1 == solarized-osaka ]]
 }
@@ -77,12 +81,18 @@ is_light() {
 }
 
 # Rewrite a file through a temp file, keeping its inode and mode (`cat >`
-# rather than `mv`), and fail loudly if the pattern matched nothing.
+# rather than `mv`), and fail loudly if the pattern matched nothing. A sed
+# that fails dies here: its callers run it under `|| true` (no match is
+# fine), where set -e is off, and an empty temp file copied over the
+# original would blank the config.
 rewrite() {
   local file=$1 tmp
   shift
   tmp=$(mktemp)
-  sed -E "$@" "$file" > "$tmp"
+  if ! sed -E "$@" "$file" > "$tmp"; then
+    rm -f "$tmp"
+    die "sed failed on $file — left it untouched"
+  fi
   if cmp -s "$tmp" "$file"; then
     rm -f "$tmp"
     return 1
@@ -95,7 +105,10 @@ show_status() {
   local g n
   g=$(current_ghostty) n=$(current_nvim)
   printf '  ghostty  %s\n  nvim     %s\n' "${g:-?}" "${n:-?}"
-  if [[ $g == "$n" ]]; then
+  if [[ -z $g || -z $n ]]; then
+    echo "⚠️  a selection line is missing — check $GHOSTTY_CONF and $NVIM_OPTS"
+    return 1
+  elif [[ $g == "$n" ]]; then
     echo "✓ in sync"
   else
     echo "⚠️  out of sync — run: theme <id>"
