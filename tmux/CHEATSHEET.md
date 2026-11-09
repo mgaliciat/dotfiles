@@ -6,7 +6,8 @@ Shortcuts for **this specific config** (macOS only). For the full reference,
 Every Ghostty tab, split and quick terminal starts inside tmux, in a session of
 its own. Leaving tmux (`exit` in its last pane, or a detach) closes the tab,
 and closing the tab (`⌘W`, the window, quitting Ghostty) ends its session and
-what runs in it. Only the `claude-*` sessions outlive a tab.
+what runs in it. Only the `claude-*` sessions outlive a tab, for up to 15
+days without use.
 `export NO_AUTO_TMUX=1` in `~/.zshenv.local` turns that off on one machine.
 
 `prefix` = **`C-t`** (Ctrl+t, release, then the key; `C-t C-t` sends a real Ctrl+t
@@ -14,7 +15,8 @@ through, e.g. to fzf's file widget). `M-x` = Alt+x with the **left ⌥**
 (Ghostty's `macos-option-as-alt = left`); the `M-` keys need no prefix.
 
 Every binding below is taken from `tmux/tmux.conf`, `tmux/claude-popup.sh` or
-the plugin's scripts; `tmux/reap-tabs.sh` is what ends a closed tab's session.
+the plugin's scripts; `tmux/reap-sessions.sh` is what ends a closed tab's
+session and a forgotten Claude.
 After editing `tmux.conf`: **`C-t r`** reloads it.
 
 ---
@@ -24,6 +26,10 @@ After editing `tmux.conf`: **`C-t r`** reloads it.
 Each Claude lives in a detached `claude-…` session per directory, shown in a
 popup over your window. Closing the popup leaves it running; the same key
 re-attaches. While it runs the Mac stays awake (`caffeinate -di`).
+
+A Claude you have not opened or typed in for **15 days** is closed on its own
+(`@claude_idle_days` in `tmux.conf`; 0 turns that off). The conversation
+stays: `claude --resume` in that directory picks it up.
 
 ### Launch
 
@@ -99,8 +105,9 @@ it.
 | `tmux kill-session -t <name>` | End a session |
 
 A `claude-*` session lives until its Claude exits (`/exit`, or `ctrl-x` in the
-`M-u` picker), tab or no tab, and keeps the Mac awake meanwhile. The picker is
-where a forgotten one shows up, with its age.
+`M-u` picker) or it has gone 15 days without use, tab or no tab, and keeps the
+Mac awake meanwhile. The picker is where a forgotten one shows up, with its
+age.
 
 ## 6. Copy and scroll
 

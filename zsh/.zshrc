@@ -19,7 +19,7 @@
 # them in the same server and outlive the tab.
 #
 # The session is stamped with the client that owns it (@tab_client, the tab's
-# tty), which is what lets tmux/reap-tabs.sh end it when the tab closes
+# tty), which is what lets tmux/reap-sessions.sh end it when the tab closes
 # instead of leaving it running unseen.
 #
 # Leaving tmux closes the tab with it — `exit` in its last pane, or a detach:
