@@ -21,16 +21,15 @@
 # machines. To change the look: `theme <id>` (scripts/theme edits this line
 # and the equivalent one in nvim — they share the id), then commit.
 #
-# `modus-vivendi` is Emacs's Modus Vivendi, hex verbatim from modus-themes.el
-# (provenance in the theme file): pure white on pure black, every accent at
-# WCAG AAA. It is selected by the copy, not Ghostty's built-in "Modus Vivendi",
-# for the reason below. `slate` is the soft blue-grey dark one, and
-# `flexoki-light`, the light one, is a versioned copy of Ghostty's built-in
-# "Flexoki Light", selected by the copy, not the built-in name: the built-in
-# lives inside Ghostty.app, where nvim and Windows Terminal cannot reach it,
-# which would break the one-id rule. `solarized-patched` is a copy of the same
-# kind.
-theme = modus-vivendi
+# `solarized-patched` is the theme craftzdog's Ghostty names, "Solarized Dark
+# Patched" (provenance in the theme file), under his canvas and glass: the
+# `background` pin and the opacity and blur below. It is a versioned copy of
+# the Ghostty built-in, selected by the copy, not the built-in name: the
+# built-in lives inside Ghostty.app, where nvim and Windows Terminal cannot
+# reach it, which would break the one-id rule. `modus-vivendi` (Emacs's Modus
+# Vivendi, white on pure black) and `flexoki-light`, the light one, are copies
+# of the same kind. `slate` is the soft blue-grey dark one.
+theme = solarized-patched
 
 # Custom themes — they live in `ghostty/themes/` (symlinked to
 # <config-dir>/themes/ by install.sh). Canonical family of the stack (same
@@ -73,7 +72,7 @@ theme = modus-vivendi
 # `background` pins the osaka canvas over the theme's own. On for
 # `solarized-patched`; off under `dia-de-muertos`, whose morado canvas
 # (#1d1022) is the theme, and under `flexoki-light`, whose paper is.
-# background = #031219
+background = #031219
 # foreground = #ffffff
 
 # Display P3 wide-gamut — orange and cream saturate more on M-chip / Retina
@@ -97,7 +96,7 @@ window-colorspace = display-p3
 # mid-tone light canvas (e.g. sage #abbab9) brand colours sit at 1.1–1.8:1 and
 # 3.0 rewrites all of them into dark mud.
 #
-# 1.1 under the dark themes (`modus-vivendi` now), 3.0 while `flexoki-light` is
+# 1.1 under the dark themes (`solarized-patched` now), 3.0 while `flexoki-light` is
 # active. Over its paper it touches only what falls short: bright yellow and
 # cyan (ANSI 11/14, 2.3 and 2.8:1, which `bold-color = bright` paints on every
 # bold yellow/cyan),
@@ -151,8 +150,11 @@ bold-color = bright
 # only affects NEW windows. ⌘N after ⌘⇧R, or the old titlebar stays.
 macos-titlebar-style = transparent
 
-# GLASS. Solid right now (opacity 1.0, no blur): the blueprint grid shader
-# reads as paper only over a canvas that holds still.
+# GLASS. On: craftzdog's pair, opacity 0.9 and Ghostty's gaussian blur at
+# radius 20 (`background-blur` takes the radius directly), over the #031219
+# canvas pinned above. Solid is `background-opacity = 1.0` + `background-blur =
+# 0`, which is what `blueprint` wants: its grid shader reads as paper only over
+# a canvas that holds still.
 #
 # The other half of this lives in nvim: `transparent = true` on the ACTIVE theme's
 # spec. Without it nvim paints an opaque canvas over the glass and the seam shows
@@ -160,16 +162,15 @@ macos-titlebar-style = transparent
 # the new spec carries it. A light theme cannot take glass: a light canvas over
 # the glass is unreadable (see colorscheme.lua).
 #
-# Glass options:
-#   background-opacity = 0.9 + background-blur = 20  (Ghostty's gaussian blur)
+# Other glass options, in place of the gaussian blur:
 #   background-opacity = 0.9 + background-blur = macos-glass-clear  (the
 #     system's own, highly transparent material, macOS 26+)
 #   macos-glass-regular  (frosted; keeps a coloured canvas reading as itself)
 # The glass carries its own opacity on top of `background-opacity`, and
 # `background-opacity-cells` below pushes both onto cells that set their own
 # background, which can leave lazygit panels and diff hunks looking thin.
-background-opacity = 1.0
-background-blur = 0
+background-opacity = 0.9
+background-blur = 20
 
 # `background-opacity` applies to the WINDOW background alone, so any cell
 # carrying an explicit background colour stays fully opaque by default — Ghostty's
