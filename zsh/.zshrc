@@ -3,6 +3,7 @@
 #  Philosophy: startup <50ms. No Oh My Zsh. Only the essentials.
 #
 #  Order:
+#    0. auto-tmux                                    (Ghostty: the rest loads in the shell inside tmux)
 #    1. history + options + completions + keybinds   (input/output)
 #    2. tool inits                                   (pyenv, zoxide, fzf)
 #    3. aliases
@@ -10,6 +11,34 @@
 #    5. prompt
 #    6. local overrides                              (~/.zshrc.local)
 # ═══════════════════════════════════════════════════════════════
+
+# ─── auto-tmux ────────────────────────────────────────────────
+# Every Ghostty tab, split and quick terminal starts inside tmux, in a session
+# of its own (`new-session` with no name), so two tabs never mirror each other.
+# The `claude-*` sessions behind the Alt+c popups (tmux/tmux.conf) live beside
+# them in the same server and outlive the tab.
+#
+# The session is stamped with the client that owns it (@tab_client, the tab's
+# tty), which is what lets tmux/reap-sessions.sh end it when the tab closes
+# instead of leaving it running unseen.
+#
+# Leaving tmux closes the tab with it — `exit` in its last pane, or a detach:
+# that is the `&& exit`. Not `exec tmux`: a tmux that cannot start (a broken
+# upgrade) would then take every new tab down the moment it opens, with no
+# shell left to fix it from. This way it falls through to a plain zsh that
+# shows the error.
+#
+# Guards:
+#   $TMUX            a shell inside tmux loads the rest of this file.
+#   $TERM_PROGRAM    Ghostty only: VS Code's terminal, Terminal.app and an ssh
+#                    session keep a bare shell.
+#   tmux.conf        only where install.sh linked it (macOS).
+#   $NO_AUTO_TMUX    the way out: export it in ~/.zshenv.local to turn this
+#                    off on one machine.
+if [[ -z $TMUX && -z $NO_AUTO_TMUX && $TERM_PROGRAM == ghostty \
+      && -e ~/.config/tmux/tmux.conf ]] && (( $+commands[tmux] )); then
+  tmux new-session \; set-option -F @tab_client '#{client_name}' && exit
+fi
 
 # ─── history ──────────────────────────────────────────────────
 HISTFILE=~/.zsh_history
@@ -488,7 +517,9 @@ add-zsh-hook precmd _prompt_expand
 #    login cwd. %~ = path with ~ abbreviated.
 #
 # 2. cwd (OSC 7): tells Ghostty which dir you're in so that Cmd+T
-#    inherits the directory.
+#    inherits the directory. Inside tmux a plain OSC 7 stops at tmux, so it
+#    goes wrapped in tmux's passthrough (\ePtmux;…\e\\, every ESC of the
+#    payload doubled), which tmux.conf's `allow-passthrough on` lets through.
 #
 # add-zsh-hook is already autoloaded by the prompt section above.
 #
@@ -514,8 +545,12 @@ _zshrc_in_ghostty && [[ $GHOSTTY_SHELL_FEATURES == *title* ]] \
 _report_cwd() {
   emulate -L zsh -o extended_glob
   local LC_ALL=C
-  printf '\e]7;file://%s%s\e\\' "$HOST" \
-    "${PWD//(#m)[^A-Za-z0-9\/._~-]/%${(l:2::0:)$(( [##16] #MATCH ))}}"
+  local url="file://$HOST${PWD//(#m)[^A-Za-z0-9\/._~-]/%${(l:2::0:)$(( [##16] #MATCH ))}}"
+  if [[ -n $TMUX ]]; then
+    printf '\ePtmux;\e\e]7;%s\e\e\\\e\\' "$url"
+  else
+    printf '\e]7;%s\e\\' "$url"
+  fi
 }
 _zshrc_in_ghostty || add-zsh-hook precmd _report_cwd
 unfunction _zshrc_in_ghostty
