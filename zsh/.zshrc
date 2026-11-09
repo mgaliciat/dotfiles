@@ -18,6 +18,10 @@
 # The `claude-*` sessions behind the Alt+c popups (tmux/tmux.conf) live beside
 # them in the same server and outlive the tab.
 #
+# The session is stamped with the client that owns it (@tab_client, the tab's
+# tty), which is what lets tmux/reap-tabs.sh end it when the tab closes
+# instead of leaving it running unseen.
+#
 # Leaving tmux closes the tab with it — `exit` in its last pane, or a detach:
 # that is the `&& exit`. Not `exec tmux`: a tmux that cannot start (a broken
 # upgrade) would then take every new tab down the moment it opens, with no
@@ -33,7 +37,7 @@
 #                    off on one machine.
 if [[ -z $TMUX && -z $NO_AUTO_TMUX && $TERM_PROGRAM == ghostty \
       && -e ~/.config/tmux/tmux.conf ]] && (( $+commands[tmux] )); then
-  tmux new-session && exit
+  tmux new-session \; set-option -F @tab_client '#{client_name}' && exit
 fi
 
 # ─── history ──────────────────────────────────────────────────

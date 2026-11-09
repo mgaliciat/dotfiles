@@ -4,7 +4,9 @@ Shortcuts for **this specific config** (macOS only). For the full reference,
 `man tmux`.
 
 Every Ghostty tab, split and quick terminal starts inside tmux, in a session of
-its own. Leaving tmux (`exit` in its last pane, or a detach) closes the tab.
+its own. Leaving tmux (`exit` in its last pane, or a detach) closes the tab,
+and closing the tab (`⌘W`, the window, quitting Ghostty) ends its session and
+what runs in it. Only the `claude-*` sessions outlive a tab.
 `export NO_AUTO_TMUX=1` in `~/.zshenv.local` turns that off on one machine.
 
 `prefix` = **`C-t`** (Ctrl+t, release, then the key; `C-t C-t` sends a real Ctrl+t
@@ -12,7 +14,8 @@ through, e.g. to fzf's file widget). `M-x` = Alt+x with the **left ⌥**
 (Ghostty's `macos-option-as-alt = left`); the `M-` keys need no prefix.
 
 Every binding below is taken from `tmux/tmux.conf`, `tmux/claude-popup.sh` or
-the plugin's scripts. After editing `tmux.conf`: **`C-t r`** reloads it.
+the plugin's scripts; `tmux/reap-tabs.sh` is what ends a closed tab's session.
+After editing `tmux.conf`: **`C-t r`** reloads it.
 
 ---
 
@@ -91,13 +94,13 @@ it.
 |---|---|
 | `C-t w` | Choose a session or window (`C-t s` is the split here) |
 | `C-t $` | Rename the session |
-| `C-t d` | Detach: the session keeps running and the tab closes |
-| `tmux ls` | List sessions (numbers are tabs, `claude-*` the popups') |
-| `tmux a -t <name>` | From a tab opened with `NO_AUTO_TMUX`: re-attach a session |
+| `C-t d` | Detach: the tab closes and its session ends |
+| `tmux ls` | List sessions (numbers are open tabs, `claude-*` the popups') |
 | `tmux kill-session -t <name>` | End a session |
 
-Closing a tab with `⌘W` detaches too: its session and what runs in it stay
-alive until `exit`, `tmux kill-session` or a reboot.
+A `claude-*` session lives until its Claude exits (`/exit`, or `ctrl-x` in the
+`M-u` picker), tab or no tab, and keeps the Mac awake meanwhile. The picker is
+where a forgotten one shows up, with its age.
 
 ## 6. Copy and scroll
 
