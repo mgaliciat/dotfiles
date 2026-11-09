@@ -19,7 +19,7 @@ source "$DOTFILES/scripts/lib.sh"
 # ─── symlinks (portable subset of install.sh) ─────────────────
 # The whole portable set — the same list install.sh links, kept once in
 # lib.sh. What is skipped here is only what install.sh adds on top: ghostty
-# and its themes (macOS-only GUI).
+# and its themes (macOS-only GUI), and tmux, which is there for Ghostty's tabs.
 link_portable
 
 # ─── stack theme ──────────────────────────────────────────────

@@ -12,8 +12,14 @@ TS="$(date +%Y%m%d_%H%M%S)"
 source "$DOTFILES/scripts/lib.sh"
 
 # zsh, git, nvim, lazygit, ~/.local/bin tools — the list is in lib.sh so
-# both installers link the same set. Only Ghostty is mac-specific, below.
+# both installers link the same set. Ghostty and tmux are mac-specific, below.
 link_portable
+
+# tmux: every Ghostty tab starts in it (zsh/.zshrc's auto-tmux, which keys off
+# this link) and it hosts tmux-claude-hatch. The whole dir, like nvim: the
+# pinned plugin clone below lands in tmux/plugins/, which .gitignore keeps out
+# of the repo.
+link "$DOTFILES/tmux" "$HOME/.config/tmux"
 
 # A stale orphaned `config` (no extension) wins over our symlink and loads its
 # own inline content, ignoring the dotfiles theme. Defensive backup before
@@ -108,7 +114,7 @@ if command -v brew >/dev/null 2>&1; then
     gomi                  # `rm` with trash + interactive restore (alias `gm`)
     zoxide
     fzf
-    jq                    # required by claude/install/settings.sh
+    jq                    # required by claude/install/settings.sh and tmux-claude-hatch
     gh                    # GitHub CLI — host for the gh-stack extension (bootstrap_gh_stack below)
     ghq                   # clone manager — $GHQ_ROOT tree, and the source the Ctrl+F widget lists
     git-delta
@@ -123,6 +129,7 @@ if command -v brew >/dev/null 2>&1; then
     sqlfluff
     imagemagick           # snacks.image converts anything but PNG with `magick`
     lazygit
+    tmux                  # every Ghostty tab starts in it — see the block after install_claude
     # Trigram-indexed grep (microsoft/tgrep). It is NOT an `rg` drop-in — the
     # README says so itself — so nothing here aliases or replaces ripgrep, and
     # `rg` stays what Claude Code's Grep tool and telescope shell out to.
@@ -219,6 +226,38 @@ fi
 install_claude
 
 bootstrap_gh_stack
+
+# ─── tmux-claude-hatch (craftzdog's) ──────────────────────────
+# Cloned and pinned here instead of through tpm, so every Mac runs the same
+# bytes: tpm would clone whatever HEAD was on the day of the first `prefix + I`.
+# A full clone, not --depth 1, so an arbitrary SHA is checkoutable. Convergent:
+# a re-run fetches and checks out the pin, realigning a stale clone, and a
+# clone made from another URL (a fork) is re-pointed, not re-cloned. Bumping it
+# is editing hatch_pin. Needs tmux ≥ 3.2, fzf and jq (all in the brew list) and
+# Claude Code ≥ 2.1.139.
+hatch_dir="$HOME/.config/tmux/plugins/tmux-claude-hatch"
+hatch_url="https://github.com/craftzdog/tmux-claude-hatch"
+hatch_pin="e0bcfd189ddd2019a9cda012f2b3446cd83e16a9"   # v1.5.0
+if [[ ! -d "$hatch_dir/.git" ]]; then
+  echo "→ Cloning tmux-claude-hatch into $hatch_dir"
+  git clone --quiet "$hatch_url" "$hatch_dir" || echo "⚠️  tmux-claude-hatch clone failed"
+fi
+if [[ -d "$hatch_dir/.git" && "$(git -C "$hatch_dir" remote get-url origin 2>/dev/null)" != "$hatch_url" ]]; then
+  git -C "$hatch_dir" remote set-url origin "$hatch_url"
+fi
+if [[ -d "$hatch_dir/.git" && "$(git -C "$hatch_dir" rev-parse HEAD 2>/dev/null)" != "$hatch_pin" ]]; then
+  if git -C "$hatch_dir" fetch --quiet --tags origin && git -C "$hatch_dir" checkout --quiet "$hatch_pin"; then
+    echo "✓ tmux-claude-hatch pinned to ${hatch_pin:0:7}"
+  else
+    echo "⚠️  could not check out tmux-claude-hatch ${hatch_pin:0:7}"
+  fi
+fi
+
+# A running tmux server keeps the old config in memory; reload it. No server →
+# nothing to do, the next one reads the file. Errors stay visible on purpose.
+if command -v tmux >/dev/null 2>&1 && tmux info >/dev/null 2>&1; then
+  tmux source-file "$HOME/.config/tmux/tmux.conf" && echo "✓ tmux config reloaded"
+fi
 
 # ─── Mouser ───────────────────────────────────────────────────
 # Mouser (TomBadash/Mouser) — button remapping for Logitech mice without

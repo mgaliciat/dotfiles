@@ -59,7 +59,8 @@ per-machine files and the two silent guards.
    - symlinks the portable set (`.zshrc`, `.zshenv`, `.zprofile`,
      `.gitignore_global`, `nvim`, lazygit, `~/.local/bin/{claude-api-env,theme,claude-wt}`)
      plus Ghostty (`config.ghostty` and `shaders/` into Application Support,
-     `themes/` into `~/.config/ghostty/` — two different dirs, both required);
+     `themes/` into `~/.config/ghostty/` — two different dirs, both required),
+     and `tmux/` into `~/.config/tmux`;
    - installs the missing Homebrew formulae and casks (fonts included) and Paper
      Mono by direct download, since it has no cask;
    - configures Claude Code: `settings.json` keys (additive, guarded), the
@@ -67,6 +68,8 @@ per-machine files and the two silent guards.
      the `context7` MCP endpoint, the `gh-stack` skill; and takes `rtk` back off
      a machine an earlier version put it on (its hook, the formula, its dirs);
    - installs the `gh-stack` extension;
+   - clones tmux-claude-hatch at its pinned commit into
+     `~/.config/tmux/plugins/`, and reloads a running tmux;
    - registers VS Code as the default app for `.ghostty` files, if installed.
 
    On a machine that already has a `~/.zprofile` (OrbStack writes its init line
@@ -147,6 +150,7 @@ readlink ~/.claude/CLAUDE.md ~/.claude/skills/logbook ~/.claude/hooks/logbook.sh
 readlink ~/.gemini/config/plugins/logbook                           # Antigravity: same plugin
 jq '.mcpServers | keys' ~/.gemini/config/mcp_config.json            # optional: only where an MCP was added to Antigravity by hand
 claude mcp list                                                     # context7, codebase-memory, and logbook-mcp once added by hand
+git -C ~/.config/tmux/plugins/tmux-claude-hatch rev-parse --short HEAD   # the pin in install.sh
 command -v rtk                                                      # prints nothing: retired, the run uninstalls it
 tgrep --version                                                     # brew formula; index/serve are per-repo, opt-in
 nvim --headless '+Lazy! sync' +qa                                   # first plugin install, non-interactive
@@ -169,6 +173,17 @@ file does nothing on screen until `Cmd+Shift+R`.
 - **Rotated token.** `claude mcp add` errors if the name exists, so the
   installer will report "already registered" with the old header. Remove first:
   `claude mcp remove context7 -s user`, then re-run. `logbook-mcp` reads its token from 1Password on every connection, so rotating it there is enough.
+- **A new tab opens without tmux.** The auto-start needs three things:
+  Ghostty (`$TERM_PROGRAM`), `tmux` on PATH, and `~/.config/tmux/tmux.conf`
+  linked. `NO_AUTO_TMUX` set anywhere (`~/.zshenv.local`) turns it off. A tmux
+  that fails to start leaves its error above a plain prompt.
+- **⌥C / ⌥U do nothing in tmux.** The left ⌥ must reach tmux as Alt
+  (`macos-option-as-alt = left` in `config.ghostty`). For ⌥U the plugin must be
+  cloned: a tmux that started before the installer shows "tmux-claude-hatch is
+  not cloned"; re-run `./install.sh`, which also reloads the config.
+- **A Claude is missing from the ⌥U picker.** The picker lists Claudes running
+  in a tmux pane; one started with `NO_AUTO_TMUX` or in another terminal never
+  shows.
 - **Ghostty "theme not found".** Themes must be under `~/.config/ghostty/themes`,
   not beside the config. `readlink ~/.config/ghostty/themes` should point into
   the repo; re-run the installer if not.

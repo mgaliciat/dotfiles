@@ -47,7 +47,7 @@ link() {
 
 # The portable symlink set — everything that lands in the same place on mac
 # and Linux. Lives here so that adding a file to the repo is ONE edit, not one
-# per installer. install.sh adds the mac-only Ghostty pieces on top;
+# per installer. install.sh adds the mac-only Ghostty and tmux pieces on top;
 # install-linux.sh adds nothing.
 #
 # ~/.local/bin entries are tools that must resolve by NAME, not by repo path,

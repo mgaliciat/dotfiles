@@ -18,6 +18,7 @@ The design rationale (what is versioned vs. per-machine, and why every non-obvio
 | `zsh/.zprofile` | Login shells only: re-applies `path.zsh` after macOS's `path_helper` has reordered PATH |
 | `zsh/functions.zsh` | Shell functions, incl. `claude --api` / `code --api` (run through the API gateway, see below) |
 | `ghostty/` | Ghostty config (`config.ghostty`), the seed of the per-machine `config.local` (`config.local.default`, the font) + `themes/` (the palettes of the cross-stack theme) |
+| `tmux/` | macOS only. Every Ghostty tab starts inside tmux (`zsh/.zshrc`'s auto-tmux), and leaving tmux closes the tab. It hosts [tmux-claude-hatch](https://github.com/craftzdog/tmux-claude-hatch), pinned by `install.sh`: ⌥C opens Claude for the pane's directory in a popup, ⌥⇧C the same without permission prompts, ⌥A and ⌥⇧A the same two through the API gateway, ⌥U the picker of every running Claude, ⌥D closes the popup, ⌥G is lazygit and ⌥Enter a shell, both in popups. Cheatsheet: `tmux/CHEATSHEET.md` |
 | `nvim/` | Neovim config — lazy.nvim, modular `lua/plugins/*` (one file per plugin), `lua/themes/*` for the stack theme. Cheatsheet: `nvim/CHEATSHEET.md` |
 | `lazygit/config.yml` | lazygit theme + custom commands |
 | `mouser/config.json` | [Mouser](https://github.com/TomBadash/Mouser) button mappings (macOS only; → `~/Library/Application Support/Mouser/`) |
@@ -51,10 +52,10 @@ cd ~/dotfiles
 
 `install.sh` is idempotent — re-run it after every `git pull`. It backs up anything it would overwrite as `<file>.backup.<timestamp>` and then:
 
-1. **Symlinks** `.zshrc`, `.zshenv`, `.zprofile`, `.gitignore_global`, ghostty (config, shaders, themes), nvim, lazygit, Mouser's `config.json`, `~/.local/bin/{claude-api-env,theme,claude-wt}`, and the Claude pieces (`~/.claude/CLAUDE.md`, `statusline.sh`, `themes/*.json`, `hooks/logbook.sh`, `hooks/no-bash-edits.py`, `skills/logbook`, plus `~/.gemini/config/plugins/logbook` for Antigravity).
-2. **Installs missing Homebrew deps.** The list is `REQUIRED_FORMULAE` / `REQUIRED_CASKS` in `install.sh`: the zsh plugins, the CLI tools `.zshrc` leans on, `neovim`, `lazygit`, `jq` (step 3 needs it); casks `ghostty`, `1password-cli` and the fonts `ghostty/config.local.default` names.
+1. **Symlinks** `.zshrc`, `.zshenv`, `.zprofile`, `.gitignore_global`, ghostty (config, shaders, themes), tmux, nvim, lazygit, Mouser's `config.json`, `~/.local/bin/{claude-api-env,theme,claude-wt}`, and the Claude pieces (`~/.claude/CLAUDE.md`, `statusline.sh`, `themes/*.json`, `hooks/logbook.sh`, `hooks/no-bash-edits.py`, `skills/logbook`, plus `~/.gemini/config/plugins/logbook` for Antigravity).
+2. **Installs missing Homebrew deps.** The list is `REQUIRED_FORMULAE` / `REQUIRED_CASKS` in `install.sh`: the zsh plugins, the CLI tools `.zshrc` leans on, `neovim`, `lazygit`, `tmux`, `jq` (step 3 needs it); casks `ghostty`, `1password-cli` and the fonts `ghostty/config.local.default` names.
 3. **Configures Claude Code** — additive, nothing you set by hand on that machine is clobbered; the one list that converges is `permissions.ask`/`deny`, where the repo's rules are unioned into whatever the machine has. Split by who writes `~/.claude/settings.json` (`claude/install/README.md`): our `jq` merges (statusline, base permissions, no attribution trailer, the logbook `PostToolUse` hook, the `no-bash-edits` `PreToolUse` hook, `CLAUDE_CODE_THRIFTY_SONIC=0`), the external binaries' own setup ([`codebase-memory-mcp`](https://github.com/DeusData/codebase-memory-mcp), the `context7` MCP endpoint, the `gh-stack` skill), and the plugin CLI (currently nothing). It also uninstalls [`rtk`](https://github.com/rtk-ai/rtk), which earlier versions installed: its hook in `settings.json`, the binary, its config and data dirs.
-4. Installs the `gh-stack` extension for `gh`, and [Mouser](https://github.com/TomBadash/Mouser) from its latest GitHub release if `/Applications/Mouser.app` is missing (there is no cask).
+4. Installs the `gh-stack` extension for `gh`, clones [tmux-claude-hatch](https://github.com/craftzdog/tmux-claude-hatch) at its pinned commit into `~/.config/tmux/plugins/`, and [Mouser](https://github.com/TomBadash/Mouser) from its latest GitHub release if `/Applications/Mouser.app` is missing (there is no cask).
 5. Registers VS Code as the default app for `.ghostty` files (if VS Code is installed).
 
 Then `exec zsh`.
@@ -71,6 +72,7 @@ After a `git pull`, files are already current through the symlinks, **but runnin
 |---|---|
 | `zsh/*` | `exec zsh` in every open terminal |
 | `ghostty/*` | `Cmd+Shift+R` (*Reload Configuration*). **New `keybind`s need a full quit + relaunch** |
+| `tmux/*` | `C-t r` inside tmux (re-running `./install.sh` also reloads it) |
 | `nvim/*` | Restart nvim (`:Lazy reload <plugin>` for a single plugin) |
 | `lazygit/*` | Reopen lazygit |
 | `install*.sh`, `claude/install/*` | Re-run `./install.sh` |
