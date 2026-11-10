@@ -45,8 +45,8 @@ tmux's message line says why.
 
 ### With arguments, a worktree first of all
 
-`C-t` before either launch key asks for Claude's arguments first.
-tmux's bottom line shows the command that key runs, with `-w ` already typed:
+Either launch key with **Shift** asks for Claude's arguments first. tmux's
+bottom line shows the command that key runs, with `-w ` already typed:
 
 ```
 caffeinate -di claude -w ▏
@@ -57,8 +57,8 @@ in a popup, and Claude Code makes (or reopens) that git worktree itself.
 
 | Shortcut | The line you finish |
 |---|---|
-| `C-t M-c` | `caffeinate -di claude -w …` |
-| `C-t M-a` | `caffeinate -di claude-api-env claude -w …` |
+| `M-C` (⌥⇧C) | `caffeinate -di claude -w …` |
+| `M-A` (⌥⇧A) | `caffeinate -di claude-api-env claude -w …` |
 
 - The line is yours to edit: `C-u` clears the `-w ` for other arguments
   (`-c`, `--resume`, a quoted prompt). It is read like a shell line, so

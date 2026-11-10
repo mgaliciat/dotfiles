@@ -15,13 +15,14 @@
 #   plain     claude                   claude-<hash>
 #   api       claude-api-env claude    claude-api-<hash>
 #
-# WITH ARGUMENTS. `ask` (tmux.conf's prefix + the same two keys) puts the
-# variant's whole command on tmux's prompt line, `caffeinate -di claude ` for
-# plain, with `-w ` already typed after it: finish the line the way you would
-# in a shell and Enter calls this script back with it as [args]. So `name-wt`
-# and Enter is `caffeinate -di claude -w name-wt`, Claude in a git worktree of
-# its own making, in the popup. [args] is shell text, appended to the command
-# as typed: a quoted prompt stays one word, and a `#1234` needs its quotes.
+# WITH ARGUMENTS. `ask` (tmux.conf's Alt+C / Alt+A, the two keys with Shift)
+# puts the variant's whole command on tmux's prompt line, `caffeinate -di
+# claude ` for plain, with `-w ` already typed after it: finish the line the
+# way you would in a shell and Enter calls this script back with it as [args].
+# So `name-wt` and Enter is `caffeinate -di claude -w name-wt`, Claude in a git
+# worktree of its own making, in the popup. [args] is shell text, appended to
+# the command as typed: a quoted prompt stays one word, and a `#1234` needs its
+# quotes.
 # Each distinct [args] is a session of its own (the hash covers the directory
 # and the text), so the directory's plain Claude and each of its worktrees run
 # side by side and the same line typed again re-attaches. Nothing typed is the
