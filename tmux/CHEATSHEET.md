@@ -24,8 +24,9 @@ After editing `tmux.conf`: **`C-t r`** reloads it.
 ## 1. Claude (tmux-claude-hatch)
 
 Each Claude lives in a detached `claude-…` session per directory, shown in a
-popup over your window. Closing the popup leaves it running; the same key
-re-attaches. While it runs the Mac stays awake (`caffeinate -di`).
+popup over your window. Closing the popup leaves it running; the same key and
+the same answer re-attach. While it runs the Mac stays awake
+(`caffeinate -di`).
 
 A Claude you have not opened or typed in for **15 days** is closed on its own
 (`@claude_idle_days` in `tmux.conf`; 0 turns that off). The conversation
@@ -35,7 +36,7 @@ stays: `claude --resume` in that directory picks it up.
 
 | Shortcut | Action |
 |---|---|
-| `M-c` | Claude for the pane's directory (launch or re-attach) |
+| `M-c` | Claude for the pane's directory. Asks for a worktree first (below) |
 | `M-a` | `M-c` through the **API gateway**: `claude-api-env claude` |
 | `M-d` | Close the Claude popup (the session keeps running). Outside a popup it goes to the program (zsh's kill-word) |
 
@@ -43,34 +44,29 @@ The two get **separate sessions**: one directory can run both side by side.
 Without a valid `~/.claude/claude-api.env` an API launch does not start, and
 tmux's message line says why.
 
-### With arguments, a worktree first of all
+### The worktree question
 
-Either launch key with **Shift** asks for Claude's arguments first. tmux's
-bottom line shows the command that key runs, with `-w ` already typed:
+Both launch keys ask first, on tmux's bottom line:
 
 ```
-caffeinate -di claude -w ▏
+Claude | worktree name (empty for none) ▏
 ```
 
-Type the worktree name and `Enter`: `caffeinate -di claude -w name-wt` starts
-in a popup, and Claude Code makes (or reopens) that git worktree itself.
-
-| Shortcut | The line you finish |
+| You answer | What runs |
 |---|---|
-| `M-C` (⌥⇧C) | `caffeinate -di claude -w …` |
-| `M-A` (⌥⇧A) | `caffeinate -di claude-api-env claude -w …` |
+| `Enter` alone | `caffeinate -di claude`: Claude in the pane's directory |
+| `name-wt` | `caffeinate -di claude -w name-wt`: Claude Code makes (or reopens) that git worktree itself |
+| a line starting with `-` | Claude's arguments as typed: `-c`, `--resume`, … |
 
-- The line is yours to edit: `C-u` clears the `-w ` for other arguments
-  (`-c`, `--resume`, a quoted prompt). It is read like a shell line, so
-  `-w '#1234'` needs its quotes.
-- Each distinct line is a **session of its own**, beside the directory's plain
-  `M-c`: one repo can run a Claude per worktree. The popup's title carries the
-  arguments.
-- To come back: the same key and the same line (`↑` at the prompt recalls it),
-  or the `M-u` picker.
-- `Esc` cancels; nothing typed is the plain launch.
-- A command that ends at once (`-w` outside a git repo, a directory not yet
-  trusted, a mistyped flag) stays on screen until `Enter`.
+- Each distinct answer is a **session of its own**: one repo can run its plain
+  Claude and one per worktree. The popup's title carries the arguments.
+- To come back: the same key and the same answer (`↑` at the prompt recalls a
+  name), or the `M-u` picker.
+- `Esc` cancels.
+- What you type is read like a shell line after the name, so a quoted prompt
+  can follow it and `'#1234'` needs its quotes.
+- A command that ends at once (a worktree outside a git repo, a directory not
+  yet trusted, a mistyped flag) stays on screen until `Enter`.
 
 ### The picker — `M-u`
 
