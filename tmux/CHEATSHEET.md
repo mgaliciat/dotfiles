@@ -36,18 +36,16 @@ stays: `claude --resume` in that directory picks it up.
 | Shortcut | Action |
 |---|---|
 | `M-c` | Claude for the pane's directory (launch or re-attach) |
-| `M-C` | The same with `--dangerously-skip-permissions` |
 | `M-a` | `M-c` through the **API gateway**: `claude-api-env claude` |
-| `M-A` | `M-C` through the API gateway |
 | `M-d` | Close the Claude popup (the session keeps running). Outside a popup it goes to the program (zsh's kill-word) |
 
-The four get **separate sessions**: one directory can run them side by side.
+The two get **separate sessions**: one directory can run both side by side.
 Without a valid `~/.claude/claude-api.env` an API launch does not start, and
 tmux's message line says why.
 
 ### With arguments, a worktree first of all
 
-`C-t` before any of the four launch keys asks for Claude's arguments first.
+`C-t` before either launch key asks for Claude's arguments first.
 tmux's bottom line shows the command that key runs, with `-w ` already typed:
 
 ```
@@ -60,9 +58,7 @@ in a popup, and Claude Code makes (or reopens) that git worktree itself.
 | Shortcut | The line you finish |
 |---|---|
 | `C-t M-c` | `caffeinate -di claude -w …` |
-| `C-t M-C` | `caffeinate -di claude --dangerously-skip-permissions -w …` |
 | `C-t M-a` | `caffeinate -di claude-api-env claude -w …` |
-| `C-t M-A` | `caffeinate -di claude-api-env claude --dangerously-skip-permissions -w …` |
 
 - The line is yours to edit: `C-u` clears the `-w ` for other arguments
   (`-c`, `--resume`, a quoted prompt). It is read like a shell line, so

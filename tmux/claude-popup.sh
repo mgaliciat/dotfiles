@@ -8,16 +8,14 @@
 # Launches a detached tmux session running Claude in <dir>, or re-attaches to
 # the one already there, and shows it in a popup over <client>. Closing the
 # popup leaves Claude running. Everything after <variant> is a tmux format the
-# bind expands (tmux.conf's Alt+c / Alt+C / Alt+a / Alt+A).
+# bind expands (tmux.conf's Alt+c / Alt+a).
 #
-# Variants, each in sessions of its own so one directory can run them side by
+# Variants, each in sessions of its own so one directory can run both side by
 # side:
-#   plain     claude                                  claude-<hash>
-#   yolo      claude --dangerously-skip-permissions   claude-yolo-<hash>
-#   api       claude-api-env claude                   claude-api-<hash>
-#   api-yolo  the two together                        claude-api-yolo-<hash>
+#   plain     claude                   claude-<hash>
+#   api       claude-api-env claude    claude-api-<hash>
 #
-# WITH ARGUMENTS. `ask` (tmux.conf's prefix + the same four keys) puts the
+# WITH ARGUMENTS. `ask` (tmux.conf's prefix + the same two keys) puts the
 # variant's whole command on tmux's prompt line, `caffeinate -di claude ` for
 # plain, with `-w ` already typed after it: finish the line the way you would
 # in a shell and Enter calls this script back with it as [args]. So `name-wt`
@@ -78,9 +76,7 @@ args="${args%"${args##*[![:space:]]}"}"
 
 case "$variant" in
 plain) infix='' title='Claude' cmd='claude' ;;
-yolo) infix='yolo-' title='Claude | Bypass Permissions' cmd='claude --dangerously-skip-permissions' ;;
 api) infix='api-' title='Claude | API' cmd='claude-api-env claude' ;;
-api-yolo) infix='api-yolo-' title='Claude | API | Bypass Permissions' cmd='claude-api-env claude --dangerously-skip-permissions' ;;
 *)
   tmux display-message "claude-popup: unknown variant '$variant'"
   exit 0
@@ -117,7 +113,7 @@ if [[ -n $ask ]]; then
   # The answer goes through an option and back out with `#{q:…}`: `%%%` is
   # escaped for tmux's double quotes only, and q is what makes it one safe
   # shell word, whatever was typed. The formats are run-shell's to expand, on
-  # Enter. $variant is one of the four words above.
+  # Enter. $variant is one of the two words above.
   "${prompt[@]}" -I '-w ' -p "$cmd" \
     "set-option -g @claude_popup_args \"%%%\" ; run-shell \"~/.config/tmux/claude-popup.sh $variant #{q:pane_current_path} #{q:window_id} #{q:session_name} #{q:client_name} #{q:@claude_popup_args}\""
   exit 0
