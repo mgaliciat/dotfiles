@@ -40,7 +40,7 @@ running the installer.
 |---|---|
 | `zsh/` | `.zshrc` (interactive), `.zshenv` (env), `path.zsh` (PATH, sourced by `.zshenv` and again by `.zprofile` after macOS's `path_helper`), `functions.zsh` |
 | `ghostty/` | `config.ghostty` + `themes/` |
-| `tmux/` | macOS only: `tmux.conf` (+ `CHEATSHEET.md`), `claude-popup.sh`, the launcher behind Alt+c (and, under the prefix, the same launch with typed arguments such as `-w <worktree>`), and `reap-sessions.sh`, which ends a tab's session when the tab closes and a Claude popup session left alone for 15 days. Every Ghostty tab starts inside tmux (the auto-tmux block of `zsh/.zshrc`, which runs only where `~/.config/tmux/tmux.conf` is linked), and it hosts craftzdog's tmux-claude-hatch, pinned by `install.sh`, no tpm. ANSI colours, so not a stack-theme layer |
+| `tmux/` | macOS only: `tmux.conf` (+ `CHEATSHEET.md`), `claude-popup.sh`, the launcher behind Alt+c, which asks for an optional git worktree first, and `reap-sessions.sh`, which ends a tab's session when the tab closes and a Claude popup session left alone for 15 days. Every Ghostty tab starts inside tmux (the auto-tmux block of `zsh/.zshrc`, which runs only where `~/.config/tmux/tmux.conf` is linked), and it hosts craftzdog's tmux-claude-hatch, pinned by `install.sh`, no tpm. ANSI colours, so not a stack-theme layer |
 | `mouser/` | `config.json` for Mouser (mac only; no cask, `install.sh` pulls the release zip) |
 | `nvim/` | lazy.nvim, `lua/plugins/*` one file per plugin, `lua/themes/*` |
 | `claude/` | User-level Claude Code: `CLAUDE.md`, `statusline.{sh,ps1}`, `themes/`, `hooks/`, `install/` |

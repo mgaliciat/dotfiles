@@ -1,37 +1,37 @@
 #!/usr/bin/env bash
 # ─── tmux/claude-popup.sh — Claude Code for a directory, in a tmux popup ──
 #
-#   claude-popup.sh <variant> <dir> <origin-window> <session> <client> [args]
 #   claude-popup.sh ask <variant> <session> <client>
+#   claude-popup.sh <variant> <dir> <origin-window> <session> <client> [answer]
 #   claude-popup.sh hold <command>
 #
 # Launches a detached tmux session running Claude in <dir>, or re-attaches to
 # the one already there, and shows it in a popup over <client>. Closing the
-# popup leaves Claude running. Everything after <variant> is a tmux format the
-# bind expands (tmux.conf's Alt+c / Alt+a).
+# popup leaves Claude running. `ask` is what tmux.conf's Alt+c / Alt+a run: it
+# asks for a worktree on tmux's prompt line, and Enter calls the script back in
+# its second form, where everything after <variant> is a tmux format.
 #
 # Variants, each in sessions of its own so one directory can run both side by
 # side:
 #   plain     claude                   claude-<hash>
 #   api       claude-api-env claude    claude-api-<hash>
 #
-# WITH ARGUMENTS. `ask` (tmux.conf's prefix + the same two keys) puts the
-# variant's whole command on tmux's prompt line, `caffeinate -di claude ` for
-# plain, with `-w ` already typed after it: finish the line the way you would
-# in a shell and Enter calls this script back with it as [args]. So `name-wt`
-# and Enter is `caffeinate -di claude -w name-wt`, Claude in a git worktree of
-# its own making, in the popup. [args] is shell text, appended to the command
-# as typed: a quoted prompt stays one word, and a `#1234` needs its quotes.
-# Each distinct [args] is a session of its own (the hash covers the directory
-# and the text), so the directory's plain Claude and each of its worktrees run
-# side by side and the same line typed again re-attaches. Nothing typed is the
-# plain launch.
+# THE ANSWER decides what runs:
+#   nothing     the variant's command as it is: Claude in <dir>, no worktree
+#   name-wt     `-w name-wt` after it: `caffeinate -di claude -w name-wt`,
+#               Claude in a git worktree of its own making
+#   -c, -r …    a line that starts with `-` is Claude's arguments as typed
+# What reaches the command is shell text: a quoted prompt after the name stays
+# one word, and a `#1234` needs its quotes. Each distinct answer is a session
+# of its own (the hash covers the directory and the arguments), so the
+# directory's plain Claude and each of its worktrees run side by side, and the
+# same answer again re-attaches.
 #
-# A typed line can be wrong where the fixed commands cannot (`-w` outside a
-# repo, a flag that does not exist), and Claude's error would go down with the
-# session, leaving a popup that flashes. So a session with [args] runs through
-# this script (`hold`), which keeps a command that ended at once on screen
-# until Enter.
+# A typed line can be wrong where the fixed commands cannot (a worktree asked
+# for outside a repo, a flag that does not exist), and Claude's error would go
+# down with the session, leaving a popup that flashes. So a session with
+# arguments runs through this script (`hold`), which keeps a command that
+# ended at once on screen until Enter.
 #
 # HOW IT FITS tmux-claude-hatch. `plain` is the very session the plugin's own
 # launcher makes (same prefix, same hash of the path), and every name starts
@@ -42,7 +42,7 @@
 # picker checks with `command -v`): no variants, and no `caffeinate`.
 set -uo pipefail
 
-# The session's own command when [args] were typed: `hold <command>`.
+# The session's own command when the answer gave it arguments: `hold <command>`.
 if [[ ${1:-} == hold ]]; then
   "${SHELL:-/bin/sh}" -c "${2:-}"
   rc=$?
@@ -73,6 +73,8 @@ args="${6:-}"
 # Trimmed, so a trailing space does not make a second session.
 args="${args#"${args%%[![:space:]]*}"}"
 args="${args%"${args##*[![:space:]]}"}"
+# A bare answer is the worktree's name.
+[[ -n "$args" && "$args" != -* ]] && args="-w $args"
 
 case "$variant" in
 plain) infix='' title='Claude' cmd='claude' ;;
@@ -114,13 +116,13 @@ if [[ -n $ask ]]; then
   # escaped for tmux's double quotes only, and q is what makes it one safe
   # shell word, whatever was typed. The formats are run-shell's to expand, on
   # Enter. $variant is one of the two words above.
-  "${prompt[@]}" -I '-w ' -p "$cmd" \
+  "${prompt[@]}" -p "$title | worktree name (empty for none)" \
     "set-option -g @claude_popup_args \"%%%\" ; run-shell \"~/.config/tmux/claude-popup.sh $variant #{q:pane_current_path} #{q:window_id} #{q:session_name} #{q:client_name} #{q:@claude_popup_args}\""
   exit 0
 fi
 
 # The plugin's session_hash: md5 of the path plus a newline, first 8 hex
-# digits, md5sum before macOS's md5. With [args] the hash covers them too.
+# digits, md5sum before macOS's md5. With arguments the hash covers them too.
 key="$dir"
 [[ -n "$args" ]] && key+=$'\n'"$args"
 if command -v md5sum >/dev/null 2>&1; then
