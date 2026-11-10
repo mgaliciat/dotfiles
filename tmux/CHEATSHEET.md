@@ -45,6 +45,37 @@ The four get **separate sessions**: one directory can run them side by side.
 Without a valid `~/.claude/claude-api.env` an API launch does not start, and
 tmux's message line says why.
 
+### With arguments, a worktree first of all
+
+`C-t` before any of the four launch keys asks for Claude's arguments first.
+tmux's bottom line shows the command that key runs, with `-w ` already typed:
+
+```
+caffeinate -di claude -w ▏
+```
+
+Type the worktree name and `Enter`: `caffeinate -di claude -w name-wt` starts
+in a popup, and Claude Code makes (or reopens) that git worktree itself.
+
+| Shortcut | The line you finish |
+|---|---|
+| `C-t M-c` | `caffeinate -di claude -w …` |
+| `C-t M-C` | `caffeinate -di claude --dangerously-skip-permissions -w …` |
+| `C-t M-a` | `caffeinate -di claude-api-env claude -w …` |
+| `C-t M-A` | `caffeinate -di claude-api-env claude --dangerously-skip-permissions -w …` |
+
+- The line is yours to edit: `C-u` clears the `-w ` for other arguments
+  (`-c`, `--resume`, a quoted prompt). It is read like a shell line, so
+  `-w '#1234'` needs its quotes.
+- Each distinct line is a **session of its own**, beside the directory's plain
+  `M-c`: one repo can run a Claude per worktree. The popup's title carries the
+  arguments.
+- To come back: the same key and the same line (`↑` at the prompt recalls it),
+  or the `M-u` picker.
+- `Esc` cancels; nothing typed is the plain launch.
+- A command that ends at once (`-w` outside a git repo, a directory not yet
+  trusted, a mistyped flag) stays on screen until `Enter`.
+
 ### The picker — `M-u`
 
 Every Claude running in a tmux pane, `working` / `waiting` / `idle`, with a
