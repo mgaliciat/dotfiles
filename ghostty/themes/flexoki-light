@@ -19,9 +19,9 @@
 # palette.lua. Every hex below is from the shipped file but one.
 #
 # The one deviation: ANSI 8. Upstream's is base-300 #b7b5ac, 2.0:1 on the
-# paper, and 8 is what zsh's autosuggestions, tmux's status line and borders
-# and Claude Code's dim text are painted in. It becomes base-500 #878580,
-# Flexoki's own next step down the ladder: 3.6:1, still a step below ANSI 7.
+# paper, and 8 is what zsh's autosuggestions and Claude Code's dim text are
+# painted in. It becomes base-500 #878580, Flexoki's own next step down the
+# ladder: 3.6:1, still a step below ANSI 7.
 #
 # Light convention, as shipped: the brights (9-15) are Flexoki's 400 accents,
 # LIGHTER than the normals, so under `bold-color = bright` a bold colour steps

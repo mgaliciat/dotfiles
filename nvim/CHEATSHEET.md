@@ -6,8 +6,6 @@ Shortcuts for **this specific config**. For an exhaustive vim reference, use `:h
 
 Forgot a key? **`<leader>fk`** searches every active keymap (telescope); **`<leader>`** alone (wait ~400ms) opens which-key with the group menu; **`<leader>?`** shows only the keymaps active in the current buffer.
 
-tmux and the Claude popups have their own: [`tmux/CHEATSHEET.md`](../tmux/CHEATSHEET.md).
-
 Every keymap below is taken from `lua/config/keymaps.lua` (native) or the `keys = {}` block of its plugin in `lua/plugins/*.lua`.
 
 ---

@@ -61,10 +61,10 @@ Catppuccin Latte and Rosé Pine Dawn (built around mauve/iris), GitHub Light and
 Modus Operandi (pure white canvas, purple keywords).
 
 **The one deviation: ANSI 8.** Upstream's is base-300 `#b7b5ac`, 2.0:1 on the
-paper, and 8 paints zsh's autosuggestions, tmux's status line and Claude Code's
-dim text. It is base-500 `#878580` in both files, 3.6:1. The brights stay the
-shipped 400 accents, lighter than the normals; yellow 11 and cyan 14 sit under
-3:1 and `minimum-contrast = 3.0` in `config.ghostty` lifts them.
+paper, and 8 paints zsh's autosuggestions and Claude Code's dim text. It is
+base-500 `#878580` in both files, 3.6:1. The brights stay the shipped 400
+accents, lighter than the normals; yellow 11 and cyan 14 sit under 3:1 and
+`minimum-contrast = 3.0` in `config.ghostty` lifts them.
 
 Derived, in nvim and the Claude Code theme only: the diff and search tints,
 set in OKLCH on each accent's hue at L 0.84–0.97 so the ink reads on them at
