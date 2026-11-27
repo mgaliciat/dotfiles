@@ -33,7 +33,7 @@ jobs:
           shellcheck -x \
             install.sh install-linux.sh \
             scripts/lib.sh scripts/claude-api-env scripts/theme scripts/claude-wt \
-            claude/install/*.sh plugins/logbook/hooks/logbook.sh claude/statusline.sh claude/statusline-craftzdog.sh
+            claude/install/*.sh plugins/logbook/hooks/logbook.sh claude/statusline.sh claude/statusline-command.sh
 
       # Every loop here collects failures in $failed and exits on it. A plain
       # `check "$f" && echo ok` does NOT fail the step: the runner's `bash -e`
@@ -44,7 +44,7 @@ jobs:
           failed=0
           for f in install.sh install-linux.sh scripts/lib.sh \
                    scripts/claude-api-env scripts/theme scripts/claude-wt \
-                   claude/install/*.sh plugins/logbook/hooks/logbook.sh claude/statusline.sh claude/statusline-craftzdog.sh; do
+                   claude/install/*.sh plugins/logbook/hooks/logbook.sh claude/statusline.sh claude/statusline-command.sh; do
             if bash -n "$f"; then echo "ok    $f"; else echo "FAIL  $f"; failed=1; fi
           done
           exit $failed

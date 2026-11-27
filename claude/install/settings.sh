@@ -14,13 +14,14 @@ SETTINGS="$HOME/.claude/settings.json"
 PERMISSIONS="$DOTFILES/claude/install/permissions.json"
 
 # ── versioned symlinks (not settings.json itself, but its input) ──
-# statusline.sh: generic script, no personal state → versioned.
-# statusline-craftzdog.sh: the opt-in alternative (craftzdog's tmux pills).
-# Linked so it is one settings.json edit away; statusLine below still points
-# at statusline.sh, and which one a machine runs is that machine's call.
+# statusline-command.sh: the status line `/statusline` edits from the chat.
+# Its agent edits the script statusLine points at, and through this symlink
+# the edit lands in the repo instead of in an unversioned file.
+# statusline.sh: the hand-tuned one (animated context bar), kept linked as
+# the alternative.
 # User-level CLAUDE.md: prose, preferences that apply to ALL projects.
 link "$DOTFILES/claude/statusline.sh" "$HOME/.claude/statusline.sh"
-link "$DOTFILES/claude/statusline-craftzdog.sh" "$HOME/.claude/statusline-craftzdog.sh"
+link "$DOTFILES/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh"
 link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 
 # Per-ITEM skill symlinks — NOT the whole ~/.claude/skills/ dir. Symlinking the
@@ -246,9 +247,11 @@ mkdir -p "$(dirname "$SETTINGS")"
 [[ -f "$SETTINGS" ]] || echo '{}' > "$SETTINGS"
 
 # ── statusLine ──
-# The script is versioned (above); its ACTIVATION is per-machine.
+# The script is versioned (above); its ACTIVATION is per-machine, so a machine
+# that already has a statusLine keeps it. Switching one is
+# `/statusline use ~/.claude/statusline-command.sh` from the chat.
 _settings_set_if_absent '.statusLine' \
-  '.statusLine = {"type": "command", "command": "~/.claude/statusline.sh"}' \
+  '.statusLine = {"type": "command", "command": "~/.claude/statusline-command.sh"}' \
   'statusLine'
 
 # Keyed on the nested field, NOT on `.statusLine`: the guard above is satisfied

@@ -28,7 +28,7 @@ machine still on exactly 60 — this file's old default, so never a hand-picked 
 And `theme`: it is a layer of the
 versioned stack theme, so it is written from ghostty's `theme =` line on every run whenever a
 `claude/themes/<id>.json` exists for that id. It also symlinks the versioned pieces of `claude/` —
-`statusline.sh` (and `statusline-craftzdog.sh`, linked but not activated: switching is a per-machine `statusLine.command` edit), the user-level `CLAUDE.md`, `hooks/logbook.sh`, `hooks/no-bash-edits.py`, every Claude Code colour theme
+`statusline-command.sh` (the default `statusLine` on a fresh machine, and the file `/statusline` edits from the chat, so its changes land in the repo) and `statusline.sh`, the user-level `CLAUDE.md`, `hooks/logbook.sh`, `hooks/no-bash-edits.py`, every Claude Code colour theme
 in `themes/` (the stack theme's fourth layer), and the skill plugin we author
 (`skills/logbook`), one `link` per item and never the parent dir.
 

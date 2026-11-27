@@ -41,7 +41,7 @@ running the installer.
 | `ghostty/` | `config.ghostty` + `themes/` |
 | `mouser/` | `config.json` for Mouser (mac only; no cask, `install.sh` pulls the release zip) |
 | `nvim/` | lazy.nvim, `lua/plugins/*` one file per plugin, `lua/themes/*` |
-| `claude/` | User-level Claude Code: `CLAUDE.md`, `statusline.{sh,ps1}`, `statusline-craftzdog.sh` (opt-in), `themes/`, `hooks/`, `install/` |
+| `claude/` | User-level Claude Code: `CLAUDE.md`, `statusline.{sh,ps1}`, `statusline-command.sh` (edited with `/statusline`), `themes/`, `hooks/`, `install/` |
 | `plugins/` | Plugins shared by Claude Code and Antigravity. `logbook/` carries two manifests (`.claude-plugin/plugin.json`, `plugin.json`), `skills/`, `rules/`, `hooks/` |
 | `scripts/` | `lib.sh` (shared by both bash installers), `claude-api-env`, `theme`, `claude-wt` |
 | `runbook/` | Operator bring-up per OS |
