@@ -15,8 +15,12 @@ PERMISSIONS="$DOTFILES/claude/install/permissions.json"
 
 # ── versioned symlinks (not settings.json itself, but its input) ──
 # statusline.sh: generic script, no personal state → versioned.
+# statusline-craftzdog.sh: the opt-in alternative (craftzdog's tmux pills).
+# Linked so it is one settings.json edit away; statusLine below still points
+# at statusline.sh, and which one a machine runs is that machine's call.
 # User-level CLAUDE.md: prose, preferences that apply to ALL projects.
 link "$DOTFILES/claude/statusline.sh" "$HOME/.claude/statusline.sh"
+link "$DOTFILES/claude/statusline-craftzdog.sh" "$HOME/.claude/statusline-craftzdog.sh"
 link "$DOTFILES/claude/CLAUDE.md"     "$HOME/.claude/CLAUDE.md"
 
 # Per-ITEM skill symlinks — NOT the whole ~/.claude/skills/ dir. Symlinking the
