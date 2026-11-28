@@ -331,14 +331,23 @@ if ($Settings.PSObject.Properties.Name -contains "statusLine") {
     # cmd). settings.json is per-machine anyway, so baking $HOME\.claude is fine.
     # -NoProfile keeps it fast on every render; -ExecutionPolicy Bypass runs the
     # unsigned script regardless of the machine's policy.
-    # A machine that already has one keeps it; to switch, replace the file name
-    # in its command with statusline-command.ps1 (or ask `/statusline` to).
     $StatuslinePs1 = Join-Path $ClaudeDir "statusline-command.ps1"
     $Settings | Add-Member -NotePropertyName "statusLine" -NotePropertyValue ([PSCustomObject]@{
         type    = "command"
         command = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$StatuslinePs1`""
     })
     Write-Host "OK  statusLine added to settings.json (powershell -> statusline-command.ps1)"
+}
+
+# A machine still on exactly the command this script used to write -- the old
+# default, so never a hand-picked value -- moves to statusline-command.ps1, the
+# way settings.sh moves an exact 60 off refreshInterval. Anything else is left
+# alone, so keeping statusline.ps1 means spelling its command differently (pwsh
+# instead of powershell, say).
+$OldStatusline = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$(Join-Path $ClaudeDir "statusline.ps1")`""
+if ($Settings.statusLine -is [PSCustomObject] -and $Settings.statusLine.command -eq $OldStatusline) {
+    $Settings.statusLine.command = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$(Join-Path $ClaudeDir "statusline-command.ps1")`""
+    Write-Host "OK  statusLine moved from statusline.ps1 to statusline-command.ps1"
 }
 
 # Keyed on the NESTED field, not on `.statusLine` -- mirror of settings.sh. The
