@@ -20,7 +20,7 @@ pinned to SHAs) runs static checks only:
 - syntax: shellcheck + `bash -n` over every bash script, `zsh -n` over every file in
   `zsh/`, `luac5.1 -p` over every nvim lua file, `jq empty` over the JSON, the
   `claude/hooks/*.py` parsed against the 3.9 grammar (the Mac's `/usr/bin/python3`),
-  and the PowerShell parser plus PSScriptAnalyzer at Error severity over the three
+  and the PowerShell parser plus PSScriptAnalyzer at Error severity over the four
   `.ps1` files;
 - the pairs kept in sync by hand: `scripts/theme` bare (the two selection lines agree),
   every `ghostty/themes/<id>` has its nvim half and the reverse (`solarized-osaka`'s is
@@ -41,7 +41,7 @@ running the installer.
 | `ghostty/` | `config.ghostty` + `themes/` |
 | `mouser/` | `config.json` for Mouser (mac only; no cask, `install.sh` pulls the release zip) |
 | `nvim/` | lazy.nvim, `lua/plugins/*` one file per plugin, `lua/themes/*` |
-| `claude/` | User-level Claude Code: `CLAUDE.md`, `statusline.{sh,ps1}`, `statusline-command.sh` (edited with `/statusline`), `themes/`, `hooks/`, `install/` |
+| `claude/` | User-level Claude Code: `CLAUDE.md`, `statusline.{sh,ps1}`, `statusline-command.{sh,ps1}` (edited with `/statusline`), `themes/`, `hooks/`, `install/` |
 | `plugins/` | Plugins shared by Claude Code and Antigravity. `logbook/` carries two manifests (`.claude-plugin/plugin.json`, `plugin.json`), `skills/`, `rules/`, `hooks/` |
 | `scripts/` | `lib.sh` (shared by both bash installers), `claude-api-env`, `theme`, `claude-wt` |
 | `runbook/` | Operator bring-up per OS |

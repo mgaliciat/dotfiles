@@ -4,7 +4,8 @@
 # Intentionally narrow scope: zsh/nvim do not run natively on Windows, so
 # this script is NOT a port of the rest of the dotfiles — see CLAUDE.md, the
 # "per-machine split" section. It covers only:
-#   - symlinks for claude/statusline.ps1, claude/CLAUDE.md, the plugin we author
+#   - symlinks for claude/statusline-command.ps1 and claude/statusline.ps1,
+#     claude/CLAUDE.md, the plugin we author
 #     (plugins/logbook, into ~/.claude/skills/ and Antigravity's
 #     ~/.gemini/config/plugins/), its hooks/logbook.ps1, and git/.gitignore_global
 #   - statusLine (+ refreshInterval), base permissions, attribution,
@@ -192,10 +193,13 @@ function Set-DotfileSymlink {
 }
 
 # ─── symlinks ──────────────────────────────────────────────────
-# statusline.PS1, not the .sh: on native Windows there is no bash to run the
-# shell script (the only `bash` on PATH is WSL's) and no jq for it to call, so
-# the .sh is dead weight here. The .ps1 is a faithful port; mac/Linux still
-# symlink the .sh from their own installers.
+# The .PS1 status lines, not the .sh: on native Windows there is no bash to run
+# the shell scripts (the only `bash` on PATH is WSL's) and no jq for them to
+# call, so the .sh files are dead weight here. Each .ps1 is a port of its .sh;
+# mac/Linux symlink the .sh files from their own installers. Same pair as
+# settings.sh: statusline-command (the default, edited with `/statusline`) and
+# statusline (the alternative).
+Set-DotfileSymlink (Join-Path $Dotfiles "claude\statusline-command.ps1") (Join-Path $ClaudeDir "statusline-command.ps1")
 Set-DotfileSymlink (Join-Path $Dotfiles "claude\statusline.ps1") (Join-Path $ClaudeDir "statusline.ps1")
 Set-DotfileSymlink (Join-Path $Dotfiles "claude\CLAUDE.md")      (Join-Path $ClaudeDir "CLAUDE.md")
 
@@ -327,12 +331,23 @@ if ($Settings.PSObject.Properties.Name -contains "statusLine") {
     # cmd). settings.json is per-machine anyway, so baking $HOME\.claude is fine.
     # -NoProfile keeps it fast on every render; -ExecutionPolicy Bypass runs the
     # unsigned script regardless of the machine's policy.
-    $StatuslinePs1 = Join-Path $ClaudeDir "statusline.ps1"
+    $StatuslinePs1 = Join-Path $ClaudeDir "statusline-command.ps1"
     $Settings | Add-Member -NotePropertyName "statusLine" -NotePropertyValue ([PSCustomObject]@{
         type    = "command"
         command = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$StatuslinePs1`""
     })
-    Write-Host "OK  statusLine added to settings.json (powershell -> statusline.ps1)"
+    Write-Host "OK  statusLine added to settings.json (powershell -> statusline-command.ps1)"
+}
+
+# A machine still on exactly the command this script used to write -- the old
+# default, so never a hand-picked value -- moves to statusline-command.ps1, the
+# way settings.sh moves an exact 60 off refreshInterval. Anything else is left
+# alone, so keeping statusline.ps1 means spelling its command differently (pwsh
+# instead of powershell, say).
+$OldStatusline = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$(Join-Path $ClaudeDir "statusline.ps1")`""
+if ($Settings.statusLine -is [PSCustomObject] -and $Settings.statusLine.command -eq $OldStatusline) {
+    $Settings.statusLine.command = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$(Join-Path $ClaudeDir "statusline-command.ps1")`""
+    Write-Host "OK  statusLine moved from statusline.ps1 to statusline-command.ps1"
 }
 
 # Keyed on the NESTED field, not on `.statusLine` -- mirror of settings.sh. The
@@ -352,8 +367,9 @@ if ($Settings.statusLine -isnot [PSCustomObject]) {
 } elseif ($Settings.statusLine.PSObject.Properties.Name -contains "refreshInterval") {
     Write-Host "OK  statusLine.refreshInterval already set in settings.json -- leaving it alone"
 } else {
-    # 60, not the 1 settings.sh writes: statusline.ps1 does not animate its bar,
-    # and a PowerShell start every second costs far more than bash + jq does.
+    # 60, not the 1 settings.sh writes: neither .ps1 animates (statusline.ps1
+    # drops the .sh's bar animation), and a PowerShell start every second costs
+    # far more than bash + jq does.
     $Settings.statusLine | Add-Member -NotePropertyName "refreshInterval" -NotePropertyValue 60
     Write-Host "OK  statusLine.refreshInterval added to settings.json (60s)"
 }

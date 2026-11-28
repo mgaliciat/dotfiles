@@ -58,7 +58,7 @@ fallback for symlinks, and scoop refuses to run under it.
    ```
 
    What it does, in order:
-   - symlinks `claude/CLAUDE.md`, `statusline.ps1`, `plugins/logbook/hooks/logbook.ps1`,
+   - symlinks `claude/CLAUDE.md`, `statusline-command.ps1` (the default `statusLine`), `statusline.ps1`, `plugins/logbook/hooks/logbook.ps1`,
      the `logbook` plugin (into `~/.claude/skills/` and `~/.gemini/config/plugins/`
      for Antigravity, directory symlinks) and `git/.gitignore_global`, removing
      the pre-rename `bitacora`/`wiki` links and the retired `team` skill and
@@ -67,7 +67,8 @@ fallback for symlinks, and scoop refuses to run under it.
      (statusline, permissions from `permissions.json`, attribution, output
      style, fallback model, the PowerShell-tool env var, the agent-team and
      observer flags with their concurrency and nesting caps, the logbook hook),
-     each only if absent;
+     each only if absent, and moves a `statusLine` still on the old
+     `statusline.ps1` default to `statusline-command.ps1`;
    - takes `rtk` back off if an earlier run installed it: its hook, `%LOCALAPPDATA%\Programs\rtk`
      and its user PATH entry, its config and data dirs;
    - `codebase-memory-mcp` — the **`-ui-`** release asset, sha256-checked, not

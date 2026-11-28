@@ -211,7 +211,7 @@ jobs:
     runs-on: ubuntu-latest
     # One list for both pwsh steps, so a script cannot be parsed but not analyzed.
     env:
-      PS_SCRIPTS: install-windows.ps1 claude/statusline.ps1 plugins/logbook/hooks/logbook.ps1
+      PS_SCRIPTS: install-windows.ps1 claude/statusline-command.ps1 claude/statusline.ps1 plugins/logbook/hooks/logbook.ps1
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
