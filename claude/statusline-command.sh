@@ -14,6 +14,7 @@
 #   right  context % and the 5h quota with its reset countdown
 #   magenta on the branch and meter pills once context reaches 90%
 # Needs jq, git, a 24-bit colour terminal and a Nerd Font for the caps.
+# claude/statusline-command.ps1 is the native-Windows port: carry a change over.
 
 {
   read -r MODEL
